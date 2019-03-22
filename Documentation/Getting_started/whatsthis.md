@@ -5,7 +5,7 @@
 }
 -->
 # Test link to readme.md 
-[a relative link](readme.md)
+[a relative link](../readme.md)
 
 # Behind the CoreKraft (Server side) model #
 
