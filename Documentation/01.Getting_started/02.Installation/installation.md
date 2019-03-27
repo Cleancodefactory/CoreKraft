@@ -1,7 +1,5 @@
 # Installation guide
 
-# Link to the readme
+Needs to be documented
 
-[one level up](../whatsthis.md) 
-
-[two levels up](../../../README.md) 
+[Back to README.md](../../../README.md) 

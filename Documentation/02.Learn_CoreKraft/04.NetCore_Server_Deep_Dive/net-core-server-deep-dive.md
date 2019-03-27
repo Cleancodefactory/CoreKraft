@@ -13,7 +13,7 @@
 The registration is done through Dependency Injection. The registered implementation and its life cycle will be cached as Type on multiple levels and therefore the creation of instances is fast.
 - ****Availability****:
 In the CoreKraft execution pipeline the developers have access to the registered plugin instances. It is quite handy to use the DI container as factory and not think about lifetimes.
-- ***Access to parameters***:
+- ***Access to parameters***
 All plugins have access to the parameters through the interfaces they implement. The parameters are separated clearly in different groups and collected from different sources.
 - ***Access to parent data***:
 The Nodes-Data-Plugins have access to the data from their parent node. This is helpful especially in the custom plugins if they want to manipulate it. Another case is when the child node uses a value (e.g. database key) from the parent to limit the selection. Good example of this is when you want to return properly grouped car manufacturers with all their models (e.g. BMW -> Model 3, 5, 7...).

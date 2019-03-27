@@ -42,7 +42,7 @@ Any NodesDefinition must have a base (Root) node, and you can define the structu
 						},
 						"lookups": [],
 						"views": [],
-						children: [
+						"children": [
 							{
 								"nodekey": "childnode1",
 								...

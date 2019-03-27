@@ -37,7 +37,7 @@ If  you need more fine grained profiling info, you can add the above statements 
 ## How to visualize the profiler info
 You can see the profiler both during debug, or in production.
 The explanation will be for production, but you can use the profiler the same way, it's only a matter of Urls.
-1. Launch the application (Board in our case)
+1. Launch the application
 2. Launch a second browser window after you have been successfully authorized. Copy the Url from the first window into the second one
 ![Profile Production 1](../../../Images/ProfileProduction_1.png)
 3. Replace (e.g. in our example https://server2.cleancode.factory/corekraftinternal/home/board home/board) with  
