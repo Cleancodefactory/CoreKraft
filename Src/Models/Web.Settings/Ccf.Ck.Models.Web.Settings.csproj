@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package contains Web Settings model for CoreKraft.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Utilities\DependencyContainer\Ccf.Ck.Utilities.DependencyContainer.csproj" />
+  </ItemGroup>
+
+</Project>

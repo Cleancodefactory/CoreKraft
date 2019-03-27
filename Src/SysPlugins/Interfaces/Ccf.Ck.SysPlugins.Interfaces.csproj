@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package provides System Plugin with all base interfaces in CoreKraft.</PackageDescription>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Models\NodeRequest\Ccf.Ck.Models.NodeRequest.csproj" />
+    <ProjectReference Include="..\..\Models\NodeSet\Ccf.Ck.Models.NodeSet.csproj" />
+    <ProjectReference Include="..\..\Models\Resolvers\Ccf.Ck.Models.Resolvers.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).dll&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;&#xD;&#xA;if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).pdb&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;" />
+  </Target>
+
+</Project>

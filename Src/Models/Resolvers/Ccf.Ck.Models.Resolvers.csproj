@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Ccf.Ck.Models.Resolvers</AssemblyName>
+    <RootNamespace>Ccf.Ck.Models.Resolvers</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package contains the Resolvers model classes for CoreKraft.</PackageDescription>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
+  </ItemGroup>
+
+</Project>

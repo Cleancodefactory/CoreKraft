@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package provides System Plugin for file transactions in CoreKraft.</PackageDescription>
+  </PropertyGroup>
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).dll&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;&#xD;&#xA;if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).pdb&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;" />
+  </Target>
+
+</Project>

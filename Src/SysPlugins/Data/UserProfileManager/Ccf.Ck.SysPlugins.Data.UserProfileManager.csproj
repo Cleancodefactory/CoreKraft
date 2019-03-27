@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Ccf.Ck.SysPlugins.Data.UserProfileManager</AssemblyName>
+    <RootNamespace>Ccf.Ck.SysPlugins.Data.UserProfileManager</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package provides System Plugin for interaction with authentication server in CoreKraft.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+    <ProjectReference Include="..\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).dll&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;&#xD;&#xA;if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).pdb&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;" />
+  </Target>
+
+</Project>

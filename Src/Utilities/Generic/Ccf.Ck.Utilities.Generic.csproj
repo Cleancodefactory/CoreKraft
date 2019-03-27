@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Ccf.Ck.Utilities.Generic</AssemblyName>
+    <RootNamespace>Ccf.Ck.Utilities.Generic</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package provides CoreKraft specific generic extensions and utilities.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="2.2.0" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.5.0" />
+    <PackageReference Include="System.Security.Permissions" Version="4.5.0" />
+  </ItemGroup>
+
+</Project>

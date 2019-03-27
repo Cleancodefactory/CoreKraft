@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Ccf.Ck.NodePlugins.Base</RootNamespace>
+    <AssemblyName>Ccf.Ck.NodePlugins.Base</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package contains base dlls for NodePlugins development.</PackageDescription>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Models\NodeSet\Ccf.Ck.Models.NodeSet.csproj" />
+    <ProjectReference Include="..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).dll&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;&#xD;&#xA;if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).pdb&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;" />
+  </Target>
+  
+</Project>

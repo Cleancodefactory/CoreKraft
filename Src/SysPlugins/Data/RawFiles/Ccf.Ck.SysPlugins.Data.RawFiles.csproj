@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package provides System Plugin for working with file system in CoreKraft.</PackageDescription>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Models\NodeSet\Ccf.Ck.Models.NodeSet.csproj" />
+    <ProjectReference Include="..\..\..\Models\Packet\Ccf.Ck.Models.Packet.csproj" />
+    <ProjectReference Include="..\..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\..\Utilities\MemoryCache\Ccf.Ck.Utilities.MemoryCache.csproj" />
+    <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+    <ProjectReference Include="..\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
+    <ProjectReference Include="..\FileTransaction\Ccf.Ck.SysPlugins.Data.FileTransaction.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).dll&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;&#xD;&#xA;if $(ConfigurationName) == Debug xcopy /Y /E &quot;$(ProjectDir)$(OutDir)$(ProjectName).pdb&quot; &quot;$(SolutionDir)Src\Launcher\Modules\_PluginsReferences\*&quot;" />
+  </Target>
+
+</Project>

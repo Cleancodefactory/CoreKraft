@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package contains CoreKraft KraftModule, KraftModuleCollection models and their extension methods.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.3" />
+    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Utilities\DependencyContainer\Ccf.Ck.Utilities.DependencyContainer.csproj" />
+    <ProjectReference Include="..\..\Utilities\Generic\Ccf.Ck.Utilities.Generic.csproj" />
+    <ProjectReference Include="..\..\Utilities\Profiling\Ccf.Ck.Utilities.Profiling.csproj" />
+    <ProjectReference Include="..\..\Utilities\Web.BundleTransformations\Ccf.Ck.Utilities.Web.BundleTransformations.csproj" />
+    <ProjectReference Include="..\Settings\Ccf.Ck.Models.Settings.csproj" />
+  </ItemGroup>
+
+</Project>

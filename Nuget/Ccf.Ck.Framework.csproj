@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- Nuget specific tags -->
+  <PropertyGroup>
+    <!-- Description and Release notes -->
+    <Description>Contains the execution middleware of the CoreKraft framework</Description>
+    <PackageProjectUrl>https://github.com/cleancodefactory/corekraft</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/cleancodefactory/corekraft</RepositoryUrl>
+    <PackageTags>CoreKraft micro-services architecture pipeline for request execution</PackageTags>
+    <PackageReleaseNotes>
+      Contains the execution middleware of the CoreKraft framework
+      - Version 1.0.0: Initial publish with profound execution capabilities (read and write data from/into different sources: DB, Files, another Http-service)
+    </PackageReleaseNotes>
+    <!-- Description and Release notes -->
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Src\Middleware\Ccf.Ck.Web.Middleware.csproj" />
+  </ItemGroup>
+</Project>
