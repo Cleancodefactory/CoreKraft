@@ -4,10 +4,6 @@
 	"keywords": [ "introduction", "overview", "history", "nature", "BindKraft", "Server-side", "micro-service", "net core", "plug-ins", "data", "sql", "json" ]
 }
 -->
-# Test link to readme.md 
-[a relative link](../../README.md)
-[a relative link](Installation/installation.md)
-
 # Behind the CoreKraft (Server side) model #
 
 The CoreKraft model is constructing its output (Response) to suit the client side framework needs. To achieve this we keep the structure defined in a 'NodesDefinition'.   
