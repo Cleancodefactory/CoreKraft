@@ -66,11 +66,4 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Modules\FirstExample\Data\" />
-    <Folder Include="Modules\FirstExample\NodeSets\Main\sql\" />
-    <Folder Include="Modules\FirstExample\Templates\" />
-    <Folder Include="wwwroot\css\" />
-    <Folder Include="wwwroot\js\" />
-  </ItemGroup>
 </Project>
