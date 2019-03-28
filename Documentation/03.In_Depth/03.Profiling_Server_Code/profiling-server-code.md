@@ -39,8 +39,7 @@ You can see the profiler both during debug, or in production.
 The explanation will be for production, but you can use the profiler the same way, it's only a matter of Urls.
 1. Launch the application
 2. Launch a second browser window after you have been successfully authorized. Copy the Url from the first window into the second one
-![Profile Production 1](../../../Images/ProfileProduction_1.png)
-3. Replace (e.g. in our example https://server2.cleancode.factory/corekraftinternal/home/board home/board) with  
+3. Replace (e.g. in our example https://localhost:5001/home/board home/board) with  
 
   a) "profiler/results-index"
     You will see the last 100 requests cached on the server. By clicking on the links you will drill down into more details.
@@ -55,5 +54,7 @@ The explanation will be for production, but you can use the profiler the same wa
   c) "profiler/results"
     This Url will return only the latest request's details.
     ![Profile Production Results](../../../Images/ProfileProduction_Results.png)
+
+[Back to README](../../../README.md)
 
 

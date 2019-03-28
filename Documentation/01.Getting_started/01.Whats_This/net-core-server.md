@@ -34,3 +34,5 @@ Strongly typed models is an easy to grasp, easy to use concept. They are not bad
 
 ### Native support for plug-ins ###
 CoreKraft has native support for plug-ins and custom service implementations. Both are injected into a dependency injection container and are accessible in the custom code. Even the core system is using the same mechanism.
+
+[Back to README](../../../README.md)

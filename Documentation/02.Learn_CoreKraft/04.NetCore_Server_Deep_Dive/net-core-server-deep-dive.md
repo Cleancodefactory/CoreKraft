@@ -39,3 +39,5 @@ The idea is that you have relatively small work entities which are configured an
 
 ### Custom-Plugins ###
 These plugins are supported and implemented by the developers using CoreKraft. They have to implement the ICustomPlugin interface. They are declared in the DataNodes-Structure (e.g. the JSON description of the nodes) and have access to the request parameters, server parameters, and very importantly to the retrieved data of their parent node. This is pretty handy if you have to check the data, or make some manipulations on it.
+
+[Back to README](../../../README.md)

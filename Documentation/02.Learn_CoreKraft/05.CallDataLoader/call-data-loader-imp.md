@@ -68,3 +68,5 @@ Create a new node in a definition.json. For example:
     * parameter object where its name property is equal to the entered NodesetKey value in the __Configuration.json__ and its Expression property is equal to the a nodeset name where the node is located.
     * parameter object where its name property is equal to the entered NodepathKey value in the __Configuration.json__ and its Expression property is equal to the nodepath name of the node to execute.
  * the query value can contain additional parameter in the format `key1=value1&key2=value2...`
+
+ [Back to README](../../../README.md)

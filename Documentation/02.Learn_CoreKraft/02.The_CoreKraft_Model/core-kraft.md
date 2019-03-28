@@ -91,3 +91,5 @@ The user can create their own plugins of any kind, and register them in the 'app
 		}
 	]
 ```
+
+[Back to README](../../../README.md)
