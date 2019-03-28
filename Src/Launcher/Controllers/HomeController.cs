@@ -1,3 +1,4 @@
+using Ccf.Ck.Libs.Web.Bundling;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,5 @@ namespace Ccf.Ck.Launcher.Controllers
         {
             return View();
         }
-
     }
 }

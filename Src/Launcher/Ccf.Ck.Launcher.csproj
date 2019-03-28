@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.3" />
-    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.5" />
+    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.6" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.0" />
