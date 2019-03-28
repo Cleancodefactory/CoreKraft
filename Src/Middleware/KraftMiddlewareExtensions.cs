@@ -393,7 +393,7 @@ namespace Ccf.Ck.Web.Middleware
                 }
                 #endregion Authorization
                 services.UseBundling();
-                services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(_KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder, "BindKraft", "Data")));
+                //services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(_KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder, "BindKraft", "Data")));
 
                 //Signals
                 services.AddHostedService<SignalService>();

@@ -107,6 +107,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NodePlugins", "NodePlugins"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.NodePlugins.Base", "Src\NodePlugins\Base\Ccf.Ck.NodePlugins.Base.csproj", "{81AF30A7-9931-4DB7-B258-A4DD398AAEA6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.Launcher", "Src\Launcher\Ccf.Ck.Launcher.csproj", "{5D32DE42-BE1E-4886-A8A9-321DFEDE87B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -281,6 +283,10 @@ Global
 		{81AF30A7-9931-4DB7-B258-A4DD398AAEA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81AF30A7-9931-4DB7-B258-A4DD398AAEA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81AF30A7-9931-4DB7-B258-A4DD398AAEA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D32DE42-BE1E-4886-A8A9-321DFEDE87B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D32DE42-BE1E-4886-A8A9-321DFEDE87B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D32DE42-BE1E-4886-A8A9-321DFEDE87B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D32DE42-BE1E-4886-A8A9-321DFEDE87B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -331,6 +337,7 @@ Global
 		{3315A528-45E4-4929-9399-6068D2DCB895} = {8216ED90-BBBC-415B-9691-29B63FA0E94D}
 		{D51326FF-451F-44D5-ACAE-5A2E0A6999D1} = {8216ED90-BBBC-415B-9691-29B63FA0E94D}
 		{81AF30A7-9931-4DB7-B258-A4DD398AAEA6} = {2C8CB260-EE78-46AA-AD51-713F655624B3}
+		{5D32DE42-BE1E-4886-A8A9-321DFEDE87B0} = {BB3FCDCE-5D97-4816-BBDB-C26097DBC874}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BFC34E53-EAB6-4384-87CE-222E5781116F}

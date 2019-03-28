@@ -1,0 +1,17 @@
+﻿{
+  "name": "FirstExample",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "Clean Code Factory",
+  "license": "MIT License",
+  "dependencies": {
+  },
+  "signals": [],
+  "release": [
+    {
+      "version": "1.0.0",
+      "info": "Initial creation"
+    }
+  ]
+}

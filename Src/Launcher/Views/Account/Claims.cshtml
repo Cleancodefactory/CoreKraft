@@ -1,0 +1,7 @@
+@foreach (var claim in User.Claims)
+{
+    <div>
+        <span>@claim.Type:</span>
+        <span>@claim.Value</span>
+    </div>
+}

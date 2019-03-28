@@ -1,0 +1,16 @@
+@using Ccf.Ck.Libs.Web.Bundling
+@using System.Collections;
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section styles {
+    @BundleCollection.Instance.Profile("FirstExample").Styles.Render()
+}
+
+Loading...
+
+@section scripts {
+    @BundleCollection.Instance.Profile("firstexample")?.Scripts.Render()
+}

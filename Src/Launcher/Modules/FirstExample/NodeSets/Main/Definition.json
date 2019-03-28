@@ -1,0 +1,27 @@
+﻿{
+  "NodeSet": {
+    "requireauthentication": false,
+    "datapluginname": "JsonData",
+    "parameters": [
+      {
+        "name": "key",
+        "type": "string"
+      }
+    ],
+    "root": {
+      "nodekey": "jsonkey",
+      "datapluginname": "JsonData",
+      "lookups": [],
+      "views": [
+        {
+          "bindingkey": "normal",
+          "systempluginname": "HtmlViewLoader",
+          "executionorder": 0,
+          "settings": {
+            "path": "first.html"
+          }
+        }
+      ]
+    }
+  }
+}
