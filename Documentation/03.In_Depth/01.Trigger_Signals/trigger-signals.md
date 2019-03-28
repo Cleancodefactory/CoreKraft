@@ -81,3 +81,5 @@ Calling the signal with key `updatetenant` over all currently included modules:
 Explanation:
 The system will define a hard-coded section `signal`. The further segments are reserved for the module name and signal key.
 
+[Back to README](../../../README.md)
+
