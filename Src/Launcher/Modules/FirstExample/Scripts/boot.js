@@ -1,0 +1,1 @@
+﻿//System.BootFS().writeMasterBoot("startshell createworkspace default initculture 'en' initframework launchapp StudentApp");

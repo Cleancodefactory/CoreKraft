@@ -1,16 +1,23 @@
 @using Ccf.Ck.Libs.Web.Bundling
-@using System.Collections;
+@using Ccf.Ck.Models.KraftModule
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "First Example";
 }
 
 @section styles {
     @BundleCollection.Instance.Profile("FirstExample").Styles.Render()
 }
 
-Loading...
+<script type="text/javascript">
+            //global base path
+            g_ApplicationBasePath = "@Url.Content("~/")";
+</script>
+<div id="bindkraft">
+    <div id="container" class="themed basic">
+    </div>
+</div>
 
 @section scripts {
-    @BundleCollection.Instance.Profile("firstexample").Scripts.Render()
+    @BundleCollection.Instance.Profile("FirstExample").Scripts.Render()
 }

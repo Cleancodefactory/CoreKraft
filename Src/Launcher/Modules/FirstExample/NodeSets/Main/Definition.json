@@ -1,7 +1,7 @@
 ﻿{
   "NodeSet": {
     "requireauthentication": false,
-    "datapluginname": "JsonData",
+    "datapluginname": "SqLiteData",
     "parameters": [
       {
         "name": "key",
@@ -9,16 +9,47 @@
       }
     ],
     "root": {
-      "nodekey": "jsonkey",
-      "datapluginname": "JsonData",
-      "lookups": [],
-      "views": [
+      "children": [
         {
-          "bindingkey": "normal",
-          "systempluginname": "HtmlViewLoader",
+          "nodekey": "student",
+          //"datapluginname": "JsonData",
+          "lookups": [],
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "first.html"
+              }
+            }
+          ],
+          "read": {
+            "select": {
+              "query": "SELECT * FROM students"
+            }
+          }
+        },
+        {
+          "nodekey": "students",
+          //"datapluginname": "SqLiteData",
           "executionorder": 0,
-          "settings": {
-            "path": "first.html"
+          "isList": 1,
+          "read": {
+            "select": {
+              "file": "sql/select/selectStudents.sql"
+            }
+          },
+          "write": {
+            "insert": {
+              "query": "sql/insert/insertStudent.sql"
+            },
+            "update": {
+              "query": "sql/update/updateStudents.sql"
+            },
+            "delete": {
+              "query": "sql/delete/deleteStudents.sql"
+            }
           }
         }
       ]
