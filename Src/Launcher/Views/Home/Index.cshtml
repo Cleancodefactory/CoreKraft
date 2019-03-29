@@ -6,7 +6,7 @@
 }
 
 @section styles {
-    @BundleCollection.Instance.Profile("FirstExample").Styles.Render()
+    @BundleCollection.Instance.Profile("FirstExample").KraftStyles().Render()
 }
 
 <script type="text/javascript">
@@ -19,5 +19,5 @@
 </div>
 
 @section scripts {
-    @BundleCollection.Instance.Profile("FirstExample").Scripts.Render()
+    @BundleCollection.Instance.Profile("FirstExample").KraftScripts().Render()
 }
