@@ -15,7 +15,7 @@ First of all this will collide with the running enumeration, second even this is
 ### Write mode, UpdateResults - seems pointless and is probably caused by already obsoleted stuff.
 The assumptions look strange, I wonder if this has any purpose anymore.
 
-### Synchronize scoped context - needs default implementation
+### Synchronize scoped context - needs defaiult implementation
 Seems mostly copy and paste, but we need to ensure provider= works reliably with Core and create alternativ way for connection creation if not.
 
 ## Ideas with no current implementation

@@ -371,14 +371,14 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
                     throw new Exception(string.Format(EXCEPTIONMESSAGE, UPLOADFOLDER));
                 }
 
-                UploadFolder = uploadFolder.Replace(MODULEROOT, kraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder).Replace(MODULE, execContext.ProcessingContext.InputModel.Module);
+                UploadFolder = uploadFolder.Replace(MODULEROOT, kraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(execContext.ProcessingContext.InputModel.Module)).Replace(MODULE, execContext.ProcessingContext.InputModel.Module);
 
                 if (!execContext.DataLoaderContextScoped.CustomSettings.TryGetValue(DEFAULTFOLDER, out string defaultFolder))
                 {
                     throw new Exception(string.Format(EXCEPTIONMESSAGE, DEFAULTFOLDER));
                 }
 
-                DefaultFolder = defaultFolder.Replace(MODULEROOT, kraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder).Replace(MODULE, execContext.ProcessingContext.InputModel.Module); ;
+                DefaultFolder = defaultFolder.Replace(MODULEROOT, kraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(execContext.ProcessingContext.InputModel.Module)).Replace(MODULE, execContext.ProcessingContext.InputModel.Module); ;
 
                 if (!execContext.DataLoaderContextScoped.CustomSettings.TryGetValue(FILENOTFOUNDICON, out string fileNotFoundIcon))
                 {

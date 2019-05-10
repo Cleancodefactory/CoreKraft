@@ -10,22 +10,20 @@ namespace Ccf.Ck.Web.Middleware
         internal static void RegisterStaticFiles(IApplicationBuilder builder, string modulePath, string startNode, string resourceSegmentName, string type)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(modulePath);
-            foreach (DirectoryInfo dirInfo in directoryInfo.GetDirectories())
+            DirectoryInfo dirInfo = new DirectoryInfo(Path.Combine(modulePath, type));
+            if (dirInfo.Exists)
             {
-                if (Directory.Exists(Path.Combine(dirInfo.FullName, type)))
+                builder.UseStaticFiles(new StaticFileOptions
                 {
-                    builder.UseStaticFiles(new StaticFileOptions
+                    ServeUnknownFileTypes = false,
+                    DefaultContentType = "image/png",
+                    FileProvider = new PhysicalFileProvider(dirInfo.FullName),
+                    RequestPath = new PathString($"/{startNode}/{resourceSegmentName}/{directoryInfo.Name}/{type}"),
+                    OnPrepareResponse = ctx =>
                     {
-                        ServeUnknownFileTypes = false,
-                        DefaultContentType = "image/png",
-                        FileProvider = new PhysicalFileProvider(Path.Combine(dirInfo.FullName, type)),
-                        RequestPath = new PathString($"/{startNode}/{resourceSegmentName}/{dirInfo.Name}/{type}"),
-                        OnPrepareResponse = ctx =>
-                        {
-                            ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
-                        }
-                    });
-                }
+                        ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
+                    }
+                });
             }
         }
     }

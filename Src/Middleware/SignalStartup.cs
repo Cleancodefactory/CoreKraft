@@ -12,7 +12,7 @@ namespace Ccf.Ck.Web.Middleware
         }
         internal void ExecuteSignalsOnStartup()
         {
-            foreach (string signal in _KraftGlobalConfigurationSettings.GeneralSettings.SignalSettings.OnSystemStartup)
+            foreach (string signal in _KraftGlobalConfigurationSettings.GeneralSettings?.SignalSettings?.OnSystemStartup)
             {
                 ExecuteSignals("null", signal);
             }

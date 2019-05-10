@@ -4,10 +4,12 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
-
   <ItemGroup>
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.3" />
     <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.6" />
+    <PackageReference Include="Ccf.Ck.Module.BindKraft" Version="0.0.7" />
+    <PackageReference Include="Ccf.Ck.Module.BindKraftStyles" Version="0.0.3" />
+    <PackageReference Include="Ccf.Ck.Module.PlatformUtility" Version="1.0.2" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.0" />
@@ -52,26 +54,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Modules\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Folder Include="Modules\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\..\..\CoreKraft\Src\Launcher\Modules\BindKraft\**\*.*">
-      <Link>Modules\BindKraft\%(RecursiveDir)%(FileName)%(Extension)</Link>
+    <None Update="Modules\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Update="Modules\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <None Include="Modules\FirstExample\Configuration.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Modules\FirstExample\Dependency.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>

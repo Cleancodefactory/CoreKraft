@@ -7,29 +7,22 @@ using System.Linq;
 using Ccf.Ck.Utilities.MemoryCache;
 using Ccf.Ck.Models.NodeSet;
 using NodeSetModel = Ccf.Ck.Models.NodeSet.NodeSet;
+using Ccf.Ck.Models.Settings;
 
 namespace Ccf.Ck.Utilities.NodeSetService
 {
     public class NodeSetService : INodeSetService
     {
         #region Private Fields
-        private string _TreeNodesBaseDirectory;
+        private KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
         private ICachingService _CachingService;
         #endregion
 
         #region Constructors
-        public NodeSetService(string treeNodesBaseDirectory, ICachingService cachingService)
+        public NodeSetService(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, ICachingService cachingService)
         {
-            if (string.IsNullOrEmpty(treeNodesBaseDirectory))
-            {
-                throw new NullReferenceException(nameof(treeNodesBaseDirectory));
-            }
-            if (cachingService == null)
-            {
-                throw new NullReferenceException(nameof(cachingService));
-            }
-            _TreeNodesBaseDirectory = treeNodesBaseDirectory;
-            _CachingService = cachingService;
+            _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
+            _CachingService = cachingService ?? throw new NullReferenceException(nameof(cachingService));
         }
         #endregion
 
@@ -47,7 +40,7 @@ namespace Ccf.Ck.Utilities.NodeSetService
             if (nodeSet == null)
             {
                 nodeSet = new NodeSetModel();
-                string nodeSetDir = Path.Combine(_TreeNodesBaseDirectory, module, NODESET_DIRNAME, treeNodesName);
+                string nodeSetDir = Path.Combine(_KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(module), module, NODESET_DIRNAME, treeNodesName);
                 string nodeSetFile = Path.Combine(nodeSetDir, "Definition.json");
 
                 if (!File.Exists(nodeSetFile))

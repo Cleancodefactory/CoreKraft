@@ -9,7 +9,7 @@ StudentApp.Implement(IPlatformUtilityImpl, "student");
 StudentApp.prototype.provideAsServices = ["StudentApp"];
 StudentApp.prototype.get_caption = function () {
     return "StudentApp";
-}
+};
 
 StudentApp.registerShellCommand("StudentApp", "callook", function (args) {
     Shell.launchApp("StudentApp");
@@ -29,9 +29,10 @@ StudentApp.prototype.appinitialize = function (callback, args) {
 
     this.mainWindow = singleWnd;
     return undefined;
-}
+};
+
 StudentApp.prototype.run = function () { };
 StudentApp.prototype.appshutdown = function () {
     jbTrace.log("The ModularExampleApp is shutting down");
     AppBase.prototype.appshutdown.apply(this, arguments);
-}
+};

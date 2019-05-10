@@ -25,9 +25,9 @@ namespace Ccf.Ck.Models.KraftModule
             _Logger = logger;
         }
 
-        public virtual KraftModule RegisterModule(string directoryName, ICachingService cachingService)
+        public virtual KraftModule RegisterModule(string directoryName, string moduleName, ICachingService cachingService)
         {
-            KraftModule module = new KraftModule(directoryName, _DependencyInjectionContainer, this, cachingService, KraftGlobalConfigurationSettings, _Logger);
+            KraftModule module = new KraftModule(directoryName, moduleName, _DependencyInjectionContainer, this, cachingService, KraftGlobalConfigurationSettings, _Logger);
             if (module != null && !_KraftModulesCollection.ContainsKey(module.Key))
             {
                 _KraftModulesCollection.Add(module.Key, module);

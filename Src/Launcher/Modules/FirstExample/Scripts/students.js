@@ -13,28 +13,28 @@ Student.prototype.getStudents = function (e, dc, b) {
             this.set_students(result.data);
         }
     );
-}
+};
 
 Student.prototype.insertStudent = function (e, dc, b) {
     this.ajaxPostXml(
-        this.moduleUrl("write", "main", "students"), {state: 1}, function (result) {
-           
+        this.moduleUrl("write", "main", "students"), { state: 1 }, function (result) {
+
         }
     );
-}
+};
 
 Student.prototype.updateStudent = function (e, dc, b) {
     this.ajaxPostXml(
-        this.moduleUrl("write", "main", "students"), {state: 2}, function (result) {
-            
+        this.moduleUrl("write", "main", "students"), { state: 2 }, function (result) {
+
         }
     );
-}
+};
 
 Student.prototype.deleteStudent = function (e, dc, b) {
     this.ajaxPostXml(
-        this.moduleUrl("write", "main", "students"), {state: 3}, function (result) {
-           
+        this.moduleUrl("write", "main", "students"), { state: 3 }, function (result) {
+
         }
     );
-}
+};

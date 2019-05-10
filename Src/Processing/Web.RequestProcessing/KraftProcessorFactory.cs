@@ -11,7 +11,7 @@ namespace Ccf.Ck.Processing.Web.Request
 {
     internal class KraftProcessorFactory : AbstractProcessorFactory
     {
-        private const string CONTENTTYPEFIRSTPART = @"(?<firstpart>.*);";
+        private const string CONTENTTYPEFIRSTPART = @"(?<firstpart>.*?(?=;|$|\s))";
         private static Regex _ContentTypeFirstPartRegex = new Regex(CONTENTTYPEFIRSTPART, RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         internal override ProcessorBase CreateProcessor(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, INodeSetService nodesSetService)

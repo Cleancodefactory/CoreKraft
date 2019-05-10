@@ -1,14 +1,20 @@
-﻿namespace Ccf.Ck.Models.Settings
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace Ccf.Ck.Models.Settings
 {
     public class GeneralSettings
     {
+        private Dictionary<string, string> _ModuleKey2Path;
+
         public GeneralSettings()
         {
             AuthorizationSection = new AuthorizationSection();
             SignalRSettings = new SignalRSettings();
         }
         public bool EnableOptimization { get; set; }
-        public string ModulesRootFolder { get; set; }
+        public List<string> ModulesRootFolders { get; set; }
         public string KraftUrlSegment { get; set; }
         public string KraftUrlCssJsSegment { get; set; }
         public string KraftUrlResourceSegment { get; set; }
@@ -27,7 +33,30 @@
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {
-            ModulesRootFolder = ModulesRootFolder.Replace("@wwwroot@", wwwRootPath).Replace("@contentroot@", contentRootPath);
+            string path;
+            for (int i = 0; i < ModulesRootFolders.Count; i++)
+            {
+                path = ModulesRootFolders[i].Replace("@wwwroot@", wwwRootPath).Replace("@contentroot@", contentRootPath);
+                DirectoryInfo directoryInfo = new DirectoryInfo(path);
+                if (!directoryInfo.Exists)
+                {
+                    throw new Exception($"Configured path: {path} is not valid and doesn't exist!");
+                }
+                ModulesRootFolders[i] = directoryInfo.FullName;
+            }
+        }
+
+        public string ModulesRootFolder(string moduleKey)
+        {
+            return _ModuleKey2Path[moduleKey.ToLower()];
+        }
+
+        public Dictionary<string, string> ModuleKey2Path
+        {
+            set
+            {
+                _ModuleKey2Path = value;
+            }
         }
     }
 }

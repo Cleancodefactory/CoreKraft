@@ -28,13 +28,15 @@ namespace Ccf.Ck.Models.KraftModule
         private readonly DependencyInjectionContainer _DependencyInjectionContainer;
         private readonly KraftModuleCollection _ModuleCollection;
         private readonly ILogger _Logger;
+        private readonly string _ModulePath;
 
         public ScriptKraftBundle ScriptKraftBundle { get; private set; }
         public TemplateKraftBundle TemplateKraftBundle { get; private set; }
         public StyleKraftBundle StyleKraftBundle { get; private set; }
         public KraftModuleConfigurationSettings ModuleSettings { get; private set; }
         public KraftModuleRootConf KraftModuleRootConf { get; private set; }
-        public string Key {
+        public string Key
+        {
             get
             {
                 return _ModuleCollection?.ConstructValidKey(KraftModuleRootConf?.Name);
@@ -43,9 +45,9 @@ namespace Ccf.Ck.Models.KraftModule
         public bool IsInitialized { get; private set; }
         public string DirectoryName { get; private set; }
         public int DependencyOrderIndex { get; internal set; }
-        public IDictionary<string, IDependable<KraftModule>> Dependencies { get; internal set; }        
+        public IDictionary<string, IDependable<KraftModule>> Dependencies { get; internal set; }
 
-        internal KraftModule(string directoryName, DependencyInjectionContainer dependencyInjectionContainer, KraftModuleCollection moduleCollection, ICachingService cachingService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, ILogger logger)
+        internal KraftModule(string directoryName, string moduleName, DependencyInjectionContainer dependencyInjectionContainer, KraftModuleCollection moduleCollection, ICachingService cachingService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, ILogger logger)
         {
             _DependencyInjectionContainer = dependencyInjectionContainer;
             _ModuleCollection = moduleCollection;
@@ -60,31 +62,37 @@ namespace Ccf.Ck.Models.KraftModule
             ScriptKraftBundle = null;
             TemplateKraftBundle = null;
 
-            Construct(cachingService, kraftGlobalConfigurationSettings);
-        }
-
-        private void Construct(ICachingService cachingService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
-        {
-            string modulePath = Path.Combine(kraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder, DirectoryName);
-            if (!Directory.Exists(modulePath))
+            _ModulePath = Path.Combine(DirectoryName, moduleName);
+            if (!Directory.Exists(_ModulePath))
             {
-                throw new DirectoryNotFoundException($"The {modulePath} path was not found!");
+                throw new DirectoryNotFoundException($"The {_ModulePath} path was not found!");
             }
 
             //read configs and dependencies
-            IsInitialized = ReadModuleMetaConfiguration(Path.Combine(modulePath, DEPENDENCY_FILE_NAME), modulePath);
+            IsInitialized = ReadModuleMetaConfiguration(Path.Combine(_ModulePath, DEPENDENCY_FILE_NAME), _ModulePath);
             if (IsInitialized)
             {
-                InitConfiguredPlugins(Key, Path.Combine(modulePath, CONFIGURATION_FILE_NAME), cachingService);
+                InitConfiguredPlugins(Key, Path.Combine(_ModulePath, CONFIGURATION_FILE_NAME), cachingService);
+            }
+        }
 
-                //process CSS folder
-                StyleKraftBundle = ConstructStyleBundle(kraftGlobalConfigurationSettings, Path.Combine(modulePath, CSS_FOLDER_NAME), RESOURCEDEPENDENCY_FILE_NAME);
+        public void ConstructResources(ICachingService cachingService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string startDepFile, bool isScript)
+        {
+            if (IsInitialized)//This is not a module with proper configuration files
+            {
+                if (isScript)
+                {
+                    //process Scripts folder
+                    ScriptKraftBundle = ConstructScriptsBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, JS_FOLDER_NAME), startDepFile);
 
-                //process Scripts folder
-                ScriptKraftBundle = ConstructScriptsBundle(kraftGlobalConfigurationSettings, Path.Combine(modulePath, JS_FOLDER_NAME), RESOURCEDEPENDENCY_FILE_NAME);
-
-                //process Template folder               
-                TemplateKraftBundle = ConstructTmplResBundle(kraftGlobalConfigurationSettings, Path.Combine(modulePath, TEMPLATES_FOLDER_NAME));
+                    //process Template folder               
+                    TemplateKraftBundle = ConstructTmplResBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, TEMPLATES_FOLDER_NAME));
+                }
+                else
+                {
+                    //process CSS folder
+                    StyleKraftBundle = ConstructStyleBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, CSS_FOLDER_NAME), startDepFile);
+                }
             }
         }
 
@@ -104,7 +112,7 @@ namespace Ccf.Ck.Models.KraftModule
                         }
                         KraftModuleRootConf.Dependencies = depVersion;
                         return true;
-                    }                    
+                    }
                 }
                 else
                 {
@@ -165,7 +173,7 @@ namespace Ccf.Ck.Models.KraftModule
                 if (resBundleProfile != null)
                 {
                     resBundleProfile.StartDirPath = resFolderPath;
-                    resBundleProfile.ProfileFiles = new List<string> { resProfileFileName };
+                    resBundleProfile.ProfileFiles = new List<string> { RESOURCEDEPENDENCY_FILE_NAME, resProfileFileName };
                     return resBundle;
                 }
             }
@@ -185,7 +193,7 @@ namespace Ccf.Ck.Models.KraftModule
                 if (resBundleProfile != null)
                 {
                     resBundleProfile.StartDirPath = resFolderPath;
-                    resBundleProfile.ProfileFiles = new List<string> { resProfileFileName };
+                    resBundleProfile.ProfileFiles = new List<string> { RESOURCEDEPENDENCY_FILE_NAME, resProfileFileName };
                     return resBundle;
                 }
             }

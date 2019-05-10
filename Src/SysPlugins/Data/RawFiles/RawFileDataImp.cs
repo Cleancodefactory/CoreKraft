@@ -55,7 +55,7 @@ namespace Ccf.Ck.SysPlugins.Data.RawFiles
             if (kraftSettings != default(KraftGlobalConfigurationSettings) || modulePath.Length == 0)
             {
                 string path = Path.Combine(
-                    kraftSettings.GeneralSettings.ModulesRootFolder,
+                    kraftSettings.GeneralSettings.ModulesRootFolder(execContext.ProcessingContext.InputModel.Module),
                     execContext.ProcessingContext.InputModel.Module,
                     modulePath);
 
@@ -129,7 +129,7 @@ namespace Ccf.Ck.SysPlugins.Data.RawFiles
         {
             Node node = (Node)execContext.CurrentNode;
             string directoryPath = Path.Combine(
-            execContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder,
+            execContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(execContext.ProcessingContext.InputModel.Module),
             execContext.ProcessingContext.InputModel.Module,
             "Public");
 

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Models\NodeSet\Ccf.Ck.Models.NodeSet.csproj" />
+    <ProjectReference Include="..\..\Models\Settings\Ccf.Ck.Models.Settings.csproj" />
     <ProjectReference Include="..\MemoryCache\Ccf.Ck.Utilities.MemoryCache.csproj" />
   </ItemGroup>
 
