@@ -66,6 +66,8 @@ namespace Ccf.Ck.Web.Middleware
                 DiagnosticListener diagnosticListener = app.ApplicationServices.GetService<DiagnosticListener>();
                 //First statement to register Error handling !!!Keep at the top!!!
                 app.UseMiddleware<KraftExceptionHandlerMiddleware>(loggerFactory, new ExceptionHandlerOptions(), diagnosticListener);
+                AppDomain.CurrentDomain.UnhandledException += AppDomain_OnUnhandledException;
+                AppDomain.CurrentDomain.AssemblyResolve += AppDomain_OnAssemblyResolve;
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToWww)
                 {
                     RewriteOptions rewrite = new RewriteOptions();
@@ -108,9 +110,6 @@ namespace Ccf.Ck.Web.Middleware
                     IApplicationLifetime applicationLifetime = app.ApplicationServices.GetRequiredService<IApplicationLifetime>();
                     lock (_SyncRoot)
                     {
-                        AppDomain.CurrentDomain.UnhandledException += AppDomain_OnUnhandledException;
-                        AppDomain.CurrentDomain.AssemblyResolve += AppDomain_OnAssemblyResolve;
-
                         foreach (string dir in _KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders)
                         {
                             string[] moduleDirectories = Directory.GetDirectories(dir);
@@ -128,9 +127,10 @@ namespace Ccf.Ck.Web.Middleware
                                     continue;
                                 }
                                 kraftModule = modulesCollection.RegisterModule(dir, moduleDirectory.Name, cachingService);
-                                if (kraftModule == null)
+                                if (kraftModule == null || !kraftModule.IsInitialized)
                                 {
-                                    throw new Exception($"Module failed to create for directory \"{moduleDirectory.Name}\".");
+                                    _Logger.LogInformation($"Module not created for directory \"{moduleDirectory.Name}\" because of missing configuration files.");
+                                    continue;
                                 }
                                 KraftStaticFiles.RegisterStaticFiles(app, moduleDirectory.FullName, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModuleImages);
                                 KraftStaticFiles.RegisterStaticFiles(app, moduleDirectory.FullName, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModulePublic);
@@ -497,10 +497,10 @@ namespace Ccf.Ck.Web.Middleware
                 fileWatcher.IncludeSubdirectories = includeSubdirectories;
                 fileWatcher.Filter = "*.*";
                 // Add event handlers.
-                fileWatcher.Changed += new FileSystemEventHandler(OnChanged);
-                fileWatcher.Created += new FileSystemEventHandler(OnChanged);
-                fileWatcher.Deleted += new FileSystemEventHandler(OnChanged);
-                fileWatcher.Renamed += new RenamedEventHandler(OnRenamed);
+                fileWatcher.Changed += OnChanged;
+                fileWatcher.Created += OnChanged;
+                fileWatcher.Deleted += OnChanged;
+                fileWatcher.Renamed += OnRenamed;
 
                 // Begin watching...
                 fileWatcher.EnableRaisingEvents = true;
@@ -515,10 +515,10 @@ namespace Ccf.Ck.Web.Middleware
                     fileWatcher.Filter = file.Name;
                     fileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
                     // Add event handlers.
-                    fileWatcher.Changed += new FileSystemEventHandler(OnChanged);
-                    fileWatcher.Created += new FileSystemEventHandler(OnChanged);
-                    fileWatcher.Deleted += new FileSystemEventHandler(OnChanged);
-                    fileWatcher.Renamed += new RenamedEventHandler(OnRenamed);
+                    fileWatcher.Changed += OnChanged;
+                    fileWatcher.Created += OnChanged;
+                    fileWatcher.Deleted += OnChanged;
+                    fileWatcher.Renamed += OnRenamed;
                     // Begin watching...
                     fileWatcher.EnableRaisingEvents = true;
                 }
