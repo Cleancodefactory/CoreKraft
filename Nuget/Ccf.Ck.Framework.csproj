@@ -17,6 +17,7 @@
 	  - Version 1.0.1: Extend the Kraft(-Scripts/-Styles) methods with a default moduleDepStartFile. Allows us to bundle from different starting points.
 	  - Version 1.0.2: When bootstrapping a module read resources from Module.dep and additionally moduleDepStartFile if available.
 	  - Version 1.0.3: Introduce the concept that the modules reside in multiple folders.
+    - Version 1.0.4: Improve logging during modules loading.
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
