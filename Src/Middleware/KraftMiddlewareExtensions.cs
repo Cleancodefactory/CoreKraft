@@ -139,7 +139,7 @@ namespace Ccf.Ck.Web.Middleware
                                 //Check if module is initialized Robert
                                 if (kraftModule.IsInitialized && !env.IsDevelopment())
                                 {
-                                    string moduleFullPath = Path.Combine(dir, kraftModule.DirectoryName);
+                                    string moduleFullPath = Path.Combine(dir, kraftModule.Key);
                                     AttachModulesWatcher(moduleFullPath, false, applicationLifetime);
                                     string path2Data = Path.Combine(moduleFullPath, "Data");
                                     if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), true))
@@ -180,6 +180,7 @@ namespace Ccf.Ck.Web.Middleware
                 }
                 catch (Exception boom)
                 {
+                    KraftLogger.LogError(boom);
                     throw new Exception($"CoreKrafts module construction failed! {boom.Message}");
                 }
                 #endregion Initial module registration
