@@ -54,7 +54,10 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 {
                     status.Add(new XElement("messages", new XCData(JsonConvert.SerializeObject(acc_status.StatusResults))));
                 }
-
+                if (!string.IsNullOrEmpty(acc_status.ReturnUrl))
+                {
+                    status.Add(new XElement("returnurl", new XCData(acc_status.ReturnUrl)));
+                }
                 status.Add(new XElement("message", new XCData(acc_status.StatusResults.Aggregate("",(a,sr) => (sr.StatusResultType == EStatusResult.StatusResultError)?a + sr.Message: a ))));
             }
 
@@ -90,6 +93,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 {
                     packet.Add(new XElement("lookups", new XCData(JsonConvert.SerializeObject(processingContext.ReturnModel.LookupData))));
                 }
+                break;//TODO Robert when the client configuration understands multiple contexts
             }
 
             context.Response.WriteAsync(doc.ToString()).Wait();
