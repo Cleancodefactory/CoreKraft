@@ -3,6 +3,7 @@ using Ccf.Ck.Models.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     _KraftGlobalConfigurationSettings = scope.ServiceProvider.GetRequiredService<KraftGlobalConfigurationSettings>();
                     _ServiceProvider = scope.ServiceProvider;
-                    foreach (string signal in _KraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings.Signals)
+                    foreach (string signal in _KraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings.Signals ?? new List<string>())
                     {
                         Stopwatch stopWatch = Stopwatch.StartNew();
                         ExecuteSignals("null", signal);

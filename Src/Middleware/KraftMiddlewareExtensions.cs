@@ -416,6 +416,7 @@ namespace Ccf.Ck.Web.Middleware
             }
             catch (Exception ex)
             {
+                KraftLogger.LogError("Method: ConfigureServices ", ex);
                 KraftExceptionHandlerMiddleware.Exceptions[KraftExceptionHandlerMiddleware.EXCEPTIONSONCONFIGURESERVICES].Add(ex);
             }
 
