@@ -14,12 +14,13 @@
           },
           "NodesDataLoader": [
             {
-              "Name": "JsonData",
-              "ImplementationAsString": "Ccf.Ck.SysPlugins.Data.Json.JsonDataImp, Ccf.Ck.SysPlugins.Data.Json",
+              "Name": "SqLite",
+              "ImplementationAsString": "Ccf.Ck.SysPlugins.Data.Db.ADO.GenericSQLite, Ccf.Ck.SysPlugins.Data.Db.ADO",
               "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.IDataLoaderPlugin, Ccf.Ck.SysPlugins.Interfaces",
               "Default": true,
               "CustomSettings": {
-                "BasePath": "@wwwroot@/TreeNodes/Definitions/@treenodename@/"
+                "ConnectionString": "Data Source=@moduleroot@/Data/studentsDb.sqlite;",
+                "NoCache": false
               }
             }
           ]

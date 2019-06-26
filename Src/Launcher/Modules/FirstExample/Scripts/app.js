@@ -4,7 +4,7 @@
 }
 
 StudentApp.Inherit(AppBaseEx, "StudentApp");
-StudentApp.Implement(IPlatformUtilityImpl, "student");
+StudentApp.Implement(IPlatformUtilityImpl, "FirstExample");
 
 StudentApp.prototype.provideAsServices = ["StudentApp"];
 StudentApp.prototype.get_caption = function () {

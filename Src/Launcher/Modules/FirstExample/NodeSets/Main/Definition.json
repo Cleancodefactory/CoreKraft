@@ -1,7 +1,7 @@
 ﻿{
   "NodeSet": {
     "requireauthentication": false,
-    "datapluginname": "SqLiteData",
+    "datapluginname": "SqLite",
     "parameters": [
       {
         "name": "key",
@@ -12,7 +12,6 @@
       "children": [
         {
           "nodekey": "student",
-          //"datapluginname": "JsonData",
           "lookups": [],
           "views": [
             {
