@@ -2,43 +2,35 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "publish_nodeplugins",
-            "type": "shell",
-            "command": "kraft system -s ${workspaceFolder}/NodePlugins -t ${workspaceFolder}/Launcher/Modules/_PluginsReferences -pt false -exit true -wpdb true",
-            "group": "build",
-            "presentation": {
-                "reveal": "silent",
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "publish_systemplugins",
-
-            "type": "shell",
-            "command": "kraft system -s ${workspaceFolder}/SysPlugins -t ${workspaceFolder}/Launcher/Modules/_PluginsReferences -pt false -exit true -wpdb true",
-            "group": "build",
-            "presentation": {
-                "reveal": "silent",
-                "panel": "shared"
-            },
-            "problemMatcher": []
-        },
-        {
             "label": "build",
             "command": "dotnet",
             "type": "process",
-            "options": {
-                "env": {
-                    "SolutionDir": "${workspaceFolder}"
-                }
-            },
             "args": [
                 "build",
-                "${workspaceFolder}/Launcher/Ccf.Ck.Launcher.csproj"
+                "${workspaceFolder}/Launcher/Ccf.Ck.Launcher.Intro.csproj"
             ],
-            "group": "build",
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/Launcher/Ccf.Ck.Launcher.Intro.csproj"
+            ],
+            "problemMatcher": "$tsc"
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "${workspaceFolder}/Launcher/Ccf.Ck.Launcher.Intro.csproj"
+            ],
+            "problemMatcher": "$tsc"
         }
     ]
 }
