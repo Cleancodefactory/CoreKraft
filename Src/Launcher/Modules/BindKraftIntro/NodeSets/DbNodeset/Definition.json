@@ -1,0 +1,188 @@
+{
+  "NodeSet": {
+    "requireauthentication": true,
+    "root": {
+      "read": {
+        "select": {}
+      },
+      "children": [
+        {
+          "nodekey": "menu",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+
+          ],
+          "read": {
+            "parameters": [
+              {
+                "name": "$default",
+                "Expression": "GetFrom('client,current',name)"
+              }
+            ],
+            "select": {},
+            "customplugins": [
+              {
+                "custompluginname": "IntroBuilder",
+                "beforenodeaction": true
+              }
+            ]
+          }
+        },
+        {
+          "nodekey": "loadfiles",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "Sections/Examples/Validators/validators.html"
+              }
+            }
+          ],
+          "read": {
+            "parameters": [
+              {
+                "name": "$default",
+                "Expression": "GetFrom('client',name)"
+              }
+            ],
+            "select": {},
+            "customplugins": [
+              {
+                "custompluginname": "IntroBuilder",
+                "beforenodeaction": true
+              }
+            ]
+          }
+        },
+        {
+          "nodekey": "savefiles",
+          "executionorder": 0,
+          "islist": 0,
+          "write": {
+            "parameters": [
+              {
+                "name": "$default",
+                "expression": "GetFrom('data',name)"
+              },
+              {
+                "name": "userid",
+                "expression": "GetUserId()"
+              }
+            ],
+            "insert": {
+              "query": "select 1"
+            },
+            "customplugins": [
+              {
+                "custompluginname": "IntroBuilder",
+                "beforenodeaction": true
+              }
+            ]
+          },
+          "children": []
+        },
+        {
+          "nodekey": "deletefiles",
+          "executionorder": 0,
+          "islist": 0,
+          "write": {
+            "parameters": [
+              {
+                "name": "$default",
+                "expression": "GetFrom('data',name)"
+              }
+            ],
+            "delete": {
+              "query": "select 1"
+            },
+            "customplugins": [
+              {
+                "custompluginname": "IntroBuilder",
+                "beforenodeaction": true
+              }
+            ]
+          },
+          "children": []
+        },
+        {
+          "nodekey": "getdeletedfiles",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+
+          ],
+          "read": {
+            "parameters": [
+              {
+                "name": "$default",
+                "Expression": "GetFrom('client,current',name)"
+              }
+            ],
+            "select": {},
+            "customplugins": [
+              {
+                "custompluginname": "IntroBuilder",
+                "beforenodeaction": true
+              }
+            ]
+          }
+        },
+        {
+          "nodekey": "harddeletefiles",
+          "executionorder": 0,
+          "islist": 0,
+          "write": {
+            "parameters": [
+              {
+                "name": "$default",
+                "expression": "GetFrom('data',name)"
+              }
+            ],
+            "delete": {
+              "query": "select 1"
+            },
+            "customplugins": [
+              {
+                "custompluginname": "IntroBuilder",
+                "beforenodeaction": true
+              }
+            ]
+          },
+          "children": []
+        },
+        {
+          "nodekey": "approve",
+          "executionorder": 0,
+          "islist": 0,
+          "write": {
+            "parameters": [
+              {
+                "name": "$default",
+                "expression": "GetFrom('data',name)"
+              },
+              {
+                "name": "userid",
+                "expression": "GetUserId()"
+              }
+            ],
+            "insert": {
+              "query": "select 1"
+            },
+            "customplugins": [
+              {
+                "custompluginname": "IntroBuilder",
+                "beforenodeaction": true
+              }
+            ]
+          },
+          "children": []
+        }
+      ]
+    }
+  }
+}

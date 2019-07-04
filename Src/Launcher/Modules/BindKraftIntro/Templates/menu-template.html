@@ -1,0 +1,34 @@
+﻿<!--<div data-key="menu" class="menu-control">-->
+<div data-key="menu" class="bki-navigation">
+    <h2>BindKraft Intro</h2>
+
+    <div style="margin-bottom:1em;">
+        <button class="bk-button bk-button-round" title="Add Example" data-on-click="{bind source=menuitemroot path=onCreate}">
+            +
+        </button>
+        <label style="margin-left:0.6em;">Add Example</label>
+    </div>
+
+
+    <div data-class="SelectableRepeater" data-bind-$items="{read source=__control path=$itemsdata}" style="cursor:pointer;">
+        <div data-class="BKI_MenuItem"
+             data-key="menurow"
+             data-on-click="{bind source=self path=onClick}"
+             data-bind-$name="{bind path=Id}"
+             data-bind-$caption="{bind path=Caption}"
+             data-bind-$svgpath="{bind path=ImagePath}"
+             data-bind-$children="{bind path=IntroItems}"></div>
+    </div>
+
+    <div data-class="DualTemplate" data-bind-$item="{read}" data-key="adminSwitcher">
+        <div data-key="default">
+
+        </div>
+        <div data-key="alternate" style="margin-bottom:1em;">
+            <button class="bk-button bk-button-round" title="Open Admin View" data-on-click="{bind source=menuitemroot path=onOpenAdminView}">
+                +
+            </button>
+            <label style="margin-left:0.6em;">Open admin view</label>
+        </div>
+    </div>
+</div>

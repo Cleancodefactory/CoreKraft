@@ -1,0 +1,213 @@
+{
+  "NodeSet": {
+    "requireauthentication": true,
+    "root": {
+      "read": {
+        "select": {}
+      },
+      "children": [
+        {
+          "nodekey": "menu",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "menu.html"
+              }
+            }
+          ],
+          "read": {
+            "parameters": [
+              {
+                "name": "$default",
+                "Expression": "GetFrom('client,current',name)"
+              }
+            ],
+            "select": {},
+            "customplugins": [
+              {
+                "custompluginname": "IntroBuilder",
+                "beforenodeaction": true
+              }
+            ]
+          }
+        },
+        {
+          "nodekey": "initview",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "index.html"
+              }
+            }
+          ]
+        },
+        {
+          "nodekey": "examplemenu",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "BKI_ExampleMenu.html"
+              }
+            }
+          ]
+        },
+        {
+          "nodekey": "contentviewer",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "BKI_ContentViewer.html"
+              }
+            }
+          ]
+        },
+        {
+          "nodekey": "docviewer",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "BKI_DocViewer.html"
+              }
+            }
+          ]
+        },
+        {
+          "nodekey": "errorpage",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "BKI_ErrorPage.html"
+              }
+            }
+          ]
+        },
+        {
+          "nodekey": "editview",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "BKI_EditFileView.html"
+              }
+            }
+          ]
+        },
+        {
+          "nodekey": "createview",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "BKI_CreateView.html"
+              }
+            }
+          ]
+        },
+        {
+          "nodekey": "controlsview",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "BKI_CreateControlsView.html"
+              }
+            }
+          ]
+        },
+        {
+          "nodekey": "adminview",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "BKI_AdminView.html"
+              }
+            }
+          ]
+        },
+        {
+          "nodekey": "getroles",
+          "datapluginname": "InternalData",
+          "executionorder": 0,
+          "islist": 0,
+          "parameters": [
+            {
+              "name": "roles",
+              "Expression": "GetUserRoles()"
+            },
+            {
+              "name": "userid",
+              "Expression": "GetUserId()"
+            }
+          ],
+          "read": {
+            "select": {
+              "query": "@roles>userinroles, @userid>userid"
+            }
+          }
+        },
+        {
+          "nodekey": "selectSection",
+          "executionorder": 0,
+          "islist": 0,
+          "views": [
+            {
+              "bindingkey": "normal",
+              "systempluginname": "HtmlViewLoader",
+              "executionorder": 0,
+              "settings": {
+                "path": "BKI_SelectSection.html"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

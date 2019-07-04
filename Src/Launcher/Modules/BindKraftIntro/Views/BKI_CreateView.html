@@ -1,0 +1,170 @@
+﻿<div data-class="BKI_CreateView">
+    <p class="title" data-bind-text="{read source=__view path=$title}"></p>
+    <div class="bki-section">
+        <div class="bki-field">
+            <label>Caption</label>
+            <div class="bki-wrapper-input-and-validation">
+                <input type="text" placeholder="Add Example name..." data-bind-val="{bind path=Caption validator='__view/captionValidator' writedata=change}" class="bki-input" />
+                <span data-key="captionValidator"
+                      data-class="Validator @template={read service=BindKraftIntroApp path=$validatortemplate} groupname='name' groupname='name'"
+                      data-parameters="events='blur,keyup' #showhint=0 #autohidehint=1"
+                      data-validate-required="@text='Caption is required' #fail=1"
+                      data-validate-length="@text='Caption must be between 3 and 50 characters long!' #fail=1  @minChar='3' @maxChar=50 #allowEmptySpaces='0'" class="bki-validate"></span>
+            </div>
+        </div>
+        <div class="bki-field">
+            <label>Name</label>
+            <div class="bki-wrapper-input-and-validation">
+                <input type="text" placeholder="Add Example name..." data-bind-val="{bind path=Id validator='__view/idValidator' writedata=change}" class="bki-input" />
+                <span data-key="idValidator"
+                      data-class="Validator @template={read service=BindKraftIntroApp path=$validatortemplate} groupname='name' groupname='name'"
+                      data-parameters="events='blur,keyup' #showhint=0 #autohidehint=1"
+                      data-validate-required="@text='Name is required' #fail=1"
+                      data-validate-length="@text='Name must be between 3 and 50 characters long!' #fail=1  @minChar='3' @maxChar=50 #allowEmptySpaces='0'" class="bki-validate"></span>
+            </div>
+        </div>
+        <div class="bki-field">
+            <label>Description</label>
+            <div class="bki-wrapper-input-and-validation">
+                <input type="text" placeholder="Description" data-bind-val="{bind path=Description validator='__view/descriptionValidator' writedata=change}" class="bki-input" />
+                <span data-key="descriptionValidator"
+                      data-class="Validator @template={read service=BindKraftIntroApp path=$validatortemplate} groupname='name' groupname='name'"
+                      data-parameters="events='blur,keyup' #showhint=0 #autohidehint=1"
+                      data-validate-length="@text='Description must be between 3 and 150 characters long!' #fail=1  @minChar='3' @maxChar=150 #allowEmptySpaces='0'" class="bki-validate"></span>
+            </div>
+        </div>
+        <div class="bki-field">
+            <label>LaunchSpec</label>
+            <div class="bki-wrapper-input-and-validation">
+                <input type="text" placeholder="LaunchSpec" data-bind-val="{bind path=LaunchSpec writedata=change}" class="bki-input" />
+            </div>
+        </div>
+    </div>
+
+
+    <div>
+        <p class="title">Sources</p>
+        <div class="bki-field flex-center ">
+            <div class="bk-margin-small">
+                <button class="bk-button bk-button-round" title="Add New html"
+                        data-on-click="{bind source=__view path=onAddSource parameter='1'}">
+                    +
+                </button>
+                <label>Html</label>
+            </div>
+            <div class="bk-margin-small">
+                <button class="bk-button bk-button-round" title="Add New js"
+                        data-on-click="{bind source=__view path=onAddSource parameter='2'}">
+                    +
+                </button>
+                <label>JavaScript</label>
+            </div>
+            <div class="bk-margin-small">
+                <button class="bk-button bk-button-round" title="Add New json"
+                        data-on-click="{bind source=__view path=onAddSource parameter='3'}">
+                    +
+                </button>
+                <label>Json</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="width-full" style="height: 570px; max-height: 570px; overflow-y: auto;">
+        <div data-class="Repeater" data-bind-$items="{read path=Sources.Entries flags=sources}">
+            <div data-class="TemplateSwitcher"
+                 data-bind-$item="{read}"
+                 data-on-$select="{bind source=__view path=onTemplateSelect}">
+
+                <div data-key="html" class="bki-section animation ">
+                    <div style="display: flex; justify-content:space-between">
+                        <span class="bk-font-strong bk-fsize-normal">HTML</span>
+                        <button data-class="SvgY svgpath='/node/raw/bindkraftstyles/images/close_icon.svg'" class=" bk-interact bk-pushable bk-svg-secondary bk-margin-normal" style="cursor: pointer;"
+                                title="Remove html"
+                                data-on-click="{bind source=__view path=onDeleteSource}"></button>
+                    </div>
+                    <div class="bki-field">
+                        <label>Name</label>
+                        <div class="bki-wrapper-input-and-validation">
+                            <div><input type="text" placeholder="File name" data-bind-val="{bind path=EntryName validator='html/nameValidator' writedata=change}" class="bki-input-exaple" /><span>.html</span></div>
+                            <span data-key="nameValidator"
+                                  data-class="Validator @template={read service=BindKraftIntroApp path=$validatortemplate} groupname='name' groupname='name'"
+                                  data-parameters="events='blur,keyup' #showhint=0 #autohidehint=1"
+                                  data-validate-required="@text='Name is required' #fail=1"
+                                  data-validate-length="@text='Name must be between 3 and 50 characters long!' #fail=1  @minChar='3' @maxChar=50 #allowEmptySpaces='0'" class="bki-validate"></span>
+                        </div>
+                    </div>
+                    <div class="bki-field">
+                        <label>Content</label>
+                        <textarea rows="20" placeholder="HTML Content" data-bind-val="{bind path=Content writedata=change}" class="bki-teaxtarea-example"></textarea>
+                    </div>
+                </div>
+
+                <div data-key="js" class="bki-section animation">
+                    <div style="display: flex; justify-content:space-between">
+
+                        <span class="bk-font-strong bk-fsize-normal">JS</span>
+                        <button data-class="SvgY svgpath='/node/raw/bindkraftstyles/images/close_icon.svg'" class=" bk-interact bk-pushable bk-svg-secondary bk-margin-normal" style="cursor: pointer;"
+                                title="Remove js" data-on-click="{bind source=__view path=onDeleteSource}"></button>
+                    </div>
+                    <div class="bki-field">
+                        <label>Name</label>
+                        <div class="bki-wrapper-input-and-validation">
+                            <div><input type="text" placeholder="File name" data-bind-val="{bind path=EntryName validator='js/nameValidator' writedata=change}" class="bki-input-exaple" /><span>.js</span></div>
+                            <span data-key="nameValidator"
+                                  data-class="Validator @template={read service=BindKraftIntroApp path=$validatortemplate} groupname='name' groupname='name'"
+                                  data-parameters="events='blur,keyup' #showhint=0 #autohidehint=1"
+                                  data-validate-required="@text='Name is required' #fail=1"
+                                  data-validate-length="@text='Name must be between 3 and 50 characters long!' #fail=1  @minChar='3' @maxChar=50 #allowEmptySpaces='0'" class="bki-validate"></span>
+                        </div>
+                    </div>
+                    <div class="bki-field ">
+                        <label>JavaScript</label>
+                        <textarea rows="20" placeholder="JavaScript Content" data-bind-val="{bind path=Content writedata=change}" class="bki-teaxtarea-example"></textarea>
+                    </div>
+                </div>
+
+
+                <div data-key="json" class="bki-section animation">
+                    <div style="display: flex; justify-content:space-between">
+                        <span class="bk-font-strong bk-fsize-normal">JSON</span>
+                        <button data-class="SvgY svgpath='/node/raw/bindkraftstyles/images/close_icon.svg'" class=" bk-interact bk-pushable bk-svg-secondary bk-margin-normal" style="cursor: pointer;"
+                                title="Remove json" data-on-click="{bind source=__view path=onDeleteSource}"></button>
+                    </div>
+                    <div class="bki-field">
+                        <label>Name</label>
+                        <div class="bki-wrapper-input-and-validation">
+                            <div><input type="text" placeholder="File name" data-bind-val="{bind path=EntryName validator='json/nameValidator' writedata=change}" class="bki-input-exaple" /><span>.json</span></div>
+                            <span data-key="nameValidator"
+                                  data-class="Validator @template={read service=BindKraftIntroApp path=$validatortemplate} groupname='name' groupname='name'"
+                                  data-parameters="events='blur,keyup' #showhint=0 #autohidehint=1"
+                                  data-validate-required="@text='Name is required' #fail=1"
+                                  data-validate-length="@text='Name must be between 3 and 50 characters long!' #fail=1  @minChar='3' @maxChar=50 #allowEmptySpaces='0'" class="bki-validate"></span>
+                        </div>
+                    </div>
+                    <div class="bki-field">
+                        <label>Json</label>
+                        <textarea rows="20" placeholder="JSON Content" data-bind-val="{bind path=Content writedata=change}" class="bki-teaxtarea-example"></textarea>
+                    </div>
+                </div>
+                <div data-key="doc" class="bki-section ">
+                    <span class="bk-font-strong bk-fsize-normal">DOC</span>
+                    <div class="bki-field">
+                        <label>Name</label>
+                        <div class="bki-wrapper-input-and-validation">
+                            <div><input type="text" placeholder="File name" data-bind-val="{bind path=EntryName validator='doc/nameValidator' writedata=change}" class="bki-input-exaple" /><span>.md</span></div>
+                            <span data-key="nameValidator"
+                                  data-class="Validator @template={read service=BindKraftIntroApp path=$validatortemplate} groupname='name' groupname='name'"
+                                  data-parameters="events='blur,keyup' #showhint=0 #autohidehint=1"
+                                  data-validate-required="@text='Name is required' #fail=1"
+                                  data-validate-length="@text='Name must be between 3 and 50 characters long!' #fail=1  @minChar='3' @maxChar=50 #allowEmptySpaces='0'" class="bki-validate"></span>
+                        </div>
+                    </div>
+                    <div class="bki-field">
+                        <label>Documentation</label>
+                        <textarea rows="20" placeholder="DOC Content" data-bind-val="{bind path=Content writedata=change}" class="bki-teaxtarea-example"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,10 +1,9 @@
-using Ccf.Ck.Libs.Web.Bundling;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace Ccf.Ck.Launcher.Controllers
+namespace Ccf.Ck.Launcher.Example.Controllers
 {
     public class HomeController : Controller
     {

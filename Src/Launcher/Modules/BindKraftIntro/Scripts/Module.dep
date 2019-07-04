@@ -1,0 +1,25 @@
+/*
+    #using "./app.js"
+	#using "./init.js"
+    #using "./boot.js"
+    #using "./loadableScript.js"
+
+    #using "./WindowManager/BKI_WindowManager.js"
+
+	
+    #using "./controls/ExtendedSourceSyntaxColoring.js"
+    #using "./controls/BKI_Menu.js"
+    #using "./controls/BKI_MenuItem.js"
+	#using "./Views/BKI_ContentViewer.js"
+	#using "./Views/BKI_DocViewer.js"
+	#using "./Views/BKI_ExampleMenu.js"
+	#using "./Views/BKI_ErrorPage.js"
+	#using "./Views/BKI_EditFileView.js"
+	#using "./Views/BKI_CreateView.js"
+	#using "./Views/BKI_CreateControlsView.js"
+	#using "./Views/BKI_AdminView.js"
+	#using "./Views/BKI_SelectSection.js"
+
+	#using "./Libraries/marked.js"
+
+*/

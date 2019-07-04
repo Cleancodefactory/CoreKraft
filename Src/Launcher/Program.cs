@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Ccf.Ck.Launcher
+namespace Ccf.Ck.Launcher.Example
 {
     public class Program
     {
