@@ -1,14 +1,12 @@
-﻿<!--<div data-key="menu" class="menu-control">-->
-<div data-key="menu" class="bki-navigation">
+﻿<div data-key="menu" class="bki-navigation">
     <h2>BindKraft Intro</h2>
 
-    <div style="margin-bottom:1em;">
-        <button class="bk-button bk-button-round" title="Add Example" data-on-click="{bind source=menuitemroot path=onCreate}">
+    <div data-on-click="{bind source=menuitemroot path=onCreate}" style="cursor:pointer;padding-bottom:1em;padding-top:1em;">
+        <button class="bk-button bk-button-round" title="Add Example">
             +
         </button>
-        <label style="margin-left:0.6em;">Add Example</label>
+        <label style="cursor:pointer;margin-left:0.6em;">Add Example</label>
     </div>
-
 
     <div data-class="SelectableRepeater" data-bind-$items="{read source=__control path=$itemsdata}" style="cursor:pointer;">
         <div data-class="BKI_MenuItem"
@@ -24,11 +22,11 @@
         <div data-key="default">
 
         </div>
-        <div data-key="alternate" style="margin-bottom:1em;">
-            <button class="bk-button bk-button-round" title="Open Admin View" data-on-click="{bind source=menuitemroot path=onOpenAdminView}">
+        <div data-key="alternate" data-on-click="{bind source=menuitemroot path=onOpenAdminView}" style="cursor:pointer;padding-bottom:1em;padding-top:1em;">
+            <button class="bk-button bk-button-round" title="Open Admin View" >
                 +
             </button>
-            <label style="margin-left:0.6em;">Open admin view</label>
+            <label style="margin-left:0.6em;cursor:pointer;">Open admin view</label>
         </div>
     </div>
 </div>
