@@ -6,7 +6,7 @@
 BKI_ExampleMenu.Inherit(GenericViewBaseEx, "BKI_ExampleMenu");
 
 BKI_ExampleMenu.prototype.OnDataContextChanged = function () {
-}
+};
 
 BKI_ExampleMenu.prototype.onTemplateSelect = function (sender) {
     var item = sender.get_item().example;
@@ -27,31 +27,31 @@ BKI_ExampleMenu.prototype.onFileSelect = function (ev, dc, binding) {
     $$('.bk-margin-large.bki-current-menu-item').removeClasses('bki-current-menu-item');
     $$(ev.currentTarget).first().classes('bki-current-menu-item');
     service.changeCentralWindowData(dc);
-}
+};
 
 BKI_ExampleMenu.prototype.onRunExample = function (ev, dc, binding) {
     var service = this.findService("BindKraftIntroApp");
     service.refreshExample(dc);
     $$('.bk-margin-large.bki-current-menu-item').removeClasses('bki-current-menu-item');
-}
+};
 
 BKI_ExampleMenu.prototype.onSaveExample = function (ev, dc, binding) {
     var service = this.findService("BindKraftIntroApp");
     service.insertExample(dc.example.state);
-}
+};
 
 BKI_ExampleMenu.prototype.onDeleteExample = function (ev, dc, binding) {
     var service = this.findService("BindKraftIntroApp");
     service.deleteExample(dc);
-}
+};
 
 
 BKI_ExampleMenu.prototype.onEditExample = function (ev, dc, binding) {
     var service = this.findService("BindKraftIntroApp");
     service.openCreateView(dc.example);
-}
+};
 
 BKI_ExampleMenu.prototype.onApproveExample = function (ev, dc, binding) {
     var service = this.findService("BindKraftIntroApp");
     service.openSelectSection();
-}
+};

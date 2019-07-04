@@ -16,7 +16,7 @@
              data-on-click="{bind source=self path=onClick}"
              data-bind-$name="{bind path=Id}"
              data-bind-$caption="{bind path=Caption}"
-             data-bind-$svgpath="{bind path=ImagePath}"
+             data-bind-$svgpath="{bind path=ImagePath format=self:rawImagePathConverter}"
              data-bind-$children="{bind path=IntroItems}"></div>
     </div>
 

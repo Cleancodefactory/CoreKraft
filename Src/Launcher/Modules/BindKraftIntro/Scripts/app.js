@@ -45,7 +45,7 @@ BindKraftIntroApp.prototype.appinitialize = function (callback, args) {
             }
         });
     BaseObject.callCallback(callback, true);
-}
+};
 
 BindKraftIntroApp.prototype.initMainWindows = function () {
     this.rootWindow = Shell.createStdAppWindow();
@@ -82,7 +82,7 @@ BindKraftIntroApp.prototype.initMainWindows = function () {
     var selectSection = new PopDialog(
         this.rootWindow,
         {
-            url: "node/bindkraftintro/main/selectSection",
+            url: this.moduleUrl("read", "main", "selectSection"),
             placement: {
                 position: PopUpsPositionEnum.center,
                 size: { w: 350, h: 350 }
@@ -101,7 +101,7 @@ BindKraftIntroApp.prototype.initMainWindows = function () {
 
         return true;
     });
-}
+};
 
 BindKraftIntroApp.prototype.changeBodyView = function (exampleName, category) {
     this.createSecondarySplitter();
@@ -113,7 +113,7 @@ BindKraftIntroApp.prototype.changeBodyView = function (exampleName, category) {
             this.secondarySplitter.setLeft(errorPage);
         }
     });
-}
+};
 
 BindKraftIntroApp.prototype.runExample = function (example, category) {
     this.set_currentExample(example);
@@ -156,11 +156,11 @@ BindKraftIntroApp.prototype.runExample = function (example, category) {
         "bindkraftintro/window-simplewindow-empty");
 
     this.secondarySplitter.setRight(exampleMenu);
-    
+
     this.createNewAppBody();
     var right = this.windowManager.createSimpleViewWindowViewString(view[0], dData);
     this.newAppBody.setRight(right);
-}
+};
 
 BindKraftIntroApp.prototype.openCreateView = function (dc) {
     if (dc) {
@@ -186,14 +186,15 @@ BindKraftIntroApp.prototype.openCreateView = function (dc) {
     this.createSecondarySplitter();
     this.secondarySplitter.setLeft(createView);
     this.secondarySplitter.setRight(createControls);
-}
+};
 
 BindKraftIntroApp.prototype.openAdminView = function (dc) {
-    debugger
-    if (this.get_isAdmin() || true) { //temp
+    if (this.get_isAdmin()) { //temp
         this.ajaxPostXml(this.moduleUrl("read", "dbnodeset", "getdeletedfiles") + "?operation=admin", {}, function (result) {
             if (result.data != null && result.status.issuccessful) {
-            } else {
+                //
+            }
+            else {
                 var errorPage = this.windowManager.createSimpleViewWindow(this.moduleUrl("read", "main", "errorpage"), result.status.messages);
                 this.secondarySplitter.setLeft(errorPage);
             }
@@ -202,8 +203,8 @@ BindKraftIntroApp.prototype.openAdminView = function (dc) {
         var view = this.windowManager.createSimpleViewWindow(this.moduleUrl("read", "main", "adminview"), {});
         this.secondarySplitter.setLeft(view);
         this.secondarySplitter.setRight(null);
-    }   
-}
+    }
+};
 
 BindKraftIntroApp.prototype.addSourceFiles = function (filesToAdd, isJs) {
     this.menuArray.push(filesToAdd);
@@ -211,7 +212,7 @@ BindKraftIntroApp.prototype.addSourceFiles = function (filesToAdd, isJs) {
         var loader = new LoadableScript(filesToAdd.Content);
         loader.load();
     }
-}
+};
 
 BindKraftIntroApp.prototype.changeCentralWindowData = function (fileObj) {
     var nodekey = "contentviewer";
@@ -234,7 +235,7 @@ BindKraftIntroApp.prototype.changeCentralWindowData = function (fileObj) {
         default:
             break;
     }
-}
+};
 
 BindKraftIntroApp.prototype.changeCurrentExampleSource = function (dc) {
     var currentExample = this.get_currentExample();
@@ -265,7 +266,7 @@ BindKraftIntroApp.prototype.changeCurrentExampleSource = function (dc) {
     //        break;
     //    default:
     //}
-}
+};
 
 BindKraftIntroApp.prototype.refreshExample = function (dc) {
     var view = dc.menu.find(this.isView).Content;
@@ -278,10 +279,10 @@ BindKraftIntroApp.prototype.refreshExample = function (dc) {
     this.createSecondarySplitter();
     this.createNewAppBody();
     this.newAppBody.setRight(this.windowManager.createSimpleViewWindowViewString(view, data));
-}
+};
 
 BindKraftIntroApp.prototype.insertExample = function (dc) {
-    this.ajaxPostXml(this.moduleUrl("write", "dbnodeset", "savefiles"), { example: this.get_currentExample(), state: dc}, // + "?provider=file"
+    this.ajaxPostXml(this.moduleUrl("write", "dbnodeset", "savefiles"), { example: this.get_currentExample(), state: dc }, // + "?provider=file"
         function (result) {
             if (result.data != null && result.status.issuccessful) {
                 var url = this.moduleUrl("read", "main", "menu") + "?operation=nav";
@@ -300,7 +301,7 @@ BindKraftIntroApp.prototype.insertExample = function (dc) {
                 this.secondarySplitter.setRight(null);
             }
         });
-}
+};
 
 BindKraftIntroApp.prototype.deleteExample = function (dc) {
     this.ajaxPostXml(this.moduleUrl("write", "dbnodeset", "deletefiles"), { example: this.get_currentExample(), state: "3" }, // + "?provider=file"
@@ -317,20 +318,19 @@ BindKraftIntroApp.prototype.deleteExample = function (dc) {
                 this.secondarySplitter.setRight(null);
             }
         });
-}
+};
 
 BindKraftIntroApp.prototype.deleteAllMarkedDelete = function (dc) {
-    debugger
-    this.ajaxPostXml(this.moduleUrl("write", "dbnodeset", "harddeletefiles"), { state: "3" }, 
+    this.ajaxPostXml(this.moduleUrl("write", "dbnodeset", "harddeletefiles"), { state: "3" },
         function (result) {
-            debugger
             if (result.status.issuccessful) {
+                //
             } else {
                 var errorPage = this.windowManager.createSimpleViewWindow(this.moduleUrl("read", "main", "errorpage"), result.status.messages);
                 this.appMainWindow.setLeft(errorPage);
             }
         });
-}
+};
 
 BindKraftIntroApp.prototype.approveExample = function (success, data) {
     var example = this.get_currentExample();
@@ -351,7 +351,7 @@ BindKraftIntroApp.prototype.approveExample = function (success, data) {
                 this.secondarySplitter.setRight(null);
             }
         });
-}
+};
 
 BindKraftIntroApp.prototype.createSecondarySplitter = function () {
     if (!this.secondarySplitter) {
@@ -367,7 +367,7 @@ BindKraftIntroApp.prototype.createSecondarySplitter = function () {
         );
         this.appMainWindow.setRight(this.secondarySplitter);
     }
-}
+};
 
 BindKraftIntroApp.prototype.createNewAppBody = function () {
     if (!this.newAppBody) {
@@ -384,22 +384,22 @@ BindKraftIntroApp.prototype.createNewAppBody = function () {
     }
     this.secondarySplitter.setLeft(this.newAppBody);
     this.newAppBody.setLeft(this.windowManager.createSimpleViewWindowViewString(this.get_md(), { source: this.get_md() }));
-}
+};
 
 BindKraftIntroApp.prototype.openSelectSection = function () {
     var operation = this.popups.openPopUp("selectSection", { sections: this.get_sections() });
     operation.chunk(this.thisCall(this.approveExample));
-}
+};
 
 BindKraftIntroApp.prototype.isView = function (obj) {
     return obj.Type == 1;
-}
+};
 
 BindKraftIntroApp.prototype.isData = function (obj) {
     return obj.Type == 3;
-}
+};
 
 BindKraftIntroApp.prototype.appshutdown = function () {
     jbTrace.log("BindKraftIntroApp is shutting down.");
     AppBase.prototype.appshutdown.apply(this, arguments);
-}
+};

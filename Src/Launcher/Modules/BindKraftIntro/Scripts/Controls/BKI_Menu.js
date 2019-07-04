@@ -24,7 +24,7 @@ BKI_Menu.prototype.OnBeforeDataContextChanged = function () {
         this.$itemsdata = this.get_data().intro.Sections;
         this.updateSources();
         this.updateTargets();
-    };
+    }
     var sections = [];
     for (var i = 0; i < this.$itemsdata.length; i++) {
         if (this.$itemsdata[i].Id != "ForReview") {
@@ -32,7 +32,7 @@ BKI_Menu.prototype.OnBeforeDataContextChanged = function () {
         }
     }
     service.set_sections(sections);
-}
+};
 
 BKI_Menu.prototype.onCreate = function (e, dc, b) {
     var service = this.findService("BindKraftIntroApp");

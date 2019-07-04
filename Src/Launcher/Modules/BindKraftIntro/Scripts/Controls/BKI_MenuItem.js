@@ -17,7 +17,15 @@ BKI_MenuItem.ImplementProperty("svgpath", new InitializeStringParameter("The pat
 BKI_MenuItem.ImplementActiveProperty("children", new InitializeParameter("Children information(caption, click window, ...etc.).", null), null, null, "changeTemplate");
 
 BKI_MenuItem.prototype.OnDataContextChanged = function () {
-}
+};
+
+BKI_MenuItem.prototype.rawImagePathConverter = {
+    ToTarget: function ToTarget(v) {
+        var service = this.findService("BindKraftIntroApp");
+        return service.resourceUrl("$images", v);
+    },
+    FromTarget: function FromTarget() { } // do nothing
+};
 
 BKI_MenuItem.prototype.init = function () {
     $$(this.root).first().empty().append(this.get_template());
@@ -31,7 +39,7 @@ BKI_MenuItem.prototype.changeTemplate = function () {
     if (this.get_children() && this.get_children().length > 0) {
         this.child('switcher')[0].activeClass.ToggleTemplate();
     }
-}
+};
 
 BKI_MenuItem.prototype.onClick = function (ev, dc, handler) {
     if (dc && dc.Id) {
