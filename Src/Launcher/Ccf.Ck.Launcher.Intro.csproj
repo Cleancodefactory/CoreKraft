@@ -11,7 +11,7 @@
     <PackageReference Include="Ccf.Ck.Module.BindKraftStyles" Version="0.0.1" />
     <PackageReference Include="Ccf.Ck.Module.PlatformUtility" Version="0.0.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Middleware\Ccf.Ck.Web.Middleware.csproj" />
