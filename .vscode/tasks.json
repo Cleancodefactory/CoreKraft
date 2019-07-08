@@ -5,9 +5,14 @@
             "label": "build",
             "command": "dotnet",
             "type": "process",
+            "options": {
+                "env": {
+                    "SolutionDir": "${workspaceFolder}"
+                }
+            },
             "args": [
                 "build",
-                "${workspaceFolder}/Launcher/Ccf.Ck.Launcher.Intro.csproj"
+                "${workspaceFolder}/Src/Launcher/Ccf.Ck.Launcher.Intro.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -17,7 +22,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/Launcher/Ccf.Ck.Launcher.Intro.csproj"
+                "${workspaceFolder}/Src/Launcher/Ccf.Ck.Launcher.Intro.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -28,7 +33,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/Launcher/Ccf.Ck.Launcher.Intro.csproj"
+                "${workspaceFolder}/Src/Launcher/Ccf.Ck.Launcher.Intro.csproj"
             ],
             "problemMatcher": "$tsc"
         }
