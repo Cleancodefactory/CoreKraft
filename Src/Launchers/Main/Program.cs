@@ -17,7 +17,7 @@ namespace Ccf.Ck.Launchers.Main
             string contentRoot = Directory.GetCurrentDirectory();
             if (args.Length > 0)
             {
-                contentRoot = args[0];
+                contentRoot = Path.GetFullPath(args[0]);
             }
             return WebHost.CreateDefaultBuilder(args)
                 .UseContentRoot(contentRoot)

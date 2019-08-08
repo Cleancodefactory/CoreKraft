@@ -18,7 +18,7 @@
     },
     "CoreKraft.Launchers.Main": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\_Development\\Ccf\\GitRepositories\\SiteInstance1",
+      "commandLineArgs": "../Intro",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_preventHostingStartup": "True",
