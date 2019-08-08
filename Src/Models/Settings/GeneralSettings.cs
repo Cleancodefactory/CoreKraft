@@ -15,6 +15,7 @@ namespace Ccf.Ck.Models.Settings
         }
         public bool EnableOptimization { get; set; }
         public List<string> ModulesRootFolders { get; set; }
+        public string DefaultStartModule { get; set; }
         public string KraftUrlSegment { get; set; }
         public string KraftUrlCssJsSegment { get; set; }
         public string KraftUrlResourceSegment { get; set; }

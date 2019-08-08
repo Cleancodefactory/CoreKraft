@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ccf.Ck.Launcher.Intro.Controllers
+namespace Ccf.Ck.Launchers.Intro.Controllers
 {
     public class HomeController : Controller
     {

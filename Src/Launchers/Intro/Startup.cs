@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ccf.Ck.Web.Middleware;
 
-namespace Ccf.Ck.Launcher.Intro
+namespace Ccf.Ck.Launchers.Intro
 {
     public class Startup
     {

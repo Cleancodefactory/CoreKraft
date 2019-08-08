@@ -17,7 +17,7 @@
         "ASPNETCORE_preventHostingStartup": "True"
       }
     },
-    "CoreKraft.Launcher": {
+    "CoreKraft.Launchers.Intro": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

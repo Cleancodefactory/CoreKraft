@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Middleware\Ccf.Ck.Web.Middleware.csproj" />
+    <ProjectReference Include="..\..\Middleware\Ccf.Ck.Web.Middleware.csproj" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
