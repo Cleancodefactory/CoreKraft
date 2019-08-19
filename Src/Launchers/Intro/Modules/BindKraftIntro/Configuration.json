@@ -1,0 +1,66 @@
+﻿{
+  "KraftModuleConfigurationSettings": {
+    "NodeSetSettings": {
+      "SourceLoaderMapping": {
+        "NodesDataIterator": {
+          "NodesDataIteratorConf": {
+            "Name": "DefaultNodeTreeIterator",
+            "ImplementationAsString": "Ccf.Ck.SysPlugins.Iterators.DataNodes.DataNodesImp, Ccf.Ck.SysPlugins.Iterators.DataNodes",
+            "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.IDataIteratorPlugin, Ccf.Ck.SysPlugins.Interfaces",
+            "Default": true,
+            "CustomSettings": {
+              "MyCustomsetting": "Iterator"
+            }
+          },
+          "NodesDataLoader": [
+            {
+              "Name": "JsonData",
+              "ImplementationAsString": "Ccf.Ck.SysPlugins.Data.Json.JsonDataImp, Ccf.Ck.SysPlugins.Data.Json",
+              "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.IDataLoaderPlugin, Ccf.Ck.SysPlugins.Interfaces",
+              "Default": true,
+              "CustomSettings": {
+                "BasePath": "@moduleroot@/Data/"
+              }
+            },
+            {
+              "Name": "InternalData",
+              "ImplementationAsString": "Ccf.Ck.SysPlugins.Data.Internal.InternalDataImp, Ccf.Ck.SysPlugins.Data.Internal",
+              "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.IDataLoaderPlugin, Ccf.Ck.SysPlugins.Interfaces",
+              "Default": true,
+              "CustomSettings": {
+                "MyCustomsetting": "Internal"
+              }
+            }
+          ]
+        },
+        "ViewLoader": [
+          {
+            "Name": "HtmlViewLoader",
+            "ImplementationAsString": "Ccf.Ck.SysPlugins.Views.Html.HtmlViewImp, Ccf.Ck.SysPlugins.Views.Html",
+            "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.ISystemPlugin, Ccf.Ck.SysPlugins.Interfaces",
+            "Default": true,
+            "CustomSettings": {
+              "ViewPath": "@module-views@/"
+            }
+          }
+        ],
+        "LookupLoader": [
+        ],
+        "ResourceLoader": [
+        ],
+        "CustomPlugin": [
+          {
+            "Name": "IntroBuilder",
+            "ImplementationAsString": "Ccf.Ck.NodePlugins.BindKraftIntro.BindKraftIntroMainImp, Ccf.Ck.NodePlugins.BindKraftIntro",
+            "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.INodePlugin, Ccf.Ck.SysPlugins.Interfaces",
+            "Default": true,
+            "CustomSettings": {
+              "BasePath": "@moduleroot@/Data/",
+              "ConnectionString": "Data Source=@moduleroot@/Data/data.sqlite;"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

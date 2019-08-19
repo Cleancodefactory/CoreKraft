@@ -23,7 +23,7 @@ namespace Ccf.Ck.SysPlugins.Views.Html
                 if (cachedView == null)
                 {
                     string directoryPath = Path.Combine(
-                        processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder,
+                        processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(processingContext.InputModel.Module),
                         processingContext.InputModel.Module,
                         "Views");
 

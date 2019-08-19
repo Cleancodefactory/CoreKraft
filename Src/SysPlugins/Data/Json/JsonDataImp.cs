@@ -14,7 +14,7 @@ using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
 
 namespace Ccf.Ck.SysPlugins.Data.Json
 {
-    public class JsonDataImp :  DataLoaderClassicBase<JsonDataSynchronizeContextScopedImp> // IDataLoaderPlugin
+    public class JsonDataImp : DataLoaderClassicBase<JsonDataSynchronizeContextScopedImp> // IDataLoaderPlugin
     {
 
         protected override List<Dictionary<string, object>> Read(IDataLoaderReadContext execContext)
@@ -35,7 +35,7 @@ namespace Ccf.Ck.SysPlugins.Data.Json
              */
 
             string directoryPath = Path.Combine(
-                        execContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder,
+                        execContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(execContext.ProcessingContext.InputModel.Module),
                         execContext.ProcessingContext.InputModel.Module,
                         "Data");
 
@@ -62,7 +62,7 @@ namespace Ccf.Ck.SysPlugins.Data.Json
                     cachingService.Insert(cacheKey, cachedJson, fileProvider.Watch(node.Read.Select.File));
                 }
                 currentResult = new Dictionary<string, object>(JsonConvert.DeserializeObject<Dictionary<string, object>>(cachedJson, new DictionaryConverter()));
-                
+
             }
             return new List<Dictionary<string, object>>() { currentResult };
         }
@@ -117,7 +117,7 @@ namespace Ccf.Ck.SysPlugins.Data.Json
         //                execContext.ProcessingContext.ReturnModel.Status.StatusResults.Add(new StatusResult { StatusResultType = EStatusResult.StatusResultError, Message = ex.Message });
         //                throw;
         //            }
-                    
+
         //            cachingService.Insert(cacheKey, cachedJson, fileProvider.Watch(node.Read.Select.File));
         //        }
         //        currentResult = new ReadOnlyDictionary<string, object>(JsonConvert.DeserializeObject<Dictionary<string, object>>(cachedJson, new DictionaryConverter()));              
@@ -142,7 +142,7 @@ namespace Ccf.Ck.SysPlugins.Data.Json
         //    return await Task.FromResult<IPluginsSynchronizeContextScoped>(new JsonDataSynchronizeContextScopedImp());
         //}
 
-        
+
 
         private ILogger GetLogger(IPluginServiceManager pluginServiceManager)
         {

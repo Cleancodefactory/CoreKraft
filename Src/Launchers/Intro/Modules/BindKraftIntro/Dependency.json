@@ -1,0 +1,20 @@
+﻿{
+  "name": "BindKraftIntro",
+  "version": "1.0.0",
+  "description": "Offers examples",
+  "keywords": [],
+  "author": "Clean Code Factory",
+  "license": "MIT License",
+  "dependencies": {
+    "BindKraft": "^1.0.0",
+    "BindKraftStyles": "^1.0.0",
+    "PlatformUtility": "^1.0.0"
+  },
+  "signals": [],
+  "release": [
+    {
+      "version": "1.0.0",
+      "info": "Initial creation"
+    }
+  ]
+}

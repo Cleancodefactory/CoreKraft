@@ -6,9 +6,9 @@ using Ccf.Ck.SysPlugins.Services;
 using Ccf.Ck.Utilities.DependencyContainer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Processing.Execution
@@ -77,9 +77,9 @@ namespace Ccf.Ck.Processing.Execution
 
         public void RollbackTransactions()
         {
-            foreach (var item in _PluginsSynchronizeContext.Values)
+            for (int i = 0; i < _PluginsSynchronizeContext.Values.Count; i++)
             {
-                ITransactionScope transactionScope = item as ITransactionScope;
+                ITransactionScope transactionScope = _PluginsSynchronizeContext.ElementAt(i).Value as ITransactionScope;
                 if (transactionScope != null)
                 {
                     transactionScope.RollbackTransaction();
@@ -89,9 +89,9 @@ namespace Ccf.Ck.Processing.Execution
 
         public void CommitTransactions()
         {
-            foreach (var item in _PluginsSynchronizeContext.Values)
+            for (int i = 0; i < _PluginsSynchronizeContext.Values.Count; i++)
             {
-                ITransactionScope transactionScope = item as ITransactionScope;
+                ITransactionScope transactionScope = _PluginsSynchronizeContext.ElementAt(i).Value as ITransactionScope;
                 if (transactionScope != null)
                 {
                     transactionScope.CommitTransaction();

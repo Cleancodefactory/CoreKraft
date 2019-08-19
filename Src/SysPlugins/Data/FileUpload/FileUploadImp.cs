@@ -1,6 +1,7 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.NodeRequest;
+using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Processing.Web.ResponseBuilder;
 using Ccf.Ck.SysPlugins.Data.Base;
@@ -15,7 +16,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Encodings.Web;
-using System.Web;
+using System.Text.RegularExpressions;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 
 namespace Ccf.Ck.SysPlugins.Data.FileUpload
@@ -78,9 +79,11 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
 
             if (File.Exists(Path.Combine(configuredDir, file)))
             {
-                if (execContext.ProcessingContext.InputModel.Client.ContainsKey(previewName) || execContext.ProcessingContext.InputModel.Data.ContainsKey(previewName))
+                ParameterResolverValue preview = execContext.Evaluate(previewName);
+
+                if (preview.Value != null)
                 {
-                    string previewValue = execContext.Evaluate(previewName).Value.ToString();
+                    string previewValue = preview.Value.ToString();
 
                     if (previewValue == "1")
                     {
@@ -225,7 +228,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
         /// <returns>Dictionary of string objects containing the information of the uploaded files.</returns>
         private object UploadFiles(IDataLoaderWriteContext execContext, WriteCustomSettings settings)
         {
-            CheckMaxFileSpacePerDashboard(execContext, settings.MaxFilesSpacePerDashboardInMB);
+            CheckMaxFileSpacePerDashboard(execContext, settings.FileRestrictions);
             CreateDirectoryIfSuchDoesNotExist(settings.UploadFolder);
 
             List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
@@ -288,19 +291,32 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
         /// Check the maximum allowed file size per custom settings configuration if any.
         /// </summary>
         /// <param name="execContext">Execution context</param>
-        /// <param name="maxAllowedSizeForFiles">Nullable long</param>
-        private void CheckMaxFileSpacePerDashboard(IDataLoaderWriteContext execContext, long? maxAllowedSizeForFiles)
+        /// <param name="fileRestrictions">Nullable long</param>
+        private void CheckMaxFileSpacePerDashboard(IDataLoaderWriteContext execContext, Dictionary<string, long> fileRestrictions)
         {
-            string dataKey = "data";
+            long bytes = 1048576L;
 
-            if (maxAllowedSizeForFiles != null && (execContext.ProcessingContext.InputModel.Client.ContainsKey(dataKey) || execContext.ProcessingContext.InputModel.Data.ContainsKey(dataKey) || (execContext.ParentResult != null && execContext.ParentResult.ContainsKey(dataKey))))
+            if (fileRestrictions != null)
             {
-                long uploadedFilesSize = long.Parse(execContext.Evaluate(dataKey).Value.ToString());
-                long maxAllowedSize = 1048576L * (long)maxAllowedSizeForFiles;
-
-                if (maxAllowedSize < uploadedFilesSize + execContext.ProcessingContext.InputModel.Data.Values.Where(v => v is IPostedFile).Cast<IPostedFile>().Sum(pf => pf.Length))
+                foreach (string key in fileRestrictions.Keys)
                 {
-                    throw new Exception($"You cannot upload more than {maxAllowedSizeForFiles} MB.");
+                    ParameterResolverValue resolverValue = execContext.Evaluate(key);
+                    long uploadedFilesSize = 0L;
+
+                    if (resolverValue.Value != null)
+                    {
+                        if (!long.TryParse(execContext.Evaluate(key).Value.ToString(), out uploadedFilesSize))
+                        {
+                            throw new Exception($"Invalid configuration settings for key {key}.");
+                        }
+                    }
+
+                    long maxAllowedSize = bytes * (long)fileRestrictions[key];
+
+                    if (maxAllowedSize < uploadedFilesSize + execContext.ProcessingContext.InputModel.Data.Values.Where(v => v is IPostedFile).Cast<IPostedFile>().Sum(pf => pf.Length))
+                    {
+                        throw new Exception($"You cannot upload more than {fileRestrictions[key]} MB.");
+                    }
                 }
             }
         }
@@ -371,14 +387,14 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
                     throw new Exception(string.Format(EXCEPTIONMESSAGE, UPLOADFOLDER));
                 }
 
-                UploadFolder = uploadFolder.Replace(MODULEROOT, kraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder).Replace(MODULE, execContext.ProcessingContext.InputModel.Module);
+                UploadFolder = uploadFolder.Replace(MODULEROOT, kraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(execContext.ProcessingContext.InputModel.Module)).Replace(MODULE, execContext.ProcessingContext.InputModel.Module);
 
                 if (!execContext.DataLoaderContextScoped.CustomSettings.TryGetValue(DEFAULTFOLDER, out string defaultFolder))
                 {
                     throw new Exception(string.Format(EXCEPTIONMESSAGE, DEFAULTFOLDER));
                 }
 
-                DefaultFolder = defaultFolder.Replace(MODULEROOT, kraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder).Replace(MODULE, execContext.ProcessingContext.InputModel.Module); ;
+                DefaultFolder = defaultFolder.Replace(MODULEROOT, kraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(execContext.ProcessingContext.InputModel.Module)).Replace(MODULE, execContext.ProcessingContext.InputModel.Module); ;
 
                 if (!execContext.DataLoaderContextScoped.CustomSettings.TryGetValue(FILENOTFOUNDICON, out string fileNotFoundIcon))
                 {
@@ -402,24 +418,35 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
         {
             internal WriteCustomSettings(IDataLoaderContext execContext, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) : base(execContext, kraftGlobalConfigurationSettings)
             {
-                long? maxFilesSpacePerDashboardInMB = null;
+                Dictionary<string, long> fileRestrictions = new Dictionary<string, long>();
                 double? previewHeight = null;
                 double? previewWidth = null;
 
-                if (execContext.DataLoaderContextScoped.CustomSettings.TryGetValue(MAXFILESPACEPERDASHBOARDINMB, out string maxFilesLengthAsString))
+                if (execContext.DataLoaderContextScoped.CustomSettings.TryGetValue(MAXFILESPACEPERDASHBOARDINMB, out string parameters))
                 {
-                    if (long.TryParse(maxFilesLengthAsString, out long maxFilesLength))
-                    {
-                        if (maxFilesLength < 0L)
-                        {
-                            throw new Exception($"{MAXFILESPACEPERDASHBOARDINMB} cannot be less than zero.");
-                        }
+                    long value;
+                    Regex keyValueRegex = new Regex(@"{(\s*(?<key>[a-zA-Z]+)\s*:\s*(?<value>[0-9]+)\s*)}");
+                    MatchCollection matchCollection = keyValueRegex.Matches(parameters);
 
-                        maxFilesSpacePerDashboardInMB = maxFilesLength;
+                    foreach (Match match in matchCollection)
+                    {
+                        if (long.TryParse(match.Groups["value"].ToString(), out value))
+                        {
+                            if (value < 0L)
+                            {
+                                throw new Exception("Invalid configuration for uploading files. Restriction cannot be less than zero.");
+                            }
+
+                            fileRestrictions.Add(match.Groups["key"].ToString(), value);
+                        }
+                        else
+                        {
+                            throw new Exception("Invalid configuration for uploading files.");
+                        }
                     }
                 }
 
-                MaxFilesSpacePerDashboardInMB = maxFilesSpacePerDashboardInMB;
+                FileRestrictions = fileRestrictions;
 
                 if (execContext.DataLoaderContextScoped.CustomSettings.TryGetValue(PREVIEWHEIGHT, out string previewHeightAsString))
                 {
@@ -436,7 +463,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
                 PreviewWidth = previewWidth;
             }
 
-            internal long? MaxFilesSpacePerDashboardInMB { get; private set; }
+            internal Dictionary<string, long> FileRestrictions { get; private set; }
 
             internal double? PreviewHeight { get; private set; }
 

@@ -9,6 +9,7 @@ namespace Ccf.Ck.Models.Packet
         // TODO: More properties will be needed
         public bool IsSuccessful { get; set; } = true;
         public List<IStatusResult> StatusResults { get; set; } = new List<IStatusResult>();
+        public string ReturnUrl { get; set; }
 
         public static IReturnStatus Combine(IEnumerable<IReturnStatus> statuses)
         {

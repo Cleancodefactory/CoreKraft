@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.3" />
+    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Middleware\Ccf.Ck.Web.Middleware.csproj" />
+    <ProjectReference Include="..\..\NodePlugins\Base\Ccf.Ck.NodePlugins.Base.csproj" />
+    <ProjectReference Include="..\..\NodePlugins\BindKraftIntro\Ccf.Ck.NodePlugins.BindKraftIntro.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\Call\Ccf.Ck.SysPlugins.Data.Call.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\Db.ADO\Ccf.Ck.SysPlugins.Data.Db.ADO.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\FileTransaction\Ccf.Ck.SysPlugins.Data.FileTransaction.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\FileUpload\Ccf.Ck.SysPlugins.Data.FileUpload.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\HttpService\Ccf.Ck.SysPlugins.Data.HttpService.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\Internal\Ccf.Ck.SysPlugins.Data.Internal.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\Json\Ccf.Ck.SysPlugins.Data.Json.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\RawFiles\Ccf.Ck.SysPlugins.Data.RawFiles.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\UploadFileStream\Ccf.Ck.SysPlugins.Data.UploadFileStream.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Data\UserProfileManager\Ccf.Ck.SysPlugins.Data.UserProfileManager.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Iterators\DataNodes\Ccf.Ck.SysPlugins.Iterators.DataNodes.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Services\Ccf.Ck.SysPlugins.Services.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Support\ParameterExpression\Ccf.Ck.SysPlugins.Support.ParameterExpression.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Support\ParameterValidation\Ccf.Ck.SysPlugins.Support.ParameterValidation.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\View.Html\Ccf.Ck.SysPlugins.Views.Html.csproj" />
+  </ItemGroup>
+
+</Project>

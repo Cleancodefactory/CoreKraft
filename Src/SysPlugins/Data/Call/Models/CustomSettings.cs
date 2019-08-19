@@ -36,7 +36,7 @@ namespace Ccf.Ck.SysPlugins.Data.Call.Models
 
             if (!string.IsNullOrWhiteSpace(OperationKey))
             {
-                string operationValueAsString = FindOperationValue(OperationKey, execContext);
+                string operationValueAsString = FindValue(OperationKey, execContext);
 
                 if (string.Equals(operationValueAsString, "write", StringComparison.OrdinalIgnoreCase))
                 {
@@ -52,9 +52,9 @@ namespace Ccf.Ck.SysPlugins.Data.Call.Models
                 OperationValue = isWriteOperation;
             }
 
-            ModuleValue = FindValue(ModuleKey, execContext, OperationValue);
-            NodesetValue = FindValue(NodesetKey, execContext, OperationValue);
-            NodepathValue = FindValue(NodepathKey, execContext, OperationValue);
+            ModuleValue = FindValue(ModuleKey, execContext);
+            NodesetValue = FindValue(NodesetKey, execContext);
+            NodepathValue = FindValue(NodepathKey, execContext);
 
             ValidateStringIsNotEmpty(ModuleValue, string.Format(REQUIRED_VALUE_ERROR, ModuleKey));
             ValidateStringIsNotEmpty(NodesetValue, string.Format(REQUIRED_VALUE_ERROR, NodesetKey));
@@ -77,61 +77,11 @@ namespace Ccf.Ck.SysPlugins.Data.Call.Models
 
         internal bool OperationValue { get; private set; }
 
-        private string FindValue(string name, IDataLoaderContext execContext, bool isWrite)
+        private string FindValue(string name, IDataLoaderContext execContext)
         {
             ParameterResolverValue parameterReolverValue = execContext.Evaluate(name);
 
-            if (parameterReolverValue.Value != null && parameterReolverValue.ValueDataType == EValueDataType.Text)
-            {
-                return parameterReolverValue.Value.ToString();
-            }
-            else
-            {
-                string value = execContext.CurrentNode.Parameters.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Expression;
-
-                if (isWrite)
-                {
-                    if (value == default(string))
-                    {
-                        value = execContext.CurrentNode.Write?.Parameters.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Expression;
-                    }
-                }
-                else
-                {
-                    if (value == default(string))
-                    {
-                        value = execContext.CurrentNode.Read?.Parameters.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Expression;
-                    }
-                }
-
-                return value;
-            }
-        }
-
-        private string FindOperationValue(string name, IDataLoaderContext execContext)
-        {
-            ParameterResolverValue parameterReolverValue = execContext.Evaluate(name);
-
-            if (parameterReolverValue.Value != null && parameterReolverValue.ValueDataType == EValueDataType.Text)
-            {
-                return parameterReolverValue.Value.ToString();
-            }
-            else
-            {
-                string value = execContext.CurrentNode.Parameters.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Expression;
-
-                if (value == default(string))
-                {
-                    value = execContext.CurrentNode.Write?.Parameters.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Expression;
-                }
-
-                if (value == default(string))
-                {
-                    value = execContext.CurrentNode.Read?.Parameters.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Expression;
-                }
-
-                return value;
-            }
+            return parameterReolverValue.Value.ToString();
         }
 
         private void ValidateStringIsNotEmpty(string text, string message)

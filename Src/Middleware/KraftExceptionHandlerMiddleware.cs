@@ -10,21 +10,22 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.Web.Middleware
 {
     public class KraftExceptionHandlerMiddleware
     {
-        private static Action<IApplicationBuilder> _Action = new Action<IApplicationBuilder>(HandleError);
-        public static Action<IApplicationBuilder> HandleErrorAction { get => _Action; private set => _Action = value; }
+        public static Action<IApplicationBuilder> HandleErrorAction { get; private set; } = new Action<IApplicationBuilder>(HandleError);
         public const string EXCEPTIONSONCONFIGURE = "Configure";
         public const string EXCEPTIONSONCONFIGURESERVICES = "ConfigureServices";
         public static Dictionary<string, List<Exception>> Exceptions;
-        private readonly RequestDelegate _Next;
-        private readonly ExceptionHandlerOptions _Options;
-        private readonly ILogger _Logger;
-        private readonly Func<object, Task> _ClearCacheHeadersDelegate;
-        private readonly DiagnosticSource _DiagnosticSource;
+
+        readonly RequestDelegate _Next;
+        readonly ExceptionHandlerOptions _Options;
+        readonly ILogger _Logger;
+        readonly Func<object, Task> _ClearCacheHeadersDelegate;
+        readonly DiagnosticSource _DiagnosticSource;
 
         static KraftExceptionHandlerMiddleware()
         {
@@ -58,6 +59,8 @@ namespace Ccf.Ck.Web.Middleware
                     if (context.Response.StatusCode == 404)
                     {
                         path = "received for: " + context.Request.Path;
+                        _Logger.LogError(0, $"HTTP status code: {context.Response.StatusCode} {path}");
+
                     }
                     if (!context.Response.HasStarted)
                     {
@@ -146,39 +149,27 @@ namespace Ccf.Ck.Web.Middleware
                   async context =>
                   {
                       context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                      context.Response.ContentType = "text/plain";
+                      context.Response.ContentType = "text/html";
 
-                      var error = context.Features.Get<IExceptionHandlerFeature>();
+                      IExceptionHandlerFeature error = context.Features.Get<IExceptionHandlerFeature>();
                       if (error != null)
                       {
                           await context.Response.WriteAsync($"<h1>Error: {error.Error.Message}</h1>").ConfigureAwait(false);
                       }
-                      foreach (var ex in Exceptions)
+                      StringBuilder errorDetails = new StringBuilder();
+                      foreach (KeyValuePair<string, List<Exception>> ex in Exceptions)
                       {
-                          foreach (var val in ex.Value)
+                          foreach (Exception val in ex.Value)
                           {
-                              await context.Response.WriteAsync($"Error on {ex.Key}: {val.Message} {Environment.NewLine} {GetErrorMessages().ToString()}").ConfigureAwait(false);
+                              errorDetails.Append($"<h2>Error on {ex.Key}: {val.Message}</h2>");
+                              errorDetails.Append($"<h3>Further details: {val.StackTrace}</h3>");
                           }
                       }
+                      await context.Response.WriteAsync(errorDetails.ToString()).ConfigureAwait(false);
+                      KraftLogger.LogError(errorDetails.ToString());
                   });
                 return;
             }
-        }
-
-        private static StringBuilder GetErrorMessages()
-        {
-            StringBuilder sb = new StringBuilder();
-            if (Exceptions.Any(p => p.Value.Any()))
-            {
-                foreach (var ex in Exceptions)
-                {
-                    foreach (var val in ex.Value)
-                    {
-                        sb.Append($"Error on {ex.Key}: {val.Message}");
-                    }
-                }
-            }
-            return sb;
         }
     }
 }

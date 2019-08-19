@@ -59,7 +59,7 @@ namespace Ccf.Ck.SysPlugins.Lookups.ADO
             if (_DbConnection == null)
             {
                 //Create connection
-                string moduleRoot = System.IO.Path.Combine(KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder, ProcessingContext.InputModel.Module);
+                string moduleRoot = System.IO.Path.Combine(KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(ProcessingContext.InputModel.Module), ProcessingContext.InputModel.Module);
                 // Support for @moduleroot@ variable replacement for connection strings that refer to file(s)
                 string ConnectionString = (CustomSettings != null && CustomSettings.ContainsKey("ConnectionString"))
                          ? CustomSettings["ConnectionString"].Replace("@moduleroot@", moduleRoot)
