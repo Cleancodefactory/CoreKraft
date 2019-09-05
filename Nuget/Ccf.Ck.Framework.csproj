@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -28,35 +27,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Src\Middleware\Ccf.Ck.Web.Middleware.csproj" />
   </ItemGroup>
-=======
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-
-  <!-- Nuget specific tags -->
-  <PropertyGroup>
-    <!-- Description and Release notes -->
-    <Description>Contains the execution middleware of the CoreKraft framework</Description>
-    <PackageProjectUrl>https://github.com/cleancodefactory/corekraft</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/cleancodefactory/corekraft</RepositoryUrl>
-    <PackageTags>CoreKraft micro-services architecture pipeline for request execution</PackageTags>
-    <PackageReleaseNotes>
-      Contains the execution middleware of the CoreKraft framework
-      - Version 1.0.0: Initial publish with profound execution capabilities (read and write data from/into different sources: DB, Files, another Http-service)
-      - Version 1.0.1: Extend the Kraft(-Scripts/-Styles) methods with a default moduleDepStartFile. Allows us to bundle from different starting points.
-      - Version 1.0.2: When bootstrapping a module read resources from Module.dep and additionally moduleDepStartFile if available.
-      - Version 1.0.3: Introduce the concept that the modules reside in multiple folders.
-      - Version 1.0.4: Improve logging during modules loading.
-      - Version 1.0.5: Fix the ModulesWatchers' implementation related to the multiple roots (modules).
-      - Version 1.0.10: Fix error when the collection of signals is empty.
-    </PackageReleaseNotes>
-    <!-- Description and Release notes -->
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Src\Middleware\Ccf.Ck.Web.Middleware.csproj" />
-  </ItemGroup>
->>>>>>> develop
 </Project>

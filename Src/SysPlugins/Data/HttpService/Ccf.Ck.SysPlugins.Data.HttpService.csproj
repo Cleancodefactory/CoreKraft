@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -25,31 +24,3 @@
   </ItemGroup>
 
 </Project>
-=======
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>Ccf.Ck.SysPlugins.Data.HttpService</AssemblyName>
-    <RootNamespace>Ccf.Ck.SysPlugins.Data.HttpService</RootNamespace>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <PackageDescription>Http Dataloader for CoreKraft.</PackageDescription>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <PackageDescription>This package provides Http Service System Plugin for CoreKraft.</PackageDescription>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
-    <ProjectReference Include="..\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
-  </ItemGroup>
-
-</Project>
->>>>>>> develop

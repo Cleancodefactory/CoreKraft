@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿using System.Collections.Generic;
 
 namespace Ccf.Ck.SysPlugins.Interfaces.Packet
@@ -10,16 +9,3 @@ namespace Ccf.Ck.SysPlugins.Interfaces.Packet
         List<IStatusResult> StatusResults { get; set; }
     }
 }
-=======
-﻿using System.Collections.Generic;
-
-namespace Ccf.Ck.SysPlugins.Interfaces.Packet
-{
-    public interface IReturnStatus
-    {
-        bool IsSuccessful { get; set; }
-        string ReturnUrl { get; set; }
-        List<IStatusResult> StatusResults { get; set; }
-    }
-}
->>>>>>> develop

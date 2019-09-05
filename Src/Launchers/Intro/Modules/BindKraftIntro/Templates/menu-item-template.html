@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿<div data-class="DualTemplate defaultTemplate='single' alternateTemplate='expandable'" data-bind-$item="{read}" data-key="switcher">
     <div data-key="single">
         <div class="menu-control-item">
@@ -37,43 +36,3 @@
     </div>
 </div>
 
-=======
-﻿<div data-class="DualTemplate defaultTemplate='single' alternateTemplate='expandable'" data-bind-$item="{read}" data-key="switcher">
-    <div data-key="single">
-        <div class="menu-control-item">
-            <span data-class="SvgY width='2em' height='2em' @svgpath={read source=__control path=$svgpath}"></span>
-            <span class="menu-control-item-caption" data-bind-text="{read source=__control path=$caption}"></span>
-        </div>
-    </div>
-    <div data-key="expandable">
-        <div data-class="Expander" data-key="expander">
-            <div data-key="InactiveHeader">
-                <div class="menu-control-item">
-                    <span data-class="SvgY width='1em' height='1em' @svgpath={read source=__control path=$svgpath}" class=" bk-svg-white-small-nohover"></span>
-
-                    <span class="menu-control-item-icon bk-svg-white-small-nohover" data-class="SvgY  @svgpath='/node/raw/BindKraftStyles/Images/angle-right.svg'"></span>
-                    <span class="menu-control-item-caption" data-bind-text="{read source=__control path=$caption}"></span>
-                </div>
-            </div>
-            <div data-key="ActiveHeader">
-                <div class="menu-control-item">
-                    <span data-class="SvgY width='1em' height='1em' @svgpath={read source=__control path=$svgpath}" class=" bk-svg-white-small-nohover"></span>
-                    <span class="menu-control-item-icon bk-svg-white-small-nohover" data-class="SvgY  @svgpath='/node/raw/BindKraftStyles/Images/angle-down.svg'"></span>
-                    <span class="menu-control-item-caption" data-bind-text="{read source=__control path=$caption}"></span>
-                    
-                </div>
-            </div>
-            <div data-key="Body">
-                <div data-class="SelectableRepeater" data-bind-$items="{read source=__control path=$children}">
-                    <div data-class="BKI_MenuItem" style="margin-left:3em;"
-                            data-on-click="{bind source=self path=onClick}"
-                            data-bind-$name="{bind path=Id}"
-                            data-bind-$caption="{bind path=Caption}"
-                            data-bind-$children="{bind path=Children}"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
->>>>>>> develop

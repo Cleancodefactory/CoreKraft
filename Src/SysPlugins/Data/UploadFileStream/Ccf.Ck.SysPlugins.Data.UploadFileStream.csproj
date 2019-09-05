@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -20,26 +19,3 @@
   </ItemGroup>
 
 </Project>
-=======
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <PackageDescription>This package provides classes for file upload in CoreKraft (System Plugin).</PackageDescription>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Models\NodeSet\Ccf.Ck.Models.NodeSet.csproj" />
-    <ProjectReference Include="..\..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
-    <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
-  </ItemGroup>
-
-</Project>
->>>>>>> develop

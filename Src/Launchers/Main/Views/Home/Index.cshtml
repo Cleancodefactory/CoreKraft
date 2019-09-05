@@ -1,46 +1,3 @@
-<<<<<<< HEAD
-@using Ccf.Ck.Libs.Web.Bundling
-@using Ccf.Ck.Models.KraftModule
-@using Ccf.Ck.Models.Settings
-@model KraftGlobalConfigurationSettings
-
-@{
-<<<<<<< HEAD
-    ViewData["Title"] = "BindKraft-Intro";
-=======
-    ViewData["Title"] = Model.GeneralSettings.DefaultStartModule;
->>>>>>> ec6b1dbb621ed35450d63c4856f7fd897d34da72
-}
-
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>@ViewData["Title"]</title>
-    <script type="text/javascript">
-            //global base path
-            g_ApplicationBasePath = "@Url.Content("~/")";
-    </script>
-    @{ 
-
-    }
-    @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles().Render()
-</head>
-<body>
-    <div id="bindkraft">
-        <div id="container" class="themed basic">
-        </div>
-    </div>
-    @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftScripts().Render()
-</body>
-</html>
-
-
-
-
-
-
-=======
 @using Ccf.Ck.Libs.Web.Bundling
 @using Ccf.Ck.Models.KraftModule
 @using Ccf.Ck.Models.Settings
@@ -78,4 +35,3 @@
 
 
 
->>>>>>> develop

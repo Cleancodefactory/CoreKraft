@@ -1,4 +1,3 @@
-<<<<<<< HEAD:Src/Launchers/Intro/Views/Home/Index.cshtml
 @using Ccf.Ck.Libs.Web.Bundling
 @using Ccf.Ck.Models.KraftModule
 
@@ -21,28 +20,4 @@
 
 @section scripts {
     @BundleCollection.Instance.Profile("BindKraftIntro").KraftScripts().Render()
-=======
-@using Ccf.Ck.Libs.Web.Bundling
-@using Ccf.Ck.Models.KraftModule
-
-@{
-    ViewData["Title"] = "BindKraft-Intro";
-}
-
-@section styles {
-    @BundleCollection.Instance.Profile("BindKraftIntro").KraftStyles("Basic.dep").Render()
-}
-
-<script type="text/javascript">
-            //global base path
-            g_ApplicationBasePath = "@Url.Content("~/")";
-</script>
-<div id="bindkraft">
-    <div id="container" class="themed basic">
-    </div>
-</div>
-
-@section scripts {
-    @BundleCollection.Instance.Profile("BindKraftIntro").KraftScripts().Render()
->>>>>>> develop:Src/Launchers/Intro/Views/Home/Index.cshtml
 }

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -20,27 +19,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
-=======
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-
-  <!-- Nuget specific tags -->
-  <PropertyGroup>
-    <!-- Description and Release notes -->
-    <PackageDescription>POCOs (Plain old CLR objects) Models for the CoreKraft framework</PackageDescription>
-    <PackageProjectUrl>https://github.com/cleancodefactory/corekraft</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/cleancodefactory/corekraft</RepositoryUrl>
-    <PackageTags>kraft cli tools corekraft bindkraft framework poco models</PackageTags>
-    <PackageReleaseNotes>POCOs (Plain old CLR objects) Models for the CoreKraft/BindKraft frameworks</PackageReleaseNotes>
-    <!-- Description and Release notes -->
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-  </ItemGroup>
-
->>>>>>> develop
 </Project>

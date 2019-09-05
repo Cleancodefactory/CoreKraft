@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿<div data-class="BKI_SelectSection">
     <h1 style="text-align: center;">Select section</h1>
     <div data-class="VirtualDropDownControl  keyproperty='name' descproperty='name' titleproperty='name'"
@@ -23,30 +22,4 @@
             data-on-click="{bind source=__view path=onCancel}">
         Cancel
     </button>
-=======
-﻿<div data-class="BKI_SelectSection">
-    <h1 style="text-align: center;">Select section</h1>
-    <div data-class="VirtualDropDownControl  keyproperty='name' descproperty='name' titleproperty='name'"
-         data-bind-$items="{read path=sections}"
-         data-bind-$selecteditem="{bind source=__view path=$section writedata=$selchangedevent}"
-         style="margin-bottom: 1%;"></div>
-    <div>
-        <label>Difficulty Level</label>
-        <input type="text" placeholder="Difficulty Level" data-bind-val="{bind source=__view path=$orderIdx validator='__view/numberValidator' writedata=change}" class="bki-input" autofocus />
-        <span data-key="numberValidator"
-              data-class="Validator @template={read service=BindKraftIntroApp path=$validatortemplate}"
-              data-parameters="events='blur,keyup' #showhint=0 #autohidehint=1"
-              data-validate-required="@text='Difficulty Level is required.' #fail=1"
-              data-validate-number="@text='Difficulty Level must be a number.' #fail=1"
-              data-validate-rangenumbers="@text='Difficulty Level must be a positive number(>= 1).' #fail=1  @minValue='1'" class="bki-validate"></span>
-    </div>
-    <button class="bk-button bk-button-block bk-pushable margin-button" type="button"
-            data-on-click="{bind source=__view path=onSave}">
-        Save
-    </button>
-    <button class="bk-button bk-button-block bk-pushable margin-button" type="button"
-            data-on-click="{bind source=__view path=onCancel}">
-        Cancel
-    </button>
->>>>>>> develop
 </div>
