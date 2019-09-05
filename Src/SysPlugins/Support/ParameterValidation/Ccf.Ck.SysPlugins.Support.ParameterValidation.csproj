@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -17,4 +18,25 @@
     <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
   </ItemGroup>
 
+=======
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ccf.Ck.Libs.ResolverExpression" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Models\Resolvers\Ccf.Ck.Models.Resolvers.csproj" />
+    <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+  </ItemGroup>
+
+>>>>>>> develop
 </Project>

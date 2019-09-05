@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -22,4 +23,30 @@
     <ProjectReference Include="..\Web.Settings\Ccf.Ck.Models.Web.Settings.csproj" />
   </ItemGroup>
 
+=======
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package contains the Settings models for CoreKraft.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Utilities\Generic\Ccf.Ck.Utilities.Generic.csproj" />
+    <ProjectReference Include="..\..\Utilities\MemoryCache\Ccf.Ck.Utilities.MemoryCache.csproj" />
+    <ProjectReference Include="..\Web.Settings\Ccf.Ck.Models.Web.Settings.csproj" />
+  </ItemGroup>
+
+>>>>>>> develop
 </Project>

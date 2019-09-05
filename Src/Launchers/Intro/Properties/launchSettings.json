@@ -1,3 +1,4 @@
+<<<<<<< HEAD:Src/Launchers/Intro/Properties/launchSettings.json
 {
   "iisSettings": {
     "windowsAuthentication": false,
@@ -27,4 +28,35 @@
       "applicationUrl": "https://localhost:5001"
     }
   }
+=======
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "https://localhost:5001/",
+      "ASPNETCORE_preventHostingStartup": "True",
+      "sslPort": 0
+    }
+  },
+  "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "\"Development\".",
+        "ASPNETCORE_preventHostingStartup": "True"
+      }
+    },
+    "CoreKraft.Launchers.Intro": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_preventHostingStartup": "True"
+      },
+      "applicationUrl": "https://localhost:5001"
+    }
+  }
+>>>>>>> develop:Src/Launchers/Intro/Properties/launchSettings.json
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -21,4 +22,29 @@
     <ProjectReference Include="..\..\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
   </ItemGroup>
 
+=======
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package provides System Plugin for Node Set tree structure iteration in CoreKraft.</PackageDescription>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Models\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
+    <ProjectReference Include="..\..\..\Models\NodeRequest\Ccf.Ck.Models.NodeRequest.csproj" />
+    <ProjectReference Include="..\..\..\Models\NodeSet\Ccf.Ck.Models.NodeSet.csproj" />
+    <ProjectReference Include="..\..\..\Models\Resolvers\Ccf.Ck.Models.Resolvers.csproj" />
+    <ProjectReference Include="..\..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\..\Models\Web.Settings\Ccf.Ck.Models.Web.Settings.csproj" />
+    <ProjectReference Include="..\..\..\Utilities\Generic\Ccf.Ck.Utilities.Generic.csproj" />
+    <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+    <ProjectReference Include="..\..\Support\ParameterExpression\Ccf.Ck.SysPlugins.Support.ParameterExpression.csproj" />
+    <ProjectReference Include="..\..\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
+  </ItemGroup>
+
+>>>>>>> develop
 </Project>
