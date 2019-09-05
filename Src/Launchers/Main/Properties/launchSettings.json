@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "iisSettings": {
     "windowsAuthentication": false,
@@ -27,4 +28,35 @@
       "applicationUrl": "https://localhost:5001"
     }
   }
+=======
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "https://localhost:5001/",
+      "sslPort": 0
+    }
+  },
+  "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_preventHostingStartup": "True",
+        "ASPNETCORE_ENVIRONMENT": "\"Development\"."
+      }
+    },
+    "CoreKraft.Launchers.Main": {
+      "commandName": "Project",
+      "commandLineArgs": "../Intro",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_preventHostingStartup": "True",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:5001"
+    }
+  }
+>>>>>>> develop
 }

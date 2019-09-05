@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -20,3 +21,27 @@
   </ItemGroup>
   
 </Project>
+=======
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Ccf.Ck.NodePlugins.BindKraftIntro</AssemblyName>
+    <RootNamespace>Ccf.Ck.NodePlugins.BindKraftIntro</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package contains BindKraftIntro Node Plugin.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\SysPlugins\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+    <ProjectReference Include="..\Base\Ccf.Ck.NodePlugins.Base.csproj" />
+  </ItemGroup>
+  
+</Project>
+>>>>>>> develop

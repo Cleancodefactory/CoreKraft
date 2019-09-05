@@ -499,33 +499,4 @@ jspm_packages
 ### VisualStudio Patch ###
 build/
 
-### BindKraft
-**/Modules/Bindkraft/Scripts/framework
-**/Modules/Bindkraft/Data/*
-!**/Modules/Bindkraft/Data/.gitkeep
-**/wwwroot/Public/**
 
-### Custom plugins
-**/Modules/_PluginsReferences/*.*
-/src/SystemPlugins/Loaders/ccf.CoreKraft.Plugins.DataLoaders.JsonServiceLoader/RiskApplication.cs
-/src/WebLauncher/ccf.CoreKraft.CoreWeb.WebLauncher/Modules/ItemsArchive/Data/json/dc.json
-/src/WebLauncher/ccf.CoreKraft.CoreWeb.WebLauncher/Modules/ItemsArchive/Data/json/test.json
-/src/WebLauncher/ccf.CoreKraft.CoreWeb.WebLauncher/Modules/Test/Scripts/app.js
-/src/WebLauncher/ccf.CoreKraft.CoreWeb.WebLauncher/Modules/Test/Scripts/boot.js
-### Custom plugins
-_PluginsReferences/
-/Tools/ProjectTemplates/KraftTemplate/Kraft/Modules/BindKraft
-/Tools/ProjectTemplates/KraftTemplate/Kraft/Modules/BindKraftStyles
-/Tools/ProjectTemplates/KraftTemplate/CoreKraft.WebTemplate.CSharp/content/Modules/BindKraftStyles
-/Tools/ProjectTemplates/KraftTemplate/CoreKraft.WebTemplate.CSharp/content/Modules/BindKraft
-/Tools/ProjectTemplates/KraftTemplate/CoreKraft.WebTemplate.CSharp/content/Modules/PlatformUtility
-/Tools/ProjectTemplates/KraftTemplate/CoreKraft.WebTemplate.CSharp/content/Modules/BindKraftGenericControls
-/Tools/ProjectTemplates/KraftTemplate/CoreKraft.WebTemplate.CSharp/content/Modules/BindkraftWorkspace
-/Tools/Cli/Cli.zip
-/Src/Launcher/Modules/KnowledgeBase/Documentation/Cli/Cli_Commands.md
-/Src/Authorization/Openiddict
-/Src/Launcher/Modules/KraftCRM/Data/UploadedFiles/31444771_434128370380542_4544409105241997312_n_preview.jpg
-/Src/Launcher/Modules/KraftCRM/Data/UploadedFiles/31444771_434128370380542_4544409105241997312_n.jpg
-**/Src/KraftCms/Sites/**/Plugins/
-**/Src/KraftCms/Sites/**/Modules/
-/Src/Launcher/Modules/Board/Data/UploadedFiles

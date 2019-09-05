@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -23,3 +24,30 @@
   </ItemGroup>
 
 </Project>
+=======
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>Provides System Plugin for calls between Nodes.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Models\Exceptions\Ccf.Ck.Models.Exceptions.csproj" />
+    <ProjectReference Include="..\..\..\Models\NodeRequest\Ccf.Ck.Models.NodeRequest.csproj" />
+    <ProjectReference Include="..\..\..\Models\NodeSet\Ccf.Ck.Models.NodeSet.csproj" />
+    <ProjectReference Include="..\..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\..\Processing\Web.RequestProcessing\Ccf.Ck.Processing.Web.Request.csproj" />
+    <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+    <ProjectReference Include="..\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
+  </ItemGroup>
+
+</Project>
+>>>>>>> develop

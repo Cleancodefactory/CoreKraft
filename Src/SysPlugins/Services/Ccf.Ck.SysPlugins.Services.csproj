@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -22,4 +23,30 @@
     <ProjectReference Include="..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
   </ItemGroup>
 
+=======
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package provides System Plugin for core services management in CoreKraft.</PackageDescription>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Grace" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Utilities\DependencyContainer\Ccf.Ck.Utilities.DependencyContainer.csproj" />
+    <ProjectReference Include="..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+  </ItemGroup>
+
+>>>>>>> develop
 </Project>

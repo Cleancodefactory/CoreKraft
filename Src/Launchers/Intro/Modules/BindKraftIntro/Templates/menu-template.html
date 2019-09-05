@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<div data-key="menu" class="bki-navigation">
     <h2>BindKraft Intro</h2>
 
@@ -30,3 +31,37 @@
         </div>
     </div>
 </div>
+=======
+﻿<div data-key="menu" class="bki-navigation">
+    <h2>BindKraft Intro</h2>
+
+    <div data-on-click="{bind source=menuitemroot path=onCreate}" style="cursor:pointer;padding-bottom:1em;padding-top:1em;">
+        <button class="bk-button bk-button-round" title="Add Example">
+            +
+        </button>
+        <label style="cursor:pointer;margin-left:0.6em;">Add Example</label>
+    </div>
+
+    <div data-class="SelectableRepeater" data-bind-$items="{read source=__control path=$itemsdata}" style="cursor:pointer;">
+        <div data-class="BKI_MenuItem"
+             data-key="menurow"
+             data-on-click="{bind source=self path=onClick}"
+             data-bind-$name="{bind path=Id}"
+             data-bind-$caption="{bind path=Caption}"
+             data-bind-$svgpath="{bind path=ImagePath format=self:rawImagePathConverter}"
+             data-bind-$children="{bind path=IntroItems}"></div>
+    </div>
+
+    <div data-class="DualTemplate" data-bind-$item="{read}" data-key="adminSwitcher">
+        <div data-key="default">
+
+        </div>
+        <div data-key="alternate" data-on-click="{bind source=menuitemroot path=onOpenAdminView}" style="cursor:pointer;padding-bottom:1em;padding-top:1em;">
+            <button class="bk-button bk-button-round" title="Open Admin View" >
+                +
+            </button>
+            <label style="margin-left:0.6em;cursor:pointer;">Open admin view</label>
+        </div>
+    </div>
+</div>
+>>>>>>> develop
