@@ -1,1 +1,0 @@
-git update-index --assume-unchanged Src/Launchers/Main/Properties/launchSettings.json
