@@ -499,4 +499,6 @@ jspm_packages
 ### VisualStudio Patch ###
 build/
 
+#Kraft
+**/Main/Properties/launchSettings.json
 
