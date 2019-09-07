@@ -66,19 +66,21 @@ namespace Ccf.Ck.SysPlugins.Data.UserProfileManager
         private string GetAuthUrl(IDataLoaderContext execContext, string action)
         {
             KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings = execContext.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+            string authority = kraftGlobalConfigurationSettings.GeneralSettings.Authority;
+            authority = authority.TrimEnd('/');
             switch (action) //select, insert, update, delete
             {
                 case "select":
                     {
-                        return kraftGlobalConfigurationSettings.GeneralSettings.Authority + "api/getuser";
+                        return $"{authority}/api/getuser";
                     }
                 case "update":
                     {
-                        return kraftGlobalConfigurationSettings.GeneralSettings.Authority + "api/updateuser";
+                        return $"{authority}/api/updateuser";
                     }
                 case "delete":
                     {
-                        return kraftGlobalConfigurationSettings.GeneralSettings.Authority + "api/deleteuser";
+                        return $"{authority}/api/deleteuser";
                     }
             }
             return null;
