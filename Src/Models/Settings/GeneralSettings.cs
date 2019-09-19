@@ -12,10 +12,12 @@ namespace Ccf.Ck.Models.Settings
         {
             AuthorizationSection = new AuthorizationSection();
             SignalRSettings = new SignalRSettings();
+            Theme = string.Empty;
         }
         public bool EnableOptimization { get; set; }
         public List<string> ModulesRootFolders { get; set; }
         public string DefaultStartModule { get; set; }
+        public string Theme { get; set; }
         public string KraftUrlSegment { get; set; }
         public string KraftUrlCssJsSegment { get; set; }
         public string KraftUrlResourceSegment { get; set; }
