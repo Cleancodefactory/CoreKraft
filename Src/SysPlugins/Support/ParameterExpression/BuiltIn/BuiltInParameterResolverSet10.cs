@@ -16,6 +16,14 @@ using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.Models.Settings;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.Threading.Tasks;
+using System.Net;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
 {
@@ -293,14 +301,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         public ParameterResolverValue ApiTokenFromAuth(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {
             var provider = args[0].Value as string;
-            if (provider == null) throw new ArgumentNullException("Provider is null!");
+            if (string.IsNullOrWhiteSpace(provider)) throw new ArgumentNullException("Provider is null!");
             // if provider != {existing providers} throw?
 
             // 1. Read the custom settings from appsettings_XXX.json -> get the auth server address
             var settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
             
             // 1.1 - construct the endpoint address for the token API method
-            //check check
             var url = settings.GeneralSettings.Authority + "api/accesstoken?lp=" + provider;
 
 
@@ -308,22 +315,35 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             // 2.1 Wait and get the token from ret data
 
             // This should reside elsewhere/ or use some existing
-            //using (HttpClient client = new HttpClient(new HttpClientHandler()))
-            //{
-            //    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer");
-            //    using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
-            //    {
-            //        client.Timeout = new TimeSpan(100000000); // 10 seconds in ticks //new TimeSpan(0, 0, 10);
-            //
-            //        // need to await
-            //        using (HttpResponseMessage response = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
-            //        {
-            //            //token moken
-            //        }
-            //    }
-            //}
+            using (HttpClient client = new HttpClient(new HttpClientHandler()))
+            {
+                var accessor = ctx.PluginServiceManager.GetService<IHttpContextAccessor>(typeof(HttpContextAccessor));
+                var our_token = accessor.HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectParameterNames.AccessToken).Result;
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", our_token);
 
-            return new ParameterResolverValue("--- the token ---");
+                // Why global?
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+                {
+                    client.Timeout = new TimeSpan(0, 0, 10);
+                    HttpResponseMessage response = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).Result;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        JsonSerializer js = new JsonSerializer();
+
+                        var dick = js.Deserialize<Dictionary<string, object>>(new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
+                        return new ParameterResolverValue(dick["access_token"]);
+                    } else
+                    {
+                        throw new Exception("Communication error while obtaining the provider's token while using the login token to call tha authorization server for that.");
+                    }
+
+                    // TODO:
+                }
+            }
+
+            //return new ParameterResolverValue(null);
         }
 
         private bool TrueLike(object v)
