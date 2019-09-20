@@ -13,6 +13,9 @@ using System.Text;
 using System.Collections;
 using System.Globalization;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
+using Ccf.Ck.Models.Settings;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
 {
@@ -285,6 +288,42 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             } else {
                 throw new ArgumentException("The first argument to CastAs must be a string that specify the type to cast the second value to. Supported are: int, uint, double, string");
             }
+        }
+        // 1- arg - provider name as understood by the authorization server
+        public ParameterResolverValue ApiTokenFromAuth(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            var provider = args[0].Value as string;
+            if (provider == null) throw new ArgumentNullException("Provider is null!");
+            // if provider != {existing providers} throw?
+
+            // 1. Read the custom settings from appsettings_XXX.json -> get the auth server address
+            var settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+            
+            // 1.1 - construct the endpoint address for the token API method
+            //check check
+            var url = settings.GeneralSettings.Authority + "api/accesstoken?lp=" + provider;
+
+
+            // 2. Make the call
+            // 2.1 Wait and get the token from ret data
+
+            // This should reside elsewhere/ or use some existing
+            //using (HttpClient client = new HttpClient(new HttpClientHandler()))
+            //{
+            //    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer");
+            //    using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+            //    {
+            //        client.Timeout = new TimeSpan(100000000); // 10 seconds in ticks //new TimeSpan(0, 0, 10);
+            //
+            //        // need to await
+            //        using (HttpResponseMessage response = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+            //        {
+            //            //token moken
+            //        }
+            //    }
+            //}
+
+            return new ParameterResolverValue("--- the token ---");
         }
 
         private bool TrueLike(object v)
