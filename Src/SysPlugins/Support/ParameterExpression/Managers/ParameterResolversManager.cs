@@ -92,6 +92,30 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "Coalesce",
+                                     Arguments = 2,
+                                     Name = "Coalesce"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
+                                     Alias = "NumAsText",
+                                     Arguments = 2,
+                                     Name = "NumAsText"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
+                                     Alias = "CastAs",
+                                     Arguments = 2,
+                                     Name = "CastAs"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "GetUserDetails",
                                      Arguments = 1,
                                      Name = "GetUserDetails"

@@ -211,6 +211,81 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             var result = baseString.Replace(replaceKey, replaceWith);
             return new ParameterResolverValue(result);
         }
+        /// <summary>
+        /// If not null return the first value and the second otherwise
+        /// Coalesce(v1,v2)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue Coalesce(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            if (args[0].Value == null) {
+                return new ParameterResolverValue(args[1].Value);
+            } else {
+                return new ParameterResolverValue(args[0].Value);
+            }
+        }
+        /// <summary>
+        /// Return the value as textual representation suitable for insertion in SQL
+        /// NumAsText(v)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue NumAsText(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            var x = args[0].Value;
+            if (x == null) {
+                return new ParameterResolverValue("null", EResolverValueType.ContentType);
+            } else if (x.GetType() == typeof(int) || x.GetType() == typeof(long) || x.GetType() == typeof(uint) || x.GetType() == typeof(Int16) ||
+                x.GetType() == typeof(Int32) || x.GetType() == typeof(Int64) || x.GetType() == typeof(UInt16) || x.GetType() == typeof(UInt32) || x.GetType() == typeof(UInt64) ||
+                x.GetType() == typeof(float) || x.GetType() == typeof(double)) {
+                return new ParameterResolverValue(x.ToString(), EResolverValueType.ContentType);
+            } else {
+                var y = args[1].Value as string;
+                if (y == null) y = "null";
+                return new ParameterResolverValue(y, EResolverValueType.ContentType);
+            }
+        }
+        public ParameterResolverValue CastAs(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            string stype = args[0].Value as string;
+            object v = args[1].Value;
+            if (v == null) return new ParameterResolverValue(null);
+            if (string.IsNullOrWhiteSpace(v.ToString())) return new ParameterResolverValue(null);
+            if (stype != null) {
+                switch (stype) {
+                    case "int":
+                        long i_val;
+                        if (long.TryParse(v.ToString(), out i_val)) {
+                            return new ParameterResolverValue(i_val);
+                        } else {
+                            throw new ArgumentException("CastAs cannot convert the value to long integer");
+                        }
+                    case "uint":
+                        uint u_val;
+                        if (uint.TryParse(v.ToString(), out u_val)) {
+                            return new ParameterResolverValue(u_val);
+                        } else {
+                            throw new ArgumentException("CastAs cannot convert the value to uint");
+                        }
+                    case "double":
+                        double d_val;
+                        if (double.TryParse(v.ToString(), out d_val)) {
+                            return new ParameterResolverValue(d_val);
+                        } else {
+                            throw new ArgumentException("CastAs cannot convert the value to double");
+                        }
+                    case "string":
+                        return new ParameterResolverValue(v.ToString());
+                    default:
+                        throw new ArgumentException("CastAs cannot understand the type specified: " + stype);
+                }
+            } else {
+                throw new ArgumentException("The first argument to CastAs must be a string that specify the type to cast the second value to. Supported are: int, uint, double, string");
+            }
+        }
 
         private bool TrueLike(object v)
         {
