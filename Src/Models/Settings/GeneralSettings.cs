@@ -12,7 +12,7 @@ namespace Ccf.Ck.Models.Settings
         {
             AuthorizationSection = new AuthorizationSection();
             SignalRSettings = new SignalRSettings();
-            Theme = string.Empty;
+            Theme = "Module.dep";
         }
         public bool EnableOptimization { get; set; }
         public List<string> ModulesRootFolders { get; set; }
