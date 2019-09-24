@@ -1,0 +1,44 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "publish_nodeplugins",
+            "type": "shell",
+            "command": "kraft system -s ${workspaceFolder}/NodePlugins -t ${workspaceFolder}/Launcher/Modules/_PluginsReferences -pt false -exit true -wpdb true",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "publish_systemplugins",
+
+            "type": "shell",
+            "command": "kraft system -s ${workspaceFolder}/SysPlugins -t ${workspaceFolder}/Launcher/Modules/_PluginsReferences -pt false -exit true -wpdb true",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "options": {
+                "env": {
+                    "SolutionDir": "${workspaceFolder}"
+                }
+            },
+            "args": [
+                "build",
+                "${workspaceFolder}/Launcher/Ccf.Ck.Launcher.csproj"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

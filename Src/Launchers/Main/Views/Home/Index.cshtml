@@ -4,7 +4,7 @@
 @model KraftGlobalConfigurationSettings
 
 @{
-    ViewData["Title"] = "BindKraft-Intro";
+    ViewData["Title"] = Model.GeneralSettings.DefaultStartModule;
 }
 
 <!DOCTYPE html>
@@ -19,11 +19,11 @@
     @{ 
 
     }
-    @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles().Render()
+    @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles(string.IsNullOrEmpty(Model.GeneralSettings.Theme)?"Module.dep":Model.GeneralSettings.Theme + ".dep").Render()
 </head>
 <body>
     <div id="bindkraft">
-        <div id="container" class="themed basic">
+        <div id="container" class="themed">
         </div>
     </div>
     @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftScripts().Render()
