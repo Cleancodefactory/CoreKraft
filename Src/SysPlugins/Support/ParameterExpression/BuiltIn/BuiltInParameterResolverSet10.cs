@@ -332,18 +332,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                     {
                         JsonSerializer js = new JsonSerializer();
 
-                        var dick = js.Deserialize<Dictionary<string, object>>(new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
-                        return new ParameterResolverValue(dick["access_token"]);
+                        var res = js.Deserialize<Dictionary<string, object>>(new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
+                        return new ParameterResolverValue(res["access_token"]);
                     } else
                     {
                         throw new Exception("Communication error while obtaining the provider's token while using the login token to call tha authorization server for that.");
                     }
-
-                    // TODO:
                 }
             }
-
-            //return new ParameterResolverValue(null);
         }
 
         private bool TrueLike(object v)
