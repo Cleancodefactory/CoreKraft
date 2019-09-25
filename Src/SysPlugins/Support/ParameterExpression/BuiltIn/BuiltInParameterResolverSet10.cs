@@ -297,24 +297,27 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 throw new ArgumentException("The first argument to CastAs must be a string that specify the type to cast the second value to. Supported are: int, uint, double, string");
             }
         }
-        // 1- arg - provider name as understood by the authorization server
+
+        /// <summary>
+        /// Resolver to get an auth token, from the authorization server, for the currently supported providers.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args">1- arg - provider name as understood by the authorization server</param>
+        /// <returns></returns>
         public ParameterResolverValue ApiTokenFromAuth(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {
             var provider = args[0].Value as string;
             if (string.IsNullOrWhiteSpace(provider)) throw new ArgumentNullException("Provider is null!");
-            // if provider != {existing providers} throw?
 
             // 1. Read the custom settings from appsettings_XXX.json -> get the auth server address
             var settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
             
             // 1.1 - construct the endpoint address for the token API method
             var url = settings.GeneralSettings.Authority + "api/accesstoken?lp=" + provider;
-
-
+            
             // 2. Make the call
             // 2.1 Wait and get the token from ret data
-
-            // This should reside elsewhere/ or use some existing
+            // This should reside elsewhere / or use some existing
             using (HttpClient client = new HttpClient(new HttpClientHandler()))
             {
                 var accessor = ctx.PluginServiceManager.GetService<IHttpContextAccessor>(typeof(HttpContextAccessor));
