@@ -184,6 +184,16 @@ namespace Ccf.Ck.Web.Middleware
                     throw new Exception($"CoreKrafts module construction failed! {boom.Message}");
                 }
                 #endregion Initial module registration
+
+                //Robert
+                Entrance.Entrance = new Entrance();
+                Entrance.Entrance.Init();
+
+                app.ApplicationServices.AddSingleton(new KraftAccessor(Entrance.Entrance));
+                RouteHandler kraftRoutesHandler = new RouteHandler(KraftMiddleware.ExecutionDelegate(app, _KraftGlobalConfigurationSettings, Entrance.Entrance));
+                ////
+
+
                 //Configure the CoreKraft routing               
                 RouteHandler kraftRoutesHandler = new RouteHandler(KraftMiddleware.ExecutionDelegate(app, _KraftGlobalConfigurationSettings));
                 app.UseRouter(KraftRouteBuilder.MakeRouter(app, kraftRoutesHandler, kraftUrlSegment));
