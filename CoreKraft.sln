@@ -113,6 +113,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.Launchers.Main", "Sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.Launchers.Intro", "Src\Launchers\Intro\Ccf.Ck.Launchers.Intro.csproj", "{8F023D5C-309E-48CE-974B-5A96E3441D90}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.SysPlugins.Data.RequestProxy", "Src\SysPlugins\Data\RequestProxy\Ccf.Ck.SysPlugins.Data.RequestProxy.csproj", "{9009D238-C70E-4C94-833C-5371D624829D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -299,6 +301,10 @@ Global
 		{8F023D5C-309E-48CE-974B-5A96E3441D90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F023D5C-309E-48CE-974B-5A96E3441D90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F023D5C-309E-48CE-974B-5A96E3441D90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9009D238-C70E-4C94-833C-5371D624829D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9009D238-C70E-4C94-833C-5371D624829D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9009D238-C70E-4C94-833C-5371D624829D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9009D238-C70E-4C94-833C-5371D624829D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -352,6 +358,7 @@ Global
 		{BE8511CC-3401-4F4E-A21E-AAB1438968F9} = {F6D50B2A-F415-4A3D-B889-CBAD3F06C0F4}
 		{2024D136-B247-4D1B-BA73-85E1C4A05C92} = {BB3FCDCE-5D97-4816-BBDB-C26097DBC874}
 		{8F023D5C-309E-48CE-974B-5A96E3441D90} = {BB3FCDCE-5D97-4816-BBDB-C26097DBC874}
+		{9009D238-C70E-4C94-833C-5371D624829D} = {8216ED90-BBBC-415B-9691-29B63FA0E94D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BFC34E53-EAB6-4384-87CE-222E5781116F}
