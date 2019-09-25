@@ -327,16 +327,20 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
                 {
                     client.Timeout = new TimeSpan(0, 0, 10);
-                    HttpResponseMessage response = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).Result;
-                    if (response.IsSuccessStatusCode)
+                    using (HttpResponseMessage response = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, new System.Threading.CancellationToken()).Result)
                     {
-                        JsonSerializer js = new JsonSerializer();
+                        if (response.IsSuccessStatusCode)
+                        {
+                            JsonSerializer js = new JsonSerializer();
 
-                        var res = js.Deserialize<Dictionary<string, object>>(new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
-                        return new ParameterResolverValue(res["access_token"]);
-                    } else
-                    {
-                        throw new Exception("Communication error while obtaining the provider's token while using the login token to call tha authorization server for that.");
+                            var res = js.Deserialize<Dictionary<string, object>>
+                                (new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
+                            return new ParameterResolverValue(res["access_token"]);
+                        }
+                        else
+                        {
+                            throw new Exception("Communication error while obtaining the provider's token while using the login token to call tha authorization server for that.");
+                        }
                     }
                 }
             }
