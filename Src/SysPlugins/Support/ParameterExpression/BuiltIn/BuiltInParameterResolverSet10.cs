@@ -317,7 +317,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             
             // 2. Make the call
             // 2.1 Wait and get the token from ret data
-            // This should reside elsewhere / or use some existing
+            // This should reside elsewhere / or reuse some existing?
             using (HttpClient client = new HttpClient(new HttpClientHandler()))
             {
                 var accessor = ctx.PluginServiceManager.GetService<IHttpContextAccessor>(typeof(HttpContextAccessor));
@@ -335,14 +335,15 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                         if (response.IsSuccessStatusCode)
                         {
                             JsonSerializer js = new JsonSerializer();
-
+                            
                             var res = js.Deserialize<Dictionary<string, object>>
                                 (new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
+
                             return new ParameterResolverValue(res["access_token"]);
                         }
                         else
                         {
-                            throw new Exception("Communication error while obtaining the provider's token while using the login token to call tha authorization server for that.");
+                            throw new Exception("Communication error while obtaining the provider's token, using the login token to call the authorization server.");
                         }
                     }
                 }
