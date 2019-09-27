@@ -306,22 +306,22 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         /// <returns></returns>
         public ParameterResolverValue ApiTokenFromAuth(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {
-            var provider = args[0].Value as string;
+            string provider = args[0].Value as string;
             if (string.IsNullOrWhiteSpace(provider)) throw new ArgumentNullException("Provider is null!");
 
             // 1. Read the custom settings from appsettings_XXX.json -> get the auth server address
-            var settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
-            
+            KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+
             // 1.1 - construct the endpoint address for the token API method
-            var url = settings.GeneralSettings.Authority + "api/accesstoken?lp=" + provider;
-            
+            string url = settings.GeneralSettings.Authority + "api/accesstoken?lp=" + provider;
+
             // 2. Make the call
             // 2.1 Wait and get the token from ret data
             // This should reside elsewhere / or reuse some existing?
             using (HttpClient client = new HttpClient(new HttpClientHandler()))
             {
-                var accessor = ctx.PluginServiceManager.GetService<IHttpContextAccessor>(typeof(HttpContextAccessor));
-                var our_token = accessor.HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectParameterNames.AccessToken).Result;
+                IHttpContextAccessor accessor = ctx.PluginServiceManager.GetService<IHttpContextAccessor>(typeof(HttpContextAccessor));
+                string our_token = accessor.HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectParameterNames.AccessToken).Result;
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", our_token);
 
                 // Why global?
@@ -335,8 +335,8 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                         if (response.IsSuccessStatusCode)
                         {
                             JsonSerializer js = new JsonSerializer();
-                            
-                            var res = js.Deserialize<Dictionary<string, object>>
+
+                            Dictionary<string, object> res = js.Deserialize<Dictionary<string, object>>
                                 (new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
 
                             return new ParameterResolverValue(res["access_token"]);
