@@ -9,6 +9,30 @@ namespace Ccf.Ck.SysPlugins.Data.RequestProxy
     {
         protected override List<Dictionary<string, object>> Read(IDataLoaderReadContext execContext)
         {
+            /* Expected parameters coming from the NodeSet
+            JSON:
+            {
+                Headers:
+                {
+                    Key: Value,
+                    Authorization: Bearer %@AuthToken@%
+                },
+                Body:
+                {
+                    File: "",
+                    Inline:
+                    {
+                    }
+                },
+                Url:
+                {
+                    Url: "http://gitccf.cleancode.factory:82/Cleancodefactory/Board/src/branch?key=%@AuthToken@%&key1=value1"
+                    Verb: "GET|POST"
+                }
+            }
+            */
+
+
             //string baseUrl = execContext.DataLoaderContextScoped.CustomSettings["BaseUrl"];
             //ParameterResolverValue endpoint = execContext.Evaluate("endpoint");
             //ParameterResolverValue method = execContext.Evaluate("method");

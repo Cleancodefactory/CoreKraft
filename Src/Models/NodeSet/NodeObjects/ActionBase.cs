@@ -6,6 +6,8 @@
 //     the code is regenerated.
 // </auto-generated>
 //------------------------------------------------------------------------------
+using System.Collections.Generic;
+
 namespace Ccf.Ck.Models.NodeSet
 {
     public abstract partial class ActionBase
@@ -21,6 +23,12 @@ namespace Ccf.Ck.Models.NodeSet
         }
 
         public string Query
+        {
+            get;
+            set;
+        }
+
+        public Dictionary<string, object> Json
         {
             get;
             set;
