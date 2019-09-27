@@ -13,6 +13,17 @@ using System.Text;
 using System.Collections;
 using System.Globalization;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
+using Ccf.Ck.Models.Settings;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.Threading.Tasks;
+using System.Net;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
 {
@@ -284,6 +295,58 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 }
             } else {
                 throw new ArgumentException("The first argument to CastAs must be a string that specify the type to cast the second value to. Supported are: int, uint, double, string");
+            }
+        }
+
+        /// <summary>
+        /// Resolver to get an auth token, from the authorization server, for the currently supported providers.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args">1- arg - provider name as understood by the authorization server</param>
+        /// <returns></returns>
+        public ParameterResolverValue ApiTokenFromAuth(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            string provider = args[0].Value as string;
+            if (string.IsNullOrWhiteSpace(provider)) throw new ArgumentNullException("Provider is null!");
+
+            // 1. Read the custom settings from appsettings_XXX.json -> get the auth server address
+            KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+
+            // 1.1 - construct the endpoint address for the token API method
+            string url = settings.GeneralSettings.Authority + "api/accesstoken?lp=" + provider;
+
+            // 2. Make the call
+            // 2.1 Wait and get the token from ret data
+            // This should reside elsewhere / or reuse some existing?
+            using (HttpClient client = new HttpClient(new HttpClientHandler()))
+            {
+                IHttpContextAccessor accessor = ctx.PluginServiceManager.GetService<IHttpContextAccessor>(typeof(HttpContextAccessor));
+                string our_token = accessor.HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectParameterNames.AccessToken).Result;
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", our_token);
+
+                // Why global?
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
+                {
+                    client.Timeout = new TimeSpan(0, 0, 10);
+                    using (HttpResponseMessage response = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, new System.Threading.CancellationToken()).Result)
+                    {
+                        if (response.IsSuccessStatusCode)
+                        {
+                            JsonSerializer js = new JsonSerializer();
+
+                            Dictionary<string, object> res = js.Deserialize<Dictionary<string, object>>
+                                (new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
+
+                            return new ParameterResolverValue(res["access_token"]);
+                        }
+                        else
+                        {
+                            throw new Exception("Communication error while obtaining the provider's token, using the login token to call the authorization server.");
+                        }
+                    }
+                }
             }
         }
 

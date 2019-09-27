@@ -116,6 +116,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                    Alias = "ApiTokenFromAuth",
+                                    Arguments = 1,
+                                    Name = "ApiTokenFromAuth"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "GetUserDetails",
                                      Arguments = 1,
                                      Name = "GetUserDetails"
