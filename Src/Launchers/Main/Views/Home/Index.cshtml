@@ -19,7 +19,7 @@
     @{ 
 
     }
-    @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles(string.IsNullOrEmpty(Model.GeneralSettings.Theme)?"Module.dep":Model.GeneralSettings.Theme + ".dep").Render()
+    @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles(string.IsNullOrWhiteSpace(Model.GeneralSettings.Theme)?"Module.dep":Model.GeneralSettings.Theme + ".dep").Render()
 </head>
 <body>
     <div id="bindkraft">
