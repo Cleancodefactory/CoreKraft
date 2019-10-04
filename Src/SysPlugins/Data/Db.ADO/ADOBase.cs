@@ -117,36 +117,40 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     // The processing will make replacements in the SQL and bind parameters by requesting them from the resolver expressions configured on this node.
                     // TODO: Some try...catching is necessary.
                     ProcessCommand(cmd, Action(execContext).Query, execContext);
-                    using (DbDataReader reader = cmd.ExecuteReader()) {
-                        do {
-                            if (reader.HasRows) {
-                                // Read a result (many may be contained) row by row
-                                while (reader.Read()) {
-                                    currentResult = new Dictionary<string, object>(reader.FieldCount);
-                                    for (int i = 0; i < reader.FieldCount; i++) {
-                                        string fldname = reader.GetName(i);
-                                        if (fldname == null) continue;
-                                        // TODO: May be configure that or at least create a compile time definition
-                                        fldname = fldname.ToLower().Trim(); // TODO: lowercase
-                                        //fldname = fldname.Trim();
-                                        if (fldname.Length == 0) {
-                                            throw new Exception($"Empty name when reading the output of a query. The field index is {i}. The query is: {cmd.CommandText}");
+                    try {
+                        using (DbDataReader reader = cmd.ExecuteReader()) {
+                            do {
+                                if (reader.HasRows) {
+                                    // Read a result (many may be contained) row by row
+                                    while (reader.Read()) {
+                                        currentResult = new Dictionary<string, object>(reader.FieldCount);
+                                        for (int i = 0; i < reader.FieldCount; i++) {
+                                            string fldname = reader.GetName(i);
+                                            if (fldname == null) continue;
+                                            // TODO: May be configure that or at least create a compile time definition
+                                            fldname = fldname.ToLower().Trim(); // TODO: lowercase
+                                                                                //fldname = fldname.Trim();
+                                            if (fldname.Length == 0) {
+                                                throw new Exception($"Empty name when reading the output of a query. The field index is {i}. The query is: {cmd.CommandText}");
+                                            }
+                                            if (currentResult.ContainsKey(fldname)) {
+                                                throw new Exception($"Duplicated field name in the output of a query. The field is:{fldname}, the query is: {cmd.CommandText}");
+                                            }
+                                            object v = reader.GetValue(i);
+                                            currentResult.Add(fldname, (v is DBNull) ? null : v);
+
                                         }
-                                        if (currentResult.ContainsKey(fldname)) {
-                                            throw new Exception($"Duplicated field name in the output of a query. The field is:{fldname}, the query is: {cmd.CommandText}");
-                                        }
-                                        object v = reader.GetValue(i);
-                                        currentResult.Add(fldname, (v is DBNull) ? null : v);
+                                        // Mark the records unchanged, because they are just picked up from the data store (rdbms in this case).
+                                        execContext.DataState.SetUnchanged(currentResult);
+                                        results.Add(currentResult);
+                                        if (!node.IsList) break;
 
                                     }
-                                    // Mark the records unchanged, because they are just picked up from the data store (rdbms in this case).
-                                    execContext.DataState.SetUnchanged(currentResult);
-                                    results.Add(currentResult);
-                                    if (!node.IsList) break;
-
                                 }
-                            }
-                        } while (reader.NextResult());
+                            } while (reader.NextResult());
+                        }
+                    } catch (Exception ex) {
+                        throw new Exception("DB operation failed. SQL:[\n" + cmd.CommandText + "\n]", ex);
                     }
 
                 }
