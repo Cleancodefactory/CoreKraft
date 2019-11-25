@@ -18,6 +18,7 @@ using Ccf.Ck.Utilities.NodeSetService;
 using System.Net;
 using Ccf.Ck.Processing.Web.ResponseBuilder;
 using System.Linq;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 {
@@ -144,6 +145,13 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             if (loadedNodeSet == null)
             {
                 Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, $"Requested nodeset: {processingContext.InputModel.NodeSet} doesn't exist or not loaded.");
+                return false;
+            }
+            if (loadedNodeSet.StartNode == null)//Handle errors better and show when a node is addressed but missing.
+            {
+                string error = $"Node: {processingContext.InputModel.Nodepath} from module: {processingContext.InputModel.Module}, nodeset: {processingContext.InputModel.NodeSet} is missing!";
+                KraftLogger.LogError(error);
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, error);
                 return false;
             }
             //If authentication is required but the user is not logged in redirect to authentication
