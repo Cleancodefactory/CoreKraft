@@ -20,7 +20,7 @@
       - Version 1.0.4: Improve logging during modules loading.
       - Version 1.0.5: Fix the ModulesWatchers' implementation related to the multiple roots (modules).
       - Version 1.0.10: Fix error when the collection of signals is empty.
-	  - Version 1.0.11: Extending ActionBase with Dictionary<string, object> Json (property)
+	    - Version 1.0.11: Extending ActionBase with Dictionary[string, object] Json (property)
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
