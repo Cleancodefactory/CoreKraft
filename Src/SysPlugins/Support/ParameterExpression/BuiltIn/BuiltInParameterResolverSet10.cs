@@ -285,6 +285,82 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             }
             return new ParameterResolverValue(resultval, EResolverValueType.ContentType);
         }
+        /// <summary>
+        /// Generates an order by entry FIELDNAME ASC|DESC
+        /// Arguments:
+        ///     0 - Fieldname
+        ///     1 - ASC|DESC|1|-1
+        ///     2 - Regexp tester for the Fieldname
+        ///     
+        ///  If fieldname is null or empty returns null(hm?)
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue OrderByEntry(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            if (args[0].Value == null) return new ParameterResolverValue(null, EResolverValueType.Invalid);
+            var fieldname = args[0].Value.ToString();
+            var _dir = args[1].Value;
+            string dir = "ASC";
+            if (_dir != null) {
+                string sdir = _dir as string;
+                if (sdir != null) {
+                    // string
+                    if (__reAscDesc.IsMatch(sdir)) {
+                        dir = sdir.ToUpper();
+                    } else {
+                        if (double.TryParse(sdir,out var ddir)) {
+                            if (ddir < 0) dir = "DESC";
+                        }
+                    }
+                } else {
+                    if (double.TryParse(_dir.ToString(), out var xdir)) {
+                        if (xdir < 0) dir = "DESC";
+                    }
+                }
+            }
+            string refield = args[2].Value?.ToString() ?? null;
+            Regex reField = null;
+            if (refield == null) {
+                throw new ArgumentException( "3-d argument of OrderByEntry is required and has to specify a regular expression for the field name validation.");
+            }
+            reField = new Regex(refield, RegexOptions.IgnoreCase);
+            if (reField.IsMatch(fieldname)) {
+                // Returned as content type to help use it directly (not recommended though - use it as argument to OrderBy)
+                return new ParameterResolverValue(String.Format("{0} {1}", fieldname, dir), EResolverValueType.ContentType); 
+            }
+            return new ParameterResolverValue(null, EResolverValueType.Invalid);
+        }
+        private readonly Regex __reAscDesc = new Regex(@"asc|desc", RegexOptions.IgnoreCase);
+        /// <summary>
+        /// This one deals with any number of arguments and how many it accepts depends on the declaration!
+        /// Produces an ORDER BY clause containing all the entries. If none of the entries resolves to something - empty string is returned
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue OrderBy(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            StringBuilder sb = new StringBuilder("ORDER BY ");
+            string coma = "";
+            bool bSuccess = false;
+            for (var i = 0; i < args.Count; i++) {
+                var arg = args[i];
+                if (arg.ValueType == EResolverValueType.ValueType || arg.ValueType == EResolverValueType.ContentType) {
+                    if (arg.Value is string) {
+                        sb.AppendFormat("{0} {1}", coma, arg.Value);
+                        coma = ",";
+                        bSuccess = true;
+                    }
+                }
+            }
+            if (bSuccess) {
+                return new ParameterResolverValue(sb.ToString(), EResolverValueType.ContentType);
+            } else {
+                return new ParameterResolverValue("", EResolverValueType.ContentType);
+            }
+        }
         public ParameterResolverValue CastAs(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {
             string stype = args[0].Value as string;
