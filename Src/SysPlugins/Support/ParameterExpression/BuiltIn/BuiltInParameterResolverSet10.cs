@@ -290,7 +290,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         /// Arguments:
         ///     0 - Fieldname
         ///     1 - ASC|DESC|1|-1
-        ///     2 - Regexp tester for the Fieldname
+        ///     2 - Regexp tester for the Fieldname (applied with ignore case)
         ///     
         ///  If fieldname is null or empty returns null(hm?)
         /// </summary>
@@ -337,6 +337,15 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         /// This one deals with any number of arguments and how many it accepts depends on the declaration!
         /// Produces an ORDER BY clause containing all the entries. If none of the entries resolves to something - empty string is returned
         /// </summary>
+        /// <example>
+        ///     OrderBy(OrderByEntry(GetFrom('client','field1'),GetFrom('client','field1dir'),'FirstName|LastName|Title'))
+        ///     // A way to have shorter expressions
+        ///     parameters: [
+        ///         { name: "field1", Expression: "GetFrom('client',name)" },
+        ///         { name: "field1dir", Expression: "GetFrom('client',name)" },
+        ///         { name: "orderclause", Expression: "OrderBy(OrderByEntry(field1,field1dir,'FirstName|LastName|Title'))" }
+        ///     ]
+        /// </example>
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>

@@ -124,6 +124,23 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                    Alias = "OrderByEntry",
+                                    Arguments = 3,
+                                    Name = "OrderByEntry"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
+                                    Alias = "OrderBy",
+                                    Arguments = 1,
+                                    Name = "OrderBy"
+
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                     Alias = "ApiTokenFromAuth",
                                     Arguments = 1,
                                     Name = "ApiTokenFromAuth"
