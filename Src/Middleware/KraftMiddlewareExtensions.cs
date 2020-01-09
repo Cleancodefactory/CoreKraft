@@ -33,6 +33,8 @@ using static Ccf.Ck.Utilities.Generic.Utilities;
 using System.Security;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Primitives;
+using System.Text;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -363,10 +365,10 @@ namespace Ccf.Ck.Web.Middleware
                         {
                             OnRedirectToIdentityProvider = context =>
                             {
-
-                                if (context.Request.Query.ContainsKey("cr"))
+                                string returnUrl = context.HttpContext.Session.GetString("returnurl");
+                                if (!string.IsNullOrEmpty(returnUrl))
                                 {
-                                    context.ProtocolMessage.SetParameter("cr", context.Request.Query["cr"]);
+                                    context.ProtocolMessage.SetParameter("returnurl", returnUrl);
                                 }
                                 return Task.CompletedTask;
                             },
@@ -385,6 +387,18 @@ namespace Ccf.Ck.Web.Middleware
                                 HttpRequest request = context.Request;
                                 context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace("http://", "https://");
                                 context.HandleResponse();
+                                return Task.CompletedTask;
+                            },
+                            OnTokenValidated = context =>
+                            {
+                                if (context.TokenEndpointResponse.Parameters.ContainsKey("returnurl"))
+                                {
+                                    string returnurl = context.TokenEndpointResponse.Parameters["returnurl"];
+                                    if (!string.IsNullOrEmpty(returnurl))
+                                    {
+                                        context.HttpContext.Session.SetString("returnurl", returnurl);
+                                    }
+                                }
                                 return Task.CompletedTask;
                             }
                         };
