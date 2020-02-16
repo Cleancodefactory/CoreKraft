@@ -81,5 +81,27 @@ Calling the signal with key `updatetenant` over all currently included modules:
 Explanation:
 The system will define a hard-coded section `signal`. The further segments are reserved for the module name and signal key.
 
+Worth mentioning that the signals are triggered on the server and no logged-in user information is available. The implications are that you can't assume any user claims passed in down the pipeline to your modules/nodesets/nodes while a signal is executed. 
+
+In the configuration of the application there is an "AuthorizationSection" which has 2 main objectives:
+1. Enable-/disable the authorization requirements for the whole application
+2. Pass the mocked user to the nodesets which require authorization and user claims
+
+```
+...
+"AuthorizationSection": {
+  "RequireAuthorization": true,
+  "UserName": "service@cleancodefactory.de",
+  "FirstName": "ServiceFirst",
+  "LastName": "ServiceLast",
+  "Roles": [ "user", "manager", "administrator" ]
+},
+...
+```
+This is often handy during debugging or when the Authorization server is down and the development process shouldn't be interrupted.  
+Coming back to our main topic in this document: the signal's execution. The environment will pass in the above configured user and roles to the modules/nodesets/nodes. This mocked user shouldn't be confused with an actual logged-in user.
+
+!!! Don't execute signals for nodes which rely on actual user claims !!!
+
 [Back to README](../../../README.md)
 
