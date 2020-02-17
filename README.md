@@ -1,7 +1,8 @@
 # CoreKraft
  Micro-services framework for serving data in different formats
 
-CoreKraft is a .NET Foundation project.
+CoreKraft is a [.NET Foundation](https://dotnetfoundation.org/) project.
+
 
 ![.NET Foundation logo](/Documentation/Images/dotnetfoundationhorizontal.svg ".NET Foundation logo")
 
