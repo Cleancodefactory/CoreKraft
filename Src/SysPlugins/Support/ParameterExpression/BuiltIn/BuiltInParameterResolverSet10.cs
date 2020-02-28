@@ -424,7 +424,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
 
             // 1.1 - construct the endpoint address for the token API method
-            string url = settings.GeneralSettings.Authority + "api/accesstoken?lp=" + provider;
+            string url = settings.GeneralSettings.Authority + "/api/accesstoken?lp=" + provider;
 
             // 2. Make the call
             // 2.1 Wait and get the token from ret data
