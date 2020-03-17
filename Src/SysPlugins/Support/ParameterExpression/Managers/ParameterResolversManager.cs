@@ -116,6 +116,22 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "Add",
+                                     Arguments = 2,
+                                     Name = "Add"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
+                                     Alias = "Sub",
+                                     Arguments = 2,
+                                     Name = "Add"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                     Alias = "AsContent",
                                     Arguments = 1,
                                     Name = "AsContent"
