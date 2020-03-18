@@ -409,15 +409,15 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             if (stype != null) {
                 switch (stype) {
                     case T_INT:
-                        long i_val;
+                        int i_val;
                         if (fmt == Number_Formats.Decimal) {
-                            if (long.TryParse(clean_string_value, out i_val)) {
+                            if (int.TryParse(clean_string_value, out i_val)) {
                                 return new ParameterResolverValue(i_val, EValueDataType.Int);
                             } else {
                                 throw new ArgumentException("CastAs cannot convert the value to long integer");
                             }
                         } else {
-                            return new ParameterResolverValue(Convert.ToInt64(clean_string_value,(int)fmt), EValueDataType.Int);
+                            return new ParameterResolverValue(Convert.ToInt32(clean_string_value,(int)fmt), EValueDataType.Int);
                         }
                     case T_UINT:
                         uint u_val;
@@ -457,11 +457,11 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         {
             string totype = DetectBestNumericType(args.ToArray());
             if (totype == T_NULL) return new ParameterResolverValue(null);
-            ParameterResolverValue[] values = new ParameterResolverValue[args.Count];
-            IEnumerable<ParameterResolverValue> _valsCasted = values.Select(v => CastAs(ctx, new List<ParameterResolverValue>() { new ParameterResolverValue(totype), new ParameterResolverValue(v) }));
+            ParameterResolverValue[] values = args.ToArray(); //new ParameterResolverValue[args.Count];
+            ParameterResolverValue[] _valsCasted = values.Select(v => CastAs(ctx, new List<ParameterResolverValue>() { new ParameterResolverValue(totype), new ParameterResolverValue(v.Value) })).ToArray();
             switch (totype) {
                 case T_INT:
-                    return new ParameterResolverValue( _valsCasted.Sum( x => (long)x.Value), EValueDataType.Int);
+                    return new ParameterResolverValue( _valsCasted.Sum( x => (int)x.Value), EValueDataType.Int);
                 case T_UINT:
                     return new ParameterResolverValue( _valsCasted.Sum( x => (uint)x.Value), EValueDataType.UInt);
                 case T_DBL:
@@ -476,8 +476,8 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         {
             string totype = DetectBestNumericType(args.ToArray());
             if (totype == T_NULL) return new ParameterResolverValue(null);
-            ParameterResolverValue[] values = new ParameterResolverValue[args.Count];
-            ParameterResolverValue[] _valsCasted = values.Select(v => CastAs(ctx, new List<ParameterResolverValue>() { new ParameterResolverValue(totype), new ParameterResolverValue(v) })).ToArray();
+            ParameterResolverValue[] values = args.ToArray();  //new ParameterResolverValue[args.Count];
+            ParameterResolverValue[] _valsCasted = values.Select(v => CastAs(ctx, new List<ParameterResolverValue>() { new ParameterResolverValue(totype), new ParameterResolverValue(v.Value) })).ToArray();
             
             switch (totype) {
                 case T_INT:
@@ -586,20 +586,20 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 // TODO: In future we should support the EValueDataType here, but some standard routines for its handling are necessary first.
                 string sv = v.Value.ToString();
                 if (string.IsNullOrWhiteSpace(sv)) return T_NULL;
-                if (string.Compare(sv, "null",true,CultureInfo.InvariantCulture) != 0) return T_NULL;
+                if (string.Compare(sv, "null", true, CultureInfo.InvariantCulture) == 0) return T_NULL;
                 Match match = NUMFMTCheck.Match(sv);
                 if (match.Success) {
                     if (match.Groups[2].Success) { // decimal
                         if (match.Groups[3].Success) { // double
                             double d;
                             if (double.TryParse(sv, out d)) {
-                                n = T_TYPEORDER.IndexOf(sv);
+                                n = T_TYPEORDER.IndexOf(T_DBL);
                                 if (n > maxtype) maxtype = n;
                             }
                         } else { // integer
-                            long d;
-                            if (long.TryParse(sv, out d)) {
-                                n = T_TYPEORDER.IndexOf(sv);
+                            int d;
+                            if (int.TryParse(sv, out d)) {
+                                n = T_TYPEORDER.IndexOf(T_INT);
                                 if (n > maxtype) maxtype = n;
                             }
                         }
