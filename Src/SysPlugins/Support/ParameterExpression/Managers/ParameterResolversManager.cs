@@ -126,7 +126,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                 {
                                      Alias = "Sub",
                                      Arguments = 2,
-                                     Name = "Add"
+                                     Name = "Sub"
                                 }
                             },
                             {
