@@ -71,7 +71,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
         {
             ReadCustomSettings settings = new ReadCustomSettings(execContext, execContext.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings)));
 
-            string filePreviewName = "FILE_preview.svg";
+            string filePreviewName = "file-icon.svg";
             string previewName = "preview";
             string file = execContext.Evaluate("path").Value.ToString();
             string configuredDir = settings.UploadFolder;
@@ -99,7 +99,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
 
                             if (!string.IsNullOrWhiteSpace(extension))
                             {
-                                previewFileName = extension.Replace(".", string.Empty).ToUpper() + "_preview.svg";
+                                previewFileName = extension.Replace(".", string.Empty).ToUpper() + "-icon.svg";
 
                                 if (File.Exists(Path.Combine(defaultDir, previewFileName)))
                                 {
