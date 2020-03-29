@@ -173,7 +173,7 @@ namespace Ccf.Ck.Models.KraftModule
                 if (resBundleProfile != null)
                 {
                     resBundleProfile.StartDirPath = resFolderPath;
-                    resBundleProfile.ProfileFiles = new List<string> { RESOURCEDEPENDENCY_FILE_NAME, resProfileFileName };
+                    resBundleProfile.ProfileFiles = new List<string> { resProfileFileName, RESOURCEDEPENDENCY_FILE_NAME  };//The default should be last
                     return resBundle;
                 }
             }
@@ -193,7 +193,7 @@ namespace Ccf.Ck.Models.KraftModule
                 if (resBundleProfile != null)
                 {
                     resBundleProfile.StartDirPath = resFolderPath;
-                    resBundleProfile.ProfileFiles = new List<string> { RESOURCEDEPENDENCY_FILE_NAME, resProfileFileName };
+                    resBundleProfile.ProfileFiles = new List<string> { resProfileFileName, RESOURCEDEPENDENCY_FILE_NAME };//The default should be last
                     return resBundle;
                 }
             }

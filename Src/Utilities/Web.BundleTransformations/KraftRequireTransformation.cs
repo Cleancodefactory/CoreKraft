@@ -49,7 +49,11 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
             foreach (string profile in kraftBundleProfiles.ProfileFiles)
             {
                 FileInfo bootstrapFile = new FileInfo(Path.Combine(kraftBundle.StartDirPath, profile));
-                ParseFilesForIncludesRecursive(bootstrapFile, scrRootDir, logger, outputFilesList);
+                if (bootstrapFile.Exists)//Check the profile files one by one and break if first found
+                {
+                    ParseFilesForIncludesRecursive(bootstrapFile, scrRootDir, logger, outputFilesList);
+                    break;
+                }
                 //outputFilesList.Add(bootstrapFile.ToString());
             }
             outputFilesList = ProcessMappedFiles2VirtualPaths(outputFilesList, kraftBundle.ContentRootPath);
