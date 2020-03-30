@@ -37,7 +37,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
     {
         public BuiltInParameterResolverSet1_0(ResolverSet conf):base(conf) {  }
 
-        #region Constants (these are for local usage only)
+        #region Constants for sources of parameters (these are for local usage only)
         const string PARENT = "parent";
         const string PARENTS = "parents";
         const string SERVER = "server";
@@ -47,6 +47,26 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         const string INPUT = "input";
         const string DATA = "data";
         const string FILTER = "filter";
+        
+        #endregion
+
+        #region Constnts for type names
+        const string T_INT = "int";
+        const string T_UINT = "uint";
+        const string T_DBL = "double";
+        const string T_STR = "string";
+        const string T_NULL = "null";
+
+        readonly List<string> T_TYPEORDER = new List<string>() { T_UINT, T_INT, T_DBL};
+
+        private enum Number_Formats {
+            Unknown = 0,
+            Decimal = 10,
+            Hexdecimal = 16,
+            Octal = 8,
+            Binary = 2
+        };
+
         #endregion
 
         #region Internal utilities (make them at least protected)
@@ -375,38 +395,101 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             string stype = args[0].Value as string;
             object v = args[1].Value;
             if (v == null) return new ParameterResolverValue(null);
-            if (string.IsNullOrWhiteSpace(v.ToString())) return new ParameterResolverValue(null);
+
+            string sv = v.ToString();
+            // If conversion is to string - just do it.
+            if (stype == T_STR) return new ParameterResolverValue(sv, EValueDataType.Text);
+            if (string.IsNullOrWhiteSpace(sv)) return new ParameterResolverValue(null);
+            // This has to be here to support legacy behavior
+            string clean_string_value;
+            Number_Formats fmt = DetectNumberFormat(sv, out clean_string_value);
+            if (fmt == Number_Formats.Unknown) {
+                throw new Exception("Cannot detect the number format of the second argument");
+            }
             if (stype != null) {
                 switch (stype) {
-                    case "int":
-                        long i_val;
-                        if (long.TryParse(v.ToString(), out i_val)) {
-                            return new ParameterResolverValue(i_val);
+                    case T_INT:
+                        int i_val;
+                        if (fmt == Number_Formats.Decimal) {
+                            if (int.TryParse(clean_string_value, out i_val)) {
+                                return new ParameterResolverValue(i_val, EValueDataType.Int);
+                            } else {
+                                throw new ArgumentException("CastAs cannot convert the value to long integer");
+                            }
                         } else {
-                            throw new ArgumentException("CastAs cannot convert the value to long integer");
+                            return new ParameterResolverValue(Convert.ToInt32(clean_string_value,(int)fmt), EValueDataType.Int);
                         }
-                    case "uint":
+                    case T_UINT:
                         uint u_val;
-                        if (uint.TryParse(v.ToString(), out u_val)) {
-                            return new ParameterResolverValue(u_val);
+                        if (fmt == Number_Formats.Decimal) {
+                            if (uint.TryParse(clean_string_value, out u_val)) {
+                                return new ParameterResolverValue(u_val, EValueDataType.UInt);
+                            } else {
+                                throw new ArgumentException("CastAs cannot convert the value to uint");
+                            }
                         } else {
-                            throw new ArgumentException("CastAs cannot convert the value to uint");
+                            return new ParameterResolverValue(Convert.ToUInt32(clean_string_value,(int)fmt), EValueDataType.UInt);
                         }
-                    case "double":
+                    case T_DBL:
                         double d_val;
-                        if (double.TryParse(v.ToString(), out d_val)) {
-                            return new ParameterResolverValue(d_val);
+                        if (double.TryParse(clean_string_value, out d_val)) {
+                            return new ParameterResolverValue(d_val, EValueDataType.Real);
                         } else {
                             throw new ArgumentException("CastAs cannot convert the value to double");
                         }
-                    case "string":
-                        return new ParameterResolverValue(v.ToString());
                     default:
                         throw new ArgumentException("CastAs cannot understand the type specified: " + stype);
                 }
             } else {
                 throw new ArgumentException("The first argument to CastAs must be a string that specify the type to cast the second value to. Supported are: int, uint, double, string");
             }
+        }
+
+        /// <summary>
+        /// Resolver summing TWO numbers, returns number as Value (not Content)
+        /// The value is converted to the most preferable type in this order (low to high):
+        /// unit int double
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args">2 - numbers/strings</param>
+        /// <returns>numeric</returns>
+        public ParameterResolverValue Add(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            string totype = DetectBestNumericType(args.ToArray());
+            if (totype == T_NULL) return new ParameterResolverValue(null);
+            ParameterResolverValue[] values = args.ToArray(); //new ParameterResolverValue[args.Count];
+            ParameterResolverValue[] _valsCasted = values.Select(v => CastAs(ctx, new List<ParameterResolverValue>() { new ParameterResolverValue(totype), new ParameterResolverValue(v.Value) })).ToArray();
+            switch (totype) {
+                case T_INT:
+                    return new ParameterResolverValue( _valsCasted.Sum( x => (int)x.Value), EValueDataType.Int);
+                case T_UINT:
+                    return new ParameterResolverValue( _valsCasted.Sum( x => (uint)x.Value), EValueDataType.UInt);
+                case T_DBL:
+                    return new ParameterResolverValue( _valsCasted.Sum( x => (double)x.Value), EValueDataType.Real);
+                default:
+                    return new ParameterResolverValue(null);
+            }
+
+        }
+        
+        public ParameterResolverValue Sub(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            string totype = DetectBestNumericType(args.ToArray());
+            if (totype == T_NULL) return new ParameterResolverValue(null);
+            ParameterResolverValue[] values = args.ToArray();  //new ParameterResolverValue[args.Count];
+            ParameterResolverValue[] _valsCasted = values.Select(v => CastAs(ctx, new List<ParameterResolverValue>() { new ParameterResolverValue(totype), new ParameterResolverValue(v.Value) })).ToArray();
+            
+            switch (totype) {
+                case T_INT:
+                    return new ParameterResolverValue( (int)_valsCasted[0].Value - (int)_valsCasted[1].Value, EValueDataType.Int);
+                case T_UINT:
+                    return new ParameterResolverValue( (uint)_valsCasted[0].Value - (uint)_valsCasted[1].Value, EValueDataType.UInt);
+                case T_DBL:
+                    return new ParameterResolverValue( (double)_valsCasted[0].Value - (double)_valsCasted[1].Value, EValueDataType.Real);
+                default:
+                    return new ParameterResolverValue(null);
+            }
+
         }
 
         /// <summary>
@@ -461,6 +544,81 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             }
         }
 
+        #region Helpers for standart resolvers
+        private readonly Regex NUMFMTCheck = new Regex(
+            @"^\s*(?:(\-|\+)?(?:(\d+)(?:(\.)(?:(\d*)?(?:e(\-|\+)?(\d+))?)?)?)|(?:0x([0-9a-fA-F]+))|(?:0o([0-7]+))|(?:0b([01]+))\s*)$",
+            RegexOptions.CultureInvariant | RegexOptions.Compiled | RegexOptions.ECMAScript
+        );
+        private Number_Formats DetectNumberFormat(string str, out string cleanNum) {
+            Match match = NUMFMTCheck.Match(str);
+            if (match.Success) {
+                if (match.Groups[2].Success) { // decimal
+                    cleanNum = string.Format("{0}{1}{2}{3}{4}{5}",
+                        match.Groups[1].Success?match.Groups[1].Value:string.Empty,
+                        match.Groups[2].Success?match.Groups[2].Value:string.Empty,
+                        match.Groups[3].Success?match.Groups[3].Value:string.Empty,
+                        match.Groups[4].Success?match.Groups[4].Value:string.Empty,
+                        match.Groups[5].Success?match.Groups[5].Value:string.Empty,
+                        match.Groups[6].Success?match.Groups[6].Value:string.Empty
+                    );
+                    return Number_Formats.Decimal;
+                } else if (match.Groups[7].Success) { // hex
+                    cleanNum = match.Groups[7].Value;
+                    return Number_Formats.Hexdecimal;
+                } else if (match.Groups[8].Success) { // Octal
+                    cleanNum = match.Groups[8].Value;
+                    return Number_Formats.Octal;
+                } else if (match.Groups[9].Success) { // Binary
+                    cleanNum = match.Groups[9].Value;
+                    return Number_Formats.Binary;
+                }
+            }
+            cleanNum = null;
+            return Number_Formats.Unknown;
+        }
+        private string DetectBestNumericType(params ParameterResolverValue[] vals) {
+            int maxtype = -1;
+            int n;
+
+            for (var i = 0; i < vals.Length;i ++) {
+                var v = vals[i];
+                if (v.Value == null) return T_NULL;
+                // TODO: In future we should support the EValueDataType here, but some standard routines for its handling are necessary first.
+                string sv = v.Value.ToString();
+                if (string.IsNullOrWhiteSpace(sv)) return T_NULL;
+                if (string.Compare(sv, "null", true, CultureInfo.InvariantCulture) == 0) return T_NULL;
+                Match match = NUMFMTCheck.Match(sv);
+                if (match.Success) {
+                    if (match.Groups[2].Success) { // decimal
+                        if (match.Groups[3].Success) { // double
+                            double d;
+                            if (double.TryParse(sv, out d)) {
+                                n = T_TYPEORDER.IndexOf(T_DBL);
+                                if (n > maxtype) maxtype = n;
+                            }
+                        } else { // integer
+                            int d;
+                            if (int.TryParse(sv, out d)) {
+                                n = T_TYPEORDER.IndexOf(T_INT);
+                                if (n > maxtype) maxtype = n;
+                            }
+                        }
+                    } else if (match.Groups[7].Success) { // hex
+                        if (maxtype < 0) maxtype = 0;
+                    } else if (match.Groups[8].Success) { // Octal
+                        if (maxtype < 0) maxtype = 0;
+                    } else if (match.Groups[9].Success) { // Binary
+                        if (maxtype < 0) maxtype = 0;
+                    } else {
+                        // This should be impossible
+                        throw new Exception("Impossible thing happened during number parsing");
+                    }
+                } else { // not a number
+                    throw new Exception("The parameters of an arithmetic resolver have to be numbers or null");
+                }
+            }
+            return T_TYPEORDER[maxtype];
+        }
         private bool TrueLike(object v)
         {
             if (v == null)
@@ -469,7 +627,12 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             }
             return Convert.ToBoolean(v);
         }
+        #endregion
         #endregion Standard resolvers
+
+        #region Arithmetic resolvers
+
+        #endregion
 
         #region Test resolvers
         /// <summary>
