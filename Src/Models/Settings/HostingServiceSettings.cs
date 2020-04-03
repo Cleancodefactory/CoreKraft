@@ -2,9 +2,9 @@
 
 namespace Ccf.Ck.Models.Settings
 {
-    public class HostingServiceSettings
+    public class HostingServiceSetting
     {
         public List<string> Signals { get; set; }
-        public int Interval { get; set; }
+        public int IntervalInMinutes { get; set; }
     }
 }

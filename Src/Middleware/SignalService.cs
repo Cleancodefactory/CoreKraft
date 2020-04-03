@@ -12,12 +12,14 @@ namespace Ccf.Ck.Web.Middleware
 {
     internal class SignalService : SignalBase, IHostedService, IDisposable
     {
-        private Timer _Timer;
+        private readonly List<Timer> _Timers;
         private readonly IServiceScopeFactory _ScopeFactory;
+        static readonly object _Lock = new object();
 
         public SignalService(IServiceScopeFactory scopeFactory)
         {
             _ScopeFactory = scopeFactory;
+            _Timers = new List<Timer>();
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -27,46 +29,54 @@ namespace Ccf.Ck.Web.Middleware
             {
                 _KraftGlobalConfigurationSettings = scope.ServiceProvider.GetRequiredService<KraftGlobalConfigurationSettings>();
                 _ServiceProvider = scope.ServiceProvider;
-                int minutes = _KraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings.Interval;
-                if (minutes > 0)
+                foreach (HostingServiceSetting item in _KraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings)
                 {
-                    _Timer = new Timer(DoWork, _ScopeFactory, TimeSpan.Zero, TimeSpan.FromMinutes(minutes));
+                    int minutes = item.IntervalInMinutes;
+                    if (minutes > 0)
+                    {
+                        Timer t = new Timer(DoWork, item.Signals, TimeSpan.FromMinutes(minutes), TimeSpan.FromMinutes(minutes));
+                        _Timers.Add(t);
+                    }
                 }
+                
             }
-
             return Task.CompletedTask;
         }
 
         private void DoWork(object state)
         {
-            IServiceScopeFactory scopeFactory = state as IServiceScopeFactory;
-            if (scopeFactory != null)
+            lock(_Lock)
             {
-                using (IServiceScope scope = scopeFactory.CreateScope())
+                List<string> signals = state as List<string>;
+                if (signals != null)
                 {
-                    _KraftGlobalConfigurationSettings = scope.ServiceProvider.GetRequiredService<KraftGlobalConfigurationSettings>();
-                    _ServiceProvider = scope.ServiceProvider;
-                    foreach (string signal in _KraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings.Signals ?? new List<string>())
+                    foreach (string signal in signals)
                     {
                         Stopwatch stopWatch = Stopwatch.StartNew();
                         ExecuteSignals("null", signal);
                         KraftLogger.LogInformation($"Executing signal: {signal} for {stopWatch.ElapsedMilliseconds} ms");
                     }
+                    KraftLogger.LogInformation("Batch of CoreKraft-Background-Services executed.");
                 }
             }
-            KraftLogger.LogInformation("CoreKraft-Background-Service executed.");
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
             KraftLogger.LogInformation("CoreKraft-Background-Service is stopped.");
-            _Timer?.Change(Timeout.Infinite, 0);
+            foreach (Timer timer in _Timers)
+            {
+                timer?.Change(Timeout.Infinite, 0);
+            }
             return Task.CompletedTask;
         }
 
         public void Dispose()
         {
-            _Timer?.Dispose();
+            foreach (Timer timer in _Timers)
+            {
+                timer?.Dispose();
+            }            
         }
     }
 }

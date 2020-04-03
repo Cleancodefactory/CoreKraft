@@ -32,7 +32,7 @@ namespace Ccf.Ck.Models.Settings
         public bool RedirectToWww { get; set; }
         public SignalRSettings SignalRSettings { get; set; }
         public SignalSettings SignalSettings { get; set; }
-        public HostingServiceSettings HostingServiceSettings { get; set; }
+        public List<HostingServiceSetting> HostingServiceSettings { get; set; }
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {
