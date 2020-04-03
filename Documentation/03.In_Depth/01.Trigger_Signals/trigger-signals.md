@@ -50,10 +50,10 @@ The signals are meant to represent a kind of interface to the nodesets and nodes
 ### From the build-in service ###
 ```
 ...
-"HostingServiceSettings": {
-  "Interval": 0,
+"HostingServiceSettings": [{
+  "IntervalInMinutes": 0,
   "Signals": [ "UpdateTenant" ]
-},
+}],
 ...
 ```
 
