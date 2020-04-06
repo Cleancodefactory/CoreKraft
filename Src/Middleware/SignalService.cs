@@ -25,27 +25,24 @@ namespace Ccf.Ck.Web.Middleware
         public Task StartAsync(CancellationToken cancellationToken)
         {
             KraftLogger.LogInformation("CoreKraft-Background-Service is starting.");
-            using (IServiceScope scope = _ScopeFactory.CreateScope())
+            _ServiceProvider = _ScopeFactory.CreateScope().ServiceProvider;
+            _KraftGlobalConfigurationSettings = _ServiceProvider.GetRequiredService<KraftGlobalConfigurationSettings>();
+
+            foreach (HostingServiceSetting item in _KraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings)
             {
-                _KraftGlobalConfigurationSettings = scope.ServiceProvider.GetRequiredService<KraftGlobalConfigurationSettings>();
-                _ServiceProvider = scope.ServiceProvider;
-                foreach (HostingServiceSetting item in _KraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings)
+                int minutes = item.IntervalInMinutes;
+                if (minutes > 0)
                 {
-                    int minutes = item.IntervalInMinutes;
-                    if (minutes > 0)
-                    {
-                        Timer t = new Timer(DoWork, item.Signals, TimeSpan.FromMinutes(minutes), TimeSpan.FromMinutes(minutes));
-                        _Timers.Add(t);
-                    }
+                    Timer t = new Timer(DoWork, item.Signals, TimeSpan.FromMinutes(minutes), TimeSpan.FromMinutes(minutes));
+                    _Timers.Add(t);
                 }
-                
             }
             return Task.CompletedTask;
         }
 
         private void DoWork(object state)
         {
-            lock(_Lock)
+            lock (_Lock)
             {
                 List<string> signals = state as List<string>;
                 if (signals != null)
@@ -76,7 +73,7 @@ namespace Ccf.Ck.Web.Middleware
             foreach (Timer timer in _Timers)
             {
                 timer?.Dispose();
-            }            
+            }
         }
     }
 }
