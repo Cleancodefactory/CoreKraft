@@ -32,9 +32,6 @@ using Microsoft.AspNetCore.Authorization;
 using static Ccf.Ck.Utilities.Generic.Utilities;
 using System.Security;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Primitives;
-using System.Text;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -203,7 +200,7 @@ namespace Ccf.Ck.Web.Middleware
                         app.UseSignalR(routes =>
                         {
                             MethodInfo mapHub = typeof(HubRouteBuilder).GetMethod("MapHub", new[] { typeof(PathString) });
-                            MethodInfo generic = mapHub.MakeGenericMethod(Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubImplementationAsString));
+                            MethodInfo generic = mapHub.MakeGenericMethod(Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubImplementationAsString, true));
                             generic.Invoke(routes, new object[] { new PathString(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute) });
                         });
                     }
