@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
-using Npgsql;
+﻿using Npgsql;
 
 namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 {
