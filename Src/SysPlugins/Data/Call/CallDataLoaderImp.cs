@@ -162,7 +162,7 @@ namespace Ccf.Ck.SysPlugins.Data.Call
         }
 
         /// <summary>
-        /// Parses custom parameters passed in different operation (for example {"read" : { "query": "key1=value1&key2=>value2" } }).
+        /// Parses custom parameters passed in different operation (for example {"read" : { "query": "key1=value1&key2=value2" } }).
         /// </summary>
         /// <param name="operation">Operation base - read, write.</param>
         /// <param name="state">Unchange, Insert, Update or Delete.</param>
