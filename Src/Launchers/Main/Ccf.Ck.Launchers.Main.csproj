@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.9" />
-    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.10" />
+    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.11" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

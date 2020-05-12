@@ -35,6 +35,7 @@ namespace Ccf.Ck.Processing.Web.Request
         public override IProcessingContextCollection GenerateProcessingContexts(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kraftRequestFlagsKey, ISecurityModel securityModel = null)
         {
             IProcessingContext processingContext = new ProcessingContext(this);
+            processingContext.InputModel = new InputModel(new InputModelParameters());
             List<IProcessingContext> processingContexts = new List<IProcessingContext>();
             processingContexts.Add(processingContext);
             _ProcessingContextCollection = new ProcessingContextCollection(processingContexts);

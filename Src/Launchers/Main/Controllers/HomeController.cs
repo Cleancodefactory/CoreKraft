@@ -1,8 +1,7 @@
-﻿using Ccf.Ck.Models.Settings;
+﻿using Ccf.Ck.Libs.Web.Bundling;
+using Ccf.Ck.Models.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Security.Claims;
 
 namespace Ccf.Ck.Launchers.Main.Controllers
 {
@@ -14,8 +13,14 @@ namespace Ccf.Ck.Launchers.Main.Controllers
         {
             _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
         }
-        public IActionResult Index()
+        public IActionResult Index(string theme)
         {
+            if (theme != null)
+            {
+                _KraftGlobalConfigurationSettings.GeneralSettings.Theme = theme;
+                Styles styles = BundleCollection.Instance.Profile(_KraftGlobalConfigurationSettings.GeneralSettings.DefaultStartModule).Styles;
+                styles.RemoveAllBundles();
+            }
             if (!User.Identity.IsAuthenticated)
             {
                 if (ControllerContext.HttpContext.Request.QueryString.HasValue)

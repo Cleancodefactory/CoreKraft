@@ -16,10 +16,7 @@
             //global base path
             g_ApplicationBasePath = "@Url.Content("~/")";
     </script>
-    @{ 
-
-    }
-    @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles(string.IsNullOrWhiteSpace(Model.GeneralSettings.Theme)?"Module.dep":Model.GeneralSettings.Theme + ".dep").Render()
+    @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles(string.IsNullOrWhiteSpace(Model.GeneralSettings.Theme) ? "Module.dep" : Model.GeneralSettings.Theme + ".dep").Render()
 </head>
 <body>
     <div id="bindkraft">
