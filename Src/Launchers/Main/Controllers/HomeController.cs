@@ -15,7 +15,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
         }
         public IActionResult Index(string theme)
         {
-            if (theme != null)
+            if (theme != null && _KraftGlobalConfigurationSettings.GeneralSettings.EnableThemeChange)
             {
                 _KraftGlobalConfigurationSettings.GeneralSettings.Theme = theme;
                 Styles styles = BundleCollection.Instance.Profile(_KraftGlobalConfigurationSettings.GeneralSettings.DefaultStartModule).Styles;

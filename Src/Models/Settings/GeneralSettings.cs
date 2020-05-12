@@ -61,5 +61,7 @@ namespace Ccf.Ck.Models.Settings
                 _ModuleKey2Path = value;
             }
         }
+
+        public bool EnableThemeChange { get; set; }
     }
 }
