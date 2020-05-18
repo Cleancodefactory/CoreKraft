@@ -17,9 +17,15 @@ namespace Ccf.Ck.SysPlugins.Views.Html
         {
             if (currentNode is View view)
             {
-                string cacheKey = processingContext.InputModel.Module + processingContext.InputModel.NodeSet + processingContext.InputModel.Nodepath + view.BindingKey + "_View";
-                ICachingService cachingService = pluginServiceManager.GetService<ICachingService>(typeof(ICachingService));
-                string cachedView = cachingService.Get<string>(cacheKey);
+                string cachedView = null;
+                string cacheKey = null;
+                ICachingService cachingService = null;
+                if (processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization)
+                {
+                    cacheKey = processingContext.InputModel.Module + processingContext.InputModel.NodeSet + processingContext.InputModel.Nodepath + view.BindingKey + "_View";
+                    cachingService = pluginServiceManager.GetService<ICachingService>(typeof(ICachingService));
+                    cachedView = cachingService.Get<string>(cacheKey);
+                }
                 if (cachedView == null)
                 {
                     string directoryPath = Path.Combine(
@@ -29,7 +35,10 @@ namespace Ccf.Ck.SysPlugins.Views.Html
 
                     PhysicalFileProvider fileProvider = new PhysicalFileProvider(directoryPath);
                     cachedView = File.ReadAllText(Path.Combine(directoryPath, view.Settings.Path));
-                    cachingService.Insert(cacheKey, cachedView, fileProvider.Watch(view.Settings.Path));
+                    if (processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization)
+                    {
+                        cachingService.Insert(cacheKey, cachedView, fileProvider.Watch(view.Settings.Path));
+                    }
                 }
                 IResourceModel resourceModel = new ResourceModel();
                 resourceModel.Content = cachedView;
