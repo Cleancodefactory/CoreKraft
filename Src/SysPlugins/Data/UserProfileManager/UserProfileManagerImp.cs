@@ -19,13 +19,24 @@ namespace Ccf.Ck.SysPlugins.Data.UserProfileManager
         protected override List<Dictionary<string, object>> Read(IDataLoaderReadContext execContext)
         {
             List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
-            CancellationToken cancellationToken = new CancellationToken();
-            string targetUrl = GetAuthUrl(execContext, "select");
-            AuthenticationHeaderValue authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", GetAuthAccessToken(execContext));
-            Task<Dictionary<string, object>> resultAuth = 
-                Loader.LoadAsync<Dictionary<string, object>>(cancellationToken, authenticationHeaderValue, HttpMethod.Get, null, targetUrl);
-            resultAuth.ConfigureAwait(false);
-            result.Add(resultAuth.Result);
+            if (!string.IsNullOrEmpty(execContext.CurrentNode.Read.Select?.Query) && execContext.CurrentNode.Read.Select.Query.Equals("bearer", System.StringComparison.OrdinalIgnoreCase))
+            {
+                Dictionary<string, object> resultAuth = new Dictionary<string, object> ();
+                resultAuth.Add("key", GetAuthUrl(execContext, "authority"));
+                resultAuth.Add("token", GetAuthAccessToken(execContext));                
+                result.Add(resultAuth);
+            }
+            else
+            {
+                CancellationToken cancellationToken = new CancellationToken();
+                string targetUrl = GetAuthUrl(execContext, "select");
+                AuthenticationHeaderValue authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", GetAuthAccessToken(execContext));
+                Task<Dictionary<string, object>> resultAuth =
+                    Loader.LoadAsync<Dictionary<string, object>>(cancellationToken, authenticationHeaderValue, HttpMethod.Get, null, targetUrl);
+                resultAuth.ConfigureAwait(false);
+                result.Add(resultAuth.Result);
+            }
+
             return result;
         }
 
@@ -81,6 +92,10 @@ namespace Ccf.Ck.SysPlugins.Data.UserProfileManager
                 case "delete":
                     {
                         return $"{authority}/api/deleteuser";
+                    }
+                case "authority":
+                    {
+                        return $"{authority}/api/avatar";
                     }
             }
             return null;
