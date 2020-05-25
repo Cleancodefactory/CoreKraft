@@ -23,7 +23,8 @@ namespace Ccf.Ck.SysPlugins.Data.UserProfileManager
             {
                 Dictionary<string, object> resultAuth = new Dictionary<string, object> ();
                 resultAuth.Add("key", GetAuthUrl(execContext, "authority"));
-                resultAuth.Add("token", GetAuthAccessToken(execContext));                
+                resultAuth.Add("token", GetAuthAccessToken(execContext));
+                resultAuth.Add("servicename", "avatarimage");
                 result.Add(resultAuth);
             }
             else
