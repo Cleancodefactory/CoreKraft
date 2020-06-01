@@ -22,6 +22,7 @@
       - Version 1.0.10: Fix error when the collection of signals is empty.
       - Version 1.0.11: Extending ActionBase with Dictionary[string, object] Json (property)
       - Version 1.0.12: Moving the Json property from Select to the ActionBase
+	  - Version 1.0.13: Update the user manager supporting bearer tokens
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
