@@ -22,9 +22,14 @@ namespace Ccf.Ck.SysPlugins.Data.UserProfileManager
             if (!string.IsNullOrEmpty(execContext.CurrentNode.Read.Select?.Query) && execContext.CurrentNode.Read.Select.Query.Equals("bearer", System.StringComparison.OrdinalIgnoreCase))
             {
                 Dictionary<string, object> resultAuth = new Dictionary<string, object> ();
-                resultAuth.Add("key", GetAuthUrl(execContext, "authority"));
+                resultAuth.Add("key", GetAuthUrl(execContext, "avatar"));
                 resultAuth.Add("token", GetAuthAccessToken(execContext));
                 resultAuth.Add("servicename", "avatarimage");
+                result.Add(resultAuth);
+                resultAuth = new Dictionary<string, object>();
+                resultAuth.Add("key", GetAuthUrl(execContext, "authority"));
+                resultAuth.Add("token", GetAuthAccessToken(execContext));
+                resultAuth.Add("servicename", "authorizationserver");
                 result.Add(resultAuth);
             }
             else
@@ -94,9 +99,13 @@ namespace Ccf.Ck.SysPlugins.Data.UserProfileManager
                     {
                         return $"{authority}/api/deleteuser";
                     }
-                case "authority":
+                case "avatar":
                     {
                         return $"{authority}/api/avatar";
+                    }
+                case "authority":
+                    {
+                        return $"{authority}";
                     }
             }
             return null;
