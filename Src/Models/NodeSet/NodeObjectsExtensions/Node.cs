@@ -5,8 +5,18 @@ namespace Ccf.Ck.Models.NodeSet
 {
     public partial class Node : INode
     {
-        [JsonIgnore]
-        public bool RequireAuthentication { get; set; }
+        private bool _HasRequireAuthenticationSet;
+        private bool _RequireAuthentication;
+        //[JsonIgnore]
+        public bool RequireAuthentication
+        {
+            get => _RequireAuthentication;
+            set
+            {
+                _HasRequireAuthenticationSet = true;
+                _RequireAuthentication = value;
+            }
+        }
 
         public bool HasView() => (Views != null && Views.Count > 0);
 
@@ -30,7 +40,10 @@ namespace Ccf.Ck.Models.NodeSet
             {
                 DataPluginName = NodeSet.DataPluginName;
             }
-            RequireAuthentication = NodeSet.RequireAuthentication;
+            if (!_HasRequireAuthenticationSet)
+            {
+                RequireAuthentication = NodeSet.RequireAuthentication;
+            }
         }
     }
 }
