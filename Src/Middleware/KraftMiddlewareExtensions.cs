@@ -32,6 +32,7 @@ using Microsoft.AspNetCore.Authorization;
 using static Ccf.Ck.Utilities.Generic.Utilities;
 using System.Security;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Http.Connections;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -199,9 +200,12 @@ namespace Ccf.Ck.Web.Middleware
                     {
                         app.UseSignalR(routes =>
                         {
-                            MethodInfo mapHub = typeof(HubRouteBuilder).GetMethod("MapHub", new[] { typeof(PathString) });
+
+                            MethodInfo mapHub = typeof(HubRouteBuilder).GetMethod("MapHub", new[] { typeof(PathString), typeof(Action<HttpConnectionDispatcherOptions>) });
                             MethodInfo generic = mapHub.MakeGenericMethod(Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubImplementationAsString, true));
-                            generic.Invoke(routes, new object[] { new PathString(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute) });
+                            generic.Invoke(routes, new object[] { new PathString(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
+                                (Action<HttpConnectionDispatcherOptions>)(x => {x.ApplicationMaxBufferSize = 3200000; })
+                            });
                         });
                     }
                 }
