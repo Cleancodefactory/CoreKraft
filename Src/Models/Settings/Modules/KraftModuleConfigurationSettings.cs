@@ -11,6 +11,7 @@ namespace Ccf.Ck.Models.Settings.Modules
     {
         private readonly DependencyInjectionContainer _DependencyInjectionContainer;
         private readonly ICachingService _CachingService;
+        public KraftGlobalConfigurationSettings KraftGlobalConfigurationSettings { get; private set; }
 
         public void Reset()
         {
@@ -19,11 +20,13 @@ namespace Ccf.Ck.Models.Settings.Modules
 
         public string ModuleName{ get; private set; }
 
-        public KraftModuleConfigurationSettings(DependencyInjectionContainer dependencyInjectionContainer, ICachingService cachingService)
+        public KraftModuleConfigurationSettings(DependencyInjectionContainer dependencyInjectionContainer, ICachingService cachingService, 
+            KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             _DependencyInjectionContainer = dependencyInjectionContainer;
             _CachingService = cachingService;
             NodeSetSettings = new NodeSetSettings();
+            KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
         }
 
         public void LoadDefinedObjects(string moduleName, string configFile)

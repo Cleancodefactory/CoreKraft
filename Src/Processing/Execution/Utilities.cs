@@ -22,6 +22,11 @@ namespace Ccf.Ck.Processing.Execution
 
             if (loaderProperties != null)
             {
+                Dictionary<string, string>  customSettings = moduleSettings.KraftGlobalConfigurationSettings.GetOverrideCustomSettings(moduleSettings.ModuleName, loaderName);
+                if (customSettings != null)
+                {
+                    return customSettings;
+                }
                 return loaderProperties.CustomSettings;
             }
             else

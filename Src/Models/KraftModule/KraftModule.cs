@@ -29,12 +29,14 @@ namespace Ccf.Ck.Models.KraftModule
         private readonly KraftModuleCollection _ModuleCollection;
         private readonly ILogger _Logger;
         private readonly string _ModulePath;
+        private KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
 
         public ScriptKraftBundle ScriptKraftBundle { get; private set; }
         public TemplateKraftBundle TemplateKraftBundle { get; private set; }
         public StyleKraftBundle StyleKraftBundle { get; private set; }
         public KraftModuleConfigurationSettings ModuleSettings { get; private set; }
         public KraftModuleRootConf KraftModuleRootConf { get; private set; }
+        
         public string Key
         {
             get
@@ -47,12 +49,17 @@ namespace Ccf.Ck.Models.KraftModule
         public int DependencyOrderIndex { get; internal set; }
         public IDictionary<string, IDependable<KraftModule>> Dependencies { get; internal set; }
 
-        internal KraftModule(string directoryName, string moduleName, DependencyInjectionContainer dependencyInjectionContainer, KraftModuleCollection moduleCollection, ICachingService cachingService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, ILogger logger)
+        internal KraftModule(string directoryName, string moduleName, 
+            DependencyInjectionContainer dependencyInjectionContainer, 
+            KraftModuleCollection moduleCollection, 
+            ICachingService cachingService, 
+            KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, ILogger logger)
         {
             _DependencyInjectionContainer = dependencyInjectionContainer;
             _ModuleCollection = moduleCollection;
             _Logger = logger;
             DirectoryName = directoryName;
+            _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
 
             //dependencies
             Dependencies = new Dictionary<string, IDependable<KraftModule>>();
@@ -134,7 +141,7 @@ namespace Ccf.Ck.Models.KraftModule
             }
 
             //Init the kraft module configurations model
-            ModuleSettings = new KraftModuleConfigurationSettings(_DependencyInjectionContainer, cachingService);
+            ModuleSettings = new KraftModuleConfigurationSettings(_DependencyInjectionContainer, cachingService, _KraftGlobalConfigurationSettings);
 
             //read the module configuration
             IConfigurationBuilder configbuilder = new ConfigurationBuilder();
