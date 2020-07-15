@@ -7,7 +7,7 @@ namespace Ccf.Ck.Models.Settings
 {
     public class OverrideModuleSetting
     {
-        public string Name { get; set; }
+        public string ModuleName { get; set; }
         public List<Loader> Loaders { get; set; }
         public OverrideModuleSetting()
         {

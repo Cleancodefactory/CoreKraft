@@ -9,17 +9,21 @@ namespace Ccf.Ck.Models.Settings
         public List<OverrideModuleSetting> OverrideModuleSettings { get; set; }
         public KraftEnvironmentSettings EnvironmentSettings { get; set; }
 
+        public KraftGlobalConfigurationSettings()
+        {
+            OverrideModuleSettings = new List<OverrideModuleSetting>();
+        }
+
         public void Reset()
         {
-            GeneralSettings = new GeneralSettings();
-            OverrideModuleSettings = new List<OverrideModuleSetting>();
+            GeneralSettings = new GeneralSettings();            
         }
 
         public Dictionary<string, string> GetOverrideCustomSettings(string moduleName, string loaderName)
         {
             foreach (OverrideModuleSetting moduleSettings in OverrideModuleSettings)
             {
-                if (moduleSettings.Name != null && moduleSettings.Name.Equals(moduleName, System.StringComparison.OrdinalIgnoreCase))
+                if (moduleSettings.ModuleName != null && moduleSettings.ModuleName.Equals(moduleName, System.StringComparison.OrdinalIgnoreCase))
                 {
                     foreach (Loader loader in moduleSettings.Loaders)
                     {
