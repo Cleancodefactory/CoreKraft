@@ -22,6 +22,7 @@ CoreKraft is a [.NET Foundation](https://dotnetfoundation.org/) project.
         * [The CoreKraft model](Documentation/02.Learn_CoreKraft/02.The_CoreKraft_Model/core-kraft.md)
     * Modules
         * [Modules](Documentation/02.Learn_CoreKraft/03.Modules/modules.md)
+        * [Override module settings globally](Documentation/02.Learn_CoreKraft/03.Modules/override_module_settings.md)
     * Net Core Server Deep Dive
         * [Net Core Server Deep Dive](Documentation/02.Learn_CoreKraft/04.NetCore_Server_Deep_Dive/net-core-deep-dive.md)
     * Loaders
