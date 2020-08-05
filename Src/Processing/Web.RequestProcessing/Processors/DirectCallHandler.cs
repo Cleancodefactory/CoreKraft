@@ -42,12 +42,12 @@ namespace Ccf.Ck.Processing.Web.Request
                                                 processingContext.InputModel.NodeSet,
                                                 processingContext.InputModel.Nodepath);
             StringBuilder sb;
-            if (CheckValidity(processingContext, loadedModule, loadedNodeSet, out sb))
+            if (!CheckValidity(processingContext, loadedModule, loadedNodeSet, out sb))
             {
                 PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
                 PluginAccessorImp<INodePlugin> customService = new PluginAccessorImp<INodePlugin>(transactionScopeContext, loadedModule.ModuleSettings);
                 INodeTaskExecutor taskExecutor = new NodeTaskExecutor(transactionScopeContext, loadedModule.ModuleSettings);
-                taskExecutor.ExecuteNodeView(loadedNodeSet, processingContext);
+                taskExecutor.Execute(loadedNodeSet, processingContext, externalService, customService);
             }
             else
             {

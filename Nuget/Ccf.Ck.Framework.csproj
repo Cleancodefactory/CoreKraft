@@ -24,6 +24,7 @@
       - Version 1.0.12: Moving the Json property from Select to the ActionBase
 	  - Version 1.0.13: Update the user manager supporting bearer tokens
 	  - Version 1.0.14: Introduce external (e.g. MVC/SignalR/other middlewares) to CoreKraft calls and consume their results
+	  - Version 1.0.15: Fix: Bug to execute the data channel
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
