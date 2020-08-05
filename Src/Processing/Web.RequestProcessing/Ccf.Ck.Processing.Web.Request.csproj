@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Models\DirectCall\Ccf.Ck.Models.DirectCall.csproj" />
     <ProjectReference Include="..\..\Models\KraftModule\Ccf.Ck.Models.KraftModule.csproj" />
     <ProjectReference Include="..\..\Models\NodeRequest\Ccf.Ck.Models.NodeRequest.csproj" />
     <ProjectReference Include="..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />

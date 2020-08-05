@@ -23,6 +23,7 @@
       - Version 1.0.11: Extending ActionBase with Dictionary[string, object] Json (property)
       - Version 1.0.12: Moving the Json property from Select to the ActionBase
 	  - Version 1.0.13: Update the user manager supporting bearer tokens
+	  - Version 1.0.14: Introduce external (e.g. MVC/SignalR/other middlewares) to CoreKraft calls and consume their results
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>

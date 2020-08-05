@@ -49,6 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Models\DirectCall\Ccf.Ck.Models.DirectCall.csproj" />
     <ProjectReference Include="..\Models\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
     <ProjectReference Include="..\Models\KraftModule\Ccf.Ck.Models.KraftModule.csproj" />
     <ProjectReference Include="..\Models\Settings\Ccf.Ck.Models.Settings.csproj" />

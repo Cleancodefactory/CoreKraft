@@ -33,6 +33,7 @@ using static Ccf.Ck.Utilities.Generic.Utilities;
 using System.Security;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Http.Connections;
+using Ccf.Ck.Models.DirectCall;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -187,6 +188,7 @@ namespace Ccf.Ck.Web.Middleware
                 //Configure the CoreKraft routing               
                 RouteHandler kraftRoutesHandler = new RouteHandler(KraftMiddleware.ExecutionDelegate(app, _KraftGlobalConfigurationSettings));
                 app.UseRouter(KraftRouteBuilder.MakeRouter(app, kraftRoutesHandler, kraftUrlSegment));
+                DirectCallService.Instance.Call = KraftMiddleware.ExecutionDelegateDirect(app, _KraftGlobalConfigurationSettings);
                 app.UseSession();
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
                 {

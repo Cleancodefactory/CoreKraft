@@ -115,6 +115,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.Launchers.Intro", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.SysPlugins.Data.RequestProxy", "Src\SysPlugins\Data\RequestProxy\Ccf.Ck.SysPlugins.Data.RequestProxy.csproj", "{9009D238-C70E-4C94-833C-5371D624829D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.Models.DirectCall", "Src\Models\DirectCall\Ccf.Ck.Models.DirectCall.csproj", "{28D99898-170D-47E2-AD97-E42AD429BD1E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -305,6 +307,10 @@ Global
 		{9009D238-C70E-4C94-833C-5371D624829D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9009D238-C70E-4C94-833C-5371D624829D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9009D238-C70E-4C94-833C-5371D624829D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28D99898-170D-47E2-AD97-E42AD429BD1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28D99898-170D-47E2-AD97-E42AD429BD1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28D99898-170D-47E2-AD97-E42AD429BD1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28D99898-170D-47E2-AD97-E42AD429BD1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -360,6 +366,7 @@ Global
 		{2024D136-B247-4D1B-BA73-85E1C4A05C92} = {BB3FCDCE-5D97-4816-BBDB-C26097DBC874}
 		{8F023D5C-309E-48CE-974B-5A96E3441D90} = {BB3FCDCE-5D97-4816-BBDB-C26097DBC874}
 		{9009D238-C70E-4C94-833C-5371D624829D} = {8216ED90-BBBC-415B-9691-29B63FA0E94D}
+		{28D99898-170D-47E2-AD97-E42AD429BD1E} = {2FABC82B-D94D-499F-B34F-F012160DE5EB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BFC34E53-EAB6-4384-87CE-222E5781116F}
