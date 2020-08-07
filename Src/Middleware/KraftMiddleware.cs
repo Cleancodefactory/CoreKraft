@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Threading.Tasks;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -35,9 +36,9 @@ namespace Ccf.Ck.Web.Middleware
             return requestDelegate;
         }
 
-        internal static Func<Ccf.Ck.Models.DirectCall.InputModel, Ccf.Ck.Models.DirectCall.ReturnModel> ExecutionDelegateDirect(IApplicationBuilder builder, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
+        internal static Func<Ccf.Ck.Models.DirectCall.InputModel, Task<Ccf.Ck.Models.DirectCall.ReturnModel>> ExecutionDelegateDirect(IApplicationBuilder builder, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
-            Func<Ccf.Ck.Models.DirectCall.InputModel, Ccf.Ck.Models.DirectCall.ReturnModel> directDelegate = (inputModel) =>
+            Func<Ccf.Ck.Models.DirectCall.InputModel, Task<Ccf.Ck.Models.DirectCall.ReturnModel>> directDelegate = (inputModel) =>
             {
                 var transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
                 var nodesSetService = builder.ApplicationServices.GetService<INodeSetService>();
@@ -52,9 +53,9 @@ namespace Ccf.Ck.Web.Middleware
                     returnModel.Data = processingContext.ReturnModel.Data;
                     returnModel.BinaryData = processingContext.ReturnModel.BinaryData;
                     returnModel.IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful;
-                    return returnModel;
+                    return Task.FromResult(returnModel);
                 }
-                return returnModel;
+                return Task.FromResult(returnModel);
             };
             return directDelegate;
         }

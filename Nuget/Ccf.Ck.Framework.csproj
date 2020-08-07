@@ -26,6 +26,7 @@
 	  - Version 1.0.14: Introduce external (e.g. MVC/SignalR/other middlewares) to CoreKraft calls and consume their results
 	  - Version 1.0.15: Fix: Bug to execute the data channel
 	  - Version 1.0.16: Extend config section SignalR with new Settings section
+	  - Version 1.0.17: Extend external calls (v. 1.0.14) to return Task
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
