@@ -65,7 +65,7 @@ namespace Ccf.Ck.Processing.Web.Request
             inputModelParameters.Nodeset = _InputModel.Nodeset;
             inputModelParameters.Nodepath = _InputModel.Nodepath;
             inputModelParameters.IsWriteOperation = _InputModel.IsWriteOperation;
-
+            inputModelParameters.QueryCollection = _InputModel.QueryCollection;
             inputModelParameters.Data = _InputModel.Data;
             inputModelParameters.LoaderType = ELoaderType.DataLoader;
             
