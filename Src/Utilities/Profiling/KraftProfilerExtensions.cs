@@ -7,12 +7,13 @@ using StackExchange.Profiling;
 using StackExchange.Profiling.Storage;
 using System;
 using System.Data.Common;
+using Microsoft.Extensions.Hosting;
 
 namespace Ccf.Ck.Utilities.Profiling
 {
     public static class KraftProfilerExtensions
     {
-        public static void UseBindKraftProfiler(this IApplicationBuilder builder, IHostingEnvironment env, ILoggerFactory loggerFactory, IMemoryCache cache)
+        public static void UseBindKraftProfiler(this IApplicationBuilder builder, IWebHostingEnvironment env, ILoggerFactory loggerFactory, IMemoryCache cache)
         {
             builder.UseMiniProfiler();
             //MiniProfiler.Settings.PopupRenderPosition = RenderPosition.Right;

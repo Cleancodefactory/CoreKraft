@@ -47,7 +47,7 @@ namespace Ccf.Ck.Web.Middleware
         static object _SyncRoot = new Object();
         const string ERRORURLSEGMENT = "error";
 
-        public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IHostingEnvironment env)
+        public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostingEnvironment env)
         {
             //AntiforgeryService
             //app.Use(next => context =>
@@ -283,7 +283,7 @@ namespace Ccf.Ck.Web.Middleware
                 services.AddSession();
                 services.UseBindKraftProfiler();
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
-                IHostingEnvironment env = serviceProvider.GetRequiredService<IHostingEnvironment>();
+                IWebHostingEnvironment env = serviceProvider.GetRequiredService<IWebHostingEnvironment>();
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
                 _Logger = loggerFactory.CreateLogger<KraftMiddleware>();
 
