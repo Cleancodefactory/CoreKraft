@@ -47,7 +47,7 @@ namespace Ccf.Ck.Models.KraftModule
                     throw new Exception($"No CoreKraft module found for bundle target \"{profile.Key}\"!");
                 }
 
-                void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
+                static void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
                 {
                     foreach (var dep in kmodule.Dependencies)
                     {
@@ -111,7 +111,7 @@ namespace Ccf.Ck.Models.KraftModule
                 KraftModule profileTargetModule = _ModulesCollection.GetModule(profile.Key);
                 if (profileTargetModule == null) throw new Exception($"No CoreKraft module found for bundle target \"{profile.Key}\"!");
 
-                void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
+                static void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
                 {
                     foreach (var dep in kmodule.Dependencies)
                     {

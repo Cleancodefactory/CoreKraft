@@ -587,9 +587,11 @@ namespace Ccf.Ck.Web.Middleware
         private static void InvokeConfigurationChanged(IWebHostEnvironment env)
         {
             IHostApplicationLifetime applicationLifetime = _Builder.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
-            RestartReason restartReason = new RestartReason();
-            restartReason.Reason = "appsettings Configuration File Changed";
-            restartReason.Description = $"appsettings Configuration File Changed and restart the application";
+            RestartReason restartReason = new RestartReason
+            {
+                Reason = "appsettings Configuration File Changed",
+                Description = $"appsettings Configuration File Changed and restart the application"
+            };
             RestartApplication(applicationLifetime, restartReason);
         }
     }

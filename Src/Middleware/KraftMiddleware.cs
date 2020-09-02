@@ -49,10 +49,12 @@ namespace Ccf.Ck.Web.Middleware
                 foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
                 {
                     dcHandler.Execute(processingContext, transactionScope);
-                    returnModel = new Models.DirectCall.ReturnModel();
-                    returnModel.Data = processingContext.ReturnModel.Data;
-                    returnModel.BinaryData = processingContext.ReturnModel.BinaryData;
-                    returnModel.IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful;
+                    returnModel = new Models.DirectCall.ReturnModel
+                    {
+                        Data = processingContext.ReturnModel.Data,
+                        BinaryData = processingContext.ReturnModel.BinaryData,
+                        IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful
+                    };
                     return Task.FromResult(returnModel);
                 }
                 return Task.FromResult(returnModel);
