@@ -47,7 +47,7 @@ namespace Ccf.Ck.Models.KraftModule
                     throw new Exception($"No CoreKraft module found for bundle target \"{profile.Key}\"!");
                 }
 
-                void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
+                static void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
                 {
                     foreach (var dep in kmodule.Dependencies)
                     {
@@ -104,14 +104,14 @@ namespace Ccf.Ck.Models.KraftModule
             if (!profile.HasStyleBundle(profile.Key + "-css"))
             {
                 StyleBundle styleBundle = new StyleBundle(profile.Key + "-css", new PhysicalFileProvider(_ModulesCollection.KraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath));
-                styleBundle.RemoveTransformationType(typeof(LessTransformation));
+                //styleBundle.RemoveTransformationType(typeof(LessTransformation));
                 StringBuilder contentTemplates = new StringBuilder(10000);
 
                 //try to get the target module
                 KraftModule profileTargetModule = _ModulesCollection.GetModule(profile.Key);
                 if (profileTargetModule == null) throw new Exception($"No CoreKraft module found for bundle target \"{profile.Key}\"!");
 
-                void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
+                static void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
                 {
                     foreach (var dep in kmodule.Dependencies)
                     {

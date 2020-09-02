@@ -3,7 +3,6 @@ using Ccf.Ck.SysPlugins.Data.FileUpload.BaseClasses;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Transforms;
 using System;
 using System.IO;
 
@@ -20,7 +19,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload.Models
         {
             _Postedfile = postedFile ?? throw new ArgumentNullException($"{nameof(IPostedFile)} cannot be null.");
 
-            _Image = Image.Load(postedFile.OpenReadStream());
+            _Image = Image.Load(postedFile.OpenReadStream()) as Image<Rgba32>;
             _Image.Mutate(i => i.AutoOrient());
         }
 

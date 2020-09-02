@@ -49,7 +49,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// Not currently settable and fully supported yet - for future use
         /// When set disables throwing of exceptions during compilation, evaluation and related code.
         /// </summary>
-        private bool _noEvaluationExceptions = false;
+        private readonly bool _noEvaluationExceptions = false;
         #endregion
 
         #region Construction
@@ -286,12 +286,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// <summary>
         /// When called the evaluator will look here and if the expression is not yet compilled it will find it in Parameters and compile it here
         /// </summary>
-        private Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>> CompiledParameterExpressions = new Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>>();
+        private readonly Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>> CompiledParameterExpressions = new Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>>();
 
-        private Dictionary<string, ParameterResolverValue> CompiledParameterExpressionsCache = new Dictionary<string, ParameterResolverValue>();
+        private readonly Dictionary<string, ParameterResolverValue> CompiledParameterExpressionsCache = new Dictionary<string, ParameterResolverValue>();
 
-
-        private Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>> CompiledValidationExpressions = new Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>>();
 
         #endregion
 
@@ -455,10 +453,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             ParameterResolverValue result = new ParameterResolverValue(null, EResolverValueType.Invalid);
 
             // Check the cache
-            if (false)
-            {
-                if (CompiledParameterExpressionsCache.ContainsKey(expressionName)) return CompiledParameterExpressionsCache[expressionName];
-            }
+            //if (false)
+            //{
+            //    if (CompiledParameterExpressionsCache.ContainsKey(expressionName)) return CompiledParameterExpressionsCache[expressionName];
+            //}
             // No cache or not in cache - get the runner
             bool isdefault = false;
             bool neverCache = false;

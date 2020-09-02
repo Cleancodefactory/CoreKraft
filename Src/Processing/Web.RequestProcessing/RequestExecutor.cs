@@ -15,12 +15,12 @@ namespace Ccf.Ck.Processing.Web.Request
 {
     public class RequestExecutor
     {
-        IServiceProvider _ServiceProvider;
-        KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
-        TransactionScopeContext _TransactionScope;
-        HttpContext _HttpContext;
-        INodeSetService _NodesSetService;
-        KraftModuleCollection _KraftModuleCollection;
+        readonly IServiceProvider _ServiceProvider;
+        readonly KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
+        readonly TransactionScopeContext _TransactionScope;
+        readonly HttpContext _HttpContext;
+        readonly INodeSetService _NodesSetService;
+        readonly KraftModuleCollection _KraftModuleCollection;
         static bool _IsSystemInMaintenanceMode;
 
         public RequestExecutor(IServiceProvider serviceProvider, HttpContext httpContext, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
