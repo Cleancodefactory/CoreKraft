@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ccf.Ck.Web.Middleware;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Primitives;
 
 namespace Ccf.Ck.Launchers.Main
 {
@@ -11,25 +13,24 @@ namespace Ccf.Ck.Launchers.Main
     {
         private IConfigurationRoot _Configuration { get; }
 
-        public Startup(IWebHostingEnvironment env)
+        public Startup(IWebHostEnvironment env)
         {
             IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
             _Configuration = builder.Build();
         }
 
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.UseBindKraft(_Configuration);
             services.AddMvc();
-
-            return services.BuildServiceProvider();
+            //services.AddOptions();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseBindKraft(env);
             if (env.IsDevelopment())
@@ -42,12 +43,18 @@ namespace Ccf.Ck.Launchers.Main
             }
             app.UseStaticFiles();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+            app.UseEndpoints(routes =>
             {
-                routes.MapRoute(
+                routes.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+            //ChangeToken.OnChange(
+            //    () => _Configuration.GetReloadToken(),
+            //    (state) => InvokeChanged(state),
+            //    env);
         }
+        
     }
 }

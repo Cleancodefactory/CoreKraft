@@ -13,7 +13,7 @@ namespace Ccf.Ck.Utilities.Profiling
 {
     public static class KraftProfilerExtensions
     {
-        public static void UseBindKraftProfiler(this IApplicationBuilder builder, IWebHostingEnvironment env, ILoggerFactory loggerFactory, IMemoryCache cache)
+        public static void UseBindKraftProfiler(this IApplicationBuilder builder, IWebHostEnvironment env, ILoggerFactory loggerFactory, IMemoryCache cache)
         {
             builder.UseMiniProfiler();
             //MiniProfiler.Settings.PopupRenderPosition = RenderPosition.Right;

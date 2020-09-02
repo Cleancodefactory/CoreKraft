@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Security;
@@ -12,7 +13,7 @@ namespace Ccf.Ck.Utilities.Generic
     {
         public static bool CheckNullOrEmpty<T>(T value, bool throwException)
         {
-            bool result = false;
+            bool result;
             if (typeof(T) == typeof(string))
             {
                 result = string.IsNullOrEmpty(value as string);
@@ -28,7 +29,7 @@ namespace Ccf.Ck.Utilities.Generic
             return result;
         }
 
-        public static void RestartApplication(IApplicationLifetime applicationLifetime, RestartReason restartReason)
+        public static void RestartApplication(IHostApplicationLifetime applicationLifetime, RestartReason restartReason)
         {
             try
             {

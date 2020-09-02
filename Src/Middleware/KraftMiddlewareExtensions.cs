@@ -34,6 +34,9 @@ using System.Security;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Http.Connections;
 using Ccf.Ck.Models.DirectCall;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Primitives;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -44,10 +47,10 @@ namespace Ccf.Ck.Web.Middleware
         static IMemoryCache _MemoryCache = null;
         static IApplicationBuilder _Builder = null;
         static IConfiguration _Configuration = null;
-        static object _SyncRoot = new Object();
+        static readonly object _SyncRoot = new Object();
         const string ERRORURLSEGMENT = "error";
 
-        public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostingEnvironment env)
+        public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostEnvironment env)
         {
             //AntiforgeryService
             //app.Use(next => context =>
@@ -108,7 +111,7 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     KraftModuleCollection modulesCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
                     Dictionary<string, string> moduleKey2Path = new Dictionary<string, string>();
-                    IApplicationLifetime applicationLifetime = app.ApplicationServices.GetRequiredService<IApplicationLifetime>();
+                    IHostApplicationLifetime applicationLifetime = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
                     lock (_SyncRoot)
                     {
                         foreach (string dir in _KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders)
@@ -170,9 +173,11 @@ namespace Ccf.Ck.Web.Middleware
                     {
                         _Configuration.GetReloadToken().RegisterChangeCallback(_ =>
                         {
-                            RestartReason restartReason = new RestartReason();
-                            restartReason.Reason = "Configuration Changed";
-                            restartReason.Description = $"'appsettings.Production.json' has been altered";
+                            RestartReason restartReason = new RestartReason
+                            {
+                                Reason = "Configuration Changed",
+                                Description = $"'appsettings.Production.json' has been altered"
+                            };
                             AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
                             AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
                             RestartApplication(applicationLifetime, restartReason);
@@ -200,12 +205,12 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     if (_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.UseSignalR)
                     {
-                        app.UseSignalR(routes =>
+                        app.UseRouting();
+                        app.UseEndpoints(endpoints =>
                         {
-
-                            MethodInfo mapHub = typeof(HubRouteBuilder).GetMethod("MapHub", new[] { typeof(PathString), typeof(Action<HttpConnectionDispatcherOptions>) });
+                            MethodInfo mapHub = typeof(HubEndpointConventionBuilder).GetMethod("MapHub", new[] { typeof(PathString), typeof(Action<HttpConnectionDispatcherOptions>) });
                             MethodInfo generic = mapHub.MakeGenericMethod(Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubImplementationAsString, true));
-                            generic.Invoke(routes, new object[] { new PathString(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
+                            generic.Invoke(endpoints, new object[] { new PathString(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
                                 (Action<HttpConnectionDispatcherOptions>)(x => {x.ApplicationMaxBufferSize = 3200000; })
                             });
                         });
@@ -219,6 +224,7 @@ namespace Ccf.Ck.Web.Middleware
                 SignalStartup signalStartup = new SignalStartup(app.ApplicationServices, _KraftGlobalConfigurationSettings);
                 signalStartup.ExecuteSignalsOnStartup();
                 //End Signals
+                ChangeToken.OnChange(() => _Configuration.GetReloadToken(), (state) => InvokeConfigurationChanged(state), env);
             }
             catch (Exception ex)
             {
@@ -237,6 +243,17 @@ namespace Ccf.Ck.Web.Middleware
             {
                 services.AddDistributedMemoryCache();
                 services.UseBindKraftLogger();
+                // If using Kestrel:
+                services.Configure<KestrelServerOptions>(options =>
+                {
+                    options.AllowSynchronousIO = true;
+                });
+
+                // If using IIS:
+                services.Configure<IISServerOptions>(options =>
+                {
+                    options.AllowSynchronousIO = true;
+                });
                 _KraftGlobalConfigurationSettings = new KraftGlobalConfigurationSettings();
                 configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
                 _Configuration = configuration;
@@ -283,7 +300,7 @@ namespace Ccf.Ck.Web.Middleware
                 services.AddSession();
                 services.UseBindKraftProfiler();
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
-                IWebHostingEnvironment env = serviceProvider.GetRequiredService<IWebHostingEnvironment>();
+                IWebHostEnvironment env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
                 _Logger = loggerFactory.CreateLogger<KraftMiddleware>();
 
@@ -499,7 +516,7 @@ namespace Ccf.Ck.Web.Middleware
             return null;
         }
 
-        private static void AttachModulesWatcher(string moduleFolder, bool includeSubdirectories, IApplicationLifetime applicationLifetime)
+        private static void AttachModulesWatcher(string moduleFolder, bool includeSubdirectories, IHostApplicationLifetime applicationLifetime)
         {
             if (!Directory.Exists(moduleFolder))
             {
@@ -510,11 +527,13 @@ namespace Ccf.Ck.Web.Middleware
             RestartReason restartReason = new RestartReason();
             if (includeSubdirectories)
             {
-                fileWatcher = new FileSystemWatcher(moduleFolder);
-                // watch for everything
-                fileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-                fileWatcher.IncludeSubdirectories = includeSubdirectories;
-                fileWatcher.Filter = "*.*";
+                fileWatcher = new FileSystemWatcher(moduleFolder)
+                {
+                    // watch for everything
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
+                    IncludeSubdirectories = includeSubdirectories,
+                    Filter = "*.*"
+                };
                 // Add event handlers.
                 fileWatcher.Changed += OnChanged;
                 fileWatcher.Created += OnChanged;
@@ -529,10 +548,12 @@ namespace Ccf.Ck.Web.Middleware
                 DirectoryInfo directoryInfo = new DirectoryInfo(moduleFolder);
                 foreach (FileInfo file in directoryInfo.GetFiles())
                 {
-                    fileWatcher = new FileSystemWatcher();
-                    fileWatcher.Path = directoryInfo.FullName;
-                    fileWatcher.Filter = file.Name;
-                    fileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+                    fileWatcher = new FileSystemWatcher
+                    {
+                        Path = directoryInfo.FullName,
+                        Filter = file.Name,
+                        NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName
+                    };
                     // Add event handlers.
                     fileWatcher.Changed += OnChanged;
                     fileWatcher.Created += OnChanged;
@@ -561,6 +582,15 @@ namespace Ccf.Ck.Web.Middleware
                 restartReason.Description = $"Renaming from {e.OldFullPath} to {e.FullPath}";
                 RestartApplication(applicationLifetime, restartReason);
             }
+        }
+
+        private static void InvokeConfigurationChanged(IWebHostEnvironment env)
+        {
+            IHostApplicationLifetime applicationLifetime = _Builder.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
+            RestartReason restartReason = new RestartReason();
+            restartReason.Reason = "appsettings Configuration File Changed";
+            restartReason.Description = $"appsettings Configuration File Changed and restart the application";
+            RestartApplication(applicationLifetime, restartReason);
         }
     }
 }

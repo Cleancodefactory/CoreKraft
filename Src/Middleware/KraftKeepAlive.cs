@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Ccf.Ck.Libs.Logging;
+using Microsoft.Extensions.Hosting;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -11,7 +12,7 @@ namespace Ccf.Ck.Web.Middleware
         private static string _BaseUrl;
         public static void RegisterKeepAliveAsync(IApplicationBuilder app)
         {
-            IApplicationLifetime appLifeCycle = app.ApplicationServices.GetRequiredService<IApplicationLifetime>();
+            IHostApplicationLifetime appLifeCycle = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
             appLifeCycle?.ApplicationStopping.Register(OnApplicationStopping);
         }
 

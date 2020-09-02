@@ -9,11 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore" Version="3.1.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Antiforgery" Version="3.1.7" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Models\Packet\Ccf.Ck.Models.Packet.csproj" />
     <ProjectReference Include="..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
   </ItemGroup>
