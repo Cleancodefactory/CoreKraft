@@ -31,7 +31,6 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Authorization;
 using static Ccf.Ck.Utilities.Generic.Utilities;
 using System.Security;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Http.Connections;
 using Ccf.Ck.Models.DirectCall;
 using Microsoft.Extensions.Hosting;
@@ -208,9 +207,11 @@ namespace Ccf.Ck.Web.Middleware
                         app.UseRouting();
                         app.UseEndpoints(endpoints =>
                         {
-                            MethodInfo mapHub = typeof(HubEndpointConventionBuilder).GetMethod("MapHub", new[] { typeof(PathString), typeof(Action<HttpConnectionDispatcherOptions>) });
+                            MethodInfo mapHub = typeof(HubEndpointRouteBuilderExtensions).GetMethod(
+                                "MapHub", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IEndpointRouteBuilder), typeof(string), typeof(Action<HttpConnectionDispatcherOptions>) }, null);
                             MethodInfo generic = mapHub.MakeGenericMethod(Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubImplementationAsString, true));
-                            generic.Invoke(endpoints, new object[] { new PathString(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
+                            generic.Invoke(null, 
+                                new object[] { endpoints, new string(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
                                 (Action<HttpConnectionDispatcherOptions>)(x => {x.ApplicationMaxBufferSize = 3200000; })
                             });
                         });
