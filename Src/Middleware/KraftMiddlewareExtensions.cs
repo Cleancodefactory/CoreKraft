@@ -36,6 +36,7 @@ using Ccf.Ck.Models.DirectCall;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -444,6 +445,11 @@ namespace Ccf.Ck.Web.Middleware
                 #endregion Authorization
                 services.UseBundling();
                 //services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(_KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder, "BindKraft", "Data")));
+
+                services.Configure<HubOptions>(options =>
+                {
+                    options.MaximumReceiveMessageSize = null;
+                });
 
                 //Signals
                 services.AddHostedService<SignalService>();
