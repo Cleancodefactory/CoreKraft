@@ -68,6 +68,7 @@ namespace Ccf.Ck.Models.KraftModule
                         using (KraftProfiler.Current.Step($"Time loading {kraftDepModule.Key}: "))
                         {
                             scriptBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.ScriptKraftBundle, _Logger));
+                            scriptBundle.Transforms.Add(new JsCleanupTransformation());
                         }
                     }
 
