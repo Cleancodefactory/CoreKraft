@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.12" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.8" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.8" />
   </ItemGroup>
 
   <ItemGroup>
