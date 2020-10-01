@@ -64,6 +64,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             Action = action;
             NodeKey = currentNode.NodeKey;
             Datastack = dic.Datastack;
+            OverrideAction = dic.OverrideAction;
         }
         #endregion
 
