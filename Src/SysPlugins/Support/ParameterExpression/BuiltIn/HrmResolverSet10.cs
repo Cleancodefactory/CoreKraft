@@ -78,7 +78,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuiltIn
                 throw new InvalidOperationException("GetPermissions missing required parameter - username of the logged user.");
             }
 
-            resultBuilder.AppendLine($"exists (select * from (select et.employee_id from users as u left join employees as e on (e.employee_id = u.user_id) left join employees_teams as et on (et.employee_id = e.employee_id) where u.usermail = {username} and u.is_deleted = 0 and e.is_deleted = 0 and (u.rights >= {permission} or et.rights >= {permission})) as logged_user_projects where logged_user_projects.employee_id = employee_id)");
+            resultBuilder.AppendLine($"exists (select * from (select ep.employee_id from users as u left join employees as e on (e.employee_id = u.user_id) left join employees_projects as ep on (ep.employee_id = e.employee_id) where u.usermail = {username} and u.is_deleted = 0 and e.is_deleted = 0 and u.rights >= {permission}) as logged_user_projects where logged_user_projects.employee_id = employee_id)");
 
             return resultBuilder.ToString();
         }
