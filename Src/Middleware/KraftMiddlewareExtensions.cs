@@ -360,7 +360,6 @@ namespace Ccf.Ck.Web.Middleware
                     .AddCookie(options =>
                     {
                         options.LoginPath = new PathString("/account/signin");
-                        options.Cookie.SameSite = SameSiteMode.None;
                     })
 
                     .AddOpenIdConnect(options =>
