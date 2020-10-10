@@ -394,7 +394,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         }
         #endregion values cache
 
-        private ResolverRunner<ParameterResolverValue, IParameterResolverContext> GetParameterRunner(string expressionName, out bool isdefault, out bool neverCache, bool noDefault = false)
+        private ResolverRunner<ParameterResolverValue, IParameterResolverContext> GetParameterRunner(string expressionName, out bool isdefault, out bool neverCache, bool noDefault = false, string initialExpressionName = null)
         {
             if (string.IsNullOrWhiteSpace(expressionName)) throw new ArgumentNullException($"{nameof(expressionName)} canot be null");
             neverCache = false; // TODO: Add a property to the Parameter to specify this
@@ -424,11 +424,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     }
                     // We have to use the default here
 
-                    var defrunner = GetParameterRunner(DEFAULT_PARAMETER_NAME, out dummy, out neverCache);
+                    var defrunner = GetParameterRunner(DEFAULT_PARAMETER_NAME, out dummy, out neverCache, false, expressionName);
                     isdefault = true;
                     // The check here is paranoic - exceptions should be already thrown if the ocndition fails.
                     if (defrunner != null && defrunner.IsValid) return defrunner;
-                    throw new Exception("No default runner."); // should never happen
+                    throw new Exception($"Expression: '{expressionName}' or '{initialExpressionName}' can't be resolved. Check capital letter because the search is case sensitive."); // should never happen
                 }
             }
             else
@@ -436,12 +436,12 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 if (!noDefault)
                 {
                     // Parameter not found - get the default runner
-                    var defrunner = GetParameterRunner(DEFAULT_PARAMETER_NAME, out dummy, out neverCache, true);
+                    var defrunner = GetParameterRunner(DEFAULT_PARAMETER_NAME, out dummy, out neverCache, true, expressionName);
                     isdefault = true;
                     // The check here is paranoic - exceptions should be already thrown if the ocndition fails.
                     if (defrunner != null && defrunner.IsValid) return defrunner;
                 }
-                throw new Exception("No default runner."); // should never happen
+                throw new Exception($"Expression: '{expressionName}' or '{initialExpressionName}' can't be resolved. Check capital letter because the search is case sensitive."); // should never happen
             }
         }
         public ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null)
