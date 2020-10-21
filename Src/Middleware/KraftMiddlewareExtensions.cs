@@ -91,7 +91,7 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     app.UseDeveloperExceptionPage();
                 }
-                                
+
                 _Builder = app;
 
                 BundleCollection bundleCollection = app.UseBundling(env, loggerFactory.CreateLogger("Bundling"), _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlCssJsSegment, _KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization);
@@ -211,9 +211,9 @@ namespace Ccf.Ck.Web.Middleware
                             MethodInfo mapHub = typeof(HubEndpointRouteBuilderExtensions).GetMethod(
                                 "MapHub", BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(IEndpointRouteBuilder), typeof(string), typeof(Action<HttpConnectionDispatcherOptions>) }, null);
                             MethodInfo generic = mapHub.MakeGenericMethod(Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubImplementationAsString, true));
-                            generic.Invoke(null, 
+                            generic.Invoke(null,
                                 new object[] { endpoints, new string(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
-                                (Action<HttpConnectionDispatcherOptions>)(x => {x.ApplicationMaxBufferSize = 3200000; })
+                                (Action<HttpConnectionDispatcherOptions>)(x => {x.ApplicationMaxBufferSize = 3200000; x.WebSockets.CloseTimeout = TimeSpan.FromSeconds(30); x.LongPolling.PollTimeout = TimeSpan.FromSeconds(180); })
                             });
                         });
                     }
@@ -289,6 +289,8 @@ namespace Ccf.Ck.Web.Middleware
                     {
                         hubOptions.KeepAliveInterval = TimeSpan.FromDays(1);
                         hubOptions.EnableDetailedErrors = true;
+                        hubOptions.HandshakeTimeout = TimeSpan.FromSeconds(30);
+                        hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
                     });
                 }
 
@@ -517,7 +519,7 @@ namespace Ccf.Ck.Web.Middleware
                     if (!found)
                     {
                         KraftLogger.LogError($"Method: CurrentDomain_AssemblyResolve: The file {asmFullName} requested by {args.RequestingAssembly.FullName} was not found!");
-                    }                    
+                    }
                 }
             }
             return null;
