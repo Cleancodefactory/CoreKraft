@@ -301,7 +301,17 @@ namespace Ccf.Ck.Web.Middleware
 
                 services.AddResponseCaching();
                 services.AddMemoryCache();
-                services.AddSession();
+                services.AddSession(options =>
+                {
+                    // Set a short timeout for easy testing.
+                    options.IdleTimeout = TimeSpan.FromMinutes(60);
+                    // You might want to only set the application cookies over a secure connection:
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    options.Cookie.SameSite = SameSiteMode.Strict;
+                    options.Cookie.HttpOnly = true;
+                    // Make the session cookie essential
+                    options.Cookie.IsEssential = true;
+                });
                 services.UseBindKraftProfiler();
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 IWebHostEnvironment env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
