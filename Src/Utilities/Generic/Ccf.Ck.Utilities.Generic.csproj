@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.12" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="3.1.8" />
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.13" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="3.1.9" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.7.0" />
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
   </ItemGroup>
