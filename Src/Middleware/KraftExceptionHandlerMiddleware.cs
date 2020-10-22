@@ -58,8 +58,7 @@ namespace Ccf.Ck.Web.Middleware
                     string path = null;
                     if (context.Response.StatusCode == 404)
                     {
-                        path = "received for: " + context.Request.Path;
-                        _Logger.LogWarning(0, $"HTTP status code: {context.Response.StatusCode} {path}", context.Request);
+                        _Logger.LogWarning(0, $"HTTP status code: {context.Response.StatusCode} {"received for: " + context.Request.Path}", context.Request);
                     }
                     if (!context.Response.HasStarted)
                     {
