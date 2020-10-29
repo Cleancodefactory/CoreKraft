@@ -10,7 +10,7 @@ namespace Ccf.Ck.SysPlugins.Interfaces
 {
     public interface IRequestRecorder
     {
-        Task HandleRequest(HttpRequest request, InputModel inputModel);
-        Task<StringBuilder> GetFinalResult();
+        Task HandleRequest(HttpRequest request);
+        Task<string> GetFinalResult();
     }
 }

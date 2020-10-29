@@ -33,6 +33,7 @@ namespace Ccf.Ck.Models.Settings
         public SignalRSettings SignalRSettings { get; set; }
         public SignalSettings SignalSettings { get; set; }
         public List<HostingServiceSetting> HostingServiceSettings { get; set; }
+        public RequestRecorderSetting RequestRecorder { get; set; }
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {

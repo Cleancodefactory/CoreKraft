@@ -37,6 +37,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.SignalR;
+using Ccf.Ck.SysPlugins.Interfaces;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -106,7 +107,7 @@ namespace Ccf.Ck.Web.Middleware
                     }
                 }
                 string kraftUrlSegment = _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlSegment;
-
+                app.UseSession();
                 try
                 {
                     KraftModuleCollection modulesCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
@@ -193,6 +194,51 @@ namespace Ccf.Ck.Web.Middleware
                 //Configure the CoreKraft routing               
                 RouteHandler kraftRoutesHandler = new RouteHandler(KraftMiddleware.ExecutionDelegate(app, _KraftGlobalConfigurationSettings));
                 app.UseRouter(KraftRouteBuilder.MakeRouter(app, kraftRoutesHandler, kraftUrlSegment));
+
+                #region Recorder routing
+                RouteHandler routesHandlerRecorder = new RouteHandler(async httpContext =>
+                {
+                    if (httpContext.Session.IsAvailable)
+                    {
+                        httpContext.Request.RouteValues.TryGetValue("p", out object val);
+                        switch (val)
+                        {
+                            case "0":
+                                {
+                                    httpContext.Session.SetInt32("recorder", 0);
+                                    IRequestRecorder requestRecorder = app.ApplicationServices.GetService<IRequestRecorder>();
+                                    if (requestRecorder != null)
+                                    {
+                                        await httpContext.Response.WriteAsync(requestRecorder.GetFinalResult()?.Result ?? string.Empty);
+                                    }
+                                    break;
+                                }
+                            case "1":
+                                {
+                                    httpContext.Session.SetInt32("recorder", 1);
+                                    await httpContext.Response.WriteAsync("Recorder is enabled");
+                                    break;
+                                }
+                            default:
+                                break;
+                        }
+                    }
+                });
+
+                RouteBuilder routesBuilderRecorder = new RouteBuilder(app, routesHandlerRecorder);
+
+                //we expect the routing to be like this:
+                //domain.com/startnode/<read|write>/module/nodeset/<nodepath>?lang=de
+                routesBuilderRecorder.MapRoute(
+                    name: "recorder",
+                    template: "recorder/{p:int:range(0,1)}",
+                    defaults: null,
+                    constraints: null,
+                    dataTokens: new { key = "recorder" }
+                );
+                app.UseRouter(routesBuilderRecorder.Build());
+                #endregion Recorder routing
+
                 DirectCallService.Instance.Call = KraftMiddleware.ExecutionDelegateDirect(app, _KraftGlobalConfigurationSettings);
                 app.UseSession();
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
@@ -226,6 +272,7 @@ namespace Ccf.Ck.Web.Middleware
                 SignalStartup signalStartup = new SignalStartup(app.ApplicationServices, _KraftGlobalConfigurationSettings);
                 signalStartup.ExecuteSignalsOnStartup();
                 //End Signals
+
                 ChangeToken.OnChange(() => _Configuration.GetReloadToken(), (state) => InvokeConfigurationChanged(state), env);
             }
             catch (Exception ex)
@@ -298,6 +345,13 @@ namespace Ccf.Ck.Web.Middleware
                 DependencyInjectionContainer dependencyInjectionContainer = new DependencyInjectionContainer();
                 services.AddSingleton(dependencyInjectionContainer);
                 services.AddRouting(options => options.LowercaseUrls = true);
+
+                //REQUESTRECORDER
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder != null && !string.IsNullOrEmpty(_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.ImplementationAsString) && !string.IsNullOrEmpty(_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.InterfaceAsString))
+                {
+                    Type typeRecorder = Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.ImplementationAsString, true);
+                    services.AddSingleton(Activator.CreateInstance(typeRecorder) as IRequestRecorder);
+                }
 
                 services.AddResponseCaching();
                 services.AddMemoryCache();
@@ -466,6 +520,10 @@ namespace Ccf.Ck.Web.Middleware
                 //Signals
                 services.AddHostedService<SignalService>();
                 //End Signals
+                services.AddSession(options =>
+                {
+                    options.IdleTimeout = TimeSpan.FromMinutes(20);
+                });
             }
             catch (Exception ex)
             {

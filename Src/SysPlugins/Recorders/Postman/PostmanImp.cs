@@ -3,21 +3,23 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.SysPlugins.Recorders.Postman
 {
     public class PostmanImp : IRequestRecorder
     {
-        public Task<StringBuilder> GetFinalResult()
+        string _GenResult;
+
+        public Task<string> GetFinalResult()
         {
-            throw new NotImplementedException();
+            return Task.FromResult(_GenResult);
         }
 
-        public Task HandleRequest(HttpRequest request, InputModel inputModel)
+        public Task HandleRequest(HttpRequest request)
         {
-            throw new NotImplementedException();
+            _GenResult = _GenResult + $"{request.Scheme} {request.Path.Value} {Environment.NewLine}";
+            return Task.FromResult(_GenResult);
         }
     }
 }

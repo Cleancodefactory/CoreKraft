@@ -55,15 +55,27 @@ namespace Ccf.Ck.Processing.Web.Request
                 return;
             }
 
+            IRequestRecorder requestRecorder = _ServiceProvider.GetService<IRequestRecorder>();
+            if (requestRecorder != null)
+            {
+                if (_HttpContext.Session.IsAvailable && _HttpContext.Session.GetInt32("recorder") == 1)
+                {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    requestRecorder.HandleRequest(_HttpContext.Request);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                }
+            }
+
             Task[] tasks = new Task[processingContexts.Length];
             int i = 0;
             try
             {
-                _IsSystemInMaintenanceMode = processingContexts.IsMaintenance;                
+                _IsSystemInMaintenanceMode = processingContexts.IsMaintenance;
 
                 foreach (IProcessingContext processingContext in processingContexts.ProcessingContexts)
                 {
-                    tasks[i++] = Task.Run(() => {
+                    tasks[i++] = Task.Run(() =>
+                    {
                         ExecuteReEntrance(processingContext, processingContexts.IsMaintenance);
                     });
                 }
@@ -73,7 +85,7 @@ namespace Ccf.Ck.Processing.Web.Request
             {
                 _IsSystemInMaintenanceMode = false;
                 processor.GenerateResponse();
-            }            
+            }
         }
     }
 }
