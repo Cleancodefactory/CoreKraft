@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Ccf.Ck.Web.Middleware;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using System.IO;
+using System.Reflection;
 
 namespace Ccf.Ck.Launchers.Main
 {
@@ -26,6 +29,7 @@ namespace Ccf.Ck.Launchers.Main
         {
             services.UseBindKraft(_Configuration);
             services.AddMvc();
+            //services.AddMvc().ConfigureApplicationPartManager(ConfigureApplicationParts);
             //services.AddOptions();
         }
 
@@ -55,6 +59,30 @@ namespace Ccf.Ck.Launchers.Main
             //    (state) => InvokeChanged(state),
             //    env);
         }
-        
+
+        private void ConfigureApplicationParts(ApplicationPartManager apm)
+        {
+            var rootPath = Path.GetDirectoryName(@"D:\_Development\Ccf\CcfRepositories\Kraft-WebSites\WebSite_TCD\Modules\_PluginsReferences\");
+
+            var assemblyFiles = Directory.GetFiles(rootPath, "*.dll");
+            foreach (string assemblyFile in assemblyFiles)
+            {
+                try
+                {
+                    if (assemblyFile.Contains("Ccf.Ck.LandingPage.Tcd", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var assembly = Assembly.LoadFile(assemblyFile);
+                        if (assemblyFile.EndsWith(this.GetType().Namespace + ".Views.dll") || assemblyFile.EndsWith(this.GetType().Namespace + ".dll"))
+                            continue;
+                        else if (assemblyFile.EndsWith(".Views.dll"))
+                            apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assembly));
+                        else
+                            apm.ApplicationParts.Add(new AssemblyPart(assembly));
+                    }
+                }
+                catch (Exception e) { }
+            }
+        }
+
     }
 }
