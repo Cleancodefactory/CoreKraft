@@ -9,12 +9,14 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using System.IO;
 using System.Reflection;
+using Ccf.Ck.Models.Settings;
 
 namespace Ccf.Ck.Launchers.Main
 {
     public class Startup
     {
         private IConfigurationRoot _Configuration { get; }
+        private KraftGlobalConfigurationSettings _KraftGlobalConfiguration;
 
         public Startup(IWebHostEnvironment env)
         {
@@ -27,8 +29,9 @@ namespace Ccf.Ck.Launchers.Main
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.UseBindKraft(_Configuration);
+            IServiceProvider serviceProvider = services.UseBindKraft(_Configuration);
             services.AddMvc();
+            //_KraftGlobalConfiguration = serviceProvider.GetService<KraftGlobalConfigurationSettings>();
             //services.AddMvc().ConfigureApplicationPartManager(ConfigureApplicationParts);
             //services.AddOptions();
         }
@@ -62,7 +65,7 @@ namespace Ccf.Ck.Launchers.Main
 
         private void ConfigureApplicationParts(ApplicationPartManager apm)
         {
-            var rootPath = Path.GetDirectoryName(@"D:\_Development\Ccf\CcfRepositories\Kraft-WebSites\WebSite_TCD\Modules\_PluginsReferences\");
+            var rootPath = Path.Combine(_KraftGlobalConfiguration.GeneralSettings.DefaultStartModule, "_PluginsReferences");
 
             var assemblyFiles = Directory.GetFiles(rootPath, "*.dll");
             foreach (string assemblyFile in assemblyFiles)
