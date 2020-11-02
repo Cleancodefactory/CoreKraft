@@ -3,14 +3,16 @@
 @using Ccf.Ck.Models.Settings
 @model KraftGlobalConfigurationSettings
 
-@{
-    ViewData["Title"] = Model.GeneralSettings.DefaultStartModule;
-}
+@{ ViewData["Title"] = Model.GeneralSettings.DefaultStartModule; }
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    @{ if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.Manifest))
+        {
+<link rel="manifest" href="@Model.GeneralSettings.ProgressiveWebApp.Manifest"> } }
+
     <title>@ViewData["Title"]</title>
     <script type="text/javascript">
             //global base path

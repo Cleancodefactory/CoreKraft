@@ -39,6 +39,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.SignalR;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.FileProviders;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -87,6 +88,13 @@ namespace Ccf.Ck.Web.Middleware
                 app.UseMiddleware<KraftExceptionHandlerMiddleware>(loggerFactory, new ExceptionHandlerOptions(), diagnosticListener);
                 AppDomain.CurrentDomain.UnhandledException += AppDomain_OnUnhandledException;
                 AppDomain.CurrentDomain.AssemblyResolve += AppDomain_OnAssemblyResolve;
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "wwwroot")),
+                    ServeUnknownFileTypes = true,
+                    RequestPath = new PathString(""),
+                });
+
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToWww)
                 {
                     RewriteOptions rewrite = new RewriteOptions();
