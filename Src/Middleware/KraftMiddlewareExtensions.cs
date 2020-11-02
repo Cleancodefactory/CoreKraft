@@ -38,6 +38,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.SignalR;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -65,6 +66,16 @@ namespace Ccf.Ck.Web.Middleware
             //});
 
             _KraftGlobalConfigurationSettings.EnvironmentSettings = new KraftEnvironmentSettings(env.ApplicationName, env.ContentRootPath, env.EnvironmentName, env.WebRootPath);
+            DirectoryInfo dataProtection = new DirectoryInfo(Path.Combine(_KraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath, "DataProtection"));
+            if (!dataProtection.Exists)
+            {
+                dataProtection.Create();
+            }
+            IDataProtectionBuilder dataProtectionBuilder = app.ApplicationServices.GetService<IDataProtectionBuilder>();
+            if (dataProtectionBuilder != null)
+            {
+                dataProtectionBuilder.PersistKeysToFileSystem(dataProtection);
+            }
             try
             {
                 ILoggerFactory loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
@@ -510,7 +521,7 @@ namespace Ccf.Ck.Web.Middleware
                 }
                 #endregion Authorization
                 services.UseBundling();
-                //services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(_KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder, "BindKraft", "Data")));
+                services.AddSingleton(services.AddDataProtection());
 
                 services.Configure<HubOptions>(options =>
                 {
