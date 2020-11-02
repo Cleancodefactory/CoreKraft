@@ -74,7 +74,10 @@ namespace Ccf.Ck.Web.Middleware
             IDataProtectionBuilder dataProtectionBuilder = app.ApplicationServices.GetService<IDataProtectionBuilder>();
             if (dataProtectionBuilder != null)
             {
-                dataProtectionBuilder.PersistKeysToFileSystem(dataProtection);
+                dataProtectionBuilder
+                    .PersistKeysToFileSystem(dataProtection)
+                    .UseEphemeralDataProtectionProvider()
+                    .SetDefaultKeyLifetime(TimeSpan.FromDays(10));
             }
             try
             {
