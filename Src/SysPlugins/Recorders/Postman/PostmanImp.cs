@@ -84,11 +84,9 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
 
         private async void WriteToFileAsync(string content)
         {
-            using (System.IO.StreamWriter file =
-            new System.IO.StreamWriter(@"D:\Test.json", true)) // the location of the file will be changed!
-            {
-                await file.WriteLineAsync(content);
-            }
+            using StreamWriter file =
+            new StreamWriter(@"D:\Test.json", true);
+            await file.WriteLineAsync(content);
         }
 
         private async Task<string> GetBodyAsync(HttpRequest request)
