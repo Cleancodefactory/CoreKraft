@@ -53,10 +53,8 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
             {
                 pHeaders.Add(new PostmanHeaderSection
                 {
-                    Key = header.Key,
-
-                    // If the key is cookie set the value to the dynamic variable set in postman
-                    Value = header.Key == "cookie" ? "{{OAuth_Token}}" : header.Value.First.ToString()
+                    Key = header.Key.StartsWith(':') ? header.Key.TrimStart(':') : header.Key,
+                    Value = header.Value.First.ToString()
                 });
             }
             #endregion
