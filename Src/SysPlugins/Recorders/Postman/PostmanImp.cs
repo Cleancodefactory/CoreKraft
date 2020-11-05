@@ -36,18 +36,22 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
         public async Task HandleRequest(HttpRequest request)
         {
             #region Setting up required data from the HttpRequest
+            string body = await GetBodyAsync(request);
 
             string method = request.Method;
 
             List<PostmanHeaderSection> pHeaders = new List<PostmanHeaderSection>();
             JObject headers = JObject.Parse(GetJsonString(request.Headers));
 
-            string body = await GetBodyAsync(request);
 
             string url = request.GetEncodedUrl();
             List<string> hostSegments = request.Host.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList(); 
-            List<string> pathSegments = request.Path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList(); 
-            Dictionary<string, string> queries = request.Query.ToDictionary(k => k.Key, v => v.Value.ToString());         
+            List<string> pathSegments = request.Path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
+            List<PostmanQuerySection> queries = request.Query.Select(k => new PostmanQuerySection
+            {
+               Key = k.Key, 
+               Value = k.Value.ToString()
+            }).ToList();         
 
             foreach (var header in headers)
             {
@@ -105,7 +109,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
                 // Reset the request body stream position so the next middleware can read it
                 request.Body.Position = 0;
             }
-
+            request.EnableBuffering();
             return body;
         }
 

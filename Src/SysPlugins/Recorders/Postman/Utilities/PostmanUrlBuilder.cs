@@ -11,15 +11,14 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman.Utilities
         }
 
         public PostmanUrlBuilder AddUrlData(string url, string protocol, List<string> segments,
-                                            List<string> hostSegments, Dictionary<string, string> query)
+                                            List<string> hostSegments, List<PostmanQuerySection> query)
         {
             this.postmanRequestContent.PostmanUrl = new PostmanUrlSection();
             this.postmanRequestContent.PostmanUrl.Raw = url;
             this.postmanRequestContent.PostmanUrl.Protocol = protocol;
-            this.postmanRequestContent.PostmanUrl.PathSegments = segments;
             this.postmanRequestContent.PostmanUrl.HostSegments = hostSegments;
-            this.postmanRequestContent.PostmanUrl.Queries = new List<Dictionary<string, string>>();
-            this.postmanRequestContent.PostmanUrl.Queries.Add(query);
+            this.postmanRequestContent.PostmanUrl.PathSegments = segments;
+            this.postmanRequestContent.PostmanUrl.Queries  = query;
 
             return this;
         }

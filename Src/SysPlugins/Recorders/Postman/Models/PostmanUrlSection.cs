@@ -15,6 +15,6 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman.Models
         public List<string> PathSegments { get; set; }
 
         [JsonProperty("query")]
-        public List<Dictionary<string, string>> Queries = new List<Dictionary<string, string>>();
+        public List<PostmanQuerySection> Queries { get; set; }
     }
 }
