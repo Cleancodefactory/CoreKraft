@@ -16,7 +16,7 @@ namespace Ccf.Ck.Launchers.Main.Routing
         public override ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
             KraftGlobalConfigurationSettings kraftGlobalConfiguration = httpContext.RequestServices.GetService<KraftGlobalConfigurationSettings>();
-            string[] fullAddress = httpContext.Request.Headers["Host"].ToString().Split('.');
+            string[] fullAddress = httpContext.Request.Headers["Host"].ToString().Split(kraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.HostSeparator);
             foreach (RouteMapping routing in kraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.RouteMappings)
             {
                 if (IsHostMatch(fullAddress, routing.Host))
