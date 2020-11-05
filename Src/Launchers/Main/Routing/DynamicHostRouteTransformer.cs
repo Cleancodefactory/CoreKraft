@@ -35,15 +35,15 @@ namespace Ccf.Ck.Launchers.Main.Routing
 
         private static bool IsHostMatch(string[] fullAddress, string configuredHost)
         {
-            if (fullAddress.Length == 2)//has domain
+            if (fullAddress.Length > 0)//has domain
             {
-                if (fullAddress[0].Equals(configuredHost, StringComparison.OrdinalIgnoreCase))
+                if (fullAddress[0].Equals(configuredHost, StringComparison.OrdinalIgnoreCase)) //we are looking for the first segment
                 {
                     return true;
                 }
                 return false;
             }
-            else if (fullAddress.Length == 1)
+            else if (fullAddress.Length == 1) //no subdomains
             {
                 return string.IsNullOrEmpty(configuredHost);
             }
