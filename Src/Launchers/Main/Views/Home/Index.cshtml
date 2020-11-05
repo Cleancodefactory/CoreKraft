@@ -5,13 +5,18 @@
 
 @{ ViewData["Title"] = Model.GeneralSettings.DefaultStartModule; }
 
+@{
+    Layout = null;
+}
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     @{ if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.Manifest))
         {
-<link rel="manifest" href="@Model.GeneralSettings.ProgressiveWebApp.Manifest"> } }
+<link rel="manifest" href="@Model.GeneralSettings.ProgressiveWebApp.Manifest">
+ } }
 
     <title>@ViewData["Title"]</title>
     <script type="text/javascript">

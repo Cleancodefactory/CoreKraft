@@ -35,6 +35,14 @@ namespace Ccf.Ck.Launchers.Main
             _KraftGlobalConfiguration = serviceProvider.GetService<KraftGlobalConfigurationSettings>();
             if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
             {
+                services.Configure<CookiePolicyOptions>(options =>
+                {
+                    // This lambda determines whether user consent for non-essential 
+                    // cookies is needed for a given request.
+                    options.CheckConsentNeeded = context => true;
+                    // requires using Microsoft.AspNetCore.Http;
+                    options.MinimumSameSitePolicy = SameSiteMode.None;
+                });
                 services.AddMvc().ConfigureApplicationPartManager(ConfigureApplicationParts);
                 services.AddSingleton<DynamicHostRouteTransformer>();
             }
@@ -59,6 +67,7 @@ namespace Ccf.Ck.Launchers.Main
                 app.UseExceptionHandler("/Home/Error");
             }
             app.UseStaticFiles();
+            app.UseCookiePolicy();
 
             app.UseRouting();
             if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
