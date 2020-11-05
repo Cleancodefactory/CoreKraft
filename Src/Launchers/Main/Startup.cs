@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using System.IO;
 using System.Reflection;
 using Ccf.Ck.Models.Settings;
+using Microsoft.AspNetCore.Http;
+using Ccf.Ck.Launchers.Main.Routing;
 
 namespace Ccf.Ck.Launchers.Main
 {
@@ -30,9 +32,17 @@ namespace Ccf.Ck.Launchers.Main
         public void ConfigureServices(IServiceCollection services)
         {
             IServiceProvider serviceProvider = services.UseBindKraft(_Configuration);
-            services.AddMvc();
-            //_KraftGlobalConfiguration = serviceProvider.GetService<KraftGlobalConfigurationSettings>();
-            //services.AddMvc().ConfigureApplicationPartManager(ConfigureApplicationParts);
+            _KraftGlobalConfiguration = serviceProvider.GetService<KraftGlobalConfigurationSettings>();
+            if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
+            {
+                services.AddMvc().ConfigureApplicationPartManager(ConfigureApplicationParts);
+                services.AddSingleton<DynamicHostRouteTransformer>();
+            }
+            else
+            {
+                services.AddMvc();
+            }
+
             //services.AddOptions();
         }
 
@@ -51,12 +61,22 @@ namespace Ccf.Ck.Launchers.Main
             app.UseStaticFiles();
 
             app.UseRouting();
-            app.UseEndpoints(routes =>
+            if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
             {
-                routes.MapControllerRoute(
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapDynamicControllerRoute<DynamicHostRouteTransformer>(_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.DefaultRouting);
+                });
+            }
+            else
+            {
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+                });
+            }
             //ChangeToken.OnChange(
             //    () => _Configuration.GetReloadToken(),
             //    (state) => InvokeChanged(state),
@@ -65,27 +85,22 @@ namespace Ccf.Ck.Launchers.Main
 
         private void ConfigureApplicationParts(ApplicationPartManager apm)
         {
-            var rootPath = Path.Combine(_KraftGlobalConfiguration.GeneralSettings.DefaultStartModule, "_PluginsReferences");
-
-            var assemblyFiles = Directory.GetFiles(rootPath, "*.dll");
-            foreach (string assemblyFile in assemblyFiles)
+            foreach (string rootFolder in _KraftGlobalConfiguration.GeneralSettings.ModulesRootFolders)
             {
-                try
+                string rootPath = Path.Combine(rootFolder, "_PluginsReferences");
+                FileInfo assemblyFile = new FileInfo(Path.Combine(rootPath, _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.AssemblyNameCode));
+                if (assemblyFile.Exists)
                 {
-                    if (assemblyFile.Contains("Ccf.Ck.LandingPage.Tcd", StringComparison.OrdinalIgnoreCase))
+                    Assembly assemblyCode = Assembly.LoadFile(assemblyFile.FullName);
+                    apm.ApplicationParts.Add(new AssemblyPart(assemblyCode));
+                    assemblyFile = new FileInfo(Path.Combine(rootPath, _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.AssemblyNameViews));
+                    if (assemblyFile.Exists)
                     {
-                        var assembly = Assembly.LoadFile(assemblyFile);
-                        if (assemblyFile.EndsWith(this.GetType().Namespace + ".Views.dll") || assemblyFile.EndsWith(this.GetType().Namespace + ".dll"))
-                            continue;
-                        else if (assemblyFile.EndsWith(".Views.dll"))
-                            apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assembly));
-                        else
-                            apm.ApplicationParts.Add(new AssemblyPart(assembly));
+                        Assembly assemblyViews = Assembly.LoadFile(assemblyFile.FullName);
+                        apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assemblyViews));
                     }
                 }
-                catch (Exception e) { }
             }
         }
-
     }
 }
