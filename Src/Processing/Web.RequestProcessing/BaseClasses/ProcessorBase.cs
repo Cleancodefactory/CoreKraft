@@ -56,36 +56,22 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
         protected T GetBodyJson<T>(HttpRequest httpRequest) where T: new()
         {
             T result = default(T);
-            TextReader reader = new StreamReader(httpRequest.Body, Encoding.UTF8);
-            if (typeof(T) == typeof(Dictionary<string, object>))
+            using (TextReader reader = new StreamReader(httpRequest.Body, Encoding.UTF8))
             {
-                result = JsonConvert.DeserializeObject<T>(reader.ReadToEnd(), new DictionaryConverter());
-            }
-            else
-            {
-                result = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
-            }
+                if (typeof(T) == typeof(Dictionary<string, object>))
+                {
+                    result = JsonConvert.DeserializeObject<T>(reader.ReadToEnd(), new DictionaryConverter());
+                }
+                else
+                {
+                    result = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+                }
 
-            if (result == null)
-            {
-                result = new T();
+                if (result == null)
+                {
+                    result = new T();
+                }
             }
-            //using (TextReader reader = new StreamReader(httpRequest.Body, Encoding.UTF8))
-            //{
-            //    if (typeof(T) == typeof(Dictionary<string, object>))
-            //    {
-            //        result = JsonConvert.DeserializeObject<T>(reader.ReadToEnd(), new DictionaryConverter());
-            //    }
-            //    else
-            //    {
-            //        result = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
-            //    }
-                
-            //    if (result == null)
-            //    {
-            //        result = new T();
-            //    }
-            //}
             return result;
         }
     }
