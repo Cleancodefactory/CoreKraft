@@ -29,6 +29,7 @@
 	  - Version 1.0.17: Extend external calls (v. 1.0.14) to return Task
 	  - Version 1.0.18: Update to TargetFramework netcoreapp3.1
 	  - Version 1.0.19: Update referenced nuget-packages and add transformation for cleaning up js-files (and add 'use strict';)
+	  - Version 1.0.20: Include new configuration settings for MVC-assemblies, routing to them and their dynamic loading
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
