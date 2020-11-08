@@ -22,14 +22,14 @@
       - Version 1.0.10: Fix error when the collection of signals is empty.
       - Version 1.0.11: Extending ActionBase with Dictionary[string, object] Json (property)
       - Version 1.0.12: Moving the Json property from Select to the ActionBase
-	  - Version 1.0.13: Update the user manager supporting bearer tokens
-	  - Version 1.0.14: Introduce external (e.g. MVC/SignalR/other middlewares) to CoreKraft calls and consume their results
-	  - Version 1.0.15: Fix: Bug to execute the data channel
-	  - Version 1.0.16: Extend config section SignalR with new Settings section
-	  - Version 1.0.17: Extend external calls (v. 1.0.14) to return Task
-	  - Version 1.0.18: Update to TargetFramework netcoreapp3.1
-	  - Version 1.0.19: Update referenced nuget-packages and add transformation for cleaning up js-files (and add 'use strict';)
-	  - Version 1.0.20: Include new configuration settings for MVC-assemblies, routing to them and their dynamic loading
+	    - Version 1.0.13: Update the user manager supporting bearer tokens
+	    - Version 1.0.14: Introduce external (e.g. MVC/SignalR/other middlewares) to CoreKraft calls and consume their results
+	    - Version 1.0.15: Fix: Bug to execute the data channel
+	    - Version 1.0.16: Extend config section SignalR with new Settings section
+	    - Version 1.0.17: Extend external calls (v. 1.0.14) to return Task
+	    - Version 1.0.18: Update to TargetFramework netcoreapp3.1
+	    - Version 1.0.19: Update referenced nuget-packages and add transformation for cleaning up js-files (and add 'use strict';)
+	    - Version 1.0.20: Include new configuration settings for MVC-assemblies, routing to them and their dynamic loading
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
