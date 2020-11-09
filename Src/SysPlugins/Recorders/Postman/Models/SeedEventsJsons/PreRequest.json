@@ -1,0 +1,26 @@
+﻿[
+  {
+    "listen": "prerequest",
+    "script": {
+      "id": "841ed9f6-01de-4a23-8a1f-c132ab6e8a72",
+      "type": "text/javascript",
+      "exec": [
+        ""
+      ]
+    }
+  },
+  {
+    "listen": "test",
+    "script": {
+      "id": "8c482f93-b1bc-4174-b5b3-6082a1bba7d9",
+      "type": "text/javascript",
+      "exec": [
+        "pm.test(\"Status code must be 200!\", function () {",
+        "    if (pm.response != undefined) {",
+        "        pm.response.to.have.status(200);",
+        "    }",
+        "});"
+      ]
+    }
+  }
+]
