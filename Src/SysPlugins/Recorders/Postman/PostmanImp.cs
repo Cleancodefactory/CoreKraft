@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Recorders.Postman.Models;
+using Ccf.Ck.SysPlugins.Recorders.Postman.Models.TestScriptModels;
 using Ccf.Ck.SysPlugins.Recorders.Postman.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -76,6 +77,21 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
                 .UrlBuilder
                     .AddUrlData(url, request.Scheme, pathSegments, hostSegments, queries);
 
+            // Add the first event for script to the first request
+            if (_RunnerModel.PostmanItemRequests.Count < 1)
+            {
+                var firstRequestEvent = JsonConvert.DeserializeObject<List<Event>>(File.ReadAllText("..\\..\\SysPlugins\\Recorders\\Postman\\Models\\SeedEventsJsons\\FirstRequest.json"));
+
+                _RunnerModel.PostmanItemRequests.Add(new PostmanRequest
+                {
+                    Name = url,
+                    FirstRequestEvent = firstRequestEvent,
+                    RequestContent = requestContent
+                });
+
+                return;
+            }
+
             // Add newly constructed Request and the url to the Runner Model 
             _RunnerModel.PostmanItemRequests.Add(new PostmanRequest
             {
@@ -117,7 +133,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
         {
             string jsonString = JsonConvert.SerializeObject(model, new JsonSerializerSettings()
             {
-                NullValueHandling = NullValueHandling.Include,
+                NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.Indented,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 ContractResolver = new DefaultContractResolver()
