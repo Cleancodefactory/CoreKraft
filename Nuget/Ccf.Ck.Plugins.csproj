@@ -14,8 +14,8 @@
     <PackageReleaseNotes>
       Contains the current system plugins used by the CoreKraft framework
       - Version 1.0.0: Initial publish with profound execution capabilities (read and write data from/into different sources: DB, Files, another Http-service)
-	  - Version 1.0.1: Introduce the concept that the modules reside in multiple folders.
-	  - Version 1.0.6: Adding additional resolvers  
+	    - Version 1.0.1: Introduce the concept that the modules reside in multiple folders.
+	    - Version 1.0.6: Adding additional resolvers  
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
