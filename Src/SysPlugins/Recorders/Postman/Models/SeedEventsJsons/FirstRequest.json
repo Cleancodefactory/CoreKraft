@@ -1,0 +1,12 @@
+﻿[
+  {
+    "listen": "test",
+    "script": {
+      "id": "a7d530a9-f33e-495d-8dd5-1b46c8ba0ee9",
+      "exec": [
+        ""
+      ],
+      "type": "text/javascript"
+    }
+  }
+]
