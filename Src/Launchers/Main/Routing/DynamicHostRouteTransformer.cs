@@ -16,38 +16,34 @@ namespace Ccf.Ck.Launchers.Main.Routing
         public override ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
             KraftGlobalConfigurationSettings kraftGlobalConfiguration = httpContext.RequestServices.GetService<KraftGlobalConfigurationSettings>();
-            string[] fullAddress = httpContext.Request.Headers["Host"].ToString().Split(kraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.HostSeparator);
             foreach (RouteMapping routing in kraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.RouteMappings)
             {
-                if (IsHostMatch(fullAddress, routing.Host))
+                Regex rg = new Regex(routing.SlugExpression, RegexOptions.IgnoreCase);
+                if (rg.Matches(httpContext.Request.Path).Count > 0)
                 {
-                    Regex rg = new Regex(routing.SlugExpression, RegexOptions.IgnoreCase);
-                    if (rg.Matches(httpContext.Request.Path).Count > 0)
-                    {
-                        values["controller"] = routing.Controller;
-                        values["action"] = routing.Action;
-                        break;
-                    }
+                    values["controller"] = routing.Controller;
+                    values["action"] = routing.Action;
+                    break;
                 }
             }
             return new ValueTask<RouteValueDictionary>(values);
         }
 
-        private static bool IsHostMatch(string[] fullAddress, string configuredHost)
-        {
-            if (fullAddress.Length > 0)//has domain
-            {
-                if (fullAddress[0].Equals(configuredHost, StringComparison.OrdinalIgnoreCase)) //we are looking for the first segment
-                {
-                    return true;
-                }
-                return false;
-            }
-            else if (fullAddress.Length == 1) //no subdomains
-            {
-                return string.IsNullOrEmpty(configuredHost);
-            }
-            return false;
-        }
+        //private static bool IsHostMatch(string[] fullAddress, string configuredHost)
+        //{
+        //    if (fullAddress.Length == 1) //no subdomains
+        //    {
+        //        return string.IsNullOrEmpty(configuredHost);
+        //    }
+        //    else if (fullAddress.Length > 1)//has domain
+        //    {
+        //        if (fullAddress[0].Equals(configuredHost, StringComparison.OrdinalIgnoreCase)) //we are looking for the first segment
+        //        {
+        //            return true;
+        //        }
+        //        return false;
+        //    }
+        //    return false;
+        //}
     }
 }

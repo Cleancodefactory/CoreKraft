@@ -6,7 +6,6 @@ namespace Ccf.Ck.Models.Settings
 {
     public class RouteMapping
     {
-        public string Host { get; set; }
         public string SlugExpression { get; set; }
         public string Controller { get; set; }
         public string Action { get; set; }

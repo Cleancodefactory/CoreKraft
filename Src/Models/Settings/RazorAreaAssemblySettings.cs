@@ -18,7 +18,6 @@ namespace Ccf.Ck.Models.Settings
             }
         }
         public string AssemblyNameCode { get; set; }
-        public string HostSeparator { get; set; }
         public string AssemblyNameViews { get; set; }
         public string DefaultRouting { get; set; }
         public List<RouteMapping> RouteMappings { get; set; }
