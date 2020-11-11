@@ -12,6 +12,7 @@ using System.Reflection;
 using Ccf.Ck.Models.Settings;
 using Microsoft.AspNetCore.Http;
 using Ccf.Ck.Launchers.Main.Routing;
+using Ccf.Ck.Launchers.Main.ActionFilters;
 
 namespace Ccf.Ck.Launchers.Main
 {
@@ -43,15 +44,19 @@ namespace Ccf.Ck.Launchers.Main
                     // requires using Microsoft.AspNetCore.Http;
                     options.MinimumSameSitePolicy = SameSiteMode.None;
                 });
-                services.AddMvc().ConfigureApplicationPartManager(ConfigureApplicationParts);
+                services.AddMvc(options =>
+                {
+                    options.Filters.Add(typeof(CultureActionFilter));
+                }).ConfigureApplicationPartManager(ConfigureApplicationParts);
                 services.AddSingleton<DynamicHostRouteTransformer>();
             }
             else
             {
-                services.AddMvc();
+                services.AddMvc(options =>
+                {
+                    options.Filters.Add(typeof(CultureActionFilter));
+                });
             }
-
-            //services.AddOptions();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
