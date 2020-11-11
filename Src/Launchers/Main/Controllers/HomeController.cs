@@ -50,5 +50,11 @@ namespace Ccf.Ck.Launchers.Main.Controllers
 
             return View(_KraftGlobalConfigurationSettings);
         }
+
+        [Route("/{**catchAll}")]
+        public IActionResult CatchAll(string catchAll)
+        {
+            return View("Index", _KraftGlobalConfigurationSettings);
+        }
     }
 }
