@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Src/Launcher/bin/Debug/netcoreapp2.2/Ccf.Ck.Launcher.Intro.dll",
+            "program": "${workspaceFolder}/Src/Launcher/Main/bin/Debug/netcoreapp3.1/Ccf.Ck.Launcher.Main.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Src/Launcher",
             "stopAtEntry": false,
@@ -30,6 +30,18 @@
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickProcess}"
+        },
+        {
+            "type":"coreclr",
+            "name": "Launch BKDev",
+            "preLaunchTask": "build",
+            "request": "launch",
+            "program": "${workspaceFolder}/Src/Launchers/Main/bin/Debug/netcoreapp3.1/Ccf.Ck.Launchers.Main.dll",
+            "args":[ "D:\\Git\\BindKraftDev"],
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                
+            }
         }
     ]
 }
