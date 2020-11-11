@@ -13,6 +13,7 @@ namespace Ccf.Ck.Models.Settings
             AuthorizationSection = new AuthorizationSection();
             SignalRSettings = new SignalRSettings();
             RazorAreaAssembly = new RazorAreaAssemblySettings();
+            SupportedLanguages = new List<string>();
             Theme = "Module";
         }
         public bool EnableOptimization { get; set; }
@@ -37,6 +38,7 @@ namespace Ccf.Ck.Models.Settings
         public RequestRecorderSetting RequestRecorder { get; set; }
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
+        public List<string> SupportedLanguages { get; set; }
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {

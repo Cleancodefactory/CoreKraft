@@ -1,18 +1,20 @@
-﻿using Ccf.Ck.Libs.Web.Bundling;
+﻿using Ccf.Ck.Launchers.Main.Utils;
+using Ccf.Ck.Libs.Web.Bundling;
 using Ccf.Ck.Models.Settings;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ccf.Ck.Launchers.Main.Controllers
 {
     public class HomeController : Controller
     {
-        KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
-
+        private KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
         public HomeController(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
         }
+
         public IActionResult Index(string theme)
         {
             if (theme != null && _KraftGlobalConfigurationSettings.GeneralSettings.EnableThemeChange)
@@ -49,6 +51,13 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             }
 
             return View(_KraftGlobalConfigurationSettings);
+        }
+
+        [HttpPost]
+        public IActionResult SetLanguage(string culture, string returnUrl)
+        {
+            CookieHandler.AppendCookie(Response, culture);
+            return LocalRedirect(returnUrl);
         }
 
         [Route("/{**catchAll}")]

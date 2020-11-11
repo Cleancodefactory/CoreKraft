@@ -31,6 +31,7 @@
 	    - Version 1.0.19: Update referenced nuget-packages and add transformation for cleaning up js-files (and add 'use strict';)
 	    - Version 1.0.20: Include new configuration settings for MVC-assemblies, routing to them and their dynamic loading
 		- Version 1.0.21: Simplify loading, execution and routing for satellite razor assemblies
+		- Version 1.0.22: Adding SupportedLanguages
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
