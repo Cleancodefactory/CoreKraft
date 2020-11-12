@@ -1,6 +1,8 @@
 @using Ccf.Ck.Libs.Web.Bundling
 @using Ccf.Ck.Models.KraftModule
 @using Ccf.Ck.Models.Settings
+@using System.Threading
+
 @model KraftGlobalConfigurationSettings
 
 @{ ViewData["Title"] = Model.GeneralSettings.DefaultStartModule; }
@@ -15,14 +17,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     @{ if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.Manifest))
         {
-<link rel="manifest" href="@Model.GeneralSettings.ProgressiveWebApp.Manifest">
- } }
+            <link rel="manifest" href="@Model.GeneralSettings.ProgressiveWebApp.Manifest">
+        } }
 
     <title>@ViewData["Title"]</title>
-    <script type="text/javascript">
-            //global base path
-            g_ApplicationBasePath = "@Url.Content("~/")";
-    </script>
     @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles(string.IsNullOrWhiteSpace(Model.GeneralSettings.Theme) ? "Module.dep" : Model.GeneralSettings.Theme + ".dep").Render()
 </head>
 <body>
@@ -30,6 +28,11 @@
         <div id="container" class="themed">
         </div>
     </div>
+    <script type="text/javascript">
+            //global base path
+        g_ApplicationBasePath = "@Url.Content("~/")";
+        g_ApplicationCulture = "@Thread.CurrentThread.CurrentCulture.IetfLanguageTag";
+    </script>
     @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftScripts().Render()
 </body>
 </html>

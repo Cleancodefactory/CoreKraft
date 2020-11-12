@@ -78,6 +78,8 @@ namespace Ccf.Ck.Launchers.Main.ActionFilters
                        ?.OrderByDescending(x => x.Quality ?? 1) // Quality defines priority from 0 to 1, where 1 is the highest.
                        .Select(x => x.Value.ToString())
                        .ToArray() ?? Array.Empty<string>();
+
+            //Absolute match
             foreach (string userLanguage in userLanguages)
             {
                 foreach (string defaultLanguage in defaultLanguagesOrdered)
@@ -88,13 +90,30 @@ namespace Ccf.Ck.Launchers.Main.ActionFilters
                     }
                 }
             }
+
+            //Relaxed match
+            foreach (string userLanguage in userLanguages)
+            {
+                string[] partsUserLanguage = userLanguage.Split("-");
+                foreach (string defaultLanguage in defaultLanguagesOrdered)
+                {
+                    string[] partsDefaultLanguage = defaultLanguage.Split("-");
+                    
+                    if (partsUserLanguage[0].Equals(partsDefaultLanguage[0], StringComparison.OrdinalIgnoreCase))
+                    {
+                        return defaultLanguage;
+                    }
+                }
+            }
+
+            //Defaults
             if (defaultLanguagesOrdered.Count == 0)
             {
                 return "en";
             }
             else
             {
-                return defaultLanguagesOrdered[0];
+                return defaultLanguagesOrdered.Last();
             }
         }
     }

@@ -54,10 +54,17 @@ namespace Ccf.Ck.Launchers.Main.Controllers
         }
 
         [HttpPost]
-        public IActionResult SetLanguage(string culture, string returnUrl)
+        public IActionResult SetLanguage(string culture)
         {
-            CookieHandler.AppendCookie(Response, culture);
-            return LocalRedirect(returnUrl);
+            try
+            {
+                CookieHandler.AppendCookie(Response, culture);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+            return Ok();
         }
 
         [Route("/{**catchAll}")]
