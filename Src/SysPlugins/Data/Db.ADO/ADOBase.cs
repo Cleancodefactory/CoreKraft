@@ -167,7 +167,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             Node node = execContext.CurrentNode;
 
             // Statement is already selected for the requested operation (While fetching the Configuration
-            if (!string.IsNullOrWhiteSpace(Action(execContext).Query)) {
+            if (!string.IsNullOrWhiteSpace(Action(execContext)?.Query)) {
                 IADOTransactionScope scopedContext = execContext.OwnContextScoped as IADOTransactionScope;
                 // Check if it is valid
                 if (scopedContext == null) {
