@@ -1,15 +1,19 @@
 ﻿using Ccf.Ck.Launchers.Main.Utils;
+using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Libs.Web.Bundling;
 using Ccf.Ck.Models.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 
 namespace Ccf.Ck.Launchers.Main.Controllers
 {
     public class HomeController : Controller
     {
         private KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
+        private Regex PATTERNSTATICFILES = new Regex(@"([\/]+.*\.[a-zA-Z]+)", RegexOptions.Compiled | RegexOptions.Singleline);
+
         public HomeController(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
@@ -54,22 +58,29 @@ namespace Ccf.Ck.Launchers.Main.Controllers
         }
 
         [HttpPost]
-        public IActionResult SetLanguage(string culture)
+        public IActionResult SetLanguage(string culture, string returnUrl)
         {
             try
             {
+                if (string.IsNullOrEmpty(returnUrl))
+                {
+                    returnUrl = "/";
+                }
                 CookieHandler.AppendCookie(Response, culture);
             }
-            catch
-            {
-                return BadRequest();
-            }
-            return Ok();
+            catch{}
+
+            return LocalRedirect(returnUrl);
         }
 
         [Route("/{**catchAll}")]
         public IActionResult CatchAll(string catchAll)
         {
+            if (PATTERNSTATICFILES.Matches(catchAll).Count > 0)
+            {
+                KraftLogger.LogWarning($"Missing resource: {catchAll}");
+                return NoContent();
+            }
             return View("Index", _KraftGlobalConfigurationSettings);
         }
     }
