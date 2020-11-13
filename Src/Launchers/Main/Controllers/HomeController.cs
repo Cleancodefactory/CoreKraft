@@ -68,7 +68,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
                 }
                 CookieHandler.AppendCookie(Response, culture);
             }
-            catch{}
+            catch { }
 
             return LocalRedirect(returnUrl);
         }
@@ -76,11 +76,14 @@ namespace Ccf.Ck.Launchers.Main.Controllers
         [Route("/{**catchAll}")]
         public IActionResult CatchAll(string catchAll)
         {
-            if (PATTERNSTATICFILES.Matches(catchAll).Count > 0)
+            if (!string.IsNullOrEmpty(catchAll))
             {
-                KraftLogger.LogWarning($"Missing resource: {catchAll}");
-                return NoContent();
-            }
+                if (PATTERNSTATICFILES.Matches(catchAll).Count > 0)
+                {
+                    KraftLogger.LogWarning($"Missing resource: {catchAll}");
+                    return NoContent();
+                }
+            }            
             return View("Index", _KraftGlobalConfigurationSettings);
         }
     }
