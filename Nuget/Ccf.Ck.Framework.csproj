@@ -33,6 +33,7 @@
 		- Version 1.0.21: Simplify loading, execution and routing for satellite razor assemblies
 		- Version 1.0.22: Adding SupportedLanguages
 		- Version 1.0.23: Fix bug with query action not properly checked for null
+		- Version 1.0.24: Fix bug with catch all in launcher
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
