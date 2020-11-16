@@ -40,6 +40,8 @@ using Microsoft.AspNetCore.SignalR;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.FileProviders;
+using Ccf.Ck.Models.NodeRequest;
+using Ccf.Ck.SysPlugins.Recorders.Store;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -129,7 +131,6 @@ namespace Ccf.Ck.Web.Middleware
                     }
                 }
                 string kraftUrlSegment = _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlSegment;
-                app.UseSession();
                 try
                 {
                     KraftModuleCollection modulesCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
@@ -220,30 +221,62 @@ namespace Ccf.Ck.Web.Middleware
                 #region Recorder routing
                 RouteHandler routesHandlerRecorder = new RouteHandler(async httpContext =>
                 {
-                    if (httpContext.Session.IsAvailable)
+                    httpContext.Request.RouteValues.TryGetValue("p", out object val);
+                    switch (val)
                     {
-                        httpContext.Request.RouteValues.TryGetValue("p", out object val);
-                        switch (val)
-                        {
-                            case "0":
+                        case "0":
+                            {
+                                if (_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
                                 {
-                                    httpContext.Session.SetInt32("recorder", 0);
-                                    IRequestRecorder requestRecorder = app.ApplicationServices.GetService<IRequestRecorder>();
-                                    if (requestRecorder != null)
+                                    SecurityModel securityModel = new SecurityModel(httpContext);
+                                    if (securityModel.IsAuthenticated)
                                     {
-                                        await httpContext.Response.WriteAsync(requestRecorder.GetFinalResult()?.Result ?? string.Empty);
+                                        RecordersStoreImp recordersStoreImp = app.ApplicationServices.GetRequiredService<RecordersStoreImp>();
+                                        IRequestRecorder requestRecorder = recordersStoreImp.Get(securityModel.UserName);
+                                        if (requestRecorder != null)
+                                        {
+                                            string result = requestRecorder.GetFinalResult()?.Result ?? string.Empty;
+                                            recordersStoreImp.Remove(securityModel.UserName);
+                                            await httpContext.Response.WriteAsync(result);
+                                        }
                                     }
-                                    break;
+                                    else
+                                    {
+                                        await httpContext.Response.WriteAsync("Please login because the recorder can't be run for anonymous users.");
+                                    }
                                 }
-                            case "1":
+                                else
                                 {
-                                    httpContext.Session.SetInt32("recorder", 1);
-                                    await httpContext.Response.WriteAsync("Recorder is enabled");
-                                    break;
+                                    await httpContext.Response.WriteAsync("Recorder is not configured and can't be started.");
                                 }
-                            default:
                                 break;
-                        }
+                            }
+                        case "1":
+                            {
+                                if (_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
+                                {
+                                    SecurityModel securityModel = new SecurityModel(httpContext);
+                                    if (securityModel.IsAuthenticated)
+                                    {
+                                        Type typeRecorder = Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.ImplementationAsString, true);
+                                        IRequestRecorder requestRecorder = Activator.CreateInstance(typeRecorder) as IRequestRecorder;
+                                        RecordersStoreImp recordersStoreImp = app.ApplicationServices.GetRequiredService<RecordersStoreImp>();
+                                        recordersStoreImp.Set(requestRecorder, securityModel.UserName);
+                                        await httpContext.Response.WriteAsync("Recorder is enabled");
+                                    }
+                                    else
+                                    {
+                                        await httpContext.Response.WriteAsync("Please login because the recorder can't be run for anonymous users.");
+                                    }
+                                }
+                                else
+                                {
+                                    await httpContext.Response.WriteAsync("Recorder is not configured and can't be started.");
+                                }
+                                break;
+                            }
+                        default:
+                            break;
                     }
                 });
 
@@ -367,13 +400,6 @@ namespace Ccf.Ck.Web.Middleware
                 DependencyInjectionContainer dependencyInjectionContainer = new DependencyInjectionContainer();
                 services.AddSingleton(dependencyInjectionContainer);
                 services.AddRouting(options => options.LowercaseUrls = true);
-
-                //REQUESTRECORDER
-                if (_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder != null && !string.IsNullOrEmpty(_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.ImplementationAsString) && !string.IsNullOrEmpty(_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.InterfaceAsString))
-                {
-                    Type typeRecorder = Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.ImplementationAsString, true);
-                    services.AddSingleton(Activator.CreateInstance(typeRecorder) as IRequestRecorder);
-                }
 
                 services.AddResponseCaching();
                 services.AddMemoryCache();
@@ -542,10 +568,8 @@ namespace Ccf.Ck.Web.Middleware
                 //Signals
                 services.AddHostedService<SignalService>();
                 //End Signals
-                services.AddSession(options =>
-                {
-                    options.IdleTimeout = TimeSpan.FromMinutes(20);
-                });
+                //RecordersStore which contians dictionary of the running instances
+                services.AddSingleton<RecordersStoreImp>();
             }
             catch (Exception ex)
             {

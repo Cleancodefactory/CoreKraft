@@ -47,6 +47,7 @@
     <ProjectReference Include="..\Processing\Web.RequestProcessing\Ccf.Ck.Processing.Web.Request.csproj" />
     <ProjectReference Include="..\Processing\Web.ResponseBuilder\Ccf.Ck.Processing.Web.ResponseBuilder.csproj" />
     <ProjectReference Include="..\SysPlugins\Recorders\Postman\Ccf.Ck.SysPlugins.Recorders.Postman.csproj" />
+    <ProjectReference Include="..\SysPlugins\Recorders\Store\Ccf.Ck.SysPlugins.Recorders.Store.csproj" />
     <ProjectReference Include="..\Utilities\MemoryCache\Ccf.Ck.Utilities.MemoryCache.csproj" />
     <ProjectReference Include="..\Utilities\NodeSetService\Ccf.Ck.Utilities.NodeSetService.csproj" />
     <ProjectReference Include="..\Utilities\Profiling\Ccf.Ck.Utilities.Profiling.csproj" />

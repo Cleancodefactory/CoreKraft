@@ -14,6 +14,7 @@ namespace Ccf.Ck.Models.Settings
             SignalRSettings = new SignalRSettings();
             RazorAreaAssembly = new RazorAreaAssemblySettings();
             SupportedLanguages = new List<string>();
+            RequestRecorder = new RequestRecorderSetting();
             Theme = "Module";
         }
         public bool EnableOptimization { get; set; }

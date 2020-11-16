@@ -17,6 +17,7 @@
     <ProjectReference Include="..\..\Models\KraftModule\Ccf.Ck.Models.KraftModule.csproj" />
     <ProjectReference Include="..\..\Models\NodeRequest\Ccf.Ck.Models.NodeRequest.csproj" />
     <ProjectReference Include="..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Recorders\Store\Ccf.Ck.SysPlugins.Recorders.Store.csproj" />
     <ProjectReference Include="..\..\Utilities\Json\Ccf.Ck.Utilities.Json.csproj" />
     <ProjectReference Include="..\..\Utilities\NodeSetService\Ccf.Ck.Utilities.NodeSetService.csproj" />
     <ProjectReference Include="..\Execution\Ccf.Ck.Processing.Execution.csproj" />
