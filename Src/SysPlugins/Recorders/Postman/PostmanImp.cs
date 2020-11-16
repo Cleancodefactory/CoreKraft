@@ -46,13 +46,13 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
 
 
             string url = request.GetEncodedUrl();
-            List<string> hostSegments = request.Host.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList(); 
+            List<string> hostSegments = request.Host.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
             List<string> pathSegments = request.Path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
             List<PostmanQuerySection> queries = request.Query.Select(k => new PostmanQuerySection
             {
-               Key = k.Key, 
-               Value = k.Value.ToString()
-            }).ToList();         
+                Key = k.Key,
+                Value = k.Value.ToString()
+            }).ToList();
 
             foreach (var header in headers)
             {
@@ -80,7 +80,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
             // Add the first event for script to the first request
             if (_RunnerModel.PostmanItemRequests.Count < 1)
             {
-                var firstRequestEvent = JsonConvert.DeserializeObject<List<Event>>(File.ReadAllText("..\\..\\SysPlugins\\Recorders\\Postman\\Models\\SeedEventsJsons\\FirstRequest.json"));
+                var firstRequestEvent = JsonConvert.DeserializeObject<List<Event>>(ResourceReader.GetResource("FirstRequest"));
 
                 _RunnerModel.PostmanItemRequests.Add(new PostmanRequest
                 {

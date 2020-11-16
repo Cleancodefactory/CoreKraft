@@ -13,6 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\FirstRequest.json" />
+    <EmbeddedResource Include="Resources\PreRequest.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
   </ItemGroup>
 
