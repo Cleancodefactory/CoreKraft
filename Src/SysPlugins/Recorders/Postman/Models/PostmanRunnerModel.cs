@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.SysPlugins.Recorders.Postman.Models.TestScriptModels;
+using Ccf.Ck.SysPlugins.Recorders.Postman.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -9,7 +10,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman.Models
 {
     public class PostmanRunnerModel
     {
-        private readonly string preRequestEvent = File.ReadAllText("..\\..\\SysPlugins\\Recorders\\Postman\\Models\\SeedEventsJsons\\PreRequest.json");
+        private readonly string preRequestEvent = ResourceReader.GetResource("PreRequest");
 
         public PostmanRunnerModel()
         {
