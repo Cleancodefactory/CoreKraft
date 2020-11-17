@@ -29,7 +29,6 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
         public Task<string> GetFinalResult()
         {
             string result = GetJsonString(_RunnerModel);
-            WriteToFileAsync(result);
             _RunnerModel = new PostmanRunnerModel();
             return Task.FromResult(result);
         }
@@ -98,13 +97,6 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
                 Name = url,
                 RequestContent = requestContent
             });
-        }
-
-        private async void WriteToFileAsync(string content)
-        {
-            using StreamWriter file =
-            new StreamWriter(@"D:\Test.json", true);
-            await file.WriteLineAsync(content);
         }
 
         private async Task<string> GetBodyAsync(HttpRequest request)
