@@ -237,6 +237,10 @@ namespace Ccf.Ck.Web.Middleware
                                         {
                                             string result = requestRecorder.GetFinalResult()?.Result ?? string.Empty;
                                             recordersStoreImp.Remove(securityModel.UserName);
+                                            httpContext.Response.Clear();
+                                            httpContext.Response.ContentType = "text/html; charset=UTF-8";
+                                            httpContext.Response.Headers.Add("Content-Length", result.Length.ToString());
+                                            httpContext.Response.Headers.Add("Content-Disposition", "attachment;filename=RecordedSession.json");
                                             await httpContext.Response.WriteAsync(result);
                                         }
                                     }
