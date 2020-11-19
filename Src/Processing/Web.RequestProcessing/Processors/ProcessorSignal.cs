@@ -124,7 +124,7 @@ namespace Ccf.Ck.Processing.Web.Request
 
         private KraftModuleSignal FindSignal(KraftModule kraftModule, string signalKey)
         {
-            return kraftModule.KraftModuleRootConf?.Signals.FirstOrDefault(k => k.Key.Equals(signalKey, StringComparison.OrdinalIgnoreCase));
+            return kraftModule.KraftModuleRootConf?.Signals?.FirstOrDefault(k => k.Key.Equals(signalKey, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
