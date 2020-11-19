@@ -13,7 +13,7 @@ namespace Ccf.Ck.Launchers.Main.TagHelpers
         private IWebHostEnvironment _WebHostEnvironment;
         public SvgEmbedTagHelper(IWebHostEnvironment env)
         {
-
+            _WebHostEnvironment = env;
         }
         public string RelativePath { get; set; }
 
