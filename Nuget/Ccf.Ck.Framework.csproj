@@ -34,6 +34,7 @@
 		- Version 1.0.22: Adding SupportedLanguages
 		- Version 1.0.23: Fix bug with query action not properly checked for null
 		- Version 1.0.24: Fix bug with catch all in launcher
+		- Version 1.0.25: Add REMOTE_ADDR to the server variables
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
