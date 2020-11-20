@@ -18,7 +18,7 @@ namespace Ccf.Ck.Models.NodeRequest
         public Dictionary<string, object> HeaderCollection { get; set; }
         public Dictionary<string, object> FormCollection { get; set; }
 
-        public Dictionary<string, object> Server { get; set; }
+        public Dictionary<string, object> ServerVariables { get; set; }
 
         public ISecurityModel SecurityModel { get; set; }
 

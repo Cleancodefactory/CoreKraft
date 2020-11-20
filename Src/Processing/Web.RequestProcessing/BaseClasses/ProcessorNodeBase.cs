@@ -27,6 +27,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
         protected Dictionary<string, object> _QueryCollection;
         protected Dictionary<string, object> _HeaderCollection;
         protected Dictionary<string, object> _FormCollection;
+        protected Dictionary<string, object> _ServerCollection;
         protected INodeSetService _NodesSetService;
 
         public ProcessorNodeBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService) : base(httpContext, kraftModuleCollection, requestContentType)
@@ -34,6 +35,8 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             _QueryCollection = httpContext.Request.Query.Convert2Dictionary();
             _HeaderCollection = httpContext.Request.Headers.Convert2Dictionary();
             _FormCollection = (httpContext.Request.HasFormContentType) ? httpContext.Request?.Form?.Convert2Dictionary() : new Dictionary<string, object>();
+            _ServerCollection = new Dictionary<string, object>();
+            _ServerCollection.Add("REMOTE_ADDR", httpContext.Connection.RemoteIpAddress);
             _NodesSetService = nodeSetService;
         }
 
@@ -73,6 +76,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             inputModelParameters.QueryCollection = _QueryCollection;
             inputModelParameters.HeaderCollection = _HeaderCollection;
             inputModelParameters.FormCollection = _FormCollection;
+            inputModelParameters.ServerVariables = _ServerCollection;
             inputModelParameters.KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
             inputModelParameters.SecurityModel = securityModel;
             return inputModelParameters;

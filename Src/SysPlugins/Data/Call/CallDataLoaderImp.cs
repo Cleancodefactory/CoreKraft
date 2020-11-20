@@ -97,7 +97,7 @@ namespace Ccf.Ck.SysPlugins.Data.Call
                     IsWriteOperation = customSettings.OperationValue,
                     LoaderType = execContext.ProcessingContext.InputModel.LoaderType,
                     SecurityModel = execContext.ProcessingContext.InputModel.SecurityModel,
-                    Server = execContext.ProcessingContext.InputModel.Server != default(ReadOnlyDictionary<string, object>) ? execContext.ProcessingContext.InputModel.Server.ToDictionary(item => item.Key, item => item.Value) : null
+                    ServerVariables = execContext.ProcessingContext.InputModel.Server != default(ReadOnlyDictionary<string, object>) ? execContext.ProcessingContext.InputModel.Server.ToDictionary(item => item.Key, item => item.Value) : null
                 };
 
                 IProcessingContext processingContext = new ProcessingContext(execContext.ProcessingContext.ProcessorHandler)

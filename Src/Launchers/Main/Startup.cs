@@ -47,7 +47,7 @@ namespace Ccf.Ck.Launchers.Main
                 services.AddMvc(options =>
                 {
                     options.Filters.Add(typeof(CultureActionFilter));
-                }).ConfigureApplicationPartManager(ConfigureApplicationParts);
+                }).ConfigureApplicationPartManager(ConfigureApplicationParts).AddTagHelpersAsServices();
                 services.AddSingleton<DynamicHostRouteTransformer>();
             }
             else
@@ -97,17 +97,21 @@ namespace Ccf.Ck.Launchers.Main
             foreach (string rootFolder in _KraftGlobalConfiguration.GeneralSettings.ModulesRootFolders)
             {
                 string rootPath = Path.Combine(rootFolder, "_PluginsReferences");
-                FileInfo assemblyFile = new FileInfo(Path.Combine(rootPath, _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.AssemblyNameCode));
-                if (assemblyFile.Exists)
+                FileInfo assemblyFile;
+                foreach (string codeAssembly in _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.AssemblyNamesCode)
                 {
-                    Assembly assemblyCode = Assembly.LoadFile(assemblyFile.FullName);
-                    apm.ApplicationParts.Add(new AssemblyPart(assemblyCode));
-                    assemblyFile = new FileInfo(Path.Combine(rootPath, _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.AssemblyNameViews));
+                    assemblyFile = new FileInfo(Path.Combine(rootPath, codeAssembly));
                     if (assemblyFile.Exists)
                     {
-                        Assembly assemblyViews = Assembly.LoadFile(assemblyFile.FullName);
-                        apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assemblyViews));
+                        Assembly assemblyCode = Assembly.LoadFile(assemblyFile.FullName);
+                        apm.ApplicationParts.Add(new AssemblyPart(assemblyCode));
                     }
+                }
+                assemblyFile = new FileInfo(Path.Combine(rootPath, _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.AssemblyNameViews));
+                if (assemblyFile.Exists)
+                {
+                    Assembly assemblyViews = Assembly.LoadFile(assemblyFile.FullName);
+                    apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assemblyViews));
                 }
             }
         }

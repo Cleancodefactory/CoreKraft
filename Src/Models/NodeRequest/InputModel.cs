@@ -18,7 +18,7 @@ namespace Ccf.Ck.Models.NodeRequest
             LoaderType = parameters.LoaderType;
             KraftGlobalConfigurationSettings = parameters.KraftGlobalConfigurationSettings;
             Client = new ReadOnlyDictionary<string, object>(UpdateParameters(parameters));
-            Server = new ReadOnlyDictionary<string, object>(parameters.Server ?? new Dictionary<string, object>());
+            Server = new ReadOnlyDictionary<string, object>(parameters.ServerVariables ?? new Dictionary<string, object>());
             SecurityModel = parameters.SecurityModel;
             Data = new ReadOnlyDictionary<string, object>(parameters.Data);
         }
