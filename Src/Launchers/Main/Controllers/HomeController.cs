@@ -73,7 +73,6 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             return LocalRedirect(returnUrl);
         }
 
-        [Route("/{**catchAll}")]
         public IActionResult CatchAll(string catchAll)
         {
             if (!string.IsNullOrEmpty(catchAll))
@@ -83,7 +82,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
                     KraftLogger.LogWarning($"Missing resource: {catchAll}");
                     return NoContent();
                 }
-            }            
+            }
             return View("Index", _KraftGlobalConfigurationSettings);
         }
     }

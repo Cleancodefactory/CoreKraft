@@ -177,7 +177,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         public ParameterResolverValue GetUserId(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {
             InputModel inputModel = ctx.ProcessingContext.InputModel;
-            return new ParameterResolverValue(inputModel.SecurityModel.UserName);
+            return new ParameterResolverValue(inputModel.SecurityModel?.UserName);
         }
 
         public ParameterResolverValue GetUserDetails(IParameterResolverContext ctx, IList<ParameterResolverValue> args)

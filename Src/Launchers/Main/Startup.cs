@@ -85,6 +85,10 @@ namespace Ccf.Ck.Launchers.Main
                 endpoints.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapControllerRoute(
+                name: "catchall",
+                pattern: "/{**catchAll}", new { Controller="Home", Action = "CatchAll" });
             });
             //ChangeToken.OnChange(
             //    () => _Configuration.GetReloadToken(),
