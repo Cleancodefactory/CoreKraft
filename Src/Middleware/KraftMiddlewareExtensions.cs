@@ -69,19 +69,7 @@ namespace Ccf.Ck.Web.Middleware
             //});
 
             _KraftGlobalConfigurationSettings.EnvironmentSettings = new KraftEnvironmentSettings(env.ApplicationName, env.ContentRootPath, env.EnvironmentName, env.WebRootPath);
-            DirectoryInfo dataProtection = new DirectoryInfo(Path.Combine(_KraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath, "DataProtection"));
-            if (!dataProtection.Exists)
-            {
-                dataProtection.Create();
-            }
-            IDataProtectionBuilder dataProtectionBuilder = app.ApplicationServices.GetService<IDataProtectionBuilder>();
-            if (dataProtectionBuilder != null)
-            {
-                dataProtectionBuilder
-                    .PersistKeysToFileSystem(dataProtection)
-                    .UseEphemeralDataProtectionProvider()
-                    .SetDefaultKeyLifetime(TimeSpan.FromDays(10));
-            }
+
             try
             {
                 ILoggerFactory loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
@@ -90,25 +78,25 @@ namespace Ccf.Ck.Web.Middleware
                 app.UseMiddleware<KraftExceptionHandlerMiddleware>(loggerFactory, new ExceptionHandlerOptions(), diagnosticListener);
                 AppDomain.CurrentDomain.UnhandledException += AppDomain_OnUnhandledException;
                 AppDomain.CurrentDomain.AssemblyResolve += AppDomain_OnAssemblyResolve;
-                app.UseStaticFiles(new StaticFileOptions
-                {
-                    FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "wwwroot")),
-                    ServeUnknownFileTypes = true,
-                    RequestPath = new PathString(""),
-                });
-
-                if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToWww)
-                {
-                    RewriteOptions rewrite = new RewriteOptions();
-                    rewrite.AddRedirectToWwwPermanent();
-                    app.UseRewriter(rewrite);
-                }
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps)
                 {
                     app.UseForwardedHeaders();
                     app.UseHsts();
                     app.UseHttpsRedirection();
                 }
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToWww)
+                {
+                    RewriteOptions rewrite = new RewriteOptions();
+                    rewrite.AddRedirectToWwwPermanent();
+                    app.UseRewriter(rewrite);
+                }
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "wwwroot")),
+                    ServeUnknownFileTypes = true,
+                    RequestPath = new PathString(string.Empty),
+                });
+                
                 ExtensionMethods.Init(app, _Logger);
                 app.UseBindKraftLogger(env, loggerFactory, ERRORURLSEGMENT);
                 app.UseBindKraftProfiler(env, loggerFactory, _MemoryCache);
@@ -505,7 +493,14 @@ namespace Ccf.Ck.Web.Middleware
                         {
                             OnRedirectToIdentityProvider = context =>
                             {
-                                string returnUrl = context.HttpContext.Session.GetString("returnurl");
+                                string returnUrl = context.HttpContext.Session.GetString("returnurl");//Has returnurl already in user's session
+                                if (string.IsNullOrEmpty(returnUrl))
+                                {
+                                    if (context.Request.Query.ContainsKey("returnurl"))//Is passed as parameter in the url
+                                    {
+                                        returnUrl = context.Request.Query["returnurl"];
+                                    }
+                                }
                                 if (!string.IsNullOrEmpty(returnUrl))
                                 {
                                     context.ProtocolMessage.SetParameter("returnurl", returnUrl);
@@ -531,9 +526,9 @@ namespace Ccf.Ck.Web.Middleware
                             },
                             OnTokenValidated = context =>
                             {
-                                if (context.TokenEndpointResponse.Parameters.ContainsKey("returnurl"))
+                                if (context.ProtocolMessage.Parameters.ContainsKey("returnurl"))//This is coming from the authorization server
                                 {
-                                    string returnurl = context.TokenEndpointResponse.Parameters["returnurl"];
+                                    string returnurl = context.ProtocolMessage.Parameters["returnurl"];
                                     if (!string.IsNullOrEmpty(returnurl))
                                     {
                                         context.HttpContext.Session.SetString("returnurl", returnurl);
@@ -562,7 +557,20 @@ namespace Ccf.Ck.Web.Middleware
                 }
                 #endregion Authorization
                 services.UseBundling();
-                services.AddSingleton(services.AddDataProtection());
+                //Dataprotection
+                //This should supress The antiforgery token could not be decrypted error TODO check the logs
+                DirectoryInfo dataProtection = new DirectoryInfo(Path.Combine(env.ContentRootPath, "DataProtection"));
+                if (!dataProtection.Exists)
+                {
+                    dataProtection.Create();
+                }
+                services.AddDataProtection(opts =>
+                {
+                    opts.ApplicationDiscriminator = "corekraft";
+                })
+                .PersistKeysToFileSystem(dataProtection)
+                .SetDefaultKeyLifetime(TimeSpan.FromDays(10));
+                //End Dataprotection
 
                 services.Configure<HubOptions>(options =>
                 {

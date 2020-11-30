@@ -13,10 +13,15 @@ namespace Ccf.Ck.Launchers.Main.Routing
 {
     public class DynamicHostRouteTransformer : DynamicRouteValueTransformer
     {
+        KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
+        public DynamicHostRouteTransformer(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
+        {
+            _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
+        }
+
         public override ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
-            KraftGlobalConfigurationSettings kraftGlobalConfiguration = httpContext.RequestServices.GetService<KraftGlobalConfigurationSettings>();
-            foreach (RouteMapping routing in kraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.RouteMappings)
+            foreach (RouteMapping routing in _KraftGlobalConfigurationSettings.GeneralSettings.RazorAreaAssembly.RouteMappings)
             {
                 Regex rg = new Regex(routing.SlugExpression, RegexOptions.IgnoreCase);
                 if (rg.Matches(httpContext.Request.Path).Count > 0)
@@ -28,22 +33,5 @@ namespace Ccf.Ck.Launchers.Main.Routing
             }
             return new ValueTask<RouteValueDictionary>(values);
         }
-
-        //private static bool IsHostMatch(string[] fullAddress, string configuredHost)
-        //{
-        //    if (fullAddress.Length == 1) //no subdomains
-        //    {
-        //        return string.IsNullOrEmpty(configuredHost);
-        //    }
-        //    else if (fullAddress.Length > 1)//has domain
-        //    {
-        //        if (fullAddress[0].Equals(configuredHost, StringComparison.OrdinalIgnoreCase)) //we are looking for the first segment
-        //        {
-        //            return true;
-        //        }
-        //        return false;
-        //    }
-        //    return false;
-        //}
     }
 }
