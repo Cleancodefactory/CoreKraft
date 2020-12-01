@@ -1,18 +1,17 @@
-﻿using System;
+﻿using Ccf.Ck.Launchers.Main.ActionFilters;
+using Ccf.Ck.Launchers.Main.Routing;
+using Ccf.Ck.Models.Settings;
+using Ccf.Ck.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Ccf.Ck.Web.Middleware;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Primitives;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using System;
 using System.IO;
 using System.Reflection;
-using Ccf.Ck.Models.Settings;
-using Microsoft.AspNetCore.Http;
-using Ccf.Ck.Launchers.Main.Routing;
-using Ccf.Ck.Launchers.Main.ActionFilters;
 
 namespace Ccf.Ck.Launchers.Main
 {

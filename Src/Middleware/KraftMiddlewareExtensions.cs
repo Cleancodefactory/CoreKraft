@@ -1,47 +1,48 @@
-﻿using Ccf.Ck.Utilities.MemoryCache;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Libs.Web.Bundling;
+using Ccf.Ck.Models.DirectCall;
+using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Models.Web.Settings;
-using Ccf.Ck.Utilities.NodeSetService;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Recorders.Store;
 using Ccf.Ck.Utilities.DependencyContainer;
+using Ccf.Ck.Utilities.MemoryCache;
+using Ccf.Ck.Utilities.NodeSetService;
 using Ccf.Ck.Utilities.Profiling;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
-using System.IdentityModel.Tokens.Jwt;
-using System.Threading.Tasks;
 using System.Reflection;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Ccf.Ck.Models.KraftModule;
-using Ccf.Ck.Libs.Logging;
-using Ccf.Ck.Libs.Web.Bundling;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Rewrite;
-using Microsoft.AspNetCore.Authorization;
-using static Ccf.Ck.Utilities.Generic.Utilities;
 using System.Security;
-using Microsoft.AspNetCore.Http.Connections;
-using Ccf.Ck.Models.DirectCall;
-using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Primitives;
-using Microsoft.AspNetCore.SignalR;
-using Ccf.Ck.SysPlugins.Interfaces;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.FileProviders;
-using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.SysPlugins.Recorders.Store;
+using System.Threading.Tasks;
+using static Ccf.Ck.Utilities.Generic.Utilities;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -96,7 +97,7 @@ namespace Ccf.Ck.Web.Middleware
                     ServeUnknownFileTypes = true,
                     RequestPath = new PathString(string.Empty),
                 });
-                
+
                 ExtensionMethods.Init(app, _Logger);
                 app.UseBindKraftLogger(env, loggerFactory, ERRORURLSEGMENT);
                 app.UseBindKraftProfiler(env, loggerFactory, _MemoryCache);
@@ -509,18 +510,25 @@ namespace Ccf.Ck.Web.Middleware
                             },
                             OnRemoteFailure = context =>
                             {
-                                KraftLogger.LogError(context.Failure);
+                                KraftLogger.LogWarning("OnRemoteFailure in KraftMiddlewareExtensions", context.Failure);
                                 HttpRequest request = context.Request;
+                                foreach (var cookie in context.Request.Cookies)
+                                {
+                                    if (!cookie.Key.Equals(CookieRequestCultureProvider.DefaultCookieName, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        context.Response.Cookies.Delete(cookie.Key);
+                                    }
+                                }
                                 string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent());
                                 context.Response.Redirect(redirectUrl);
-                                // + "/" + ERRORURLSEGMENT + "?message=" + UrlEncoder.Default.Encode(context.Failure.Message));
                                 context.HandleResponse();
                                 return Task.CompletedTask;
                             },
                             OnAuthenticationFailed = context =>
                             {
+                                KraftLogger.LogError("OnAuthenticationFailed in KraftMiddlewareExtensions", context.Exception);
                                 HttpRequest request = context.Request;
-                                context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace("http://", "https://");
+                                context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri?.Replace("http://", "https://");
                                 context.HandleResponse();
                                 return Task.CompletedTask;
                             },

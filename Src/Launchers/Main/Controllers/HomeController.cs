@@ -3,7 +3,6 @@ using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Libs.Web.Bundling;
 using Ccf.Ck.Models.Settings;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
 
