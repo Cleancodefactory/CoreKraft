@@ -12,7 +12,7 @@ namespace Ccf.Ck.Models.NodeRequest
 {
     public class SecurityModel : ISecurityModel
     {
-        private ClaimsPrincipal _ClaimsPrincipal;
+        private readonly ClaimsPrincipal _ClaimsPrincipal;
         public SecurityModel(HttpContext httpContext)
         {
             IAuthenticationService authenticationService = httpContext.RequestServices.GetRequiredService<IAuthenticationService>();
@@ -33,6 +33,18 @@ namespace Ccf.Ck.Models.NodeRequest
                 if (IsAuthenticated)
                 {
                     return _ClaimsPrincipal.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+                }
+                return null;
+            }
+        }
+
+        public string UserEmail
+        {
+            get
+            {
+                if (IsAuthenticated)
+                {
+                    return _ClaimsPrincipal.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
                 }
                 return null;
             }

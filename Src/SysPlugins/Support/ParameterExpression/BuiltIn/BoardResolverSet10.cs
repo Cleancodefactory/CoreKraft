@@ -36,13 +36,9 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuiltIn
             {
                 throw new InvalidOperationException("There shoould be at least three tokens passed to GetPermissions.");
             }
-
-            string permission = string.Empty;
-            permission = GetParamValue(tokens, 0, nameof(permission));
-            string fromId = string.Empty;
-            fromId = GetParamValue(tokens, 1, nameof(fromId));
-            string toId = string.Empty;
-            toId = GetParamValue(tokens, 2, nameof(toId));
+            string permission = GetParamValue(tokens, 0, nameof(permission));
+            string fromId = GetParamValue(tokens, 1, nameof(fromId));
+            string toId = GetParamValue(tokens, 2, nameof(toId));
             string isDeleted = "0";
             if (tokens.Length > 3)
             {

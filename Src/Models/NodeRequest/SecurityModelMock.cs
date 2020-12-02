@@ -17,6 +17,8 @@ namespace Ccf.Ck.Models.NodeRequest
 
         public string UserName => _AuthorizationSection.UserName;
 
+        public string UserEmail => _AuthorizationSection.UserEmail;
+
         public string FirstName => _AuthorizationSection.FirstName;
 
         public string LastName => _AuthorizationSection.LastName;

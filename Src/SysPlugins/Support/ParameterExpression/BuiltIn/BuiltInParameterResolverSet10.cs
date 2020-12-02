@@ -157,14 +157,19 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         }
 
         public ParameterResolverValue IntegerContent(IParameterResolverContext ctx, ParameterResolverValue input) {
-            long v = 0;
-            if (input.Value != null) {
-                if (long.TryParse(input.ToString(), out v)) {
+            if (input.Value != null)
+            {
+                if (long.TryParse(input.ToString(), out long v))
+                {
                     return new ParameterResolverValue(v.ToString(), EResolverValueType.ContentType, (uint)EValueDataType.Text);
-                } else {
+                }
+                else
+                {
                     throw new InvalidCastException("Cannot cast the input to integer!");
                 }
-            } else {
+            }
+            else
+            {
                 // This result will cause excepton if not handled in some special manner.
                 return new ParameterResolverValue(null, EResolverValueType.ContentType, (uint)EValueDataType.Text);
             }
@@ -178,6 +183,12 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         {
             InputModel inputModel = ctx.ProcessingContext.InputModel;
             return new ParameterResolverValue(inputModel.SecurityModel?.UserName);
+        }
+
+        public ParameterResolverValue GetUserEmail(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            InputModel inputModel = ctx.ProcessingContext.InputModel;
+            return new ParameterResolverValue(inputModel.SecurityModel?.UserEmail);
         }
 
         public ParameterResolverValue GetUserDetails(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
@@ -278,8 +289,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 x.GetType() == typeof(float) || x.GetType() == typeof(double)) {
                 return new ParameterResolverValue(x.ToString(), EResolverValueType.ContentType);
             } else {
-                var y = args[1].Value as string;
-                if (y == null) y = "null";
+                if (!(args[1].Value is string y)) y = "null";
                 return new ParameterResolverValue(y, EResolverValueType.ContentType);
             }
         }
@@ -324,28 +334,34 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             var _dir = args[1].Value;
             string dir = "ASC";
             if (_dir != null) {
-                string sdir = _dir as string;
-                if (sdir != null) {
+                if (_dir is string sdir)
+                {
                     // string
-                    if (__reAscDesc.IsMatch(sdir)) {
+                    if (__reAscDesc.IsMatch(sdir))
+                    {
                         dir = sdir.ToUpper();
-                    } else {
-                        if (double.TryParse(sdir,out var ddir)) {
+                    }
+                    else
+                    {
+                        if (double.TryParse(sdir, out var ddir))
+                        {
                             if (ddir < 0) dir = "DESC";
                         }
                     }
-                } else {
-                    if (double.TryParse(_dir.ToString(), out var xdir)) {
+                }
+                else
+                {
+                    if (double.TryParse(_dir.ToString(), out var xdir))
+                    {
                         if (xdir < 0) dir = "DESC";
                     }
                 }
             }
             string refield = args[2].Value?.ToString() ?? null;
-            Regex reField = null;
             if (refield == null) {
                 throw new ArgumentException( "3-d argument of OrderByEntry is required and has to specify a regular expression for the field name validation.");
             }
-            reField = new Regex(refield, RegexOptions.IgnoreCase);
+            Regex reField = new Regex(refield, RegexOptions.IgnoreCase);
             if (reField.IsMatch(fieldname)) {
                 // Returned as content type to help use it directly (not recommended though - use it as argument to OrderBy)
                 return new ParameterResolverValue(String.Format("{0} {1}", fieldname, dir), EResolverValueType.ContentType); 
@@ -401,8 +417,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             if (stype == T_STR) return new ParameterResolverValue(sv, EValueDataType.Text);
             if (string.IsNullOrWhiteSpace(sv)) return new ParameterResolverValue(null);
             // This has to be here to support legacy behavior
-            string clean_string_value;
-            Number_Formats fmt = DetectNumberFormat(sv, out clean_string_value);
+            Number_Formats fmt = DetectNumberFormat(sv, out string clean_string_value);
             if (fmt == Number_Formats.Unknown) {
                 throw new Exception("Cannot detect the number format of the second argument");
             }
@@ -459,17 +474,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             if (totype == T_NULL) return new ParameterResolverValue(null);
             ParameterResolverValue[] values = args.ToArray(); //new ParameterResolverValue[args.Count];
             ParameterResolverValue[] _valsCasted = values.Select(v => CastAs(ctx, new List<ParameterResolverValue>() { new ParameterResolverValue(totype), new ParameterResolverValue(v.Value) })).ToArray();
-            switch (totype) {
-                case T_INT:
-                    return new ParameterResolverValue( _valsCasted.Sum( x => (int)x.Value), EValueDataType.Int);
-                case T_UINT:
-                    return new ParameterResolverValue( _valsCasted.Sum( x => (uint)x.Value), EValueDataType.UInt);
-                case T_DBL:
-                    return new ParameterResolverValue( _valsCasted.Sum( x => (double)x.Value), EValueDataType.Real);
-                default:
-                    return new ParameterResolverValue(null);
-            }
-
+            return totype switch
+            {
+                T_INT => new ParameterResolverValue(_valsCasted.Sum(x => (int)x.Value), EValueDataType.Int),
+                T_UINT => new ParameterResolverValue(_valsCasted.Sum(x => (uint)x.Value), EValueDataType.UInt),
+                T_DBL => new ParameterResolverValue(_valsCasted.Sum(x => (double)x.Value), EValueDataType.Real),
+                _ => new ParameterResolverValue(null),
+            };
         }
         
         public ParameterResolverValue Sub(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
@@ -478,18 +489,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             if (totype == T_NULL) return new ParameterResolverValue(null);
             ParameterResolverValue[] values = args.ToArray();  //new ParameterResolverValue[args.Count];
             ParameterResolverValue[] _valsCasted = values.Select(v => CastAs(ctx, new List<ParameterResolverValue>() { new ParameterResolverValue(totype), new ParameterResolverValue(v.Value) })).ToArray();
-            
-            switch (totype) {
-                case T_INT:
-                    return new ParameterResolverValue( (int)_valsCasted[0].Value - (int)_valsCasted[1].Value, EValueDataType.Int);
-                case T_UINT:
-                    return new ParameterResolverValue( (uint)_valsCasted[0].Value - (uint)_valsCasted[1].Value, EValueDataType.UInt);
-                case T_DBL:
-                    return new ParameterResolverValue( (double)_valsCasted[0].Value - (double)_valsCasted[1].Value, EValueDataType.Real);
-                default:
-                    return new ParameterResolverValue(null);
-            }
 
+            return totype switch
+            {
+                T_INT => new ParameterResolverValue((int)_valsCasted[0].Value - (int)_valsCasted[1].Value, EValueDataType.Int),
+                T_UINT => new ParameterResolverValue((uint)_valsCasted[0].Value - (uint)_valsCasted[1].Value, EValueDataType.UInt),
+                T_DBL => new ParameterResolverValue((double)_valsCasted[0].Value - (double)_valsCasted[1].Value, EValueDataType.Real),
+                _ => new ParameterResolverValue(null),
+            };
         }
 
         /// <summary>
@@ -512,35 +519,29 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             // 2. Make the call
             // 2.1 Wait and get the token from ret data
             // This should reside elsewhere / or reuse some existing?
-            using (HttpClient client = new HttpClient(new HttpClientHandler()))
+            using HttpClient client = new HttpClient(new HttpClientHandler());
+            IHttpContextAccessor accessor = ctx.PluginServiceManager.GetService<IHttpContextAccessor>(typeof(HttpContextAccessor));
+            string our_token = accessor.HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectParameterNames.AccessToken).Result;
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", our_token);
+
+            // Why global?
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+            client.Timeout = new TimeSpan(0, 0, 10);
+            using HttpResponseMessage response = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, new System.Threading.CancellationToken()).Result;
+            if (response.IsSuccessStatusCode)
             {
-                IHttpContextAccessor accessor = ctx.PluginServiceManager.GetService<IHttpContextAccessor>(typeof(HttpContextAccessor));
-                string our_token = accessor.HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectParameterNames.AccessToken).Result;
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", our_token);
+                JsonSerializer js = new JsonSerializer();
 
-                // Why global?
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+                Dictionary<string, object> res = js.Deserialize<Dictionary<string, object>>
+                    (new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
 
-                using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url))
-                {
-                    client.Timeout = new TimeSpan(0, 0, 10);
-                    using (HttpResponseMessage response = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, new System.Threading.CancellationToken()).Result)
-                    {
-                        if (response.IsSuccessStatusCode)
-                        {
-                            JsonSerializer js = new JsonSerializer();
-
-                            Dictionary<string, object> res = js.Deserialize<Dictionary<string, object>>
-                                (new JsonTextReader(new StreamReader(response.Content.ReadAsStreamAsync().Result)));
-
-                            return new ParameterResolverValue(res["access_token"]);
-                        }
-                        else
-                        {
-                            throw new Exception("Communication error while obtaining the provider's token, using the login token to call the authorization server.");
-                        }
-                    }
-                }
+                return new ParameterResolverValue(res["access_token"]);
+            }
+            else
+            {
+                throw new Exception("Communication error while obtaining the provider's token, using the login token to call the authorization server.");
             }
         }
 
@@ -591,14 +592,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 if (match.Success) {
                     if (match.Groups[2].Success) { // decimal
                         if (match.Groups[3].Success) { // double
-                            double d;
-                            if (double.TryParse(sv, out d)) {
+                            if (double.TryParse(sv, out _))
+                            {
                                 n = T_TYPEORDER.IndexOf(T_DBL);
                                 if (n > maxtype) maxtype = n;
                             }
                         } else { // integer
-                            int d;
-                            if (int.TryParse(sv, out d)) {
+                            if (int.TryParse(sv, out _))
+                            {
                                 n = T_TYPEORDER.IndexOf(T_INT);
                                 if (n > maxtype) maxtype = n;
                             }
@@ -692,7 +693,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             if (!string.IsNullOrWhiteSpace(type_and_check.Value as string)) { // RegExp
                 var re = type_and_check.Value as string;
                 Regex rex = new Regex(re, RegexOptions.CultureInvariant | RegexOptions.Singleline);
-                IEnumerable indata = null;
+                IEnumerable indata;
                 if (input.Value is IDictionary) {
                     indata = (input.Value as IDictionary).Values;
                 } else {
@@ -714,7 +715,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 }
                 return new ParameterResolverValue(sbresult.ToString(), EResolverValueType.ContentType);
             } else if (type_and_check.Value == null && input.Value is IEnumerable) { // Numbers
-                IEnumerable indata = null;
+                IEnumerable indata;
                 if (input.Value is IDictionary)
                 {
                     indata = (input.Value as IDictionary).Values;

@@ -5,7 +5,10 @@ namespace Ccf.Ck.Models.NodeRequest
     public interface ISecurityModel
     {
         bool IsAuthenticated { get; }
+
         string UserName { get; }
+
+        string UserEmail { get; }
 
         string FirstName { get; }
 
