@@ -60,6 +60,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "GetUserEmail",
+                                     Arguments = 0,
+                                     Name = "GetUserEmail"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "HasRoleName",
                                      Arguments = 1,
                                      Name = "HasRoleName"
