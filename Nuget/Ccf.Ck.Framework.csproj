@@ -36,6 +36,7 @@
 		- Version 1.0.24: Fix bug with catch all in launcher
 		- Version 1.0.25: Add REMOTE_ADDR to the server variables
 		- Version 1.0.26: Update Ccf.Ck.Libs.Logging to version 1.0.15
+		- Version 1.0.27: Update Ccf.Ck.Libs.Logging to version 1.0.17
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>

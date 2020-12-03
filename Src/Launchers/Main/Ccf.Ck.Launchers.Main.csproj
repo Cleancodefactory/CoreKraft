@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.15" />
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.17" />
     <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.14" />
   </ItemGroup>
 
