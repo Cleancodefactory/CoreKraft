@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.17" />
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.18" />
     <PackageReference Include="Grace" Version="7.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.9" />
