@@ -43,7 +43,7 @@ namespace Ccf.Ck.Launchers.Main
                     // requires using Microsoft.AspNetCore.Http;
                     options.MinimumSameSitePolicy = SameSiteMode.None;
                 });
-                services.AddMvc(options =>
+                services.AddControllersWithViews(options =>
                 {
                     options.Filters.Add(typeof(CultureActionFilter));
                 }).ConfigureApplicationPartManager(ConfigureApplicationParts).AddTagHelpersAsServices();
@@ -51,7 +51,7 @@ namespace Ccf.Ck.Launchers.Main
             }
             else
             {
-                services.AddMvc(options =>
+                services.AddControllersWithViews(options =>
                 {
                     options.Filters.Add(typeof(CultureActionFilter));
                 });

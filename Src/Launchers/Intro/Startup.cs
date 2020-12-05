@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Ccf.Ck.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Ccf.Ck.Web.Middleware;
 
 namespace Ccf.Ck.Launchers.Intro
 {
@@ -24,7 +23,7 @@ namespace Ccf.Ck.Launchers.Intro
         public void ConfigureServices(IServiceCollection services)
         {
             services.UseBindKraft(_Configuration);
-            services.AddMvc();
+            services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
