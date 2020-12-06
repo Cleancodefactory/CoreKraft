@@ -8,19 +8,17 @@ namespace Ccf.Ck.SysPlugins.Recorders.Store
     /// </summary>
     public class RecordersStoreImp : IRequestRecordersStore
     {
-        private static ConcurrentDictionary<string, IRequestRecorder> _RequestRecorders = new ConcurrentDictionary<string, IRequestRecorder>();
+        private static readonly ConcurrentDictionary<string, IRequestRecorder> _RequestRecorders = new ConcurrentDictionary<string, IRequestRecorder>();
 
         public IRequestRecorder Get(string key)
         {
-            IRequestRecorder result = null;
-            _RequestRecorders.TryGetValue(key, out result);
+            _RequestRecorders.TryGetValue(key, out IRequestRecorder result);
             return result;
         }
 
         public void Remove(string key)
         {
-            IRequestRecorder result = null;
-            _RequestRecorders.TryRemove(key, out result);
+            _RequestRecorders.TryRemove(key, out _);
         }
 
         public void Set(IRequestRecorder requestRecorder, string key)

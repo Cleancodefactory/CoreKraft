@@ -56,6 +56,272 @@ namespace Ccf.Ck.Web.Middleware
         static readonly object _SyncRoot = new Object();
         const string ERRORURLSEGMENT = "error";
 
+        public static IServiceProvider UseBindKraft(this IServiceCollection services, IConfiguration configuration)
+        {
+            try
+            {
+                services.AddDistributedMemoryCache();
+                services.UseBindKraftLogger();
+                // If using Kestrel:
+                services.Configure<KestrelServerOptions>(options =>
+                {
+                    options.AllowSynchronousIO = true;
+                });
+
+                // If using IIS:
+                services.Configure<IISServerOptions>(options =>
+                {
+                    options.AllowSynchronousIO = true;
+                });
+                _KraftGlobalConfigurationSettings = new KraftGlobalConfigurationSettings();
+                configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
+                _Configuration = configuration;
+
+                services.AddSingleton(_KraftGlobalConfigurationSettings);
+
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps)
+                {
+                    services.Configure<ForwardedHeadersOptions>(options =>
+                    {
+                        options.KnownNetworks.Clear(); //its loopback by default
+                        options.KnownProxies.Clear();
+                        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                    });
+                    services.AddHsts(options =>
+                    {
+                        options.Preload = true;
+                        options.IncludeSubDomains = true;
+                        options.MaxAge = TimeSpan.FromDays(365);
+                    });
+                    services.AddHttpsRedirection(options =>
+                    {
+                        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                        options.HttpsPort = 443;
+                    });
+                }
+
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.UseSignalR)
+                {
+                    services.AddSignalR(hubOptions =>
+                    {
+                        hubOptions.KeepAliveInterval = TimeSpan.FromDays(1);
+                        hubOptions.EnableDetailedErrors = true;
+                        hubOptions.HandshakeTimeout = TimeSpan.FromSeconds(30);
+                        hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+                    });
+                }
+
+                //GRACE DEPENDENCY INJECTION CONTAINER 
+                DependencyInjectionContainer dependencyInjectionContainer = new DependencyInjectionContainer();
+                services.AddSingleton(dependencyInjectionContainer);
+                services.AddRouting(options => options.LowercaseUrls = true);
+
+                services.AddResponseCaching();
+                services.AddMemoryCache();
+                services.AddSession(options =>
+                {
+                    // Set a short timeout for easy testing.
+                    options.IdleTimeout = TimeSpan.FromMinutes(60);
+                    // You might want to only set the application cookies over a secure connection:
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    options.Cookie.SameSite = SameSiteMode.Strict;
+                    options.Cookie.HttpOnly = true;
+                    // Make the session cookie essential
+                    options.Cookie.IsEssential = true;
+                });
+                services.UseBindKraftProfiler();
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
+                IWebHostEnvironment env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+                ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+                _Logger = loggerFactory.CreateLogger<KraftMiddleware>();
+
+                services.AddLogging(loggingBuilder =>
+                {
+                    loggingBuilder.ClearProviders();
+                    if (env.IsDevelopment())
+                    {
+                        loggingBuilder.SetMinimumLevel(LogLevel.Error);
+                        loggingBuilder.AddConsole();
+                        loggingBuilder.AddDebug();
+                    }
+                });
+
+                //memory cache
+                _MemoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
+
+                /*if (_HostingEnvironment.IsDevelopment())
+                {
+                    config.CacheProfiles.Add("Default", new CacheProfile() { Location = ResponseCacheLocation.None, Duration = 0 });
+                }
+                else
+                {
+                    config.CacheProfiles.Add("Default", new CacheProfile() { Location = ResponseCacheLocation.Any, Duration = 60 });
+                }*/
+
+                ICachingService cachingService = new MemoryCachingService(_MemoryCache);
+                services.AddSingleton(cachingService);
+
+                KraftModuleCollection kraftModuleCollection = new KraftModuleCollection(_KraftGlobalConfigurationSettings, dependencyInjectionContainer, _Logger);
+                services.AddSingleton(kraftModuleCollection);
+
+                #region Global Configuration Settings
+
+                _KraftGlobalConfigurationSettings.GeneralSettings.ReplaceMacrosWithPaths(env.ContentRootPath, env.WebRootPath);
+
+                #endregion //Global Configuration Settings
+
+                //INodeSet service
+                services.AddSingleton(typeof(INodeSetService), new NodeSetService(_KraftGlobalConfigurationSettings, cachingService));
+
+                ILogger logger = loggerFactory.CreateLogger(env.EnvironmentName);
+                services.AddSingleton(typeof(ILogger), logger);
+
+                services.AddSingleton(services);
+                #region Authorization
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
+                {
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                    })
+
+                    .AddCookie(options =>
+                    {
+                        options.LoginPath = new PathString("/account/signin");
+                    })
+
+                    .AddOpenIdConnect(options =>
+                    {
+                        // Note: these settings must match the application details
+                        // inserted in the database at the server level.
+                        options.ClientId = _KraftGlobalConfigurationSettings.GeneralSettings.ClientId;
+                        options.ClientSecret = _KraftGlobalConfigurationSettings.GeneralSettings.ClientSecret;
+                        options.RequireHttpsMetadata = _KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps;
+                        options.Authority = _KraftGlobalConfigurationSettings.GeneralSettings.Authority;
+                        options.GetClaimsFromUserInfoEndpoint = true;
+                        options.SaveTokens = true;
+
+                        // Use the authorization code flow.
+                        options.ResponseType = OpenIdConnectResponseType.Code;
+                        options.AuthenticationMethod = OpenIdConnectRedirectBehavior.RedirectGet;
+
+                        options.Scope.Add("email");
+                        options.Scope.Add("roles");
+                        options.Scope.Add("firstname");
+                        options.Scope.Add("lastname");
+                        options.Scope.Add("offline_access");
+
+                        options.Events = new OpenIdConnectEvents
+                        {
+                            OnRedirectToIdentityProvider = context =>
+                            {
+                                string returnUrl = context.HttpContext.Session.GetString("returnurl");//Has returnurl already in user's session
+                                if (string.IsNullOrEmpty(returnUrl))
+                                {
+                                    if (context.Request.Query.ContainsKey("returnurl"))//Is passed as parameter in the url
+                                    {
+                                        returnUrl = context.Request.Query["returnurl"];
+                                    }
+                                }
+                                if (!string.IsNullOrEmpty(returnUrl))
+                                {
+                                    context.ProtocolMessage.SetParameter("returnurl", returnUrl);
+                                }
+                                return Task.CompletedTask;
+                            },
+                            OnRemoteFailure = context =>
+                            {
+                                KraftLogger.LogWarning("OnRemoteFailure in KraftMiddlewareExtensions", context.Failure);
+                                HttpRequest request = context.Request;
+                                foreach (var cookie in context.Request.Cookies)
+                                {
+                                    if (!cookie.Key.Equals(CookieRequestCultureProvider.DefaultCookieName, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        context.Response.Cookies.Delete(cookie.Key);
+                                    }
+                                }
+                                string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent());
+                                context.Response.Redirect(redirectUrl);
+                                context.HandleResponse();
+                                return Task.CompletedTask;
+                            },
+                            OnAuthenticationFailed = context =>
+                            {
+                                KraftLogger.LogError("OnAuthenticationFailed in KraftMiddlewareExtensions", context.Exception);
+                                HttpRequest request = context.Request;
+                                context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri?.Replace("http://", "https://");
+                                context.HandleResponse();
+                                return Task.CompletedTask;
+                            },
+                            OnTokenValidated = context =>
+                            {
+                                if (context.ProtocolMessage.Parameters.ContainsKey("returnurl"))//This is coming from the authorization server
+                                {
+                                    string returnurl = context.ProtocolMessage.Parameters["returnurl"];
+                                    if (!string.IsNullOrEmpty(returnurl))
+                                    {
+                                        context.HttpContext.Session.SetString("returnurl", returnurl);
+                                    }
+                                }
+                                return Task.CompletedTask;
+                            }
+                        };
+                        options.SecurityTokenValidator = new JwtSecurityTokenHandler
+                        {
+                            // Disable the built-in JWT claims mapping feature.
+                            InboundClaimTypeMap = new Dictionary<string, string>()
+                        };
+                        options.TokenValidationParameters.NameClaimType = "name";
+                        options.TokenValidationParameters.RoleClaimType = "role";
+                    });
+                }
+                else
+                {
+                    services.AddAuthorization(x =>
+                    {
+                        x.DefaultPolicy = new AuthorizationPolicyBuilder()
+                                .RequireAssertion(_ => true)
+                                .Build();
+                    });
+                }
+                #endregion Authorization
+                services.UseBundling();
+                //Dataprotection
+                //This should supress The antiforgery token could not be decrypted error TODO check the logs
+                DirectoryInfo dataProtection = new DirectoryInfo(Path.Combine(env.ContentRootPath, "DataProtection"));
+                if (!dataProtection.Exists)
+                {
+                    dataProtection.Create();
+                }
+                services.AddDataProtection(opts =>
+                {
+                    opts.ApplicationDiscriminator = "corekraft";
+                })
+                .PersistKeysToFileSystem(dataProtection)
+                .SetDefaultKeyLifetime(TimeSpan.FromDays(10));
+                //End Dataprotection
+
+                services.Configure<HubOptions>(options =>
+                {
+                    options.MaximumReceiveMessageSize = null;
+                });
+
+                //Signals
+                services.AddHostedService<SignalService>();
+                //End Signals
+                //RecordersStore which contians dictionary of the running instances
+                services.AddSingleton<RecordersStoreImp>();
+            }
+            catch (Exception ex)
+            {
+                KraftLogger.LogError("Method: ConfigureServices ", ex);
+                KraftExceptionHandlerMiddleware.Exceptions[KraftExceptionHandlerMiddleware.EXCEPTIONSONCONFIGURESERVICES].Add(ex);
+            }
+
+            return services.BuildServiceProvider();
+        }
+
         public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostEnvironment env)
         {
             //AntiforgeryService
@@ -332,272 +598,6 @@ namespace Ccf.Ck.Web.Middleware
             //This is the last statement
             KraftExceptionHandlerMiddleware.HandleErrorAction(app);
             return app;
-        }
-
-        public static IServiceProvider UseBindKraft(this IServiceCollection services, IConfiguration configuration)
-        {
-            try
-            {
-                services.AddDistributedMemoryCache();
-                services.UseBindKraftLogger();
-                // If using Kestrel:
-                services.Configure<KestrelServerOptions>(options =>
-                {
-                    options.AllowSynchronousIO = true;
-                });
-
-                // If using IIS:
-                services.Configure<IISServerOptions>(options =>
-                {
-                    options.AllowSynchronousIO = true;
-                });
-                _KraftGlobalConfigurationSettings = new KraftGlobalConfigurationSettings();
-                configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
-                _Configuration = configuration;
-
-                services.AddSingleton(_KraftGlobalConfigurationSettings);
-
-                if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps)
-                {
-                    services.Configure<ForwardedHeadersOptions>(options =>
-                    {
-                        options.KnownNetworks.Clear(); //its loopback by default
-                        options.KnownProxies.Clear();
-                        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-                    });
-                    services.AddHsts(options =>
-                    {
-                        options.Preload = true;
-                        options.IncludeSubDomains = true;
-                        options.MaxAge = TimeSpan.FromDays(365);
-                    });
-                    services.AddHttpsRedirection(options =>
-                    {
-                        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                        options.HttpsPort = 443;
-                    });
-                }
-
-                if (_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.UseSignalR)
-                {
-                    services.AddSignalR(hubOptions =>
-                    {
-                        hubOptions.KeepAliveInterval = TimeSpan.FromDays(1);
-                        hubOptions.EnableDetailedErrors = true;
-                        hubOptions.HandshakeTimeout = TimeSpan.FromSeconds(30);
-                        hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
-                    });
-                }
-
-                //GRACE DEPENDENCY INJECTION CONTAINER 
-                DependencyInjectionContainer dependencyInjectionContainer = new DependencyInjectionContainer();
-                services.AddSingleton(dependencyInjectionContainer);
-                services.AddRouting(options => options.LowercaseUrls = true);
-
-                services.AddResponseCaching();
-                services.AddMemoryCache();
-                services.AddSession(options =>
-                {
-                    // Set a short timeout for easy testing.
-                    options.IdleTimeout = TimeSpan.FromMinutes(60);
-                    // You might want to only set the application cookies over a secure connection:
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.Cookie.SameSite = SameSiteMode.Strict;
-                    options.Cookie.HttpOnly = true;
-                    // Make the session cookie essential
-                    options.Cookie.IsEssential = true;
-                });
-                services.UseBindKraftProfiler();
-                IServiceProvider serviceProvider = services.BuildServiceProvider();
-                IWebHostEnvironment env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-                ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-                _Logger = loggerFactory.CreateLogger<KraftMiddleware>();
-
-                services.AddLogging(loggingBuilder =>
-                {
-                    loggingBuilder.ClearProviders();
-                    if (env.IsDevelopment())
-                    {
-                        loggingBuilder.SetMinimumLevel(LogLevel.Error);
-                        loggingBuilder.AddConsole();
-                        loggingBuilder.AddDebug();
-                    }
-                });
-
-                //memory cache
-                _MemoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
-
-                /*if (_HostingEnvironment.IsDevelopment())
-                {
-                    config.CacheProfiles.Add("Default", new CacheProfile() { Location = ResponseCacheLocation.None, Duration = 0 });
-                }
-                else
-                {
-                    config.CacheProfiles.Add("Default", new CacheProfile() { Location = ResponseCacheLocation.Any, Duration = 60 });
-                }*/
-
-                ICachingService cachingService = new MemoryCachingService(_MemoryCache);
-                services.AddSingleton(cachingService);
-
-                KraftModuleCollection kraftModuleCollection = new KraftModuleCollection(_KraftGlobalConfigurationSettings, dependencyInjectionContainer, _Logger);
-                services.AddSingleton(kraftModuleCollection);
-
-                #region Global Configuration Settings
-
-                _KraftGlobalConfigurationSettings.GeneralSettings.ReplaceMacrosWithPaths(env.ContentRootPath, env.WebRootPath);
-
-                #endregion //Global Configuration Settings
-
-                //INodeSet service
-                services.AddSingleton(typeof(INodeSetService), new NodeSetService(_KraftGlobalConfigurationSettings, cachingService));
-
-                ILogger logger = loggerFactory.CreateLogger(env.EnvironmentName);
-                services.AddSingleton(typeof(ILogger), logger);
-
-                services.AddSingleton(services);
-                #region Authorization
-                if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
-                {
-                    services.AddAuthentication(options =>
-                    {
-                        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-                    })
-
-                    .AddCookie(options =>
-                    {
-                        options.LoginPath = new PathString("/account/signin");
-                    })
-
-                    .AddOpenIdConnect(options =>
-                    {
-                        // Note: these settings must match the application details
-                        // inserted in the database at the server level.
-                        options.ClientId = _KraftGlobalConfigurationSettings.GeneralSettings.ClientId;
-                        options.ClientSecret = _KraftGlobalConfigurationSettings.GeneralSettings.ClientSecret;
-                        options.RequireHttpsMetadata = _KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps;
-                        options.Authority = _KraftGlobalConfigurationSettings.GeneralSettings.Authority;
-                        options.GetClaimsFromUserInfoEndpoint = true;
-                        options.SaveTokens = true;
-
-                        // Use the authorization code flow.
-                        options.ResponseType = OpenIdConnectResponseType.Code;
-                        options.AuthenticationMethod = OpenIdConnectRedirectBehavior.RedirectGet;
-
-                        options.Scope.Add("email");
-                        options.Scope.Add("roles");
-                        options.Scope.Add("firstname");
-                        options.Scope.Add("lastname");
-                        options.Scope.Add("offline_access");
-
-                        options.Events = new OpenIdConnectEvents
-                        {
-                            OnRedirectToIdentityProvider = context =>
-                            {
-                                string returnUrl = context.HttpContext.Session.GetString("returnurl");//Has returnurl already in user's session
-                                if (string.IsNullOrEmpty(returnUrl))
-                                {
-                                    if (context.Request.Query.ContainsKey("returnurl"))//Is passed as parameter in the url
-                                    {
-                                        returnUrl = context.Request.Query["returnurl"];
-                                    }
-                                }
-                                if (!string.IsNullOrEmpty(returnUrl))
-                                {
-                                    context.ProtocolMessage.SetParameter("returnurl", returnUrl);
-                                }
-                                return Task.CompletedTask;
-                            },
-                            OnRemoteFailure = context =>
-                            {
-                                KraftLogger.LogWarning("OnRemoteFailure in KraftMiddlewareExtensions", context.Failure);
-                                HttpRequest request = context.Request;
-                                foreach (var cookie in context.Request.Cookies)
-                                {
-                                    if (!cookie.Key.Equals(CookieRequestCultureProvider.DefaultCookieName, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        context.Response.Cookies.Delete(cookie.Key);
-                                    }
-                                }
-                                string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent());
-                                context.Response.Redirect(redirectUrl);
-                                context.HandleResponse();
-                                return Task.CompletedTask;
-                            },
-                            OnAuthenticationFailed = context =>
-                            {
-                                KraftLogger.LogError("OnAuthenticationFailed in KraftMiddlewareExtensions", context.Exception);
-                                HttpRequest request = context.Request;
-                                context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri?.Replace("http://", "https://");
-                                context.HandleResponse();
-                                return Task.CompletedTask;
-                            },
-                            OnTokenValidated = context =>
-                            {
-                                if (context.ProtocolMessage.Parameters.ContainsKey("returnurl"))//This is coming from the authorization server
-                                {
-                                    string returnurl = context.ProtocolMessage.Parameters["returnurl"];
-                                    if (!string.IsNullOrEmpty(returnurl))
-                                    {
-                                        context.HttpContext.Session.SetString("returnurl", returnurl);
-                                    }
-                                }
-                                return Task.CompletedTask;
-                            }
-                        };
-                        options.SecurityTokenValidator = new JwtSecurityTokenHandler
-                        {
-                            // Disable the built-in JWT claims mapping feature.
-                            InboundClaimTypeMap = new Dictionary<string, string>()
-                        };
-                        options.TokenValidationParameters.NameClaimType = "name";
-                        options.TokenValidationParameters.RoleClaimType = "role";
-                    });
-                }
-                else
-                {
-                    services.AddAuthorization(x =>
-                    {
-                        x.DefaultPolicy = new AuthorizationPolicyBuilder()
-                                .RequireAssertion(_ => true)
-                                .Build();
-                    });
-                }
-                #endregion Authorization
-                services.UseBundling();
-                //Dataprotection
-                //This should supress The antiforgery token could not be decrypted error TODO check the logs
-                DirectoryInfo dataProtection = new DirectoryInfo(Path.Combine(env.ContentRootPath, "DataProtection"));
-                if (!dataProtection.Exists)
-                {
-                    dataProtection.Create();
-                }
-                services.AddDataProtection(opts =>
-                {
-                    opts.ApplicationDiscriminator = "corekraft";
-                })
-                .PersistKeysToFileSystem(dataProtection)
-                .SetDefaultKeyLifetime(TimeSpan.FromDays(10));
-                //End Dataprotection
-
-                services.Configure<HubOptions>(options =>
-                {
-                    options.MaximumReceiveMessageSize = null;
-                });
-
-                //Signals
-                services.AddHostedService<SignalService>();
-                //End Signals
-                //RecordersStore which contians dictionary of the running instances
-                services.AddSingleton<RecordersStoreImp>();
-            }
-            catch (Exception ex)
-            {
-                KraftLogger.LogError("Method: ConfigureServices ", ex);
-                KraftExceptionHandlerMiddleware.Exceptions[KraftExceptionHandlerMiddleware.EXCEPTIONSONCONFIGURESERVICES].Add(ex);
-            }
-
-            return services.BuildServiceProvider();
         }
 
         private static void AppDomain_OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
