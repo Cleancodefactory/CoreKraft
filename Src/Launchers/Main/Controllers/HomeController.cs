@@ -56,7 +56,6 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             return View(_KraftGlobalConfigurationSettings);
         }
 
-        [HttpPost]
         public IActionResult SetLanguage(string culture, string returnUrl)
         {
             try
