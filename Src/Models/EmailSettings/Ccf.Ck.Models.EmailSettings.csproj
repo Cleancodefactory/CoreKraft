@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package contains the Email-Settings model for CoreKraft.</PackageDescription>
+  </PropertyGroup>
+</Project>

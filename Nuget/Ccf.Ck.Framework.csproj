@@ -41,6 +41,7 @@
 		- Version 1.0.29: Update Ccf.Ck.Libs.Logging to version 1.0.19
 		- Version 1.0.30: Reference only libs in the project during the nuget creation
 		- Version 1.0.31: Update Ccf.Ck.Libs.Logging to version 1.0.20
+		- Version 1.0.32: Introduce Email-Settings model
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>

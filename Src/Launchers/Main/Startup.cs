@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Launchers.Main.ActionFilters;
 using Ccf.Ck.Launchers.Main.Routing;
+using Ccf.Ck.Models.EmailSettings;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
@@ -33,6 +34,9 @@ namespace Ccf.Ck.Launchers.Main
         {
             IServiceProvider serviceProvider = services.UseBindKraft(_Configuration);
             _KraftGlobalConfiguration = serviceProvider.GetService<KraftGlobalConfigurationSettings>();
+            EmailSettings emailSettings = new EmailSettings();
+            _Configuration.GetSection("EmailSettings").Bind(emailSettings);
+            services.AddSingleton(emailSettings);
             if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
             {
                 services.Configure<CookiePolicyOptions>(options =>

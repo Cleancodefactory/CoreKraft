@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Middleware\Ccf.Ck.Web.Middleware.csproj" />
+    <ProjectReference Include="..\..\Models\EmailSettings\Ccf.Ck.Models.EmailSettings.csproj" />
     <ProjectReference Include="..\..\NodePlugins\Base\Ccf.Ck.NodePlugins.Base.csproj" />
     <ProjectReference Include="..\..\NodePlugins\BindKraftIntro\Ccf.Ck.NodePlugins.BindKraftIntro.csproj" />
     <ProjectReference Include="..\..\SysPlugins\Data\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
