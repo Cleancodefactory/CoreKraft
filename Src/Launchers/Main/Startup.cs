@@ -60,6 +60,7 @@ namespace Ccf.Ck.Launchers.Main
                     options.Filters.Add(typeof(CultureActionFilter));
                 });
             }
+            services.AddHttpClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
