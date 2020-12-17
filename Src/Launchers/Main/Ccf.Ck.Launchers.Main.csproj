@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.20" />
     <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.14" />
-    <PackageReference Include="Ccf.Ck.Razor.TagHelpers" Version="1.0.3" />
+    <PackageReference Include="Ccf.Ck.Razor.TagHelpers" Version="1.0.4" />
   </ItemGroup>
 
   <ItemGroup>
