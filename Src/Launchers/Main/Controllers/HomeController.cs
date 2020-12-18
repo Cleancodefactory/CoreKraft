@@ -10,8 +10,8 @@ namespace Ccf.Ck.Launchers.Main.Controllers
 {
     public class HomeController : Controller
     {
-        private KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
-        private Regex PATTERNSTATICFILES = new Regex(@"([\/]+.*\.[a-zA-Z]+)", RegexOptions.Compiled | RegexOptions.Singleline);
+        private readonly KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
+        private readonly Regex PATTERNSTATICFILES = new Regex(@"([\/]+.*\.[a-zA-Z]+)", RegexOptions.Compiled | RegexOptions.Singleline);
 
         public HomeController(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {

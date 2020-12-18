@@ -8,6 +8,8 @@ namespace Ccf.Ck.Models.Settings
         {
             Roles = new List<string>();
         }
+
+        public string RedirectAfterLogin { get; set; }
         public bool RequireAuthorization { get; set; }
         public string UserName { get; set; }
         public string UserEmail { get; set; }

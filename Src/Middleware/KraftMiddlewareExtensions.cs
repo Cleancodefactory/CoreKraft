@@ -250,8 +250,7 @@ namespace Ccf.Ck.Web.Middleware
                             {
                                 KraftLogger.LogError("OnAuthenticationFailed in KraftMiddlewareExtensions", context.Exception);
                                 HttpRequest request = context.Request;
-                                context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri?.Replace("http://", "https://");
-                                context.HandleResponse();
+                                context.Properties.RedirectUri = context.ProtocolMessage.RedirectUri?.Replace("http://", "https://");
                                 return Task.CompletedTask;
                             },
                             OnTokenValidated = context =>
@@ -259,10 +258,15 @@ namespace Ccf.Ck.Web.Middleware
                                 if (context.ProtocolMessage.Parameters.ContainsKey("returnurl"))//This is coming from the authorization server
                                 {
                                     string returnurl = context.ProtocolMessage.Parameters["returnurl"];
+                                    context.Properties.RedirectUri = returnurl;
                                     if (!string.IsNullOrEmpty(returnurl))
                                     {
                                         context.HttpContext.Session.SetString("returnurl", returnurl);
                                     }
+                                }
+                                else if (!string.IsNullOrEmpty(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RedirectAfterLogin))
+                                {
+                                    context.Properties.RedirectUri = _KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RedirectAfterLogin;
                                 }
                                 return Task.CompletedTask;
                             }
