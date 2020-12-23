@@ -37,7 +37,7 @@
             "preLaunchTask": "build",
             "request": "launch",
             "program": "${workspaceFolder}/Src/Launchers/Main/bin/Debug/netcoreapp3.1/Ccf.Ck.Launchers.Main.dll",
-            "args":[ "D:\\Git\\BindKraftDev"],
+            "args":[ "D:\\Git\\WebSite_TCD"],
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
                 

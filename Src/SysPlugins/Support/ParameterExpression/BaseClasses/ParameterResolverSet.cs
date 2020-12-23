@@ -171,7 +171,9 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses
 
         public ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver(string alias)
         {
-            return GetResolverEx(alias);
+            var r =  GetResolverEx(alias);
+            if (r == null) throw new Exception($"Cannot find the resolver with alias: {alias}");
+            return r;
         }
         public ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolverEx(string alias, string name = null, int numargs = 0)
         {

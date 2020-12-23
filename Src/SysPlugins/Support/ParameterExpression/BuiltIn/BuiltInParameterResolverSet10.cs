@@ -156,10 +156,12 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             return new ParameterResolverValue(StdGetParameterValue(source, paramName, ctx));
         }
 
-        public ParameterResolverValue IntegerContent(IParameterResolverContext ctx, ParameterResolverValue input) {
+        public ParameterResolverValue IntegerContent(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (args.Count != 1) throw new Exception("IntegerCountent declared with wrong number of arguments (must be 1)");
+            ParameterResolverValue input = args[0];
             if (input.Value != null)
             {
-                if (long.TryParse(input.ToString(), out long v))
+                if (long.TryParse(input.Value.ToString(), out long v))
                 {
                     return new ParameterResolverValue(v.ToString(), EResolverValueType.ContentType, (uint)EValueDataType.Text);
                 }
