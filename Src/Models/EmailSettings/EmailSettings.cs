@@ -14,6 +14,7 @@ namespace Ccf.Ck.Models.EmailSettings
         public string Username { get; set; }
         public string Password { get; set; }
         public string MailAddressFrom { get; set; }
+        public bool EnableSsl { get; set; }
         public string MailAddressesBccTo
         {
             get { return null; }
