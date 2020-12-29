@@ -32,6 +32,7 @@
             //global base path
         g_ApplicationBasePath = "@Url.Content("~/")";
         g_ApplicationCulture = "@Thread.CurrentThread.CurrentCulture.IetfLanguageTag";
+        g_BindKraftConfiguration ={};
     </script>
     @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftScripts().Render()
 </body>
