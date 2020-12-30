@@ -29,7 +29,7 @@ namespace Ccf.Ck.Utilities.Generic
             return result;
         }
 
-        public static void RestartApplication(IHostApplicationLifetime applicationLifetime, RestartReason restartReason)
+        public static void RestartApplication(IHostApplicationLifetime applicationLifetime, RestartReason restartReason, Action<bool> restart = null)
         {
             try
             {
@@ -43,6 +43,10 @@ namespace Ccf.Ck.Utilities.Generic
                     if (!applicationLifetime.ApplicationStopping.IsCancellationRequested)
                     {
                         Task.Delay(10 * 1000, applicationLifetime.ApplicationStopping);
+                    }
+                    if (restart != null)
+                    {
+                        restart(true);
                     }
                 }
                 else

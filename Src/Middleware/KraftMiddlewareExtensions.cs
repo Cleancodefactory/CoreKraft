@@ -167,7 +167,7 @@ namespace Ccf.Ck.Web.Middleware
                 #region Global Configuration Settings
 
                 _KraftGlobalConfigurationSettings.GeneralSettings.ReplaceMacrosWithPaths(env.ContentRootPath, env.WebRootPath);
-
+             
                 #endregion //Global Configuration Settings
 
                 //INodeSet service
@@ -326,7 +326,7 @@ namespace Ccf.Ck.Web.Middleware
             return services.BuildServiceProvider();
         }
 
-        public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostEnvironment env)
+        public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostEnvironment env, Action<bool> restart = null)
         {
             //AntiforgeryService
             //app.Use(next => context =>
@@ -424,10 +424,10 @@ namespace Ccf.Ck.Web.Middleware
                                 moduleKey2Path.Add(kraftModule.Key.ToLower(), dir);
                                 //The application will restart when some files changed in the modules directory and subdirectories but only in RELEASE
                                 //Check if module is initialized Robert
-                                if (kraftModule.IsInitialized && !env.IsDevelopment())
+                                if (kraftModule.IsInitialized)
                                 {
                                     string moduleFullPath = Path.Combine(dir, kraftModule.Key);
-                                    AttachModulesWatcher(moduleFullPath, false, applicationLifetime);
+                                    AttachModulesWatcher(moduleFullPath, false, applicationLifetime, restart);
                                     string path2Data = Path.Combine(moduleFullPath, "Data");
                                     if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), true))
                                     {
@@ -438,13 +438,13 @@ namespace Ccf.Ck.Web.Middleware
                                     {
                                         throw new SecurityException($"Write access to folder {path2Data} is required!");
                                     }
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Css"), true, applicationLifetime);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Documentation"), true, applicationLifetime);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Localization"), true, applicationLifetime);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "NodeSets"), true, applicationLifetime);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Scripts"), true, applicationLifetime);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Templates"), true, applicationLifetime);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Views"), true, applicationLifetime);
+                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Css"), true, applicationLifetime, restart);
+                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Documentation"), true, applicationLifetime, restart);
+                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Localization"), true, applicationLifetime, restart);
+                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "NodeSets"), true, applicationLifetime, restart);
+                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Scripts"), true, applicationLifetime, restart);
+                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Templates"), true, applicationLifetime, restart);
+                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Views"), true, applicationLifetime, restart);
                                 }
                             }
                         }
@@ -452,18 +452,31 @@ namespace Ccf.Ck.Web.Middleware
                         modulesCollection.ResolveModuleDependencies();
                         _KraftGlobalConfigurationSettings.GeneralSettings.ModuleKey2Path = moduleKey2Path;
                     }
-                    if (!env.IsDevelopment())
+                    _Configuration.GetReloadToken().RegisterChangeCallback(_ =>
                     {
-                        _Configuration.GetReloadToken().RegisterChangeCallback(_ =>
+                        RestartReason restartReason = new RestartReason
+                        {
+                            Reason = "appsettings-Configuration Changed",
+                            Description = $"'appsettings.Production.json' has been altered"
+                        };
+                        AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
+                        AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
+                        RestartApplication(applicationLifetime, restartReason, restart);
+                    }, null);
+
+                    IChangeToken changeTokenPassThroughJsConfig = _KraftGlobalConfigurationSettings.GeneralSettings.BindKraftConfigurationGetReloadToken(env);
+                    if (changeTokenPassThroughJsConfig != null)
+                    {
+                        changeTokenPassThroughJsConfig.RegisterChangeCallback(_ =>
                         {
                             RestartReason restartReason = new RestartReason
                             {
-                                Reason = "Configuration Changed",
-                                Description = $"'appsettings.Production.json' has been altered"
+                                Reason = "PassThroughJsConfig Changed",
+                                Description = $"'{_KraftGlobalConfigurationSettings.GeneralSettings.PassThroughJsConfig}' has been altered"
                             };
                             AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
                             AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
-                            RestartApplication(applicationLifetime, restartReason);
+                            RestartApplication(applicationLifetime, restartReason, restart);
                         }, null);
                     }
                 }
@@ -590,8 +603,6 @@ namespace Ccf.Ck.Web.Middleware
                 SignalStartup signalStartup = new SignalStartup(app.ApplicationServices, _KraftGlobalConfigurationSettings);
                 signalStartup.ExecuteSignalsOnStartup();
                 //End Signals
-
-                ChangeToken.OnChange(() => _Configuration.GetReloadToken(), (state) => InvokeConfigurationChanged(state), env);
             }
             catch (Exception ex)
             {
@@ -663,7 +674,7 @@ namespace Ccf.Ck.Web.Middleware
             return null;
         }
 
-        private static void AttachModulesWatcher(string moduleFolder, bool includeSubdirectories, IHostApplicationLifetime applicationLifetime)
+        private static void AttachModulesWatcher(string moduleFolder, bool includeSubdirectories, IHostApplicationLifetime applicationLifetime, Action<bool> restart)
         {
             if (!Directory.Exists(moduleFolder))
             {
@@ -718,7 +729,7 @@ namespace Ccf.Ck.Web.Middleware
                 AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
                 restartReason.Reason = "File Changed";
                 restartReason.Description = $"ChangeType: {e.ChangeType} file {e.FullPath}";
-                RestartApplication(applicationLifetime, restartReason);
+                RestartApplication(applicationLifetime, restartReason, restart);
             }
 
             void OnRenamed(object source, RenamedEventArgs e)
@@ -727,19 +738,8 @@ namespace Ccf.Ck.Web.Middleware
                 AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
                 restartReason.Reason = "File Renamed";
                 restartReason.Description = $"Renaming from {e.OldFullPath} to {e.FullPath}";
-                RestartApplication(applicationLifetime, restartReason);
+                RestartApplication(applicationLifetime, restartReason, restart);
             }
-        }
-
-        private static void InvokeConfigurationChanged(IWebHostEnvironment env)
-        {
-            IHostApplicationLifetime applicationLifetime = _Builder.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
-            RestartReason restartReason = new RestartReason
-            {
-                Reason = "appsettings Configuration File Changed",
-                Description = $"appsettings Configuration File Changed and restart the application"
-            };
-            RestartApplication(applicationLifetime, restartReason);
         }
     }
 }

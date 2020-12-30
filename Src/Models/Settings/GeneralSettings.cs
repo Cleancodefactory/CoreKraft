@@ -1,6 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Ccf.Ck.Models.Settings
 {
@@ -20,6 +25,12 @@ namespace Ccf.Ck.Models.Settings
         public bool EnableOptimization { get; set; }
         public List<string> ModulesRootFolders { get; set; }
         public string DefaultStartModule { get; set; }
+        public string PassThroughJsConfig { get; set; }
+        public string BindKraftConfiguration
+        {
+            get;
+            private set;
+        }
         public string Theme { get; set; }
         public string KraftUrlSegment { get; set; }
         public string KraftUrlCssJsSegment { get; set; }
@@ -54,6 +65,38 @@ namespace Ccf.Ck.Models.Settings
                 }
                 ModulesRootFolders[i] = directoryInfo.FullName;
             }
+        }
+
+        public IChangeToken BindKraftConfigurationGetReloadToken(IWebHostEnvironment webHostEnvironment)
+        {
+            if (PassThroughJsConfig != null)
+            {
+                FileInfo configFile = new FileInfo(Path.Combine(webHostEnvironment.ContentRootPath, PassThroughJsConfig));
+                if (configFile.Exists)
+                {
+                    var blockComments = @"/\*(.*?)\*/";
+                    var lineComments = @"//(.*?)\r?\n";
+                    var strings = @"""((\\[^\n]|[^""\n])*)""";
+                    var verbatimStrings = @"@(""[^""]*"")+";
+                    BindKraftConfiguration = Regex.Replace(File.ReadAllText(configFile.FullName, Encoding.UTF8),
+                    blockComments + "|" + lineComments + "|" + strings + "|" + verbatimStrings,
+                    me =>
+                    {
+                        if (me.Value.StartsWith("/*") || me.Value.StartsWith("//"))
+                            return me.Value.StartsWith("//") ? Environment.NewLine : "";
+                        // Keep the literal strings
+                        return me.Value;
+                    },
+                    RegexOptions.Singleline);
+                    //Restart application if file changes
+                    return webHostEnvironment.ContentRootFileProvider.Watch(configFile.Name);
+                }
+            }
+            else
+            {
+                BindKraftConfiguration = "{}";
+            }
+            return null;
         }
 
         public string ModulesRootFolder(string moduleKey)

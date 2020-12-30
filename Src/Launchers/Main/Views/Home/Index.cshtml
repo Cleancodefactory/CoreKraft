@@ -3,6 +3,8 @@
 @using Ccf.Ck.Models.Settings
 @using System.Threading
 
+@inject IJsonHelper Json;
+
 @model KraftGlobalConfigurationSettings
 
 @{ ViewData["Title"] = Model.GeneralSettings.DefaultStartModule; }
@@ -28,11 +30,14 @@
         <div id="container" class="themed">
         </div>
     </div>
+    @{
+        var bindKraftConfiguration = Html.Raw(Model.GeneralSettings.BindKraftConfiguration);
+    }
     <script type="text/javascript">
             //global base path
         g_ApplicationBasePath = "@Url.Content("~/")";
         g_ApplicationCulture = "@Thread.CurrentThread.CurrentCulture.IetfLanguageTag";
-        g_BindKraftConfiguration ={};
+        g_BindKraftConfiguration = @bindKraftConfiguration;
     </script>
     @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftScripts().Render()
 </body>
