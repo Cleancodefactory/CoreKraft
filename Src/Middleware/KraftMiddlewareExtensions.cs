@@ -55,6 +55,7 @@ namespace Ccf.Ck.Web.Middleware
         static IConfiguration _Configuration = null;
         static readonly object _SyncRoot = new Object();
         const string ERRORURLSEGMENT = "error";
+        private static List<string> _ValidSubFoldersForWatching = new List<string> { "Css", "Documentation", "Localization", "NodeSets", "Scripts", "Templates", "Views" };
 
         public static IServiceProvider UseBindKraft(this IServiceCollection services, IConfiguration configuration)
         {
@@ -427,7 +428,6 @@ namespace Ccf.Ck.Web.Middleware
                                 if (kraftModule.IsInitialized)
                                 {
                                     string moduleFullPath = Path.Combine(dir, kraftModule.Key);
-                                    AttachModulesWatcher(moduleFullPath, false, applicationLifetime, restart);
                                     string path2Data = Path.Combine(moduleFullPath, "Data");
                                     if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), true))
                                     {
@@ -438,13 +438,10 @@ namespace Ccf.Ck.Web.Middleware
                                     {
                                         throw new SecurityException($"Write access to folder {path2Data} is required!");
                                     }
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Css"), true, applicationLifetime, restart);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Documentation"), true, applicationLifetime, restart);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Localization"), true, applicationLifetime, restart);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "NodeSets"), true, applicationLifetime, restart);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Scripts"), true, applicationLifetime, restart);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Templates"), true, applicationLifetime, restart);
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, "Views"), true, applicationLifetime, restart);
+                                    foreach (string validSubFolder in _ValidSubFoldersForWatching)
+                                    {
+                                        AttachModulesWatcher(Path.Combine(moduleFullPath, validSubFolder), true, applicationLifetime, restart);
+                                    }
                                 }
                             }
                         }
@@ -683,47 +680,26 @@ namespace Ccf.Ck.Web.Middleware
             }
             FileSystemWatcher fileWatcher;
             RestartReason restartReason = new RestartReason();
-            if (includeSubdirectories)
+            fileWatcher = new FileSystemWatcher(moduleFolder)
             {
-                fileWatcher = new FileSystemWatcher(moduleFolder)
-                {
-                    // watch for everything
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
-                    IncludeSubdirectories = includeSubdirectories,
-                    Filter = "*.*"
-                };
-                // Add event handlers.
-                fileWatcher.Changed += OnChanged;
-                fileWatcher.Created += OnChanged;
-                fileWatcher.Deleted += OnChanged;
-                fileWatcher.Renamed += OnRenamed;
+                // watch for everything
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
+                IncludeSubdirectories = includeSubdirectories,
+                Filter = "*.*"
+            };
+            // Add event handlers.
+            fileWatcher.Changed += OnChanged;
+            fileWatcher.Created += OnChanged;
+            fileWatcher.Deleted += OnChanged;
+            fileWatcher.Renamed += OnRenamed;
 
-                // Begin watching...
-                fileWatcher.EnableRaisingEvents = true;
-            }
-            else //only for the files
-            {
-                DirectoryInfo directoryInfo = new DirectoryInfo(moduleFolder);
-                foreach (FileInfo file in directoryInfo.GetFiles())
-                {
-                    fileWatcher = new FileSystemWatcher
-                    {
-                        Path = directoryInfo.FullName,
-                        Filter = file.Name,
-                        NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName
-                    };
-                    // Add event handlers.
-                    fileWatcher.Changed += OnChanged;
-                    fileWatcher.Created += OnChanged;
-                    fileWatcher.Deleted += OnChanged;
-                    fileWatcher.Renamed += OnRenamed;
-                    // Begin watching...
-                    fileWatcher.EnableRaisingEvents = true;
-                }
-            }
+            // Begin watching...
+            fileWatcher.EnableRaisingEvents = true;
+
 
             void OnChanged(object source, FileSystemEventArgs e)
             {
+                fileWatcher.EnableRaisingEvents = false;
                 //Bug in Docker which will trigger OnChanged during StartUp (How to fix?)
                 AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
                 AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
@@ -734,6 +710,7 @@ namespace Ccf.Ck.Web.Middleware
 
             void OnRenamed(object source, RenamedEventArgs e)
             {
+                fileWatcher.EnableRaisingEvents = false;
                 AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
                 AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
                 restartReason.Reason = "File Renamed";

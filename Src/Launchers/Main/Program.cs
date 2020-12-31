@@ -12,30 +12,33 @@ namespace Ccf.Ck.Launchers.Main
     {
         private static string[] _Args;
         private static bool _RestartRequest;
+        private static CancellationTokenSource _CancellationToken = new CancellationTokenSource();
 
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             _Args = args;
 
-            StartServer();
+            await StartServer();
             while (_RestartRequest)
             {
                 _RestartRequest = false;
                 Console.WriteLine("Restarting App");
-                StartServer();
+                await StartServer();
             }
         }
 
         public static void Restart(bool restart)
         {
             _RestartRequest = restart;
+            _CancellationToken.Cancel();
         }
 
-        private static void StartServer()
+        private static async Task StartServer()
         {
             try
             {
-                BuildWebHost(_Args).Run();
+                _CancellationToken = new CancellationTokenSource();
+                await BuildWebHost(_Args).RunAsync(_CancellationToken.Token);
             }
             catch (OperationCanceledException e)
             {
