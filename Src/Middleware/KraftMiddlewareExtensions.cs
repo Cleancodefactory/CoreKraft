@@ -51,11 +51,10 @@ namespace Ccf.Ck.Web.Middleware
         static KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings = null;
         static ILogger _Logger = null;
         static IMemoryCache _MemoryCache = null;
-        static IApplicationBuilder _Builder = null;
         static IConfiguration _Configuration = null;
         static readonly object _SyncRoot = new Object();
         const string ERRORURLSEGMENT = "error";
-        private static List<string> _ValidSubFoldersForWatching = new List<string> { "Css", "Documentation", "Localization", "NodeSets", "Scripts", "Templates", "Views" };
+        private static readonly List<string> _ValidSubFoldersForWatching = new List<string> { "Css", "Documentation", "Localization", "NodeSets", "Scripts", "Templates", "Views" };
 
         public static IServiceProvider UseBindKraft(this IServiceCollection services, IConfiguration configuration)
         {
@@ -377,8 +376,6 @@ namespace Ccf.Ck.Web.Middleware
                     app.UseDeveloperExceptionPage();
                 }
 
-                _Builder = app;
-
                 BundleCollection bundleCollection = app.UseBundling(env, loggerFactory.CreateLogger("Bundling"), _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlCssJsSegment, _KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization);
                 bundleCollection.EnableInstrumentations = env.IsDevelopment(); //Logging enabled 
 
@@ -406,6 +403,10 @@ namespace Ccf.Ck.Web.Middleware
                                 DirectoryInfo moduleDirectory = new DirectoryInfo(subdirectory);
                                 if (moduleDirectory.Name != null && moduleDirectory.Name.Equals("_PluginsReferences", StringComparison.InvariantCultureIgnoreCase))
                                 {
+                                    if (env.IsDevelopment())
+                                    {
+                                        AttachModulesWatcher(moduleDirectory.FullName, false, applicationLifetime, restart);
+                                    }
                                     continue;
                                 }
                                 ICachingService cachingService = app.ApplicationServices.GetService<ICachingService>();
@@ -449,18 +450,25 @@ namespace Ccf.Ck.Web.Middleware
                         modulesCollection.ResolveModuleDependencies();
                         _KraftGlobalConfigurationSettings.GeneralSettings.ModuleKey2Path = moduleKey2Path;
                     }
+                    #region Watching appsettings, PassThroughJsConfig, nlogConfig
+                    //appsettings.{Production} configuration watch
                     _Configuration.GetReloadToken().RegisterChangeCallback(_ =>
                     {
+                        string environment = "Production";
+                        if (env.IsDevelopment())
+                        {
+                            environment = "Development";
+                        }
                         RestartReason restartReason = new RestartReason
                         {
                             Reason = "appsettings-Configuration Changed",
-                            Description = $"'appsettings.Production.json' has been altered"
+                            Description = $"'appsettings.{environment}.json' has been altered"
                         };
                         AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
                         AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
                         RestartApplication(applicationLifetime, restartReason, restart);
                     }, null);
-
+                    //PassThroughJsConfig configuration watch
                     IChangeToken changeTokenPassThroughJsConfig = _KraftGlobalConfigurationSettings.GeneralSettings.BindKraftConfigurationGetReloadToken(env);
                     if (changeTokenPassThroughJsConfig != null)
                     {
@@ -476,6 +484,26 @@ namespace Ccf.Ck.Web.Middleware
                             RestartApplication(applicationLifetime, restartReason, restart);
                         }, null);
                     }
+                    FileInfo nlogConfig = new FileInfo(Path.Combine(env.ContentRootPath, "nlog.config"));
+                    if (nlogConfig.Exists)
+                    {
+                        IChangeToken changeTokenNlogConfig = env.ContentRootFileProvider.Watch(nlogConfig.Name);
+                        if (changeTokenNlogConfig != null)
+                        {
+                            changeTokenNlogConfig.RegisterChangeCallback(_ =>
+                            {
+                                RestartReason restartReason = new RestartReason
+                                {
+                                    Reason = "Nlog.config Changed",
+                                    Description = $"'Nlog.config' has been altered"
+                                };
+                                AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
+                                AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
+                                RestartApplication(applicationLifetime, restartReason, restart);
+                            }, null);
+                        }
+                    }
+                    #endregion End: Watching appsettings, PassThroughJsConfig, nlogConfig
                 }
                 catch (Exception boom)
                 {

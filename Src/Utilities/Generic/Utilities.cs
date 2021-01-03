@@ -44,10 +44,7 @@ namespace Ccf.Ck.Utilities.Generic
                     {
                         Task.Delay(10 * 1000, applicationLifetime.ApplicationStopping);
                     }
-                    if (restart != null)
-                    {
-                        restart(true);
-                    }
+                    restart?.Invoke(true);
                 }
                 else
                 {
