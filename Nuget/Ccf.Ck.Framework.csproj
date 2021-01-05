@@ -46,6 +46,7 @@
 		- Version 1.0.34: Reference Ccf.Ck.Razor.TagHelpers
 		- Version 1.0.35: Reference to Ccf.Ck.Razor.TagHelpersCcf.Ck.Razor.TagHelpers updated to 1.0.4
 		- Version 1.0.36: Add support for RedirectAfterLogin in the Authorization section
+		- Version 1.0.37: Extend the file watchers to restart the application when changes (for faster development)
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
