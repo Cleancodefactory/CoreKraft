@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
 
 namespace Ccf.Ck.Launchers.Main
@@ -38,7 +39,7 @@ namespace Ccf.Ck.Launchers.Main
             try
             {
                 _CancellationToken = new CancellationTokenSource();
-                await BuildWebHost(_Args).RunAsync(_CancellationToken.Token);
+                await CreateHostBuilder(_Args).RunConsoleAsync(_CancellationToken.Token);
             }
             catch (OperationCanceledException e)
             {
@@ -46,19 +47,28 @@ namespace Ccf.Ck.Launchers.Main
             }
         }
 
-        public static IWebHost BuildWebHost(string[] args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
         {
             string contentRoot = Directory.GetCurrentDirectory();
             if (args.Length > 0)
             {
                 contentRoot = Path.GetFullPath(args[0]);
             }
-            return WebHost.CreateDefaultBuilder(args)
+            return Host.CreateDefaultBuilder(args)
                 .UseContentRoot(contentRoot)
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .PreferHostingUrls(true)
-                .Build();
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.PreferHostingUrls(true);
+                    webBuilder.ConfigureKestrel(serverOptions =>
+                    {
+                        serverOptions.Limits.MaxConcurrentConnections = 100;
+                        serverOptions.Limits.MaxConcurrentUpgradedConnections = 100;
+                        serverOptions.Limits.MaxRequestBodySize = 10 * 1024;
+                        serverOptions.Limits.MinRequestBodyDataRate = new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
+                        serverOptions.Limits.MinResponseDataRate = new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
+                    });
+                    webBuilder.UseStartup<Startup>();
+                });
         }
     }
 }
