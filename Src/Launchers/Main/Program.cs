@@ -6,6 +6,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Ccf.Ck.Launchers.Main
 {
@@ -56,16 +57,20 @@ namespace Ccf.Ck.Launchers.Main
             }
             return Host.CreateDefaultBuilder(args)
                 .UseContentRoot(contentRoot)
+                .ConfigureLogging((hostBuilder, logging) =>
+                {
+                    logging.ClearProviders();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.PreferHostingUrls(true);
                     webBuilder.ConfigureKestrel(serverOptions =>
                     {
-                        serverOptions.Limits.MaxConcurrentConnections = 100;
-                        serverOptions.Limits.MaxConcurrentUpgradedConnections = 100;
-                        serverOptions.Limits.MaxRequestBodySize = 10 * 1024;
-                        serverOptions.Limits.MinRequestBodyDataRate = new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
-                        serverOptions.Limits.MinResponseDataRate = new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
+                        serverOptions.Limits.MaxConcurrentConnections = null;
+                        serverOptions.Limits.MaxConcurrentUpgradedConnections = null;
+                        serverOptions.Limits.MaxRequestBodySize = null;
+                        serverOptions.Limits.MinRequestBodyDataRate = new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(20));
+                        serverOptions.Limits.MinResponseDataRate = new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(20));
                     });
                     webBuilder.UseStartup<Startup>();
                 });
