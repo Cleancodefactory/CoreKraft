@@ -1,12 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ccf.Ck.Launchers.Main
 {
@@ -24,7 +23,6 @@ namespace Ccf.Ck.Launchers.Main
             while (_RestartRequest)
             {
                 _RestartRequest = false;
-                Console.WriteLine("Restarting App");
                 await StartServer();
             }
         }
@@ -32,6 +30,10 @@ namespace Ccf.Ck.Launchers.Main
         public static void Restart(bool restart)
         {
             _RestartRequest = restart;
+            if (restart)
+            {
+                Console.WriteLine("Restarting App");
+            }
             _CancellationToken.Cancel();
         }
 
@@ -40,7 +42,8 @@ namespace Ccf.Ck.Launchers.Main
             try
             {
                 _CancellationToken = new CancellationTokenSource();
-                await CreateHostBuilder(_Args).RunConsoleAsync(_CancellationToken.Token);
+                IHostBuilder hostBuilder = CreateHostBuilder(_Args);
+                await hostBuilder.RunConsoleAsync(_CancellationToken.Token);                
             }
             catch (OperationCanceledException e)
             {
@@ -63,7 +66,7 @@ namespace Ccf.Ck.Launchers.Main
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.PreferHostingUrls(true);
+                    //webBuilder.
                     webBuilder.ConfigureKestrel(serverOptions =>
                     {
                         serverOptions.Limits.MaxConcurrentConnections = null;

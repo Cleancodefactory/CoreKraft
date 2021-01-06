@@ -5,7 +5,9 @@ using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,12 +66,14 @@ namespace Ccf.Ck.Launchers.Main
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
         {
             app.UseBindKraft(env, Program.Restart);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                //Called only to show url:port in console during development
+                lifetime.ApplicationStarted.Register( () => LogAddresses(app.ServerFeatures, env));
             }
             else
             {
@@ -92,12 +96,8 @@ namespace Ccf.Ck.Launchers.Main
 
                 endpoints.MapControllerRoute(
                 name: "catchall",
-                pattern: "/{**catchAll}", new { Controller="Home", Action = "CatchAll" });
+                pattern: "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });
             });
-            //ChangeToken.OnChange(
-            //    () => _Configuration.GetReloadToken(),
-            //    (state) => InvokeChanged(state),
-            //    env);
         }
 
         private void ConfigureApplicationParts(ApplicationPartManager apm)
@@ -122,6 +122,23 @@ namespace Ccf.Ck.Launchers.Main
                     apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assemblyViews));
                 }
             }
+        }
+
+        private void LogAddresses(IFeatureCollection features, IWebHostEnvironment env)
+        {
+            IServerAddressesFeature addressFeature = features.Get<IServerAddressesFeature>();
+            foreach (string address in addressFeature.Addresses)
+            {
+                Console.WriteLine($"Now listening on: {address}");
+            }
+            Console.WriteLine("Application started. Press Ctrl+C to shut down");
+            string environment = "Production";
+            if (env.IsDevelopment())
+            {
+                environment = "Development";
+            }
+            Console.WriteLine($"Hosting environment: {environment}");
+            Console.WriteLine($"Content root path: {env.ContentRootPath}");
         }
     }
 }
