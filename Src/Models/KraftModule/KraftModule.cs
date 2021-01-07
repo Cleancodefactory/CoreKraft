@@ -29,7 +29,7 @@ namespace Ccf.Ck.Models.KraftModule
         private readonly KraftModuleCollection _ModuleCollection;
         private readonly ILogger _Logger;
         private readonly string _ModulePath;
-        private KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
+        private readonly KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
 
         public ScriptKraftBundle ScriptKraftBundle { get; private set; }
         public TemplateKraftBundle TemplateKraftBundle { get; private set; }

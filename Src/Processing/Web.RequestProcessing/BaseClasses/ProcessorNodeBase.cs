@@ -119,8 +119,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             ELoaderType loaderType = ELoaderType.None;
             if (!string.IsNullOrEmpty(sysrequestcontent))
             {
-                int enumValueInt;
-                if (!int.TryParse(sysrequestcontent, out enumValueInt))
+                if (!int.TryParse(sysrequestcontent, out int enumValueInt))
                 {
                     enumValueInt = int.Parse(sysrequestcontent, System.Globalization.NumberStyles.HexNumber);
                 }

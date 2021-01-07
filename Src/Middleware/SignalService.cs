@@ -44,8 +44,7 @@ namespace Ccf.Ck.Web.Middleware
         {
             lock (_Lock)
             {
-                List<string> signals = state as List<string>;
-                if (signals != null)
+                if (state is List<string> signals)
                 {
                     foreach (string signal in signals)
                     {

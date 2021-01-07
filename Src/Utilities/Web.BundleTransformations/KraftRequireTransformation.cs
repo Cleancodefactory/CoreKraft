@@ -10,7 +10,7 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
     public class KraftRequireTransformation
     {
         private const string FILEUSINGPATTERN = "^((\\s*)|(\\s*\\/\\/){1})#(?i)using(?-i)\\s*\\\"(?<files>.*)\\\"";
-        private static Regex _FileUsingRegex = new Regex(FILEUSINGPATTERN, RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        private static readonly Regex _FileUsingRegex = new Regex(FILEUSINGPATTERN, RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         public string[] Process(KraftBundle kraftBundle, ILogger logger)
         {
@@ -31,8 +31,7 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
             {
                 throw new ArgumentNullException(nameof(kraftBundle.StartDirPath));
             }
-            KraftBundleProfiles kraftBundleProfiles = kraftBundle as KraftBundleProfiles;
-            if (kraftBundleProfiles == null)
+            if (!(kraftBundle is KraftBundleProfiles kraftBundleProfiles))
             {
                 return null;
             }

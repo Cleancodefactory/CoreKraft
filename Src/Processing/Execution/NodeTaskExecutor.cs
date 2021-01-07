@@ -16,8 +16,8 @@ namespace Ccf.Ck.Processing.Execution
 {
     public class NodeTaskExecutor : INodeTaskExecutor
     {
-        private ITransactionScopeContext _TransactionScope;
-        private KraftModuleConfigurationSettings _KraftModuleConfigurationSettings;
+        private readonly ITransactionScopeContext _TransactionScope;
+        private readonly KraftModuleConfigurationSettings _KraftModuleConfigurationSettings;
         private bool _CollectiveCall;
 
         public NodeTaskExecutor(ITransactionScopeContext transactionScope, KraftModuleConfigurationSettings moduleSettings)

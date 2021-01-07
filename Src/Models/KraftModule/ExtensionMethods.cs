@@ -12,6 +12,7 @@ using Ccf.Ck.Libs.Web.Bundling.Transformations;
 using Ccf.Ck.Utilities.Web.BundleTransformations;
 using Ccf.Ck.Utilities.MemoryCache;
 using Ccf.Ck.Models.Settings;
+using Ccf.Ck.Libs.Web.Bundling.Interfaces;
 
 namespace Ccf.Ck.Models.KraftModule
 {
@@ -36,7 +37,7 @@ namespace Ccf.Ck.Models.KraftModule
         {
             if (!profile.HasScriptBundle(profile.Key + "-scripts"))
             {
-                ScriptBundle scriptBundle = new ScriptBundle(profile.Key + "-scripts", new PhysicalFileProvider(_ModulesCollection.KraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath));
+                ScriptBundle scriptBundle = new ScriptBundle(profile.Key + "-scripts", new PhysicalFileProvider(_ModulesCollection.KraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath), null, new List<IBundleTransform>(), false);
                 StringBuilder contentTemplates = new StringBuilder(10000);
                 bool appendDiv = false;
 
@@ -104,7 +105,7 @@ namespace Ccf.Ck.Models.KraftModule
         {
             if (!profile.HasStyleBundle(profile.Key + "-css"))
             {
-                StyleBundle styleBundle = new StyleBundle(profile.Key + "-css", new PhysicalFileProvider(_ModulesCollection.KraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath));
+                StyleBundle styleBundle = new StyleBundle(profile.Key + "-css", new PhysicalFileProvider(_ModulesCollection.KraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath), null, new List<IBundleTransform>(), false);
                 //styleBundle.RemoveTransformationType(typeof(LessTransformation));
                 StringBuilder contentTemplates = new StringBuilder(10000);
 

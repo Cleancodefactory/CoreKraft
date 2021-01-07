@@ -19,7 +19,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         private DbConnection _DbConnection;
         private DbTransaction _DbTransaction;
         //private static Regex _DynamicParameterRegEx = new Regex(@"%(?<OnlyParameter>.+?)%", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static Regex _DynamicParameterRegEx = new Regex(@"%(\w+?)%", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex _DynamicParameterRegEx = new Regex(@"%(\w+?)%", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public KraftGlobalConfigurationSettings KraftGlobalConfigurationSettings => ProcessingContext.InputModel.KraftGlobalConfigurationSettings;
         public IProcessingContext ProcessingContext { get; set; }

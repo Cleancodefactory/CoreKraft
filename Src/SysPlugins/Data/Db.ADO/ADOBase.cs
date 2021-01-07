@@ -94,15 +94,14 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             // TODO: What to return if there is no statement:
             //  I think we should have two policies - empty object which enables children extraction if logically possible and
             //  null wich stops the processing here.
-            List<Dictionary<string, object>> results = new List<Dictionary<string, object>>(); 
-            Dictionary<string, object> currentResult = null;
+            List<Dictionary<string, object>> results = new List<Dictionary<string, object>>();
             Node node = execContext.CurrentNode;
 
             if (!string.IsNullOrWhiteSpace(Action(execContext).Query)) {
                 // Scope context for the same loader
-                IADOTransactionScope scopedContext = execContext.OwnContextScoped as IADOTransactionScope;
                 // Check it is valid
-                if (scopedContext == null) {
+                if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext))
+                {
                     throw new NullReferenceException("Scoped synchronization and transaction context is not available.");
                 }
                 // Configuration settings Should be set to the scoped context during its creation/obtainment - see ExternalServiceImp
@@ -123,7 +122,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 if (reader.HasRows) {
                                     // Read a result (many may be contained) row by row
                                     while (reader.Read()) {
-                                        currentResult = new Dictionary<string, object>(reader.FieldCount);
+                                        Dictionary<string, object> currentResult = new Dictionary<string, object>(reader.FieldCount);
                                         for (int i = 0; i < reader.FieldCount; i++) {
                                             string fldname = reader.GetName(i);
                                             if (fldname == null) continue;
@@ -168,9 +167,9 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
             // Statement is already selected for the requested operation (While fetching the Configuration
             if (!string.IsNullOrWhiteSpace(Action(execContext)?.Query)) {
-                IADOTransactionScope scopedContext = execContext.OwnContextScoped as IADOTransactionScope;
                 // Check if it is valid
-                if (scopedContext == null) {
+                if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext))
+                {
                     throw new NullReferenceException("Scoped synchronization and transaction context is not available.");
                 }
                 // Settings should be passed to the scopedContext in the ExternalServiceImp

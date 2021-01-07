@@ -16,11 +16,11 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
             {
                 throw new ArgumentNullException(nameof(kraftBundle));
             }
+
             #endregion Check validity
-            TemplateKraftBundle templateKraftBundle = kraftBundle as TemplateKraftBundle;
 
             StringBuilder sb = new StringBuilder(1000);
-            if (templateKraftBundle != null && templateKraftBundle.TemplateFiles.Count > 0)
+            if (kraftBundle is TemplateKraftBundle templateKraftBundle && templateKraftBundle.TemplateFiles.Count > 0)
             {
                 if (templateKraftBundle.ModuleName == null)
                 {

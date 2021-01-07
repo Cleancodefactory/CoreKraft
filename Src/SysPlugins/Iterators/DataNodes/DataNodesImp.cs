@@ -59,7 +59,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         private void BeginReadOperation(DataIteratorContext dataIteratorContext)
         {
 
-          //  Trace.WithContext(dataIteratorContext.ProcessingContext.TraceId).Log("Nodeset READ operation starting- nodeset: {0}, modekey: {1}",dataIteratorContext.LoadedNodeSet.StartNode.NodeSet.Name, dataIteratorContext.LoadedNodeSet.StartNode.NodeKey);
+            //  Trace.WithContext(dataIteratorContext.ProcessingContext.TraceId).Log("Nodeset READ operation starting- nodeset: {0}, modekey: {1}",dataIteratorContext.LoadedNodeSet.StartNode.NodeSet.Name, dataIteratorContext.LoadedNodeSet.StartNode.NodeKey);
             var results = new List<Dictionary<string, object>>() { new Dictionary<string, object>() { } };
             dataIteratorContext.ProcessingContext.ReturnModel.Data = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext);
         }
@@ -89,7 +89,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
             foreach (Dictionary<string, object> row in parentResult)
             {
-                using (var stackframe = execContextManager.Datastack.Scope(row)) {
+                using (var stackframe = execContextManager.Datastack.Scope(row))
+                {
                     // 1. Load the main plugin - Data Loader kind
                     IDataLoaderPlugin dataPlugin = null;
                     IPluginsSynchronizeContextScoped contextScoped = null;
@@ -105,7 +106,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                             consumer.InspectBasket(new NodeContextualBasket(execContextManager));
                         }
                     }
-                    
+
                     execContextManager.DataLoaderContextScoped = contextScoped;
                     // execContextManager.ParentResult = row; // Wrong
                     //execContextManager.Phase = "BEFORE_SQL"; // I think 'Phase' is a relic, couldn't find any usage.
@@ -252,7 +253,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // execContextManager.Results = results; // NO NEED
                     // 5.1. After data load (traditionally called AFTER SQL) custom plugins execution.
                     // Now the plugins are required to write to the REsults of the execution context themselves.
-                    if(node.Read != null)
+                    if (node.Read != null)
                     {
                         plugins?.Execute(node.Read.AfterNodeActionPlugins, execContextManager.CustomPluginProxy);
                     }
@@ -290,7 +291,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     #endregion
 
                     // 6. Execute the child nodes
-                    foreach (Node childNode in node.Children.OrderBy(n => n.ExecutionOrder)) {
+                    foreach (Node childNode in node.Children.OrderBy(n => n.ExecutionOrder))
+                    {
                         ExecuteReadNode(childNode, results, dataIteratorContext);
                     }
 
@@ -406,9 +408,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         private void BeginWriteOperation(DataIteratorContext dataIteratorContext)
         {
             dataIteratorContext.ProcessingContext.ReturnModel.Data =
-                ExecuteWriteNode( dataIteratorContext.LoadedNodeSet.StartNode,  
+                ExecuteWriteNode(dataIteratorContext.LoadedNodeSet.StartNode,
                                   dataIteratorContext.ProcessingContext.InputModel.Data,
-                                  dataIteratorContext.LoadedNodeSet.StartNode.NodeKey.Trim(), 
+                                  dataIteratorContext.LoadedNodeSet.StartNode.NodeKey.Trim(),
                                   dataIteratorContext);
         }
 
@@ -435,7 +437,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             //    Datastack = dataIteratorContext.Datastack,
             //    OverrideAction = dataIteratorContext.OverrideAction
             //};
-            
+
             //NodeExecutionContext.Manager execContextManager = new NodeExecutionContext.Manager(
             //    loaderContext: dataIteratorContext.LoaderContext,
             //    parentResult: null, // Determined only while iterating - the parent result of the individual iteration
@@ -473,10 +475,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
             // 2. Main cycle.
             //  Split by ordering the items by non-deleted and deleted state for easier processing
-            foreach (Dictionary<string, object> row in 
-                  currentNode.OrderBy(n => (n.ContainsKey(STATE_PROPERTY_NAME) && 
+            foreach (Dictionary<string, object> row in
+                  currentNode.OrderBy(n => (n.ContainsKey(STATE_PROPERTY_NAME) &&
                         (string)n[STATE_PROPERTY_NAME] == STATE_PROPERTY_DELETE
-                    ) ? 0 
+                    ) ? 0
                       : 1))
             {
                 //TODO the current implementation is not enforcing the IsList property!!!
@@ -494,7 +496,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 string operation = GetWriteAction(execContextManager.OverrideAction, state);
 
                 // The action is the actual state we assume!
-                
+
                 #region Fill the values for current iteration in the exec context
                 execContextManager.DataLoaderContextScoped = contextScoped; // Change it for this iteration
                 // execContextManager.ParentResult = row; // Wrong
@@ -510,7 +512,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 ICustomPluginProcessor plugins = new CustomPluginProcessor();
 
                 // 5.1. Do execute
-                if (node.Write != null) {
+                if (node.Write != null)
+                {
                     // customPluginsResults = 
                     plugins?.Execute(node.Write.BeforeNodeActionPlugins, execContextManager.CustomPluginProxy);
                 }
@@ -540,21 +543,27 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 #region Reversed Order Processing
                 if (operation == OPERATION_DELETE)
                 {
-                    if (node.Children != null && node.Children.Count > 0) {
+                    if (node.Children != null && node.Children.Count > 0)
+                    {
 
-                        using (var stackframe = dataIteratorContext.Datastack.Scope(row)) {
+                        using (var stackframe = dataIteratorContext.Datastack.Scope(row))
+                        {
                             dataIteratorContext.OverrideAction.Push(OPERATION_DELETE);
 
-                            if (node.Children != null && node.Children.Count > 0) {
+                            if (node.Children != null && node.Children.Count > 0)
+                            {
 
-                                if (row != null) {
-                                    foreach (Node childNode in node.Children) {
+                                if (row != null)
+                                {
+                                    foreach (Node childNode in node.Children)
+                                    {
                                         string currentNodePath = (!string.IsNullOrEmpty(nodePath))
                                                                      ? nodePath + "." + childNode.NodeKey.Trim()
                                                                      : childNode.NodeKey.Trim();
 
 
-                                        if (row.ContainsKey(childNode.NodeKey.Trim())) {
+                                        if (row.ContainsKey(childNode.NodeKey.Trim()))
+                                        {
                                             // Re-assign the data to the node in case it has to be replaced by the node
                                             //  Not sure we need this, but for now we keep the option open.
                                             // However we should remove the deleted node
@@ -612,7 +621,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 #endregion
 
                 #region 8.1. Execute the plugins (after sql)
-                if (node.Write != null) {
+                if (node.Write != null)
+                {
                     plugins?.Execute(node.Write.AfterNodeActionPlugins, execContextManager.CustomPluginProxy);
                 }
                 #endregion
@@ -631,17 +641,22 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 // Keeping this code inline makes it a bit easier to follow the processing procedure
                 if (operation != OPERATION_DELETE)
                 {
-                    using (var stackframe = dataIteratorContext.Datastack.Scope(row)) { 
-                        if (node.Children != null && node.Children.Count > 0) {
+                    using (var stackframe = dataIteratorContext.Datastack.Scope(row))
+                    {
+                        if (node.Children != null && node.Children.Count > 0)
+                        {
 
-                            if (row != null) {
-                                foreach (Node childNode in node.Children) {
+                            if (row != null)
+                            {
+                                foreach (Node childNode in node.Children)
+                                {
                                     string currentNodePath = (!string.IsNullOrEmpty(nodePath))
                                                                  ? nodePath + "." + childNode.NodeKey.Trim()
                                                                  : childNode.NodeKey.Trim();
 
 
-                                    if (row.ContainsKey(childNode.NodeKey.Trim())) {
+                                    if (row.ContainsKey(childNode.NodeKey.Trim()))
+                                    {
                                         object currentDataNode = row[childNode.NodeKey.Trim()];
                                         row[childNode.NodeKey.Trim()] =
                                             ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
@@ -728,7 +743,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             {
                 foreach (var key in currentNode[i].Keys)
                 {
-                    if(!currentResult.ContainsKey(key))
+                    if (!currentResult.ContainsKey(key))
                     {
                         currentResult.Add(key, currentNode[i][key]);
                     }
@@ -740,8 +755,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         private object IterateChildren(Node node, string nodePath, object dataNode, DataIteratorContext dataIteratorContext)
         {
-            var dictionaryDataNode = dataNode as Dictionary<string, object>;
-            if (dictionaryDataNode != null)
+            if (dataNode is Dictionary<string, object> dictionaryDataNode)
             {
                 foreach (Node childNode in node.Children)
                 {
@@ -756,21 +770,27 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             }
             return dataNode;
         }
-        
+
         #endregion
 
         #region Helpers
-        private List<Dictionary<string,object>> ReCodeDataNode(object dataNode) {
+        private List<Dictionary<string, object>> ReCodeDataNode(object dataNode)
+        {
             List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
 
-            if (dataNode is IDictionary) { // single item
+            if (dataNode is IDictionary)
+            { // single item
                 var item = ReDictionary(dataNode);
                 if (item != null) result.Add(item);
                 // TODO: Should we do something when the item is not converted?
-            } else if (dataNode is IEnumerable) {
-                foreach (object item in (dataNode as IEnumerable)) {
+            }
+            else if (dataNode is IEnumerable)
+            {
+                foreach (object item in (dataNode as IEnumerable))
+                {
                     // Each item must be dictionary, because a list in list is not supported
-                    if (item is IDictionary) {
+                    if (item is IDictionary)
+                    {
                         var _item = ReDictionary(item);
                         if (_item != null) result.Add(_item);
                     }
@@ -785,8 +805,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             if (dataNode is IDictionary<string, object>)
             {
                 Dictionary<string, object> dictionaryParams;
-                ReadOnlyDictionary<string, object> readOnlyDictionaryParams = dataNode as ReadOnlyDictionary<string, object>;
-                if (readOnlyDictionaryParams != null)
+                if (dataNode is ReadOnlyDictionary<string, object> readOnlyDictionaryParams)
                 {
                     dictionaryParams = readOnlyDictionaryParams.ToDictionary(kv => kv.Key, kv => kv.Value);
                 }
@@ -806,8 +825,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 result = currentNode;
                 foreach (object el in dataNode as IEnumerable)
                 {
-                    var a = el as Dictionary<string, object>;
-                    if (a != null) currentNode.Add(a);
+                    if (el is Dictionary<string, object> a)
+                    {
+                        currentNode.Add(a);
+                    }
                 }
             }
         }
