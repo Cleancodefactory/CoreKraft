@@ -403,10 +403,10 @@ namespace Ccf.Ck.Web.Middleware
                                 DirectoryInfo moduleDirectory = new DirectoryInfo(subdirectory);
                                 if (moduleDirectory.Name != null && moduleDirectory.Name.Equals("_PluginsReferences", StringComparison.InvariantCultureIgnoreCase))
                                 {
-                                    if (env.IsDevelopment())
-                                    {
-                                        AttachModulesWatcher(moduleDirectory.FullName, false, applicationLifetime, restart);
-                                    }
+                                    //if (env.IsDevelopment())
+                                    //{
+                                    //    AttachModulesWatcher(moduleDirectory.FullName, false, applicationLifetime, restart);
+                                    //}
                                     continue;
                                 }
                                 ICachingService cachingService = app.ApplicationServices.GetService<ICachingService>();
