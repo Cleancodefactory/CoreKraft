@@ -22,10 +22,7 @@ namespace Ccf.Ck.Models.DirectCall
             }
             set
             {
-                if (_CallImp == null)
-                {
-                    _CallImp = value;
-                }
+                _CallImp = value;
             }
         }
     }
