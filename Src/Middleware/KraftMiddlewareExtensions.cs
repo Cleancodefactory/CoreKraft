@@ -39,6 +39,7 @@ using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Security;
 using System.Threading.Tasks;
@@ -543,11 +544,15 @@ namespace Ccf.Ck.Web.Middleware
                                     }
                                     else
                                     {
+                                        httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                        httpContext.Response.ContentType = "text/html";
                                         await httpContext.Response.WriteAsync("Please login because the recorder can't be run for anonymous users.");
                                     }
                                 }
                                 else
                                 {
+                                    httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                                    httpContext.Response.ContentType = "text/html";
                                     await httpContext.Response.WriteAsync("Recorder is not configured and can't be started.");
                                 }
                                 break;
@@ -567,11 +572,15 @@ namespace Ccf.Ck.Web.Middleware
                                     }
                                     else
                                     {
+                                        httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                        httpContext.Response.ContentType = "text/html";
                                         await httpContext.Response.WriteAsync("Please login because the recorder can't be run for anonymous users.");
                                     }
                                 }
                                 else
                                 {
+                                    httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                                    httpContext.Response.ContentType = "text/html";
                                     await httpContext.Response.WriteAsync("Recorder is not configured and can't be started.");
                                 }
                                 break;
