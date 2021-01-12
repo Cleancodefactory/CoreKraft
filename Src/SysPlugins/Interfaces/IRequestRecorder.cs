@@ -1,15 +1,11 @@
-﻿using Ccf.Ck.Models.NodeRequest;
-using Microsoft.AspNetCore.Http;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.SysPlugins.Interfaces
 {
     public interface IRequestRecorder
     {
+        public bool IsRunning { get; set; }
         Task HandleRequest(HttpRequest request);
         Task<string> GetFinalResult();
     }

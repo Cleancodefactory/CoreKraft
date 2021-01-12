@@ -64,7 +64,7 @@ namespace Ccf.Ck.Processing.Web.Request
                 {
                     RecordersStoreImp recordersStoreImp = _HttpContext.RequestServices.GetRequiredService<RecordersStoreImp>();
                     IRequestRecorder requestRecorder = recordersStoreImp.Get(securityModel.UserName);
-                    if (requestRecorder != null)
+                    if (requestRecorder != null && requestRecorder.IsRunning)
                     {
                         await requestRecorder.HandleRequest(_HttpContext.Request);
                     }

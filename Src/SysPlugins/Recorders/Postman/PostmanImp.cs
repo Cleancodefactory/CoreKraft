@@ -26,6 +26,8 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
         // Contains array with every request passed through the API
         private static PostmanRunnerModel _RunnerModel = new PostmanRunnerModel();
 
+        public bool IsRunning { get; set; }
+
         public Task<string> GetFinalResult()
         {
             string result = GetJsonString(_RunnerModel);

@@ -517,94 +517,7 @@ namespace Ccf.Ck.Web.Middleware
                 app.UseRouter(KraftRouteBuilder.MakeRouter(app, kraftRoutesHandler, kraftUrlSegment));
 
                 #region Recorder routing
-                RouteHandler routesHandlerRecorder = new RouteHandler(async httpContext =>
-                {
-                    httpContext.Request.RouteValues.TryGetValue("p", out object val);
-                    switch (val)
-                    {
-                        case "0":
-                            {
-                                if (_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
-                                {
-                                    ISecurityModel securityModel;
-                                    if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
-                                    {
-                                        securityModel = new SecurityModel(httpContext);
-                                    }
-                                    else
-                                    {
-                                        securityModel = new SecurityModelMock(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
-                                    }
-                                    if (securityModel.IsAuthenticated)
-                                    {
-                                        RecordersStoreImp recordersStoreImp = app.ApplicationServices.GetRequiredService<RecordersStoreImp>();
-                                        IRequestRecorder requestRecorder = recordersStoreImp.Get(securityModel.UserName);
-                                        if (requestRecorder != null)
-                                        {
-                                            string result = requestRecorder.GetFinalResult()?.Result ?? string.Empty;
-                                            recordersStoreImp.Remove(securityModel.UserName);
-                                            httpContext.Response.Clear();
-                                            httpContext.Response.ContentType = "text/html; charset=UTF-8";
-                                            httpContext.Response.Headers.Add("Content-Length", result.Length.ToString());
-                                            httpContext.Response.Headers.Add("Content-Disposition", "attachment;filename=RecordedSession.json");
-                                            await httpContext.Response.WriteAsync(result);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                                        httpContext.Response.ContentType = "text/html";
-                                        await httpContext.Response.WriteAsync("Please login because the recorder can't be run for anonymous users.");
-                                    }
-                                }
-                                else
-                                {
-                                    httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                                    httpContext.Response.ContentType = "text/html";
-                                    await httpContext.Response.WriteAsync("Recorder is not configured and can't be started.");
-                                }
-                                break;
-                            }
-                        case "1":
-                            {
-                                if (_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
-                                {
-                                    ISecurityModel securityModel;
-                                    if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
-                                    {
-                                        securityModel = new SecurityModel(httpContext);
-                                    }
-                                    else
-                                    {
-                                        securityModel = new SecurityModelMock(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
-                                    }
-                                    if (securityModel.IsAuthenticated)
-                                    {
-                                        Type typeRecorder = Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.ImplementationAsString, true);
-                                        IRequestRecorder requestRecorder = Activator.CreateInstance(typeRecorder) as IRequestRecorder;
-                                        RecordersStoreImp recordersStoreImp = app.ApplicationServices.GetRequiredService<RecordersStoreImp>();
-                                        recordersStoreImp.Set(requestRecorder, securityModel.UserName);
-                                        await httpContext.Response.WriteAsync("Recorder is enabled");
-                                    }
-                                    else
-                                    {
-                                        httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                                        httpContext.Response.ContentType = "text/html";
-                                        await httpContext.Response.WriteAsync("Please login because the recorder can't be run for anonymous users.");
-                                    }
-                                }
-                                else
-                                {
-                                    httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                                    httpContext.Response.ContentType = "text/html";
-                                    await httpContext.Response.WriteAsync("Recorder is not configured and can't be started.");
-                                }
-                                break;
-                            }
-                        default:
-                            break;
-                    }
-                });
+                RouteHandler routesHandlerRecorder = new RouteHandler(Recorder.ExecutionDelegate(app, _KraftGlobalConfigurationSettings));
 
                 RouteBuilder routesBuilderRecorder = new RouteBuilder(app, routesHandlerRecorder);
 
@@ -612,7 +525,7 @@ namespace Ccf.Ck.Web.Middleware
                 //domain.com/startnode/<read|write>/module/nodeset/<nodepath>?lang=de
                 routesBuilderRecorder.MapRoute(
                     name: "recorder",
-                    template: "recorder/{p:int:range(0,1)}",
+                    template: "recorder/{p:int:range(0,3)}",
                     defaults: null,
                     constraints: null,
                     dataTokens: new { key = "recorder" }
