@@ -51,7 +51,15 @@ namespace Ccf.Ck.Processing.Web.Request
             //REQUESTRECORDER
             if (_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
             {
-                SecurityModel securityModel = new SecurityModel(_HttpContext);
+                ISecurityModel securityModel;
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
+                {
+                    securityModel = new SecurityModel(_HttpContext);
+                }
+                else
+                {
+                    securityModel = new SecurityModelMock(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
+                }
                 if (securityModel.IsAuthenticated)
                 {
                     RecordersStoreImp recordersStoreImp = _HttpContext.RequestServices.GetRequiredService<RecordersStoreImp>();
