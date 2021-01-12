@@ -526,7 +526,15 @@ namespace Ccf.Ck.Web.Middleware
                             {
                                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
                                 {
-                                    SecurityModel securityModel = new SecurityModel(httpContext);
+                                    ISecurityModel securityModel;
+                                    if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
+                                    {
+                                        securityModel = new SecurityModel(httpContext);
+                                    }
+                                    else
+                                    {
+                                        securityModel = new SecurityModelMock(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
+                                    }
                                     if (securityModel.IsAuthenticated)
                                     {
                                         RecordersStoreImp recordersStoreImp = app.ApplicationServices.GetRequiredService<RecordersStoreImp>();
@@ -561,7 +569,15 @@ namespace Ccf.Ck.Web.Middleware
                             {
                                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
                                 {
-                                    SecurityModel securityModel = new SecurityModel(httpContext);
+                                    ISecurityModel securityModel;
+                                    if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
+                                    {
+                                        securityModel = new SecurityModel(httpContext);
+                                    }
+                                    else
+                                    {
+                                        securityModel = new SecurityModelMock(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
+                                    }
                                     if (securityModel.IsAuthenticated)
                                     {
                                         Type typeRecorder = Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.ImplementationAsString, true);
