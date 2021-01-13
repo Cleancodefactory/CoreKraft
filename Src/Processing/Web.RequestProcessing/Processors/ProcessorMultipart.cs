@@ -80,7 +80,7 @@ namespace Ccf.Ck.Processing.Web.Request
                     {
                         foreach (string key in currentData.Keys)
                         {
-                            if (currentData[key].GetType() != postedFileType)
+                            if (currentData[key] != null && currentData[key].GetType() != postedFileType)
                             {
                                 listData[listData.Count - 1].Add(key, currentData[key]);
                             }
