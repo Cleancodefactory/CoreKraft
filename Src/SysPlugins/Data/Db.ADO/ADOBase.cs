@@ -9,6 +9,7 @@ using Ccf.Ck.SysPlugins.Data.Base;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Models.Resolvers;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 {
@@ -48,7 +49,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <returns></returns>
         //protected virtual Configuration ReadConfiguration(IDataLoaderContext execContext) {
         //    var cfg = new Configuration();
-            
+
         //    if (execContext.Action == ACTION_READ) {
         //        cfg.Statement = execContext.CurrentNode.Read.Select.HasStatement?execContext.CurrentNode.Read.Select.Query:null;
         //    } else if (execContext.Action == ACTION_WRITE) {
@@ -90,49 +91,61 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         //    return await Task.FromResult(result);
         //}
 
-        protected override List<Dictionary<string,object>> Read(IDataLoaderReadContext execContext) {
+        protected override List<Dictionary<string, object>> Read(IDataLoaderReadContext execContext)
+        {
             // TODO: What to return if there is no statement:
             //  I think we should have two policies - empty object which enables children extraction if logically possible and
             //  null wich stops the processing here.
             List<Dictionary<string, object>> results = new List<Dictionary<string, object>>();
-            Node node = execContext.CurrentNode;
+            string sqlQuery = null;
+            try
+            {
+                Node node = execContext.CurrentNode;
 
-            if (!string.IsNullOrWhiteSpace(Action(execContext).Query)) {
-                // Scope context for the same loader
-                // Check it is valid
-                if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext))
+                if (!string.IsNullOrWhiteSpace(Action(execContext).Query))
                 {
-                    throw new NullReferenceException("Scoped synchronization and transaction context is not available.");
-                }
-                // Configuration settings Should be set to the scoped context during its creation/obtainment - see ExternalServiceImp
+                    // Scope context for the same loader
+                    // Check it is valid
+                    if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext))
+                    {
+                        throw new NullReferenceException("Scoped synchronization and transaction context is not available.");
+                    }
+                    // Configuration settings Should be set to the scoped context during its creation/obtainment - see ExternalServiceImp
 
-                // No tranaction in read mode - lets not forget that closing the transaction also closes the connection - so the ;ifecycle control will do this using the transaction based notation
-                // from ITransactionScope
-                DbConnection conn = scopedContext.Connection;
-                using (DbCommand cmd = conn.CreateCommand()) {
-                    cmd.Transaction = scopedContext.CurrentTransaction; // if we decide to open transaction in future this will guarantee we only have to open it and will take effect throughout the code.
-                    cmd.Parameters.Clear();
-                    // This will set the resulting command text if everything is Ok.
-                    // The processing will make replacements in the SQL and bind parameters by requesting them from the resolver expressions configured on this node.
-                    // TODO: Some try...catching is necessary.
-                    ProcessCommand(cmd, Action(execContext).Query, execContext);
-                    try {
-                        using (DbDataReader reader = cmd.ExecuteReader()) {
-                            do {
-                                if (reader.HasRows) {
+                    // No tranaction in read mode - lets not forget that closing the transaction also closes the connection - so the ;ifecycle control will do this using the transaction based notation
+                    // from ITransactionScope
+                    DbConnection conn = scopedContext.Connection;
+                    using (DbCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = scopedContext.CurrentTransaction; // if we decide to open transaction in future this will guarantee we only have to open it and will take effect throughout the code.
+                        cmd.Parameters.Clear();
+                        // This will set the resulting command text if everything is Ok.
+                        // The processing will make replacements in the SQL and bind parameters by requesting them from the resolver expressions configured on this node.
+                        // TODO: Some try...catching is necessary.
+                        sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext);
+                        using (DbDataReader reader = cmd.ExecuteReader())
+                        {
+                            do
+                            {
+                                if (reader.HasRows)
+                                {
                                     // Read a result (many may be contained) row by row
-                                    while (reader.Read()) {
+                                    while (reader.Read())
+                                    {
                                         Dictionary<string, object> currentResult = new Dictionary<string, object>(reader.FieldCount);
-                                        for (int i = 0; i < reader.FieldCount; i++) {
+                                        for (int i = 0; i < reader.FieldCount; i++)
+                                        {
                                             string fldname = reader.GetName(i);
                                             if (fldname == null) continue;
                                             // TODO: May be configure that or at least create a compile time definition
                                             fldname = fldname.ToLower().Trim(); // TODO: lowercase
                                                                                 //fldname = fldname.Trim();
-                                            if (fldname.Length == 0) {
+                                            if (fldname.Length == 0)
+                                            {
                                                 throw new Exception($"Empty name when reading the output of a query. The field index is {i}. The query is: {cmd.CommandText}");
                                             }
-                                            if (currentResult.ContainsKey(fldname)) {
+                                            if (currentResult.ContainsKey(fldname))
+                                            {
                                                 throw new Exception($"Duplicated field name in the output of a query. The field is:{fldname}, the query is: {cmd.CommandText}");
                                             }
                                             object v = reader.GetValue(i);
@@ -148,11 +161,16 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 }
                             } while (reader.NextResult());
                         }
-                    } catch (Exception ex) {
-                        throw new Exception("DB operation failed. SQL:[\n" + cmd.CommandText + "\n]", ex);
                     }
-
                 }
+            }
+            catch (Exception ex)
+            {
+                if (!string.IsNullOrEmpty(sqlQuery))
+                {
+                    KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {Environment.NewLine}{sqlQuery}", ex, execContext);
+                }
+                throw;
             }
             return results; // TODO: Decide what behavior we want with empty statements. I for one prefer null result, effectively stopping the operation.
         }
@@ -162,47 +180,66 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <param name="execContext"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        protected override object Write(IDataLoaderWriteContext execContext) { //IDataLoaderContext execContext, Configuration configuration) {
-            Node node = execContext.CurrentNode;
+        protected override object Write(IDataLoaderWriteContext execContext)
+        { //IDataLoaderContext execContext, Configuration configuration) {
+            string sqlQuery = null;
+            try
+            {
+                Node node = execContext.CurrentNode;
 
-            // Statement is already selected for the requested operation (While fetching the Configuration
-            if (!string.IsNullOrWhiteSpace(Action(execContext)?.Query)) {
-                // Check if it is valid
-                if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext))
+                // Statement is already selected for the requested operation (While fetching the Configuration
+                if (!string.IsNullOrWhiteSpace(Action(execContext)?.Query))
                 {
-                    throw new NullReferenceException("Scoped synchronization and transaction context is not available.");
-                }
-                // Settings should be passed to the scopedContext in the ExternalServiceImp
-                DbConnection conn = scopedContext.Connection;
-                DbTransaction trans = scopedContext.StartADOTransaction();
+                    // Check if it is valid
+                    if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext))
+                    {
+                        throw new NullReferenceException("Scoped synchronization and transaction context is not available.");
+                    }
+                    // Settings should be passed to the scopedContext in the ExternalServiceImp
+                    DbConnection conn = scopedContext.Connection;
+                    DbTransaction trans = scopedContext.StartADOTransaction();
 
-                using (DbCommand cmd = conn.CreateCommand()) {
-                    cmd.Transaction = trans;
-                    cmd.Parameters.Clear();
-                    ProcessCommand(cmd, Action(execContext).Query, execContext);
-
-                    using (DbDataReader reader = cmd.ExecuteReader()) {
-                        do {
-                            while (reader.Read()) {
-                                for (int i = 0; i < reader.FieldCount; i++) {
-                                    string fname = reader.GetName(i);
-                                    if (fname == null) continue;
-                                    fname = fname.ToLower().Trim();
-                                    // fname = fname.Trim(); // TODO: We have to rethink this - lowercasing seems more inconvenience than a viable protection against human mistakes.
-                                    if (fname.Length == 0) throw new Exception("Empty field name in a store context in nodedesfinition: " + node.NodeSet.Name);
-                                    object v = reader.GetValue(i);
-                                    execContext.Row[fname] = (v is DBNull) ? null : v;
+                    using (DbCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = trans;
+                        cmd.Parameters.Clear();
+                        sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext);
+                        using (DbDataReader reader = cmd.ExecuteReader())
+                        {
+                            do
+                            {
+                                while (reader.Read())
+                                {
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                    {
+                                        string fname = reader.GetName(i);
+                                        if (fname == null) continue;
+                                        fname = fname.ToLower().Trim();
+                                        // fname = fname.Trim(); // TODO: We have to rethink this - lowercasing seems more inconvenience than a viable protection against human mistakes.
+                                        if (fname.Length == 0) throw new Exception("Empty field name in a store context in nodedesfinition: " + node.NodeSet.Name);
+                                        object v = reader.GetValue(i);
+                                        execContext.Row[fname] = (v is DBNull) ? null : v;
+                                    }
                                 }
+                                // This is important, we have been doing this for a single result before, but it is better to assume more than one, so that 
+                                // update of the data being written can be done more freely - using more than one select statement after writing. This is
+                                // probably rare, but having the opportunity is better than not having it.
+                            } while (reader.NextResult());
+                            if (execContext.Operation != OPERATION_DELETE)
+                            {
+                                execContext.DataState.SetUnchanged(execContext.Row);
                             }
-                            // This is important, we have been doing this for a single result before, but it is better to assume more than one, so that 
-                            // update of the data being written can be done more freely - using more than one select statement after writing. This is
-                            // probably rare, but having the opportunity is better than not having it.
-                        } while (reader.NextResult());
-                        if (execContext.Operation != OPERATION_DELETE) {
-                            execContext.DataState.SetUnchanged(execContext.Row);
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                if (!string.IsNullOrEmpty(sqlQuery))
+                {
+                    KraftLogger.LogError($"Write(IDataLoaderWriteContext execContext) >> SQL: {Environment.NewLine}{sqlQuery}", ex, execContext);
+                }
+                throw;
             }
             return null; // if this is not null it should add new results in the data
             // TODO: Consider if this is possible and useful (for some future version - not urgent).
@@ -219,7 +256,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <param name="cmd">Command to bind to - to keep this imutable it is passed as parameter</param>
         /// <param name="name">Name of the parameter</param>
         /// <param name="value">ParameterResolverValue - the actual value has to be packed in this type</param>
-        protected virtual void BindParameter(DbCommand cmd,string name, ParameterResolverValue? value) {
+        protected virtual void BindParameter(DbCommand cmd, string name, ParameterResolverValue? value)
+        {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("The parameter name needs to be non-null and non-empty");
             if (cmd == null) throw new ArgumentNullException("cmd cannot be null");
             // Unlike the others missing value is simple threated as DbNull.
@@ -248,7 +286,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 }
                 cmd.Parameters.Add(param);
             }
-            
+
         }
         /// <summary>
         /// Guesses/determines appropriate database type for the value. Although this is done over a value it is usually the same 
@@ -262,7 +300,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <param name="value">The value for which to suggest type</param>
         /// <returns>Returns the type from the appropriate enum or set of constants casted to int in order to avoid the unneeded boxing. Int fits all! If no type can be
         /// suggested null should be returned and dealt appropriately in BindParameter.</returns>
-        protected virtual int? GetParameterType(ParameterResolverValue value) {
+        protected virtual int? GetParameterType(ParameterResolverValue value)
+        {
             // Base behavior - say nothing, everything goes default.
             // In more specialized classes here is the place to perform mapping and/or type selection according to the application architectural concepts.
             return null;
@@ -273,10 +312,14 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// </summary>
         /// <param name="param"></param>
         /// <param name="type"></param>
-        protected virtual void AssignParameterType(DbParameter param, int? type) {
-            if (type.HasValue) {
+        protected virtual void AssignParameterType(DbParameter param, int? type)
+        {
+            if (type.HasValue)
+            {
                 param.DbType = (DbType)type.Value;
-            } else {
+            }
+            else
+            {
                 param.ResetDbType();
             }
         }
@@ -288,12 +331,15 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <param name="cmd"></param>
         /// <param name="sql"></param>
         /// <param name="execContext"></param>
-        protected virtual void ProcessCommand(DbCommand cmd, string sql, IDataLoaderContext execContext) {
-            if (string.IsNullOrWhiteSpace(sql)) return; // We just do nothing in this case.
-            Regex reg = new Regex(@"@([a-zA-Z_][a-zA-Z0-9_\$]*)",RegexOptions.None); // This should be configurable
+        protected virtual string ProcessCommand(DbCommand cmd, string sql, IDataLoaderContext execContext)
+        {
+            if (string.IsNullOrWhiteSpace(sql)) return null; // We just do nothing in this case.
+            Regex reg = new Regex(@"@([a-zA-Z_][a-zA-Z0-9_\$]*)", RegexOptions.None); // This should be configurable
 
-            string result = reg.Replace(sql, m => {
-                if (m.Groups[1].Success) {
+            string result = reg.Replace(sql, m =>
+            {
+                if (m.Groups[1].Success)
+                {
                     var paramname = m.Groups[1].Value;
                     // Evaluate the parameter
                     var v = execContext.Evaluate(paramname);
@@ -318,12 +364,15 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 return x;
                         }
                     }// else skip the rest and leave them unbound. TODO: We will see if this is the correct default behavior.
-                } else {
+                }
+                else
+                {
                     throw new Exception("While parsing SQL we received match with invalid first group (which should be impossible)");
                 }
                 return m.Value;
             });
             cmd.CommandText = result;
+            return result;
         }
         #endregion
     }
