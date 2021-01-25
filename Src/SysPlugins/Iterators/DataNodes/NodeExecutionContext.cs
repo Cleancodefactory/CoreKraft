@@ -470,7 +470,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             {
                 if (!_noEvaluationExceptions)
                 {
-                    throw new Exception("Error while resolving parameter {expressionName}",ex);
+                    throw new Exception($"Error while resolving parameter {expressionName}",ex);
                 }
             }
             if (runner != null)
