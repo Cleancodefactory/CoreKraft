@@ -8,9 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net;
 
-namespace Ccf.Ck.Web.Middleware
+namespace Ccf.Ck.Web.Middleware.Tools
 {
-    internal class Recorder
+    internal class RecorderDelegate
     {
         internal static RequestDelegate ExecutionDelegate(IApplicationBuilder app, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {

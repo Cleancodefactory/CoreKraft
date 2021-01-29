@@ -516,22 +516,9 @@ namespace Ccf.Ck.Web.Middleware
                 RouteHandler kraftRoutesHandler = new RouteHandler(KraftMiddleware.ExecutionDelegate(app, _KraftGlobalConfigurationSettings));
                 app.UseRouter(KraftRouteBuilder.MakeRouter(app, kraftRoutesHandler, kraftUrlSegment));
 
-                #region Recorder routing
-                RouteHandler routesHandlerRecorder = new RouteHandler(Recorder.ExecutionDelegate(app, _KraftGlobalConfigurationSettings));
-
-                RouteBuilder routesBuilderRecorder = new RouteBuilder(app, routesHandlerRecorder);
-
-                //we expect the routing to be like this:
-                //domain.com/startnode/<read|write>/module/nodeset/<nodepath>?lang=de
-                routesBuilderRecorder.MapRoute(
-                    name: "recorder",
-                    template: "recorder/{p:int:range(0,3)}",
-                    defaults: null,
-                    constraints: null,
-                    dataTokens: new { key = "recorder" }
-                );
-                app.UseRouter(routesBuilderRecorder.Build());
-                #endregion Recorder routing
+                #region Tools routing
+                KraftToolsRouteBuilder.MakeRouters(app, _KraftGlobalConfigurationSettings);
+                #endregion Tools routing
 
                 DirectCallService.Instance.Call = KraftMiddleware.ExecutionDelegateDirect(app, _KraftGlobalConfigurationSettings);
                 app.UseSession();

@@ -21,6 +21,7 @@ namespace Ccf.Ck.Models.Settings
             SupportedLanguages = new List<string>();
             RequestRecorder = new RequestRecorderSetting();
             Theme = "Module";
+            ToolsSettings = new List<ToolSettings>();
         }
         public bool EnableOptimization { get; set; }
         public List<string> ModulesRootFolders { get; set; }
@@ -51,6 +52,7 @@ namespace Ccf.Ck.Models.Settings
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
         public List<string> SupportedLanguages { get; set; }
+        public List<ToolSettings> ToolsSettings { get; set; }
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {
