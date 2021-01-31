@@ -13,7 +13,8 @@ namespace Ccf.Ck.Web.Middleware
         internal static void MakeRouters(IApplicationBuilder app, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             RouteHandler routesHandler;
-            if (IsEnabled(kraftGlobalConfigurationSettings, "recorder"))//Recorder enabled from configuration
+            ToolSettings tool = GetTool(kraftGlobalConfigurationSettings, "recorder");
+            if (tool != null && tool.Enabled)//Recorder enabled from configuration
             {
                 routesHandler = new RouteHandler(RecorderDelegate.ExecutionDelegate(app, kraftGlobalConfigurationSettings));
 
@@ -23,14 +24,15 @@ namespace Ccf.Ck.Web.Middleware
                 //domain.com/recorder/0|1|2?lang=de
                 routesBuilderRecorder.MapRoute(
                     name: "recorder",
-                    template: "tools/recorder/{p:int:range(0,3)}",
+                    template: tool.Url,
                     defaults: null,
                     constraints: null,
                     dataTokens: new { key = "recorder" }
                 );
                 app.UseRouter(routesBuilderRecorder.Build());
             }
-            if (IsEnabled(kraftGlobalConfigurationSettings, "signals"))//Signals enabled from configuration
+            tool = GetTool(kraftGlobalConfigurationSettings, "signals");
+            if (tool != null && tool.Enabled)//Signals enabled from configuration
             {
                 routesHandler = new RouteHandler(SignalDelegate.ExecutionDelegate(app, kraftGlobalConfigurationSettings));
 
@@ -40,17 +42,19 @@ namespace Ccf.Ck.Web.Middleware
                 //domain.com/signals/0|1|2?lang=de
                 routesBuilderRecorder.MapRoute(
                     name: "signals",
-                    template: "tools/signals",
+                    template: tool.Url,
                     defaults: null,
                     constraints: null,
                     dataTokens: new { key = "signals" }
                 );
                 app.UseRouter(routesBuilderRecorder.Build());
             }
-            if (IsEnabled(kraftGlobalConfigurationSettings, "errors"))//Errors enabled from configuration
+            tool = GetTool(kraftGlobalConfigurationSettings, "errors");
+            if (tool != null && tool.Enabled)//Errors enabled from configuration
             {
             }
-            if (IsEnabled(kraftGlobalConfigurationSettings, "profiler"))//Profiler enabled from configuration
+            tool = GetTool(kraftGlobalConfigurationSettings, "profiler");
+            if (tool != null && tool.Enabled)//Profiler enabled from configuration
             {
             }
 
@@ -59,16 +63,16 @@ namespace Ccf.Ck.Web.Middleware
 
         }
 
-        private static bool IsEnabled(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kind)
+        private static ToolSettings GetTool(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kind)
         {
             foreach (ToolSettings tool in kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings)
             {
                 if (tool.Kind.Equals(kind, StringComparison.OrdinalIgnoreCase))
                 {
-                    return tool.Enabled;
+                    return tool;
                 }
             }
-            return false;
+            return null;
         }
 
     }
