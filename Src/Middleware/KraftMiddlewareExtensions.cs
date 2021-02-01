@@ -54,7 +54,6 @@ namespace Ccf.Ck.Web.Middleware
         static IMemoryCache _MemoryCache = null;
         static IConfiguration _Configuration = null;
         static readonly object _SyncRoot = new Object();
-        const string ERRORURLSEGMENT = "error";
         private static readonly List<string> _ValidSubFoldersForWatching = new List<string> { "Css", "Documentation", "Localization", "NodeSets", "Scripts", "Templates", "Views" };
 
         public static IServiceProvider UseBindKraft(this IServiceCollection services, IConfiguration configuration)
@@ -370,7 +369,13 @@ namespace Ccf.Ck.Web.Middleware
                 });
 
                 ExtensionMethods.Init(app, _Logger);
-                app.UseBindKraftLogger(env, loggerFactory, ERRORURLSEGMENT);
+                ToolSettings tool = KraftToolsRouteBuilder.GetTool(_KraftGlobalConfigurationSettings, "errors");
+                string segment = null;
+                if (tool != null && tool.Enabled)//Errors enabled from configuration
+                {
+                    segment = tool.Url;
+                }
+                app.UseBindKraftLogger(env, loggerFactory, segment);
                 app.UseBindKraftProfiler(env, loggerFactory, _MemoryCache);
                 if (env.IsDevelopment())
                 {

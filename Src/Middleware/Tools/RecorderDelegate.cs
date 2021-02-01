@@ -21,7 +21,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                 const string contentType = "text/html; charset=UTF-8";
                 int statusCode = 200;
                 string message = string.Empty;
-                if (kraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
+                if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
                 {
                     if (kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
                     {
@@ -36,7 +36,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                 {
                     case "0":
                         {
-                            if (kraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
+                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
                             {
                                 if (securityModel.IsAuthenticated)
                                 {
@@ -66,11 +66,11 @@ namespace Ccf.Ck.Web.Middleware.Tools
                         }
                     case "1":
                         {
-                            if (kraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
+                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
                             {
                                 if (securityModel.IsAuthenticated)
                                 {
-                                    Type typeRecorder = Type.GetType(kraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.ImplementationAsString, true);
+                                    Type typeRecorder = Type.GetType(kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.ImplementationAsString, true);
                                     IRequestRecorder requestRecorder = Activator.CreateInstance(typeRecorder) as IRequestRecorder;
                                     RecordersStoreImp recordersStoreImp = app.ApplicationServices.GetRequiredService<RecordersStoreImp>();
                                     recordersStoreImp.Set(requestRecorder, securityModel.UserName);
@@ -92,7 +92,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                         }
                     case "2":
                         {
-                            if (kraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
+                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
                             {
                                 if (securityModel.IsAuthenticated)
                                 {
@@ -101,7 +101,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                     if (requestRecorder != null)
                                     {
                                         message = requestRecorder.GetFinalResult()?.Result ?? string.Empty;
-                                        Type typeRecorder = Type.GetType(kraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.ImplementationAsString, true);
+                                        Type typeRecorder = Type.GetType(kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.ImplementationAsString, true);
                                         requestRecorder = Activator.CreateInstance(typeRecorder) as IRequestRecorder;
                                         recordersStoreImp.Set(requestRecorder, securityModel.UserName);
                                         httpContext.Response.Clear();
@@ -128,7 +128,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                         }
                     case "3":
                         {
-                            if (kraftGlobalConfigurationSettings.GeneralSettings.RequestRecorder.IsConfigured)
+                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
                             {
                                 if (securityModel.IsAuthenticated)
                                 {

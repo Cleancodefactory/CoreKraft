@@ -452,18 +452,18 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 throw new ArgumentNullException(expressionName);
             }
             ParameterResolverValue result = new ParameterResolverValue(null, EResolverValueType.Invalid);
-
-            // Check the cache
-            //if (false)
-            //{
-            //    if (CompiledParameterExpressionsCache.ContainsKey(expressionName)) return CompiledParameterExpressionsCache[expressionName];
-            //}
-            // No cache or not in cache - get the runner
-            bool isdefault = false;
             bool neverCache = false;
             ResolverRunner<ParameterResolverValue, IParameterResolverContext> runner = null;
             try
             {
+
+                // Check the cache
+                //if (false)
+                //{
+                //    if (CompiledParameterExpressionsCache.ContainsKey(expressionName)) return CompiledParameterExpressionsCache[expressionName];
+                //}
+                // No cache or not in cache - get the runner
+                bool isdefault;
                 runner = GetParameterRunner(expressionName, out isdefault, out neverCache);
             }
             catch (Exception ex)
@@ -475,10 +475,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             }
             if (runner != null)
             {
-                Exception ex = null;
                 result = runner.EvaluateScalar(
                     ctx: ParameterResolverProxy,
-                    ex: out ex,
+                    ex: out Exception ex,
                     name: new ParameterResolverValue(expressionName, EValueDataType.Text),
                     callerargs: oldargs);
                 if (ex == null)

@@ -19,9 +19,8 @@ namespace Ccf.Ck.Models.Settings
             SignalRSettings = new SignalRSettings();
             RazorAreaAssembly = new RazorAreaAssemblySettings();
             SupportedLanguages = new List<string>();
-            RequestRecorder = new RequestRecorderSetting();
             Theme = "Module";
-            ToolsSettings = new List<ToolSettings>();
+            ToolsSettings = new ToolsSettings();
         }
         public bool EnableOptimization { get; set; }
         public List<string> ModulesRootFolders { get; set; }
@@ -48,11 +47,10 @@ namespace Ccf.Ck.Models.Settings
         public SignalRSettings SignalRSettings { get; set; }
         public SignalSettings SignalSettings { get; set; }
         public List<HostingServiceSetting> HostingServiceSettings { get; set; }
-        public RequestRecorderSetting RequestRecorder { get; set; }
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
         public List<string> SupportedLanguages { get; set; }
-        public List<ToolSettings> ToolsSettings { get; set; }
+        public ToolsSettings ToolsSettings { get; set; }
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {

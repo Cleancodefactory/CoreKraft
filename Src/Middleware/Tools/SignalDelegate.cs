@@ -29,14 +29,17 @@ namespace Ccf.Ck.Web.Middleware.Tools
             INodeSetService nodeSetService = app.ApplicationServices.GetService<INodeSetService>();
             KraftModuleCollection modulesCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
             SignalsResponse signalsResponse = GenerateSignalResponse(kraftGlobalConfigurationSettings, modulesCollection, nodeSetService);
+            string message = JsonSerializer.Serialize<SignalsResponse>(signalsResponse);
+            if (!string.IsNullOrEmpty(message))
+            {
+                message = message.Replace(@"\u0027", "'");
+            }            
             RequestDelegate requestDelegate = async httpContext =>
             {
                 const string contentType = "application/json";
                 int statusCode = 200;
-                string message = string.Empty;
                 httpContext.Response.StatusCode = statusCode;
                 httpContext.Response.ContentType = contentType;
-                message = JsonSerializer.Serialize<SignalsResponse>(signalsResponse);
                 await httpContext.Response.WriteAsync(message);
             };
             return requestDelegate;
@@ -44,9 +47,11 @@ namespace Ccf.Ck.Web.Middleware.Tools
 
         private static SignalsResponse GenerateSignalResponse(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, KraftModuleCollection modulesCollection, INodeSetService nodeSetService)
         {
-            SignalsResponse signalsResponse = new SignalsResponse();
-            signalsResponse.HostingServiceSettings = kraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings;
-            signalsResponse.SignalSettings = kraftGlobalConfigurationSettings.GeneralSettings.SignalSettings;
+            SignalsResponse signalsResponse = new SignalsResponse
+            {
+                HostingServiceSettings = kraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings,
+                SignalSettings = kraftGlobalConfigurationSettings.GeneralSettings.SignalSettings
+            };
 
             List<SignalWithType> signalsWithTypes = new List<SignalWithType>();
             foreach (HostingServiceSetting hostingServiceSetting in signalsResponse.HostingServiceSettings)
@@ -54,10 +59,12 @@ namespace Ccf.Ck.Web.Middleware.Tools
                 //Collect signals
                 foreach (string signal in hostingServiceSetting.Signals)
                 {
-                    SignalWithType signalWithType = new SignalWithType();
-                    signalWithType.SignalType = HOSTINGSERVICESTARTTYPE;
-                    signalWithType.SignalName = signal;
-                    signalWithType.Interval = hostingServiceSetting.IntervalInMinutes;
+                    SignalWithType signalWithType = new SignalWithType
+                    {
+                        SignalType = HOSTINGSERVICESTARTTYPE,
+                        SignalName = signal,
+                        Interval = hostingServiceSetting.IntervalInMinutes
+                    };
                     signalsWithTypes.Add(signalWithType);
                 }
             }
@@ -65,18 +72,22 @@ namespace Ccf.Ck.Web.Middleware.Tools
             //Collect signals
             foreach (string signal in signalsResponse.SignalSettings.OnSystemStartup)
             {
-                SignalWithType signalWithType = new SignalWithType();
-                signalWithType.SignalType = ONSYSTEMSTARTUPTYPE;
-                signalWithType.SignalName = signal;
+                SignalWithType signalWithType = new SignalWithType
+                {
+                    SignalType = ONSYSTEMSTARTUPTYPE,
+                    SignalName = signal
+                };
                 signalsWithTypes.Add(signalWithType);
             }
 
             //Collect signals
             foreach (string signal in signalsResponse.SignalSettings.OnSystemShutdown)
             {
-                SignalWithType signalWithType = new SignalWithType();
-                signalWithType.SignalType = ONSYSTEMSHUTDOWNTYPE;
-                signalWithType.SignalName = signal;
+                SignalWithType signalWithType = new SignalWithType
+                {
+                    SignalType = ONSYSTEMSHUTDOWNTYPE,
+                    SignalName = signal
+                };
                 signalsWithTypes.Add(signalWithType);
             }
 
@@ -86,21 +97,21 @@ namespace Ccf.Ck.Web.Middleware.Tools
             {
                 foreach (KraftModuleSignal kraftModuleSignal in module.KraftModuleRootConf.Signals ?? new List<KraftModuleSignal>())
                 {
-                    ModuleSignal moduleSignal = new ModuleSignal();
-                    moduleSignal.ModuleName = module.Key;
-                    moduleSignal.NodeKey = kraftModuleSignal.Key;
-                    moduleSignal.NodePath = kraftModuleSignal.NodePath;
-                    moduleSignal.NodeSet = kraftModuleSignal.NodeSet;
-                    moduleSignal.Maintenance = kraftModuleSignal.Maintenance;
-                    moduleSignal.Details = GenerateDetails(module.Key, kraftModuleSignal, nodeSetService);
+                    ModuleSignal moduleSignal = new ModuleSignal
+                    {
+                        ModuleName = module.Key,
+                        NodeKey = kraftModuleSignal.Key,
+                        NodePath = kraftModuleSignal.NodePath,
+                        NodeSet = kraftModuleSignal.NodeSet,
+                        Maintenance = kraftModuleSignal.Maintenance,
+                        Details = GenerateDetails(module.Key, kraftModuleSignal, nodeSetService)
+                    };
+                    //(www)myserver.com/node/<read/write>/signal/board/nodekey?sysrequestcontent=ffff
                     moduleSignal.Url = $"/{kraftGlobalConfigurationSettings.GeneralSettings.KraftUrlSegment}/{moduleSignal.Details.OperationReadWrite()}/signal/{module.Key}/{kraftModuleSignal.Key}?sysrequestcontent=ffff";
                     moduleSignal.ExecuteWhen = CalcExecuteWhen(signalsWithTypes, kraftModuleSignal.Key);
                     signalsResponse.ModuleSignals.Add(moduleSignal);
                 }
             }
-
-            //(www)myserver.com/node/<read/write>/signal/board/nodekey?sysrequestcontent=ffff
-
             return signalsResponse;
         }
 
@@ -165,7 +176,6 @@ namespace Ccf.Ck.Web.Middleware.Tools
 
     public class ModuleSignalDetails
     {
-        OperationBase _Read;
         public OperationBase Read { get; set; }
         public OperationBase Write { get; set; }
         public bool IsInconsistent { get; set; }
@@ -191,15 +201,5 @@ namespace Ccf.Ck.Web.Middleware.Tools
 
             return urlSegment;
         }
-
-        //internal void InitRead()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //internal void InitWrite()
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }

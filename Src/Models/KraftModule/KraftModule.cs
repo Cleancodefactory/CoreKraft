@@ -172,8 +172,10 @@ namespace Ccf.Ck.Models.KraftModule
             string resProfilePhysFileName = Path.Combine(resFolderPath, resProfileFileName);
             if (Directory.Exists(resFolderPath) && File.Exists(resProfilePhysFileName))
             {
-                StyleKraftBundle resBundle = new StyleKraftBundle();
-                resBundle.ContentRootPath = kraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath;
+                StyleKraftBundle resBundle = new StyleKraftBundle
+                {
+                    ContentRootPath = kraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath
+                };
                 //KraftBundle resBundle = new StyleKraftBundle() { ContentRootPath = _KraftEnvironmentSettings.ContentRootPath };
                 KraftBundleProfiles resBundleProfile = resBundle as KraftBundleProfiles;
                 resBundleProfile.ContentRootPath = kraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath;
@@ -192,8 +194,10 @@ namespace Ccf.Ck.Models.KraftModule
             string resProfilePhysFileName = Path.Combine(resFolderPath, resProfileFileName);
             if (Directory.Exists(resFolderPath) && File.Exists(resProfilePhysFileName))
             {
-                ScriptKraftBundle resBundle = new ScriptKraftBundle();
-                resBundle.ContentRootPath = kraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath;
+                ScriptKraftBundle resBundle = new ScriptKraftBundle
+                {
+                    ContentRootPath = kraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath
+                };
                 //KraftBundle resBundle = new StyleKraftBundle() { ContentRootPath = _KraftEnvironmentSettings.ContentRootPath };
                 KraftBundleProfiles resBundleProfile = resBundle as KraftBundleProfiles;
                 resBundleProfile.ContentRootPath = kraftGlobalConfigurationSettings.EnvironmentSettings.ContentRootPath;

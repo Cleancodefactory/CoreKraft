@@ -117,8 +117,10 @@ namespace Ccf.Ck.Processing.Web.Request
             {
                 inputModelParameters.LoaderType = ELoaderType.DataLoader;
             }
-            IProcessingContext processingContext = new ProcessingContext(this);
-            processingContext.InputModel = new InputModel(inputModelParameters);
+            IProcessingContext processingContext = new ProcessingContext(this)
+            {
+                InputModel = new InputModel(inputModelParameters)
+            };
             return processingContext;
         }
 

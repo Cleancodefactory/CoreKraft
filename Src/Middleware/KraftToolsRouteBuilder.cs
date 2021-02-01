@@ -63,9 +63,9 @@ namespace Ccf.Ck.Web.Middleware
 
         }
 
-        private static ToolSettings GetTool(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kind)
+        public static ToolSettings GetTool(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kind)
         {
-            foreach (ToolSettings tool in kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings)
+            foreach (ToolSettings tool in kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.Tools)
             {
                 if (tool.Kind.Equals(kind, StringComparison.OrdinalIgnoreCase))
                 {

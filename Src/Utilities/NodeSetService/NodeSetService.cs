@@ -14,8 +14,8 @@ namespace Ccf.Ck.Utilities.NodeSetService
     public class NodeSetService : INodeSetService
     {
         #region Private Fields
-        private KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
-        private ICachingService _CachingService;
+        private readonly KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
+        private readonly ICachingService _CachingService;
         #endregion
 
         #region Constructors
