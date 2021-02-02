@@ -18,6 +18,7 @@ namespace Ccf.Ck.Web.Middleware
             ToolSettings tool = GetTool(kraftGlobalConfigurationSettings, "recorder");//////////////////////////////Recorder/////////////////////////////
             if (tool != null && tool.Enabled)//Recorder enabled from configuration
             {
+                kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled = tool.Enabled;
                 routesHandler = new RouteHandler(RecorderDelegate.ExecutionDelegate(app, kraftGlobalConfigurationSettings));
 
                 RouteBuilder routesBuilder = new RouteBuilder(app, routesHandler);

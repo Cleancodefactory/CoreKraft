@@ -132,7 +132,7 @@ namespace Ccf.Ck.Web.Middleware
                 ToolSettings tool = KraftToolsRouteBuilder.GetTool(_KraftGlobalConfigurationSettings, "profiler");
                 if (tool != null && tool.Enabled)//Profiler enabled enabled from configuration
                 {
-                    services.UseBindKraftProfiler();
+                    services.UseBindKraftProfiler(tool.Url);
                 }
                 
                 IServiceProvider serviceProvider = services.BuildServiceProvider();

@@ -9,13 +9,6 @@ namespace Ccf.Ck.Models.Settings
     {
         public string ImplementationAsString { get; set; }
         public string InterfaceAsString { get; set; }
-
-        public bool IsConfigured
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(ImplementationAsString) && !string.IsNullOrEmpty(InterfaceAsString);
-            }
-        }
+        public bool IsEnabled { get; set; }
     }
 }

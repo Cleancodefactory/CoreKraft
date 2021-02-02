@@ -49,7 +49,7 @@ namespace Ccf.Ck.Processing.Web.Request
         public async Task ExecuteAsync()
         {
             //REQUESTRECORDER
-            if (_KraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
+            if (_KraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
             {
                 ISecurityModel securityModel;
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)

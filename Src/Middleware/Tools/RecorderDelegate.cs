@@ -21,7 +21,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                 const string contentType = "text/html; charset=UTF-8";
                 int statusCode = 200;
                 string message = string.Empty;
-                if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
+                if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                 {
                     if (kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
                     {
@@ -36,7 +36,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                 {
                     case "0":
                         {
-                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
+                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                             {
                                 if (securityModel.IsAuthenticated)
                                 {
@@ -66,7 +66,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                         }
                     case "1":
                         {
-                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
+                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                             {
                                 if (securityModel.IsAuthenticated)
                                 {
@@ -92,7 +92,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                         }
                     case "2":
                         {
-                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
+                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                             {
                                 if (securityModel.IsAuthenticated)
                                 {
@@ -128,7 +128,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                         }
                     case "3":
                         {
-                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsConfigured)
+                            if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                             {
                                 if (securityModel.IsAuthenticated)
                                 {

@@ -19,14 +19,14 @@ namespace Ccf.Ck.Utilities.Profiling
             //MiniProfiler.Settings.PopupRenderPosition = RenderPosition.Right;
         }
 
-        public static void UseBindKraftProfiler(this IServiceCollection services)
+        public static void UseBindKraftProfiler(this IServiceCollection services, string routeUrl)
         {
             services.AddMiniProfiler(options =>
             {
                 // All of this is optional. You can simply call .AddMiniProfiler() for all defaults
 
                 // (Optional) Path to use for profiler URLs, default is /mini-profiler-resources
-                options.RouteBasePath = "/profiler";
+                options.RouteBasePath = "/" + routeUrl;
 
                 // (Optional) Control storage
                 // (default is 30 minutes in MemoryCacheStorage)
