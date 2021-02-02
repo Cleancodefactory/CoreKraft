@@ -73,7 +73,7 @@ namespace Ccf.Ck.Launchers.Main
             {
                 app.UseDeveloperExceptionPage();
                 //Called only to show url:port in console during development
-                lifetime.ApplicationStarted.Register( () => LogAddresses(app.ServerFeatures, env));
+                lifetime.ApplicationStarted.Register(() => LogAddresses(app.ServerFeatures, env));
             }
             else
             {

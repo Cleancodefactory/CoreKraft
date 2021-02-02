@@ -13,7 +13,7 @@ namespace Ccf.Ck.Utilities.Profiling
 {
     public static class KraftProfilerExtensions
     {
-        public static void UseBindKraftProfiler(this IApplicationBuilder builder, IWebHostEnvironment env, ILoggerFactory loggerFactory, IMemoryCache cache)
+        public static void UseBindKraftProfiler(this IApplicationBuilder builder)
         {
             builder.UseMiniProfiler();
             //MiniProfiler.Settings.PopupRenderPosition = RenderPosition.Right;
@@ -91,6 +91,26 @@ namespace Ccf.Ck.Utilities.Profiling
         {
             return new StackExchange.Profiling.Data.ProfiledDbConnection(conn, MiniProfiler.Current);
         }
+
+        //if (subPath.Value.StartsWith("/includes.min", StringComparison.Ordinal))
+        //    {
+        //        result = Embedded.GetFile(context, subPath);
+        //    }
+
+        //    switch (subPath.Value)
+        //    {
+        //        case "/results-index":
+        //            result = await ResultsIndexAsync(context);
+        //            break;
+
+        //        case "/results-list":
+        //            result = await ResultsListAsync(context).ConfigureAwait(false);
+        //            break;
+
+        //        case "/results":
+        //            result = await GetSingleProfilerResultAsync(context).ConfigureAwait(false);
+        //            break;
+        //    }
 
     }
 }

@@ -2,6 +2,8 @@
 @using Ccf.Ck.Models.KraftModule
 @using Ccf.Ck.Models.Settings
 @using System.Threading
+@using Ccf.Ck.Web.Middleware
+@addTagHelper *, Ccf.Ck.Utilities.Profiling
 
 @inject IJsonHelper Json;
 
@@ -39,6 +41,13 @@
         g_ApplicationCulture = "@Thread.CurrentThread.CurrentCulture.IetfLanguageTag";
         g_BindKraftConfiguration = @bindKraftConfiguration;
     </script>
+    @{
+        ToolSettings tool = KraftToolsRouteBuilder.GetTool(Model, "profiler");
+        if (tool != null && tool.Enabled)//Profiler enabled enabled from configuration
+        {
+            <kraft-profiler />
+        }
+    }
     @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftScripts().Render()
 </body>
 </html>

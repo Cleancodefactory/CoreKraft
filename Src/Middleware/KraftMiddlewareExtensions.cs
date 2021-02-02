@@ -129,7 +129,12 @@ namespace Ccf.Ck.Web.Middleware
                     // Make the session cookie essential
                     options.Cookie.IsEssential = true;
                 });
-                services.UseBindKraftProfiler();
+                ToolSettings tool = KraftToolsRouteBuilder.GetTool(_KraftGlobalConfigurationSettings, "profiler");
+                if (tool != null && tool.Enabled)//Profiler enabled enabled from configuration
+                {
+                    services.UseBindKraftProfiler();
+                }
+                
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 IWebHostEnvironment env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
@@ -376,7 +381,6 @@ namespace Ccf.Ck.Web.Middleware
                     segment = tool.Url;
                 }
                 app.UseBindKraftLogger(env, loggerFactory, segment);
-                app.UseBindKraftProfiler(env, loggerFactory, _MemoryCache);
                 if (env.IsDevelopment())
                 {
                     app.UseDeveloperExceptionPage();

@@ -52,7 +52,6 @@ namespace Ccf.Ck.Web.Middleware
         {
             try
             {
-                await _Next(context);
                 if (context.Response.StatusCode >= 400)
                 {
                     string path = null;
@@ -66,6 +65,7 @@ namespace Ccf.Ck.Web.Middleware
                     }
                     return;
                 }
+                await _Next(context);
             }
             catch (Exception ex)
             {
