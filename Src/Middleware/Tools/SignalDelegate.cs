@@ -57,7 +57,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
             foreach (HostingServiceSetting hostingServiceSetting in signalsResponse.HostingServiceSettings)
             {
                 //Collect signals
-                foreach (string signal in hostingServiceSetting.Signals)
+                foreach (string signal in hostingServiceSetting.Signals ?? new List<string>())
                 {
                     SignalWithType signalWithType = new SignalWithType
                     {
@@ -70,7 +70,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
             }
 
             //Collect signals
-            foreach (string signal in signalsResponse.SignalSettings.OnSystemStartup)
+            foreach (string signal in signalsResponse.SignalSettings.OnSystemStartup ?? new List<string>())
             {
                 SignalWithType signalWithType = new SignalWithType
                 {
@@ -81,7 +81,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
             }
 
             //Collect signals
-            foreach (string signal in signalsResponse.SignalSettings.OnSystemShutdown)
+            foreach (string signal in signalsResponse.SignalSettings.OnSystemShutdown ?? new List<string>())
             {
                 SignalWithType signalWithType = new SignalWithType
                 {
