@@ -245,6 +245,75 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             // TODO: Consider if this is possible and useful (for some future version - not urgent).
         }
 
+        /// <summary>
+        /// Unlike read write is called exactly once per each row and not called at all if the row's state does not require actual writing.
+        /// </summary>
+        /// <param name="execContext"></param>
+        /// <returns></returns>
+        protected override object WriteAppend(IDataLoaderWriteAppendContext execContext)
+        { 
+            string sqlQuery = null;
+            try
+            {
+                Node node = execContext.CurrentNode;
+
+                // Statement is already selected for the requested operation (While fetching the Configuration
+                if (!string.IsNullOrWhiteSpace(Action(execContext)?.Query))
+                {
+                    // Check if it is valid
+                    if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext))
+                    {
+                        throw new NullReferenceException("Scoped synchronization and transaction context is not available.");
+                    }
+                    // Settings should be passed to the scopedContext in the ExternalServiceImp
+                    DbConnection conn = scopedContext.Connection;
+                    DbTransaction trans = scopedContext.StartADOTransaction();
+
+                    using (DbCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.Transaction = trans;
+                        cmd.Parameters.Clear();
+                        sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext);
+                        using (DbDataReader reader = cmd.ExecuteReader())
+                        {
+                            do
+                            {
+                                while (reader.Read())
+                                {
+                                    var thisRow = new Dictionary<string, object>();
+                                    execContext.AppendResults.Add(thisRow);
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                    {
+                                        string fname = reader.GetName(i);
+                                        if (fname == null) continue;
+                                        fname = fname.ToLower().Trim();
+                                        // fname = fname.Trim(); // TODO: We have to rethink this - lowercasing seems more inconvenience than a viable protection against human mistakes.
+                                        if (fname.Length == 0) throw new Exception("Empty field name in a store context in nodedesfinition: " + node.NodeSet.Name);
+                                        object v = reader.GetValue(i);
+                                        thisRow[fname] = (v is DBNull) ? null : v;
+                                    }
+                                    execContext.DataState.SetUnchanged(thisRow);        
+                                }
+                                // This is important, we have been doing this for a single result before, but it is better to assume more than one, so that 
+                                // update of the data being written can be done more freely - using more than one select statement after writing. This is
+                                // probably rare, but having the opportunity is better than not having it.
+                            } while (reader.NextResult());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (!string.IsNullOrEmpty(sqlQuery))
+                {
+                    KraftLogger.LogError($"Write(IDataLoaderWriteContext execContext) >> SQL: {Environment.NewLine}{sqlQuery}", ex, execContext);
+                }
+                throw;
+            }
+            return null; // if this is not null it should add new results in the data
+            // TODO: Consider if this is possible and useful (for some future version - not urgent).
+        }
+
         //public abstract Task<IPluginsSynchronizeContextScoped> GetSynchronizeContextScopedAsync();
 
         #region base functionality

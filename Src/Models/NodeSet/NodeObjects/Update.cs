@@ -10,5 +10,10 @@ namespace Ccf.Ck.Models.NodeSet
 {
     public partial class Update : ActionBase
     {
+        public bool AppendResults
+        {
+            get;
+            set;
+        }
     }
 }

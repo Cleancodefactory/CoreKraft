@@ -56,11 +56,32 @@ namespace Ccf.Ck.SysPlugins.Data.Base
                 }
             }
         }
+        protected override void ExecuteWriteAppend(IDataLoaderWriteAppendContext execContext) {
+            var u = WriteAppend(execContext);
+            if (u != null)
+            {
+                if (u is IDictionary<string, object>)
+                {
+                    execContext.AppendResults.Add(u as Dictionary<string, object>);
+                }
+                else if (u is IEnumerable<Dictionary<string, object>>)
+                {
+                    execContext.AppendResults.AddRange(u as IEnumerable<Dictionary<string, object>>);
+                }
+                else
+                {
+                    throw new InvalidCastException("Write method is expected to return either one Dictionary<string, object> or IEnumerable of them.");
+                }
+            }
+        }
         #endregion IDataLoaderPlugin
 
         #region Overridables
         protected abstract List<Dictionary<string, object>> Read(IDataLoaderReadContext execContext);
         protected abstract object Write(IDataLoaderWriteContext execContext);
+        protected virtual object WriteAppend(IDataLoaderWriteAppendContext execContext) {
+            throw new Exception($"This plugin ( {this.GetType().FullName} ) does not support AppendResults in write actions. ");
+        }
         #endregion
     }
 }

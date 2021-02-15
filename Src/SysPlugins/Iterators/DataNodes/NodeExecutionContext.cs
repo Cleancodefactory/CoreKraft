@@ -12,6 +12,7 @@ using System.ComponentModel;
 using Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
+using System.Collections.ObjectModel;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 {
@@ -65,6 +66,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             NodeKey = currentNode.NodeKey;
             Datastack = dic.Datastack;
             OverrideAction = dic.OverrideAction;
+            // Now we create this on demand in GetLoaderPluginProxy
+            //if (action == ACTION_WRITE) {
+                // Results is empty on write and we are filling it with the list for appended results.
+            //    Results = new List<Dictionary<string, object>>();
+            //}
         }
         #endregion
 
@@ -81,7 +87,18 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// <summary>
         /// A context proxy passed to the Data loader plugins
         /// </summary>
-        public LoaderPluginContext LoaderPluginProxy { get; private set; }
+        public LoaderPluginContext GetLoaderPluginProxy(List<Dictionary<string,object>> appendList = null) {
+            if (Action == ACTION_READ) {
+                return new LoaderPluginReadContext(this) as LoaderPluginContext;
+            } else {
+                if (appendList != null) {
+                    Results = appendList;
+                    return new LoaderPluginWriteAppendContext(this) as LoaderPluginContext;
+                } else {
+                    return new LoaderPluginWriteContext(this) as LoaderPluginContext;
+                }
+            }
+        }
         #endregion
 
         /// <summary>
@@ -96,7 +113,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 Context = new NodeExecutionContext(dic, currentNode, action);
                 Context.ParameterResolverProxy = new ParameterResolverContext(Context);
                 Context.CustomPluginProxy = (action == ACTION_READ) ? (new CustomPluginReadContext(Context) as CustomPluginContext): (new CustomPluginWriteContext(Context) as CustomPluginContext);
-                Context.LoaderPluginProxy = (action == ACTION_READ) ?new LoaderPluginReadContext(Context) as LoaderPluginContext:new LoaderPluginWriteContext(Context) as LoaderPluginContext;
+                // Context.LoaderPluginProxy = (action == ACTION_READ) ?new LoaderPluginReadContext(Context) as LoaderPluginContext:new LoaderPluginWriteContext(Context) as LoaderPluginContext;
             }
 
             public IDataStateHelper<IDictionary<string, object>> DataState => DataStateUtility.Instance;
@@ -210,7 +227,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             /// <summary>
             /// A context proxy passed to the Data loader plugins
             /// </summary>
-            public LoaderPluginContext LoaderPluginProxy => Context.LoaderPluginProxy;
+            public LoaderPluginContext GetLoaderPluginProxy(List<Dictionary<string,object>> appendList = null) => Context.GetLoaderPluginProxy(appendList);
         }
 
         // ---=== CONTEXT ITEMS ===---
@@ -719,6 +736,16 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public LoaderPluginWriteContext(NodeExecutionContext nodectx) : base(nodectx) { }
             public Dictionary<string, object> Row => Context.Row;
 
+        }
+        public class LoaderPluginWriteAppendContext: LoaderPluginContext, IDataLoaderWriteAppendContext {
+            private ReadOnlyDictionary<string, object> _row;
+            public LoaderPluginWriteAppendContext(NodeExecutionContext nodectx) : base(nodectx) {
+                _row = new ReadOnlyDictionary<string, object>(Context.Row);
+            }
+
+            public ReadOnlyDictionary<string,object> Row => _row;
+
+            public List<Dictionary<string, object>> AppendResults => Context.Results; 
         }
 
         #endregion

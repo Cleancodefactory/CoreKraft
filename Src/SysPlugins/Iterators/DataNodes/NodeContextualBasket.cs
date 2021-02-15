@@ -51,9 +51,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             }
             if (t == typeof(NodeExecutionContext.LoaderPluginContext) ||
                 t == typeof(NodeExecutionContext.LoaderPluginReadContext) ||
-                t == typeof(NodeExecutionContext.LoaderPluginWriteContext)
+                t == typeof(NodeExecutionContext.LoaderPluginWriteContext) ||
+                t == typeof(NodeExecutionContext.LoaderPluginWriteAppendContext) // The append context never reaches here and we are not currently prepared to return it.
              ) {
-                return _ExecContext.LoaderPluginProxy;
+                return _ExecContext.GetLoaderPluginProxy();
             }
             return null;
         }

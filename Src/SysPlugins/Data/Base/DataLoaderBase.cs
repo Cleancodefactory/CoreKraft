@@ -17,7 +17,12 @@ namespace Ccf.Ck.SysPlugins.Data.Base
             }
             else if (execContext.Action == ACTION_WRITE)
             {
-                ExecuteWrite(execContext as IDataLoaderWriteContext);
+                if (execContext is IDataLoaderWriteContext) {
+                    ExecuteWrite(execContext as IDataLoaderWriteContext);
+                } else if (execContext is IDataLoaderWriteAppendContext) {
+                    ExecuteWriteAppend(execContext as IDataLoaderWriteAppendContext);
+                }
+                
             }
             else
             {
@@ -28,6 +33,9 @@ namespace Ccf.Ck.SysPlugins.Data.Base
         #region overridables
         protected abstract void ExecuteRead(IDataLoaderReadContext execContext);
         protected abstract void ExecuteWrite(IDataLoaderWriteContext execContext);
+        protected virtual void ExecuteWriteAppend(IDataLoaderWriteAppendContext execContext) {
+            throw new Exception($"This plugin ( {this.GetType().FullName} ) does not support AppendResults in write actions. ");
+        }
         #endregion
 
     }

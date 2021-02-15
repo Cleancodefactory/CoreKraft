@@ -120,13 +120,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // 3. Execute custom plugins (injects) before main work
                     // 3.1. Prepare plugins - through the processor
                     // object customPluginsResults = new Dictionary<string, object>();
-                    ICustomPluginProcessor plugins = new CustomPluginProcessor();
+                    CustomPluginProcessor plugins = new CustomPluginProcessor();
 
                     // 3.3 The procedure has been changed, now the plugins are responsible to attach results in the Results collection
                     #region 3.3 execute BEFORE SQL plugins over the results
                     if (node.Read != null)
                     {
-                        plugins.Execute(node.Read.BeforeNodeActionPlugins, execContextManager.CustomPluginProxy);
+                        plugins.Execute(node.Read.BeforeNodeActionPlugins, execContextManager);
                     }
                     #endregion
 
@@ -158,7 +158,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // 4.1.2. Execute loader
                     if (execContextManager.LoaderContext.StartNode.Read != null && dataPlugin != null)
                     {
-                        dataPlugin.Execute(execContextManager.LoaderPluginProxy);
+                        dataPlugin.Execute(execContextManager.GetLoaderPluginProxy());
                     }
                     // The data  loader plugins are responsible to put their results into the REsults collection in the execution context
 
@@ -255,7 +255,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // Now the plugins are required to write to the REsults of the execution context themselves.
                     if (node.Read != null)
                     {
-                        plugins?.Execute(node.Read.AfterNodeActionPlugins, execContextManager.CustomPluginProxy);
+                        plugins?.Execute(node.Read.AfterNodeActionPlugins, execContextManager);
                     }
 
                     #region DEPRECATED CODE - see above
@@ -312,7 +312,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // 7.1. - execute plugin
                     if (node.Read != null)
                     {
-                        plugins?.Execute(node.Read.AfterNodeChildrenPlugins, execContextManager.CustomPluginProxy);
+                        plugins?.Execute(node.Read.AfterNodeChildrenPlugins, execContextManager);
                     }
                     // 7.2. Accomodate the custom plugin results into the results
                     #region DEPRECATED CODE
@@ -420,6 +420,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             List<Dictionary<string, object>> currentNode = null;
             object result = dataNode;
 
+            if (node.Write.Update != null && node.Write.Update.AppendResults && !node.IsList)  {
+                throw new Exception($"AppendResults is only valid in IsList nodes. Error occurred in {dataIteratorContext.LoadedNodeSet.NodeSet.Name} on node {node.NodeKey} in the Update operation. Nodepath: {nodePath}.");
+            }
+            if (node.Write.Insert != null && node.Write.Insert.AppendResults && !node.IsList)  {
+                throw new Exception($"AppendResults is only valid in IsList nodes. Error occurred in {dataIteratorContext.LoadedNodeSet.NodeSet.Name} on node {node.NodeKey} in the Insert operation. Nodepath: {nodePath}.");
+            }
+
             NodeExecutionContext.Manager execContextManager = new NodeExecutionContext.Manager(dataIteratorContext, node, ACTION_WRITE);
             // TODO: ?? execContextManager.Data = dataNode;
             #endregion
@@ -473,7 +480,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
             }
 
-            // 2. Main cycle.
+            // 2 Main cycle
+            // 2.0 Prepare a list for appended rows
+            List<Dictionary<string, object>> resultRows = new List<Dictionary<string, object>>();
+            // 2.2 Main cycle starts.
             //  Split by ordering the items by non-deleted and deleted state for easier processing
             foreach (Dictionary<string, object> row in
                   currentNode.OrderBy(n => (n.ContainsKey(STATE_PROPERTY_NAME) &&
@@ -495,6 +505,17 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 // 3.2 Determine the actual state to use for this iteration (we may have override)
                 string operation = GetWriteAction(execContextManager.OverrideAction, state);
 
+                // 3.3 If we are in append mode create temporary(local) bag (list)
+                // if _appendedRowsThisIteration is not null later we will proceed accordingly
+                List<Dictionary<string, object>> resultRowsThisIteration = null;
+                if (operation == OPERATION_INSERT && node.Write.Insert.AppendResults) {
+                    resultRowsThisIteration = new List<Dictionary<string, object>>();
+                }
+                if (operation == OPERATION_UPDATE && node.Write.Update.AppendResults) {
+                    resultRowsThisIteration = new List<Dictionary<string, object>>();
+                }
+                 
+
                 // The action is the actual state we assume!
 
                 #region Fill the values for current iteration in the exec context
@@ -509,14 +530,15 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 // DEPRECATED :Results from plugins - we will reuse this in the next phases too.
                 // Now the plugins have to store data themselves in Row
                 // object customPluginsResults = null;
-                ICustomPluginProcessor plugins = new CustomPluginProcessor();
+                CustomPluginProcessor plugins = new CustomPluginProcessor();
 
                 // 5.1. Do execute
                 if (node.Write != null)
                 {
                     // customPluginsResults = 
-                    plugins?.Execute(node.Write.BeforeNodeActionPlugins, execContextManager.CustomPluginProxy);
+                    plugins?.Execute(node.Write.BeforeNodeActionPlugins, execContextManager);
                 }
+
                 #region DEPRECATED CODE Execute BeforeSQL plugins
                 //pluginExecuteParameters = new CustomPluginExecuteParameters
                 //{
@@ -587,8 +609,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
                 if (operation != OPERATION_UNCHANGED && dataPlugin != null)
                 {
-                    dataPlugin?.Execute(execContextManager.LoaderPluginProxy);
+                    dataPlugin?.Execute(execContextManager.GetLoaderPluginProxy(resultRowsThisIteration));
                 }
+
                 #region (DEPRECATED CODE)
                 // 7.1. Accomodate the results from before sql plugins
                 //if (customPluginsResults != null && customPluginsResults is IEnumerable<Dictionary<string, object>>)
@@ -623,7 +646,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 #region 8.1. Execute the plugins (after sql)
                 if (node.Write != null)
                 {
-                    plugins?.Execute(node.Write.AfterNodeActionPlugins, execContextManager.CustomPluginProxy);
+                    plugins?.Execute(node.Write.AfterNodeActionPlugins, execContextManager);
                 }
                 #endregion
 
@@ -641,27 +664,58 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 // Keeping this code inline makes it a bit easier to follow the processing procedure
                 if (operation != OPERATION_DELETE)
                 {
-                    using (var stackframe = dataIteratorContext.Datastack.Scope(row))
-                    {
-                        if (node.Children != null && node.Children.Count > 0)
-                        {
-
-                            if (row != null)
+                    if (resultRowsThisIteration != null) {
+                        foreach (Dictionary<string,object> _row in resultRowsThisIteration) {
+                            using (var stackframe = dataIteratorContext.Datastack.Scope(_row))
                             {
-                                foreach (Node childNode in node.Children)
+                                if (node.Children != null && node.Children.Count > 0)
                                 {
-                                    string currentNodePath = (!string.IsNullOrEmpty(nodePath))
-                                                                 ? nodePath + "." + childNode.NodeKey.Trim()
-                                                                 : childNode.NodeKey.Trim();
 
-
-                                    if (row.ContainsKey(childNode.NodeKey.Trim()))
+                                    if (_row != null)
                                     {
-                                        object currentDataNode = row[childNode.NodeKey.Trim()];
-                                        row[childNode.NodeKey.Trim()] =
-                                            ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
-                                    }
+                                        foreach (Node childNode in node.Children)
+                                        {
+                                            string currentNodePath = (!string.IsNullOrEmpty(nodePath))
+                                                                        ? nodePath + "." + childNode.NodeKey.Trim()
+                                                                        : childNode.NodeKey.Trim();
 
+
+                                            if (row.ContainsKey(childNode.NodeKey.Trim()))
+                                            {
+                                                _row[childNode.NodeKey.Trim()] = CloneChildNodeData(row[childNode.NodeKey.Trim()]);
+                                                object currentDataNode = _row[childNode.NodeKey.Trim()];
+                                                _row[childNode.NodeKey.Trim()] =
+                                                    ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        using (var stackframe = dataIteratorContext.Datastack.Scope(row))
+                        {
+                            if (node.Children != null && node.Children.Count > 0)
+                            {
+
+                                if (row != null)
+                                {
+                                    foreach (Node childNode in node.Children)
+                                    {
+                                        string currentNodePath = (!string.IsNullOrEmpty(nodePath))
+                                                                    ? nodePath + "." + childNode.NodeKey.Trim()
+                                                                    : childNode.NodeKey.Trim();
+
+
+                                        if (row.ContainsKey(childNode.NodeKey.Trim()))
+                                        {
+                                            object currentDataNode = row[childNode.NodeKey.Trim()];
+                                            row[childNode.NodeKey.Trim()] =
+                                                ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
+                                        }
+
+                                    }
                                 }
                             }
                         }
@@ -693,7 +747,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 // 11. Execute the plugins for after children
                 if (node.Write != null)
                 {
-                    plugins?.Execute(node.Write.AfterNodeChildrenPlugins, execContextManager.CustomPluginProxy);
+                    plugins?.Execute(node.Write.AfterNodeChildrenPlugins, execContextManager);
                 }
                 #region DEPRECATED CODE
                 // 11.1. Accomodate the results from the plugins.
@@ -701,16 +755,22 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 //    ApplyResultsToRow(row, customPluginsResults as IEnumerable<Dictionary<string, object>>);
                 #endregion
                 #endregion
+                if (resultRowsThisIteration != null) {
+                    resultRows.AddRange(resultRowsThisIteration);
+                    resultRowsThisIteration = null;
+                } else {
+                    resultRows.Add(row);
+                }
             }
 
             // 12. We have to clean up deleted rows completely
             #region Final Re-Packing
-            for (int i = currentNode.Count - 1; i >= 0; i--)
+            for (int i = resultRows.Count - 1; i >= 0; i--)
             {
-                Dictionary<string, object> row = currentNode[i];
+                Dictionary<string, object> row = resultRows[i];
                 if (row.ContainsKey(STATE_PROPERTY_NAME) && (row[STATE_PROPERTY_NAME] as string) == STATE_PROPERTY_DELETE)
                 {
-                    currentNode.RemoveAt(i); // Remove deleted records
+                    resultRows.RemoveAt(i); // Remove deleted records
                 }
             }
             #endregion
@@ -722,12 +782,12 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             // This depends on the re-assignment.
             if (dataNode is IDictionary<string, object>)
             {
-                if (currentNode.Count > 0) return currentNode[0];
+                if (resultRows.Count > 0) return resultRows[0];
                 return null; // TODO: May be empty object? Can we be here at all if anything was wrong?
             }
             else
             {
-                return currentNode;
+                return resultRows;
             }
         }
 
@@ -799,6 +859,37 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
             return result;
         }
+        private object CloneChildNodeData(object dataNode) {
+            if (dataNode == null) return null;
+            if (dataNode is IDictionary dataNodeDictionary) {
+
+                Dictionary<string,object> dict = new Dictionary<string, object>();
+                foreach(DictionaryEntry de in dataNodeDictionary) {
+                    if (de.Key == null || !(de.Key is string)) {
+                        throw new Exception("dataPlugin returned data containing key(s) which are null or not a string.");
+                    }
+                    object v = de.Value;
+                    if (v is string) {
+                        dict.Add(de.Key as string,v);
+                    } else if (v is IEnumerable) {
+                        dict.Add(de.Key as string, CloneChildNodeData(v));
+                    } else {
+                        dict.Add(de.Key as string, de.Value);
+                    }
+                }
+                return dict;
+            } else if (dataNode is IEnumerable) {
+                List<Dictionary<string, object>> list = new List<Dictionary<string, object>>();
+                foreach(object entry in (dataNode as IEnumerable)) {
+                    Dictionary<string, object> dict1 = CloneChildNodeData(entry) as Dictionary<string, object>;
+                    list.Add(dict1);
+                    // TODO: Currently we do not identify Array in Array case which is an error and will require an exception.
+                }
+                return list;
+            } else {
+                throw new Exception("This method has to be applied to property belonging to a subnode only");
+            }
+        }
 
         private void ExtractDataNode(object dataNode, ref List<Dictionary<string, object>> currentNode, ref object result)
         {
@@ -854,45 +945,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
             }
         }
-        // TODO: IS this still needed here? We moved this kind of activity to the plugins
-        private void ApplyResultsToRow(Dictionary<string, object> row, IEnumerable<Dictionary<string, object>> customPluginResults)
-        {
-            if (row != null && customPluginResults != null)
-            {
-                foreach (var customPluginResult in customPluginResults)
-                {
-                    if (customPluginResult != null)
-                    {
-                        foreach (var kvp in customPluginResult)
-                        {
-                            row[kvp.Key] = kvp.Value;
-                        }
-                    }
-                }
-            }
-        }
-
-        private string GetSqlStatement(Node node, string action)
-        {
-            string result = string.Empty;
-            switch (action)
-            {
-                case OPERATION_SELECT:
-                    if ((node.Read.Select != null) && node.Read.Select.HasStatement()) result = node.Read.Select.Query;
-                    break;
-                case OPERATION_INSERT:
-                    if ((node.Write.Insert != null) && node.Write.Insert.HasStatement()) result = node.Write.Insert.Query;
-                    break;
-                case OPERATION_DELETE:
-                    if ((node.Write.Delete != null) && node.Write.Delete.HasStatement()) result = node.Write.Delete.Query;
-                    break;
-                case OPERATION_UPDATE:
-                    if ((node.Write.Update != null) && node.Write.Update.HasStatement()) result = node.Write.Update.Query;
-                    break;
-
-            }
-            return result;
-        }
+        
         #endregion
     }
 }
