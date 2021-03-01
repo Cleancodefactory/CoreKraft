@@ -20,7 +20,14 @@ namespace Ccf.Ck.SysPlugins.Data.Base
             }
             else if (execContext.Action == ACTION_WRITE)
             {
-                ExecuteWrite(execContext as IDataLoaderWriteContext);
+                if (execContext is IDataLoaderWriteContext)
+                {
+                    ExecuteWrite(execContext as IDataLoaderWriteContext);
+                }
+                else if (execContext is IDataLoaderWriteAppendContext)
+                {
+                    ExecuteWriteAppend(execContext as IDataLoaderWriteAppendContext);
+                }
             }
             else
             {
@@ -57,7 +64,7 @@ namespace Ccf.Ck.SysPlugins.Data.Base
             }
         }
         protected override void ExecuteWriteAppend(IDataLoaderWriteAppendContext execContext) {
-            var u = WriteAppend(execContext);
+            object u = WriteAppend(execContext);
             if (u != null)
             {
                 if (u is IDictionary<string, object>)

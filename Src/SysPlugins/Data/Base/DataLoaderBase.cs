@@ -19,10 +19,10 @@ namespace Ccf.Ck.SysPlugins.Data.Base
             {
                 if (execContext is IDataLoaderWriteContext) {
                     ExecuteWrite(execContext as IDataLoaderWriteContext);
-                } else if (execContext is IDataLoaderWriteAppendContext) {
+                } 
+                else if (execContext is IDataLoaderWriteAppendContext) {
                     ExecuteWriteAppend(execContext as IDataLoaderWriteAppendContext);
-                }
-                
+                }                
             }
             else
             {
