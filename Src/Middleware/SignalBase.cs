@@ -35,8 +35,8 @@ namespace Ccf.Ck.Web.Middleware
                 RouteData = routeData,
             };
 
-            ProcessorSignal processorSignal = new ProcessorSignal(httpContext, kraftModuleCollection, ESupportedContentTypes.JSON, nodeSetService);
-            IProcessingContextCollection processingContextCollection = processorSignal.GenerateProcessingContexts(_KraftGlobalConfigurationSettings, string.Empty, new SecurityModelMock(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection));
+            ProcessorSignal processorSignal = new ProcessorSignal(httpContext, kraftModuleCollection, ESupportedContentTypes.JSON, nodeSetService, _KraftGlobalConfigurationSettings);
+            IProcessingContextCollection processingContextCollection = processorSignal.GenerateProcessingContexts(string.Empty, new SecurityModelMock(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection));
             RequestExecutor requestExecutor = new RequestExecutor(_ServiceProvider, httpContext, _KraftGlobalConfigurationSettings);
             foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
             {

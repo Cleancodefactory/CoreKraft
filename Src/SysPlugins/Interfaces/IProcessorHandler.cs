@@ -8,6 +8,6 @@ namespace Ccf.Ck.SysPlugins.Interfaces
     {
         void GenerateResponse();
         void Execute(IProcessingContext processingContext, ITransactionScopeContext transactionScopeContext);
-        IProcessingContextCollection GenerateProcessingContexts(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kraftRequestFlagsKey, ISecurityModel securityModel = null);
+        IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null);
     }
 }

@@ -26,12 +26,14 @@ namespace Ccf.Ck.Processing.Web.Request
         Ccf.Ck.Models.DirectCall.InputModel _InputModel;
         KraftModuleCollection _KraftModuleCollection;
         INodeSetService _NodesSetService;
+        KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
 
-        public DirectCallHandler(Ccf.Ck.Models.DirectCall.InputModel inputModel, KraftModuleCollection kraftModuleCollection, INodeSetService nodeSetService)
+        public DirectCallHandler(Ccf.Ck.Models.DirectCall.InputModel inputModel, KraftModuleCollection kraftModuleCollection, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             _InputModel = inputModel;
             _KraftModuleCollection = kraftModuleCollection;
             _NodesSetService = nodeSetService;
+            _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
         }
 
         public void Execute(IProcessingContext processingContext, ITransactionScopeContext transactionScopeContext)
@@ -56,10 +58,10 @@ namespace Ccf.Ck.Processing.Web.Request
             }
         }
 
-        public IProcessingContextCollection GenerateProcessingContexts(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kraftRequestFlagsKey, ISecurityModel securityModel = null)
+        public IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null)
         {
             InputModelParameters inputModelParameters = new InputModelParameters();
-            inputModelParameters.KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
+            inputModelParameters.KraftGlobalConfigurationSettings = _KraftGlobalConfigurationSettings;
             inputModelParameters.SecurityModel = securityModel;
             inputModelParameters.Module = _InputModel.Module;
             inputModelParameters.Nodeset = _InputModel.Nodeset;

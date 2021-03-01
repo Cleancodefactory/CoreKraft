@@ -72,8 +72,8 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             
             AbstractProcessorFactory processorFactory = new KraftProcessorFactory();
-            IProcessorHandler processor = processorFactory.CreateProcessor(_HttpContext, _KraftModuleCollection, _NodesSetService);
-            IProcessingContextCollection processingContexts = processor.GenerateProcessingContexts(_ServiceProvider.GetService<KraftGlobalConfigurationSettings>(), _KraftGlobalConfigurationSettings.GeneralSettings.KraftRequestFlagsKey);
+            IProcessorHandler processor = processorFactory.CreateProcessor(_HttpContext, _KraftModuleCollection, _NodesSetService, _ServiceProvider.GetService<KraftGlobalConfigurationSettings>());
+            IProcessingContextCollection processingContexts = processor.GenerateProcessingContexts(_KraftGlobalConfigurationSettings.GeneralSettings.KraftRequestFlagsKey);
             if (processingContexts == null)
             {
                 Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, $"ExecuteAsync.CreateProcessingContexts returned null.");

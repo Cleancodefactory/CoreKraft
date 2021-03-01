@@ -15,7 +15,7 @@ namespace Ccf.Ck.Processing.Web.Request
 {
     internal class ProcessorUnknown : ProcessorBase
     {
-        public ProcessorUnknown(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType) : base(httpContext, kraftModuleCollection, requestContentType)
+        public ProcessorUnknown(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) : base(httpContext, kraftModuleCollection, requestContentType, kraftGlobalConfigurationSettings)
         {
         }
 
@@ -26,7 +26,7 @@ namespace Ccf.Ck.Processing.Web.Request
             processingContext.ReturnModel.Status.StatusResults.Add(new StatusResult { Message = "Unknown request type!", StatusResultType = EStatusResult.StatusResultError });
         }
 
-        public override IProcessingContextCollection GenerateProcessingContexts(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kraftRequestFlagsKey, ISecurityModel securityModel = null)
+        public override IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null)
         {
             IProcessingContext processingContext = new ProcessingContext(this);
             List<IProcessingContext> processingContexts = new List<IProcessingContext>();

@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Processing.Web.Request.BaseClasses;
 using Ccf.Ck.Processing.Web.Request.Primitives;
 using Ccf.Ck.Utilities.NodeSetService;
@@ -14,7 +15,7 @@ namespace Ccf.Ck.Processing.Web.Request
         private const string CONTENTTYPEFIRSTPART = @"(?<firstpart>.*?(?=;|$|\s))";
         private static Regex _ContentTypeFirstPartRegex = new Regex(CONTENTTYPEFIRSTPART, RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
-        internal override ProcessorBase CreateProcessor(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, INodeSetService nodesSetService)
+        internal override ProcessorBase CreateProcessor(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, INodeSetService nodesSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             RouteData routeData = httpContext.GetRouteData();
             //see class: KraftRouteBuilder
@@ -29,17 +30,17 @@ namespace Ccf.Ck.Processing.Web.Request
                     {
                         case Constants.RouteSegmentConstants.RouteDataTokenWarmup:
                             {
-                                return new ProcessorWarmup(httpContext, kraftModuleCollection, contentType);
+                                return new ProcessorWarmup(httpContext, kraftModuleCollection, contentType, kraftGlobalConfigurationSettings);
                             }
                         case Constants.RouteSegmentConstants.RouteDataTokenSignal:
                         case Constants.RouteSegmentConstants.RouteDataTokenSignalRead:
                         case Constants.RouteSegmentConstants.RouteDataTokenSignalWrite:
                             {
-                                return new ProcessorSignal(httpContext, kraftModuleCollection, contentType, nodesSetService);
+                                return new ProcessorSignal(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
                             }
                         case Constants.RouteSegmentConstants.RouteDataTokenView:
                             {
-                                return new ProcessorView(httpContext, kraftModuleCollection, contentType, nodesSetService);
+                                return new ProcessorView(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
                             }
                         //case Constants.RouteSegmentConstants.RouteDataTokenResource:
                         //    {
@@ -48,7 +49,7 @@ namespace Ccf.Ck.Processing.Web.Request
                         //    }
                         case Constants.RouteSegmentConstants.RouteDataTokenBatch:
                             {
-                                return new ProcessorNodeBatch(httpContext, kraftModuleCollection, contentType, nodesSetService);
+                                return new ProcessorNodeBatch(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
                             }
                         default:
                             {
@@ -58,22 +59,22 @@ namespace Ccf.Ck.Processing.Web.Request
                                     case ESupportedContentTypes.JSON:
                                     case ESupportedContentTypes.FORM_URLENCODED:
                                         {
-                                            return new ProcessorNodeSingle(httpContext, kraftModuleCollection, contentType, nodesSetService);
+                                            return new ProcessorNodeSingle(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
                                         }
                                     case ESupportedContentTypes.FORM_MULTIPART:
                                         {
-                                            return new ProcessorMultipart(httpContext, kraftModuleCollection, contentType, nodesSetService);
+                                            return new ProcessorMultipart(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
                                         }
                                     default:
                                         {
-                                            return new ProcessorUnknown(httpContext, kraftModuleCollection, contentType);
+                                            return new ProcessorUnknown(httpContext, kraftModuleCollection, contentType, kraftGlobalConfigurationSettings);
                                         }
                                 }
                             }                            
                     }
                 }
             }
-            return new ProcessorUnknown(httpContext, kraftModuleCollection, contentType);
+            return new ProcessorUnknown(httpContext, kraftModuleCollection, contentType, kraftGlobalConfigurationSettings);
         }
 
         private ESupportedContentTypes MapContentType(HttpContext httpContext)

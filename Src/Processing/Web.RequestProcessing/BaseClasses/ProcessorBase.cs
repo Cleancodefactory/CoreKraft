@@ -31,14 +31,16 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
         protected KraftModuleCollection _KraftModuleCollection;
         protected HttpContext _HttpContext;
         protected IProcessingContextCollection _ProcessingContextCollection;
+        protected KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
 
-        public ProcessorBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType)
+        public ProcessorBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             _KraftModuleCollection = kraftModuleCollection;
             _HttpContext = httpContext;
             _RequestMethod = (ERequestMethod)Enum.Parse(typeof(ERequestMethod), httpContext.Request.Method);
             _RequestContentType = requestContentType;
             _ProcessingContextCollection = new ProcessingContextCollection(new List<IProcessingContext>());
+            _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
             //AntiforgeryService
             //KeyValuePair<string, string> cookie = httpContext.Request.Cookies.FirstOrDefault(c => c.Key.Contains("XSRF-TOKEN"));
             //if (cookie.Value != null)
@@ -51,7 +53,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 
         public abstract void Execute(IProcessingContext processingContext, ITransactionScopeContext transactionScopeContext);
 
-        public abstract IProcessingContextCollection GenerateProcessingContexts(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kraftRequestFlagsKey, ISecurityModel securityModel = null);
+        public abstract IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null);
 
         protected T GetBodyJson<T>(HttpRequest httpRequest) where T: new()
         {
