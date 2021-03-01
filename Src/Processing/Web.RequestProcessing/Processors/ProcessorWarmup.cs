@@ -14,7 +14,7 @@ namespace Ccf.Ck.Processing.Web.Request
 {
     internal class ProcessorWarmup : ProcessorBase
     {
-        public ProcessorWarmup(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType) : base(httpContext, kraftModuleCollection, requestContentType)
+        public ProcessorWarmup(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) : base(httpContext, kraftModuleCollection, requestContentType, kraftGlobalConfigurationSettings)
         {            
         }
 
@@ -32,7 +32,7 @@ namespace Ccf.Ck.Processing.Web.Request
             }
         }
 
-        public override IProcessingContextCollection GenerateProcessingContexts(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kraftRequestFlagsKey, ISecurityModel securityModel = null)
+        public override IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null)
         {
             IProcessingContext processingContext = new ProcessingContext(this);
             processingContext.InputModel = new InputModel(new InputModelParameters());

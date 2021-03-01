@@ -22,6 +22,7 @@ namespace Ccf.Ck.Models.Settings
             Theme = "Module";
             ToolsSettings = new ToolsSettings();
         }
+        public string ServerHostKey { get; set; }
         public bool EnableOptimization { get; set; }
         public List<string> ModulesRootFolders { get; set; }
         public string DefaultStartModule { get; set; }

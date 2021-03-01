@@ -17,11 +17,11 @@ namespace Ccf.Ck.Processing.Web.Request
 {
     internal class ProcessorNodeBatch : ProcessorNodeBase
     {
-        public ProcessorNodeBatch(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService) : base(httpContext, kraftModuleCollection, requestContentType, nodeSetService)
+        public ProcessorNodeBatch(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) : base(httpContext, kraftModuleCollection, requestContentType, nodeSetService, kraftGlobalConfigurationSettings)
         {
         }
 
-        public override IProcessingContextCollection GenerateProcessingContexts(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kraftRequestFlagsKey, ISecurityModel securityModel = null)
+        public override IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null)
         {
             List<InputModel> inputModels = new List<InputModel>();
             List<BatchRequest> batchRequests = new List<BatchRequest>();
@@ -31,7 +31,7 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             foreach (BatchRequest batchRequest in batchRequests)
             {
-                InputModel inputModel = CreateInputModel(batchRequest, kraftGlobalConfigurationSettings, kraftRequestFlagsKey, securityModel);
+                InputModel inputModel = CreateInputModel(batchRequest, _KraftGlobalConfigurationSettings, kraftRequestFlagsKey, securityModel);
                 inputModels.Add(inputModel);
             }
             _ProcessingContextCollection = new ProcessingContextCollection(CreateProcessingContexts(inputModels));

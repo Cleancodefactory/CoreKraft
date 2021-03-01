@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.KraftModule;
+﻿using Ccf.Ck.Models.DirectCall;
+using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Settings;
@@ -40,12 +41,12 @@ namespace Ccf.Ck.Web.Middleware
         {
             Func<Ccf.Ck.Models.DirectCall.InputModel, Task<Ccf.Ck.Models.DirectCall.ReturnModel>> directDelegate = (inputModel) =>
             {
-                var transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
-                var nodesSetService = builder.ApplicationServices.GetService<INodeSetService>();
-                var kraftModuleCollection = builder.ApplicationServices.GetService<KraftModuleCollection>();
-                Models.DirectCall.ReturnModel returnModel = null;
-                DirectCallHandler dcHandler = new DirectCallHandler(inputModel, kraftModuleCollection, nodesSetService);
-                IProcessingContextCollection processingContextCollection = dcHandler.GenerateProcessingContexts(kraftGlobalConfigurationSettings, null);
+                TransactionScopeContext transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
+                INodeSetService nodesSetService = builder.ApplicationServices.GetService<INodeSetService>();
+                KraftModuleCollection kraftModuleCollection = builder.ApplicationServices.GetService<KraftModuleCollection>();
+                ReturnModel returnModel = null;
+                DirectCallHandler dcHandler = new DirectCallHandler(inputModel, kraftModuleCollection, nodesSetService, kraftGlobalConfigurationSettings);
+                IProcessingContextCollection processingContextCollection = dcHandler.GenerateProcessingContexts(null);
                 foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
                 {
                     dcHandler.Execute(processingContext, transactionScope);

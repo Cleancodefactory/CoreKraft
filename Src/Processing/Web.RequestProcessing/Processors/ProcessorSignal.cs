@@ -21,24 +21,24 @@ namespace Ccf.Ck.Processing.Web.Request
 {
     public class ProcessorSignal : ProcessorNodeBase
     {
-        public ProcessorSignal(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService) : base(httpContext, kraftModuleCollection, requestContentType, nodeSetService)
+        public ProcessorSignal(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) : base(httpContext, kraftModuleCollection, requestContentType, nodeSetService, kraftGlobalConfigurationSettings)
         {
         }
 
-        public override IProcessingContextCollection GenerateProcessingContexts(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string kraftRequestFlagsKey, ISecurityModel securityModel = null)
+        public override IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null)
         {
             if (securityModel == null)
             {
-                if (kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
                 {
                     securityModel = new SecurityModel(_HttpContext);
                 }
                 else
                 {
-                    securityModel = new SecurityModelMock(kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
+                    securityModel = new SecurityModelMock(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
                 }
             }
-            InputModelParameters inputModelParameters = CreateBaseInputModelParameters(kraftGlobalConfigurationSettings, securityModel);
+            InputModelParameters inputModelParameters = CreateBaseInputModelParameters(_KraftGlobalConfigurationSettings, securityModel);
             inputModelParameters = ExtendInputModelParameters(inputModelParameters);
             if (_RequestContentType == ESupportedContentTypes.JSON)
             {

@@ -30,13 +30,14 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
         protected Dictionary<string, object> _ServerCollection;
         protected INodeSetService _NodesSetService;
 
-        public ProcessorNodeBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService) : base(httpContext, kraftModuleCollection, requestContentType)
+        public ProcessorNodeBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) : base(httpContext, kraftModuleCollection, requestContentType, kraftGlobalConfigurationSettings)
         {
             _QueryCollection = httpContext.Request.Query.Convert2Dictionary();
             _HeaderCollection = httpContext.Request.Headers.Convert2Dictionary();
             _FormCollection = (httpContext.Request.HasFormContentType) ? httpContext.Request?.Form?.Convert2Dictionary() : new Dictionary<string, object>();
             _ServerCollection = new Dictionary<string, object>();
             _ServerCollection.Add("REMOTE_ADDR", httpContext.Connection.RemoteIpAddress);
+            _ServerCollection.Add("SERVER_HOST_KEY", kraftGlobalConfigurationSettings.GeneralSettings.ServerHostKey);
             _NodesSetService = nodeSetService;
         }
 
