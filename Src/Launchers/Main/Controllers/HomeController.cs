@@ -2,6 +2,7 @@
 using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Libs.Web.Bundling;
 using Ccf.Ck.Models.Settings;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
@@ -82,6 +83,13 @@ namespace Ccf.Ck.Launchers.Main.Controllers
                 }
             }
             return View("Index", _KraftGlobalConfigurationSettings);
+        }
+
+        public IActionResult Error()
+        {
+            IExceptionHandlerPathFeature exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            KraftLogger.LogCritical($"Method: public IActionResult Error for path: {exceptionHandlerPathFeature?.Path}", exceptionHandlerPathFeature?.Error);
+            return View();
         }
     }
 }
