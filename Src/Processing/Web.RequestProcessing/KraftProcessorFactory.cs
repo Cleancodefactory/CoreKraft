@@ -21,6 +21,7 @@ namespace Ccf.Ck.Processing.Web.Request
             //see class: KraftRouteBuilder
             //In KraftRouteBuilder all routings are defined
             ESupportedContentTypes contentType = MapContentType(httpContext);
+            
             if (routeData.Values != null)
             {
                 string routeDataKey = routeData.DataTokens["key"]?.ToString()?.ToLower();
@@ -63,7 +64,11 @@ namespace Ccf.Ck.Processing.Web.Request
                                         }
                                     case ESupportedContentTypes.FORM_MULTIPART:
                                         {
-                                            return new ProcessorMultipart(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
+                                            if (httpContext.Request.Headers.ContainsKey("JSONLike-Multipart")) {
+                                                return new ProcessorMultipartEx(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
+                                            } else {
+                                                return new ProcessorMultipart(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
+                                            }
                                         }
                                     default:
                                         {
