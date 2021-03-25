@@ -76,7 +76,9 @@ namespace Ccf.Ck.Processing.Web.Request
             public List<IFormFile> Files { get; set;}
             private object ResolveStringValue(string v) {
                 if (!String.IsNullOrWhiteSpace(v)) {
-                    if (int.TryParse(v,out int i)) {
+                    if (v.Length > 1 && v.StartsWith("'") && v.EndsWith("'")) {
+                        return v.Substring(1, v.Length - 2);
+                    } else if (int.TryParse(v,out int i)) {
                         return i;
                     } else if (double.TryParse(v, out double d)) {
                         return d;
@@ -294,7 +296,7 @@ namespace Ccf.Ck.Processing.Web.Request
 
         /// <summary>
         /// See above (several methods) for a comment showing example expected content.
-        /// In theory this will handle plain content as well, but it will produce just a single dictionary in that case.<!--
+        /// In theory this will handle plain content as well, but it will produce just a single dictionary in that case.
         /// The main scenario assumes a javascript object to be expanded into multiple fields posted in multipart form and
         /// named with dotted chains reflecting their original position.
         /// </summary>
