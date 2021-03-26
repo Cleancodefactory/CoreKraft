@@ -38,6 +38,10 @@ namespace Ccf.Ck.SysPlugins.Data.Base
             }
             return null;
         }
+        protected T Action<T>(IDataLoaderContext execContext) where T: ActionBase
+        {
+            return Action(execContext) as T;
+        }
         protected void ApplyResultsToRow(Dictionary<string, object> row, IEnumerable<Dictionary<string, object>> results) {
             if (row != null && results != null) {
                 foreach (var result in results) {
