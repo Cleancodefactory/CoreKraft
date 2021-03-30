@@ -1,9 +1,11 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Security;
+using System.Security.Cryptography;
 using System.Security.Permissions;
 using System.Threading.Tasks;
 
@@ -55,6 +57,19 @@ namespace Ccf.Ck.Utilities.Generic
             {
                 KraftLogger.LogError(exception, "Method: RestartApplication(IApplicationLifetime applicationLifetime)");
             }
+        }
+
+        public static string GenerateETag(byte[] data)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                return WebEncoders.Base64UrlEncode(md5.ComputeHash(data));
+            }
+        }
+
+        public static string WithQuotes(string value)
+        {
+            return $"\"{value}\"";
         }
 
         public static bool HasWritePermissionOnDir(DirectoryInfo dirInfo, bool recursive = false)
