@@ -21,15 +21,18 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 
         protected override void WriteToResponseHeaders(HttpContext context)
         {
-            HttpResponse response = context.Response;
+            if (!context.Response.HasStarted)
+            {
+                HttpResponse response = context.Response;
 
-            // Disable caching for all Kraft responses
-            response.Headers["Cache-Control"] = "no-cache, no-store";
-            response.Headers["Pragma"] = "no-cache";
-            response.Headers["Expires"] = "-1";
+                // Disable caching for all Kraft responses
+                response.Headers["Cache-Control"] = "no-cache, no-store";
+                response.Headers["Pragma"] = "no-cache";
+                response.Headers["Expires"] = "-1";
 
-            //set xml content type        
-            response.ContentType = "text/xml";
+                //set xml content type        
+                response.ContentType = "text/xml";
+            }   
         }
 
         protected override void WriteToResponseBody(HttpContext context)
