@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
-    public interface IActionQueryLibrary
+    public interface IActionQueryLibrary<HostInterface> where HostInterface: class
     {
-        Func<ParameterResolverValue[], ParameterResolverValue> GetProc(string name);
+        HostedProc<HostInterface> GetProc(string name);
     }
 }

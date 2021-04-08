@@ -6,25 +6,43 @@ using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.Models.Enumerations;
 using System.Linq;
 using Ccf.Ck.SysPlugins.Interfaces;
+using System.Collections;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
-    public class ActionQueryHost<HostInterface> : IActionQueryHost<ParameterResolverValue>, IActionQueryHostControl<ParameterResolverValue> where HostInterface: class
+
+    public delegate ParameterResolverValue HostedProc<H>(H arg1, ParameterResolverValue[] arg2);
+    public class ActionQueryHost<HostInterface> :
+        IActionQueryHost<ParameterResolverValue>, 
+        IActionQueryHostControl<ParameterResolverValue>,
+        IEnumerable<KeyValuePair<string, HostedProc<HostInterface> >>
+        where HostInterface: class
     {
 
         protected HostInterface _Context = null;
         public HostInterface Context { 
             get { return _Context;  }
         }
-        public ActionQueryHost(HostInterface context)
+        public ActionQueryHost(HostInterface context, bool NoDefaultLibrary = false)
         {
             _Context = context;
+            if (!NoDefaultLibrary)
+            {
+                if (context is INodePluginContext)
+                {
+                    AddLibrary(DefaultLibraryNodePlugin<HostInterface>.Instance);
+                }
+                else if (context is IDataLoaderContext)
+                {
+                    AddLibrary(DefaultLibraryLoaderPlugin<HostInterface>.Instance);
+                }
+            }
         }
 
 
         #region Own callbacks
-        private Dictionary<string, Func<ParameterResolverValue[], ParameterResolverValue>> _Callbacks = new Dictionary<string, Func<ParameterResolverValue[], ParameterResolverValue>>();
-        public ActionQueryHost<HostInterface> AddProc(string name, Func<ParameterResolverValue[], ParameterResolverValue> proc)
+        private Dictionary<string, HostedProc<HostInterface>> _Callbacks = new Dictionary<string, HostedProc<HostInterface>>();
+        public ActionQueryHost<HostInterface> Add(string name, HostedProc<HostInterface> proc)
         {
             if (proc == null)
             {
@@ -37,7 +55,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             _Callbacks.Add(name, proc);
             return this;
         }
-        protected Func<ParameterResolverValue[],ParameterResolverValue> GetProc(string name)
+        protected HostedProc<HostInterface> GetProc(string name)
         {
             if (name != null && _Callbacks.ContainsKey(name))
             {
@@ -48,9 +66,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Library support
-        private List<IActionQueryLibrary> _Libraries = new List<IActionQueryLibrary>();
+        private List<IActionQueryLibrary<HostInterface>> _Libraries = new List<IActionQueryLibrary<HostInterface>>();
 
-        protected Func<ParameterResolverValue[],ParameterResolverValue> GetLibraryProc(string name)
+        protected HostedProc<HostInterface> GetLibraryProc(string name)
         {
             for (int i= 0;i < _Libraries.Count; i++)
             {
@@ -59,7 +77,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return null;
         }
-        public int AddLibrary(IActionQueryLibrary lib)
+        public int AddLibrary(IActionQueryLibrary<HostInterface> lib)
         {
             int index = _Libraries.IndexOf(lib);
             if (index < 0)
@@ -82,7 +100,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             if (proc != null)
             {
-                return proc(args);
+                return proc(_Context, args);
             }
             throw new Exception($"Method {method} not found.");
         }   
@@ -93,7 +111,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 return dctx.Evaluate(param);
             } else if (_Context is INodePluginContext nctx) {
                 return nctx.Evaluate(param);
-            }else if (_Context is INodeExecutionContext ctx) {
+            }else if (_Context is INodeExecutionContext ctx) { // This is not expected to be used
                 return ctx.Evaluate(param);
             }
 
@@ -169,10 +187,23 @@ namespace Ccf.Ck.SysPlugins.Utilities
             if (_stepsdone <= 0) return false;
             return true;
         }
+
         #region Supplimentary
         public bool Trace { get; set; }
         public int TraceStepsLimit { get; set; } = 1000;
         #endregion
+        #endregion
+
+        #region IEnumerable
+        public IEnumerator<KeyValuePair<string, HostedProc<HostInterface>>> GetEnumerator()
+        {
+            return ((IEnumerable<KeyValuePair<string, HostedProc<HostInterface>>>)_Callbacks).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)_Callbacks).GetEnumerator();
+        }
         #endregion
     }
 }

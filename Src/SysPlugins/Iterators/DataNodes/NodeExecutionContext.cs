@@ -700,6 +700,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
             public IProcessingContext ProcessingContext => Context.ProcessingContext;
 
+            public string Path => Context.Path;
+
+            public string NodeKey => Context.NodeKey;
+
             public string Action => Context.Action;
 
             public string Operation => Context.Operation;
