@@ -48,11 +48,30 @@
 		- Version 1.0.36: Add support for RedirectAfterLogin in the Authorization section
 		- Version 1.0.37: Extend the file watchers to restart the application when changes (for faster development)
 		- Version 1.0.38: Fixed bug with IHost not showing starting process in the console
+		- Version 1.0.39: Update referenced project: Ccf.Ck.NodePlugins.Base for nuget
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\Src\Middleware\Ccf.Ck.Web.Middleware.csproj" />
+    <ProjectReference Include="..\Src\NodePlugins\Base\Ccf.Ck.NodePlugins.Base.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\Call\Ccf.Ck.SysPlugins.Data.Call.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\Db.ADO\Ccf.Ck.SysPlugins.Data.Db.ADO.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\FileTransaction\Ccf.Ck.SysPlugins.Data.FileTransaction.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\FileUpload\Ccf.Ck.SysPlugins.Data.FileUpload.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\Internal\Ccf.Ck.SysPlugins.Data.Internal.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\Json\Ccf.Ck.SysPlugins.Data.Json.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\RawFiles\Ccf.Ck.SysPlugins.Data.RawFiles.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\UploadFileStream\Ccf.Ck.SysPlugins.Data.UploadFileStream.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Iterators\DataNodes\Ccf.Ck.SysPlugins.Iterators.DataNodes.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Services\Ccf.Ck.SysPlugins.Services.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\View.Html\Ccf.Ck.SysPlugins.Views.Html.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Support\ParameterExpression\Ccf.Ck.SysPlugins.Support.ParameterExpression.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Support\ParameterValidation\Ccf.Ck.SysPlugins.Support.ParameterValidation.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\UserProfileManager\Ccf.Ck.SysPlugins.Data.UserProfileManager.csproj" />
   </ItemGroup>
 </Project>
