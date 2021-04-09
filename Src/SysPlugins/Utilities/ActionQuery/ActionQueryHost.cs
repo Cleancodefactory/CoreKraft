@@ -30,10 +30,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
             {
                 if (context is INodePluginContext)
                 {
+                    AddLibrary(new VariablesLibrary<HostInterface>());
                     AddLibrary(DefaultLibraryNodePlugin<HostInterface>.Instance);
                 }
                 else if (context is IDataLoaderContext)
                 {
+                    AddLibrary(new VariablesLibrary<HostInterface>());
                     AddLibrary(DefaultLibraryLoaderPlugin<HostInterface>.Instance);
                 }
             }
