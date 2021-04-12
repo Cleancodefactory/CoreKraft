@@ -43,6 +43,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return HasResults;
                 case nameof(SetResult):
                     return SetResult;
+
+                case nameof(CSetting):
+                    return CSetting;
+                case nameof(CSettingLoader):
+                    return CSettingLoader;
+
             }
             return base.GetProc(name);
         }
@@ -152,6 +158,59 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             var ctx = _ctx as INodePluginContext;
             return new ParameterResolverValue(ctx.Operation);
+        }
+        #endregion
+
+        #region Settings
+        public ParameterResolverValue CSetting(HostInterface _ctx, ParameterResolverValue[] args)
+        {
+            var ctx = _ctx as INodePluginContext;
+            if (args.Length < 1 || args.Length > 2)
+            {
+                throw new ArgumentException($"CSetting accepts 1 or two arguments, but {args.Length} were given.");
+            }
+            var name = args[0].Value as string;
+            if (name == null)
+            {
+                throw new ArgumentException($"CSetting first argument must be string - the name of the custom setting to obtain.");
+            }
+            if (ctx.OwnContextScoped.CustomSettings.TryGetValue(name, out string val))
+            {
+                return new ParameterResolverValue(val);
+            }
+            if (args.Length > 1)
+            {
+                return args[1];
+            }
+            else
+            {
+                return new ParameterResolverValue(null);
+            }
+        }
+        public ParameterResolverValue CSettingLoader(HostInterface _ctx, ParameterResolverValue[] args)
+        {
+            var ctx = _ctx as INodePluginContext;
+            if (args.Length < 1 || args.Length > 2)
+            {
+                throw new ArgumentException($"CSettingLoader accepts 1 or two arguments, but {args.Length} were given.");
+            }
+            var name = args[0].Value as string;
+            if (name == null)
+            {
+                throw new ArgumentException($"CSettingLoader first argument must be string - the name of the custom setting to obtain.");
+            }
+            if (ctx.DataLoaderContextScoped.CustomSettings.TryGetValue(name, out string val))
+            {
+                return new ParameterResolverValue(val);
+            }
+            if (args.Length > 1)
+            {
+                return args[1];
+            }
+            else
+            {
+                return new ParameterResolverValue(null);
+            }
         }
         #endregion
     }

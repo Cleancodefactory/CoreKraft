@@ -34,6 +34,30 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return lastvalue;
         }
+        public ParameterResolverValue Undefine(HostInteface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 1)
+            {
+                throw new ArgumentException("Undefine requires at least one argument. All the arguments are names of variables to undefine.");
+            }
+            var count = args.Length;
+            int n = 0;
+            for (int i = 0; i < count; i++)
+            {
+                var name = args[i].Value as string;
+                
+                if (name != null)
+                {
+                    _Variables.Remove(name);
+                    n++;
+                }
+                else
+                {
+                    throw new ArgumentException($"Undefine - expected name of variable is not a string at argument index {i}.");
+                }
+            }
+            return new ParameterResolverValue(n);
+        }
         public ParameterResolverValue Get(HostInteface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1)
@@ -57,6 +81,60 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 throw new ArgumentException("Get requires string argument - the name of the variable, but got something else.");
             }
         }
+        public ParameterResolverValue Inc(HostInteface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1)
+            {
+                throw new ArgumentException("Inc requires single argument - the name of the variable to increment.");
+            }
+            var name = args[0].Value as string;
+            if (name != null)
+            {
+                if (_Variables.ContainsKey(name))
+                {
+                    var v = _Variables[name];
+                    int n = Convert.ToInt32(v.Value);
+                    v.Value = n + 1;
+                    _Variables[name] = v;
+                    return v;
+                }
+                else
+                {
+                    return new ParameterResolverValue(null);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Inc requires string argument - the name of the variable, but got something else.");
+            }
+        }
+        public ParameterResolverValue Dec(HostInteface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1)
+            {
+                throw new ArgumentException("Dec requires single argument - the name of the variable to increment.");
+            }
+            var name = args[0].Value as string;
+            if (name != null)
+            {
+                if (_Variables.ContainsKey(name))
+                {
+                    var v = _Variables[name];
+                    int n = Convert.ToInt32(v.Value);
+                    v.Value = n - 1;
+                    _Variables[name] = v;
+                    return v;
+                }
+                else
+                {
+                    return new ParameterResolverValue(null);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Dec requires string argument - the name of the variable, but got something else.");
+            }
+        }
         public HostedProc<HostInteface> GetProc(string name)
         {
             switch (name)
@@ -65,6 +143,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return Get;
                 case "Set":
                     return Set;
+                case "Inc":
+                    return Get;
+                case "Dec":
+                    return Set;
+                case "Undefine":
+                    return Undefine;
             }
             return null;
         }

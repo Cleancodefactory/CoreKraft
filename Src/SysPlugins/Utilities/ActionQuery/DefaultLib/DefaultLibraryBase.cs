@@ -3,32 +3,36 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.Models.Settings;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
-    public class DefaultLibraryBase<HostInteface> : IActionQueryLibrary<HostInteface> where HostInteface : class
+    public class DefaultLibraryBase<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
 
 
-        public virtual HostedProc<HostInteface> GetProc(string name)
+        public virtual HostedProc<HostInterface> GetProc(string name)
         {
             switch (name)
             {
-                case "Add":
+                case nameof(Add):
                     return Add;
-                case "TryAdd":
+                case nameof(TryAdd):
                     return TryAdd;
-                case "Concat":
+                case nameof(Concat):
                     return Concat;
-                case "Cast":
+                case nameof(Cast):
                     return Cast;
+                case nameof(GSetting):
+                    return GSetting;
                 default:
                     return null;
             }
         }
 
         #region Basic procedures
-        public ParameterResolverValue Add(HostInteface ctx, ParameterResolverValue[] args)
+        public ParameterResolverValue Add(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Any(a => a.Value is double || a.Value is float)) // Double result
             { 
@@ -43,7 +47,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 return new ParameterResolverValue(null);
             }
         }
-        public ParameterResolverValue TryAdd(HostInteface ctx, ParameterResolverValue[] args)
+        public ParameterResolverValue TryAdd(HostInterface ctx, ParameterResolverValue[] args)
         {
             try
             {
@@ -54,11 +58,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 return new ParameterResolverValue(null);
             }
         }
-        public ParameterResolverValue Concat(HostInteface ctx, ParameterResolverValue[] args)
+        public ParameterResolverValue Concat(HostInterface ctx, ParameterResolverValue[] args)
         {
             return new ParameterResolverValue(String.Concat(args.Select(a => a.Value != null ? a.Value.ToString() : "")));
         }
-        public ParameterResolverValue Cast(HostInteface ctx, ParameterResolverValue[] args)
+        public ParameterResolverValue Cast(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Cast requires two arguments.");
             string stype = args[0].Value as string;
@@ -78,6 +82,55 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
+        #endregion
+
+        #region Settings
+        public ParameterResolverValue GSetting(HostInterface _ctx, ParameterResolverValue[] args)
+        {
+            KraftGlobalConfigurationSettings kgcf = null;
+            var ctx = _ctx as IDataLoaderContext;
+            if (ctx != null)
+            {
+                kgcf = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+            }
+            else
+            {
+                var nctx = _ctx as INodePluginContext;
+                if (nctx != null)
+                {
+                    kgcf = nctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+                }
+            }
+            if (kgcf == null)
+            {
+                throw new Exception("Cannot obtain Kraft global settings");
+            }
+            if (args.Length != 1)
+            {
+                throw new ArgumentException($"GSetting accepts one argument, but {args.Length} were given.");
+            }
+            var name = args[0].Value as string;
+
+            if (name == null)
+            {
+                throw new ArgumentException($"GSetting argument must be string - the name of the global kraft setting to obtain.");
+            }
+            switch (name)
+            {
+                case "EnvironmentName":
+                    return new ParameterResolverValue(kgcf.EnvironmentSettings.EnvironmentName);
+                case "ContentRootPath":
+                    return new ParameterResolverValue(kgcf.EnvironmentSettings.ContentRootPath);
+                case "ApplicationName":
+                    return new ParameterResolverValue(kgcf.EnvironmentSettings.ApplicationName);
+                case "StartModule":
+                    return new ParameterResolverValue(kgcf.GeneralSettings.DefaultStartModule);
+                case "ClientId":
+                    return new ParameterResolverValue(kgcf.GeneralSettings.ClientId);
+
+            }
+            throw new ArgumentException($"The setting {name} is not supported");
+        }
         #endregion
     }
 }

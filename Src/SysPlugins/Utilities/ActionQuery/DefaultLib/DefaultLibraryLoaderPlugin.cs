@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.Models.Settings;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -43,6 +44,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return HasResults;
                 case nameof(SetResult):
                     return SetResult;
+
+                case nameof(CSetting):
+                    return CSetting;
             }
             return base.GetProc(name);
         }
@@ -153,6 +157,33 @@ namespace Ccf.Ck.SysPlugins.Utilities
             var ctx = _ctx as IDataLoaderContext;
             return new ParameterResolverValue(ctx.Operation);
         }
+        #endregion
+
+        #region Settings
+        public ParameterResolverValue CSetting(HostInterface _ctx, ParameterResolverValue[] args)
+        {
+            var ctx = _ctx as IDataLoaderContext;
+            if (args.Length < 1 || args.Length > 2) {
+                throw new ArgumentException($"CSetting accepts 1 or two arguments, but {args.Length} were given.");
+            }
+            var name = args[0].Value as string;
+            if (name == null)
+            {
+                throw new ArgumentException($"CSetting first argument must be string - the name of the custom setting to obtain.");
+            }
+            if (ctx.DataLoaderContextScoped.CustomSettings.TryGetValue(name, out string val))
+            {
+                return new ParameterResolverValue(val);
+            }
+            if (args.Length > 1)
+            {
+                return args[1];
+            } else
+            {
+                return new ParameterResolverValue(null);
+            }
+        }
+        
         #endregion
     }
 }

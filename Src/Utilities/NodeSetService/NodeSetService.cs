@@ -90,6 +90,7 @@ namespace Ccf.Ck.Utilities.NodeSetService
             ReorderPlugins(startNode.Read);
             ReorderPlugins(startNode.Write);
 
+            LoadQueryFiles(nodeSetFile, startNode);
             LoadFileContent(nodeSetFile, startNode);
             startNode.NodeSet = nodeSet;
             startNode.Setup();
@@ -115,6 +116,52 @@ namespace Ccf.Ck.Utilities.NodeSetService
                 operation.CustomPlugins.Clear();
             }
         }
+
+        private void LoadQueryFiles(string fileName, Node node)
+        {
+            if (node != null)
+            {
+                if (node.Read != null && node.Read.Select != null && node.Read.Select.HasLoadQuery())
+                {
+                    ReadQueryFile(fileName, node.Read.Select);
+                }
+                if (node.Write != null)
+                {
+                    if (node.Write.Insert != null && node.Write.Insert.HasLoadQuery())
+                    {
+                        ReadQueryFile(fileName, node.Write.Insert);
+                    }
+                    if (node.Write.Update != null && node.Write.Update.HasLoadQuery())
+                    {
+                        ReadQueryFile(fileName, node.Write.Update);
+                    }
+                    if (node.Write.Delete != null && node.Write.Delete.HasLoadQuery())
+                    {
+                        ReadQueryFile(fileName, node.Write.Delete);
+                    }
+                }
+                if (node.HasLookup())
+                {
+                    foreach (Lookup lookup in node.Lookups)
+                    {
+                        if (lookup.HasLoadQuery()) ReadQueryFile(fileName, lookup);
+                    }
+                }
+            }
+        }
+        private void ReadQueryFile(string fileName, ActionBase action)
+        {
+            string filePath = CalculateFilePath(fileName, action.LoadQuery);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"The requested file: {filePath} was not found");
+            }
+
+            action.Query = File.ReadAllText(filePath);
+            action.LoadQuery = null;
+        }
+
+
 
         private void LoadFileContent(string fileName, Node node)
         {
