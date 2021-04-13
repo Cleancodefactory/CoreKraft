@@ -14,16 +14,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
 
         }
-        public static DefaultLibraryLoaderPlugin<HostInterface> Instance { get; private set; }
+        private static readonly DefaultLibraryLoaderPlugin<HostInterface> _Instance = new DefaultLibraryLoaderPlugin<HostInterface>();
+        public static DefaultLibraryLoaderPlugin<HostInterface> Instance { get { return _Instance; } }
 
-        private class __Creator
-        {
-            static __Creator()
-            {
-                DefaultLibraryLoaderPlugin<HostInterface>.Instance = new DefaultLibraryLoaderPlugin<HostInterface>();
-            }
-        }
-
+        
         public override HostedProc<HostInterface> GetProc(string name)
         {
             // TODO: Return local methods
@@ -51,7 +45,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return base.GetProc(name);
         }
 
-        #region
+        #region results
 
         public ParameterResolverValue AddResult(HostInterface ctx, ParameterResolverValue[] args)
         {

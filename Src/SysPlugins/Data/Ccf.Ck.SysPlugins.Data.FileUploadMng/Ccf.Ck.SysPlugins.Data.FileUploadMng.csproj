@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
     <ProjectReference Include="..\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
   </ItemGroup>
 

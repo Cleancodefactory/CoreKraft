@@ -23,6 +23,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public HostInterface Context { 
             get { return _Context;  }
         }
+
+        
         public ActionQueryHost(HostInterface context, bool NoDefaultLibrary = false)
         {
             _Context = context;

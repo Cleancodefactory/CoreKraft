@@ -13,15 +13,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
 
         }
-        public static DefaultLibraryNodePlugin<HostInterface> Instance { get; private set; }
-
-        private class __Creator
-        {
-            static __Creator()
-            {
-                DefaultLibraryNodePlugin<HostInterface>.Instance = new DefaultLibraryNodePlugin<HostInterface>();
-            }
-        }
+        private static readonly DefaultLibraryNodePlugin<HostInterface> _Instance = new DefaultLibraryNodePlugin<HostInterface>();
+        public static DefaultLibraryNodePlugin<HostInterface> Instance { get {
+                return _Instance;
+            } } 
 
         public override HostedProc<HostInterface> GetProc(string name)
         {

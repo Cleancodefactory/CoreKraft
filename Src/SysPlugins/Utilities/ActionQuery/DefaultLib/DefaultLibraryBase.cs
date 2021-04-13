@@ -26,6 +26,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return Cast;
                 case nameof(GSetting):
                     return GSetting;
+                case nameof(Throw):
+                    return Throw;
+                case nameof(IsEmpty):
+                    return IsEmpty;
+                case nameof(TypeOf):
+                    return TypeOf;
+                case nameof(IsNumeric):
+                    return IsNumeric;
                 default:
                     return null;
             }
@@ -62,6 +70,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             return new ParameterResolverValue(String.Concat(args.Select(a => a.Value != null ? a.Value.ToString() : "")));
         }
+        public ParameterResolverValue IsEmpty(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("IsEmpty requires single argument.");
+            var val = args[0].Value as string;
+            return new ParameterResolverValue(string.IsNullOrWhiteSpace(val));
+        }
         public ParameterResolverValue Cast(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Cast requires two arguments.");
@@ -75,11 +89,41 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return new ParameterResolverValue(Convert.ToBoolean(args[1].Value));
                 case "int":
                     return new ParameterResolverValue(Convert.ToInt32(args[1].Value));
+                case "long":
+                    return new ParameterResolverValue(Convert.ToInt64(args[1].Value));
                 case "double":
                     return new ParameterResolverValue(Convert.ToDouble(args[1].Value));
                 default:
-                    throw new ArgumentException("Parameter 1 contains unrecognized type name valida types are: string,int,double,bool");
+                    throw new ArgumentException("Parameter 1 contains unrecognized type name valida types are: string,int,long, double,bool");
             }
+        }
+
+        public ParameterResolverValue TypeOf(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("TypeOf requires one argument.");
+            string stype = null;
+            if (args[0].Value == null) return new ParameterResolverValue("null");
+            if (args[0].Value is string) return new ParameterResolverValue("string");
+            Type tc = args[0].Value.GetType();
+            if (tc == typeof(int) || tc == typeof(uint)) return new ParameterResolverValue("int");
+            if (tc == typeof(long) || tc == typeof(ulong)) return new ParameterResolverValue("long");
+            if (tc == typeof(double) || tc == typeof(float)) return new ParameterResolverValue("double");
+            if (tc == typeof(short) || tc == typeof(ushort)) return new ParameterResolverValue("short");
+            if (tc == typeof(char) || tc == typeof(byte)) return new ParameterResolverValue("byte");
+            if (tc == typeof(bool)) return new ParameterResolverValue("bool");
+
+            return new ParameterResolverValue("unknown");
+        }
+
+        public ParameterResolverValue IsNumeric(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("IsNumeric requires one argument.");
+            Type tc = args[0].Value.GetType();
+            if (tc == typeof(int) || tc == typeof(uint) || tc == typeof(long) || tc == typeof(ulong)
+                || tc == typeof(double) || tc == typeof(float) || tc == typeof(short) || tc == typeof(ushort) ||
+                tc == typeof(char) || tc == typeof(byte)) return new ParameterResolverValue(true);
+
+            return new ParameterResolverValue(false);
         }
 
         #endregion
@@ -131,6 +175,24 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             throw new ArgumentException($"The setting {name} is not supported");
         }
+
         #endregion
+
+        public ParameterResolverValue Throw(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            string extext = null;
+            if (args.Length > 0)
+            {
+                if (args[0].Value is string)
+                {
+                    extext = args[0].Value as string;
+                }
+            } 
+            else
+            {
+                extext = "Exception raised intentionally from an ActionQuery code";
+            }
+            throw new Exception(extext);
+        }
     }
 }
