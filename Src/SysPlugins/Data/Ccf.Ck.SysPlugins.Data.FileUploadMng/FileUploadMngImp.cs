@@ -45,7 +45,9 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                     { nameof(SaveFile), SaveFile },
                     { nameof(PrependFileName), PrependFileName },
                     { nameof(CreateDirectory), CreateDirectory },
-                    { nameof(SaveFileToSpread), SaveFileToSpread }
+                    { nameof(SaveFileToSpread), SaveFileToSpread },
+                    { nameof(PostedFile), this.PostedFile },
+                    { nameof(FileResponse), FileResponse }
                 };
 
                 var result = runner.ExecuteScalar(host);
@@ -74,7 +76,9 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                     { nameof(SaveFile), SaveFile },
                     { nameof(PrependFileName), PrependFileName },
                     { nameof(CreateDirectory), CreateDirectory },
-                    { nameof(SaveFileToSpread), SaveFileToSpread }
+                    { nameof(SaveFileToSpread), SaveFileToSpread },
+                    { nameof(PostedFile), this.PostedFile },
+                    { nameof(FileResponse), FileResponse }
                 };
 
                 var result = runner.ExecuteScalar(host);
@@ -147,6 +151,12 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
             if (Path.IsPathFullyQualified(file)) throw new ArgumentException("CombinePaths allows only partial paths for the second argument");
             return new ParameterResolverValue(Path.Combine(path, file));
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args">(IPostedFile pf, string savepath)</param>
+        /// <returns></returns>
         public ParameterResolverValue SaveFile(IDataLoaderContext ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Save file takes two arguments: file, save_path");
@@ -198,7 +208,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
             return new ParameterResolverValue(path);
         }
         /// <summary>
-        /// 
+        /// File names will look like 345-somename.jpg
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="args">(sring basedir, int spread, long id, IPostedFile file)</param>
@@ -244,7 +254,35 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
             return new ParameterResolverValue(filespreaddir);
         }
         
+        /// <summary>
+        /// Sets the response to bynary with an implicitly created PostedFile
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args">(string filepath, string contentType)</param>
+        /// <returns></returns>
+        public ParameterResolverValue PostedFile(IDataLoaderContext ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 2) throw new ArgumentException("PostedFile accepts 1 or 2 arguments (filepath[, contentType])");
+            var filepath = args[0].Value as string;
+            var contentType = args[1].Value as string; // TODO: Calc if missing
+            if (string.IsNullOrWhiteSpace(filepath)) throw new ArgumentException("PostedFile - filepath is empty or null");
+            if (!File.Exists(filepath)) throw new Exception("PostedFile - file does not exist");
+            var fi = new FileInfo(filepath);
 
+            var pf  = new PostedFile(contentType, 0, Path.GetFileName(filepath), filepath, path =>
+            {
+                return File.Open(path as string, FileMode.Open);
+            }, filepath);
+            return new ParameterResolverValue(pf);
+        }
+        public ParameterResolverValue FileResponse(IDataLoaderContext ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("FileResponse accepts 1 argument (PostedFile)");
+            var pf = args[0].Value as IPostedFile;
+            if (pf == null) throw new ArgumentException("FileResponse - argument is not IPostedFile. Use FileResponse(PostedFile(...))");
+            ctx.ProcessingContext.ReturnModel.BinaryData = pf;
+            return new ParameterResolverValue(pf);
+        }
         #endregion
 
     }

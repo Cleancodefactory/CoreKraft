@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.ContextBasket;
+using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Data.Base;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Utilities;
@@ -30,7 +31,10 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                 {
                     throw new Exception(runner.ErrorText);
                 }
-                var host = new ActionQueryHost<Context>(execContext);
+                var host = new ActionQueryHost<Context>(execContext)
+                {
+                    { "HostInfo", HostInfo }
+                };
 
                 var result = runner.ExecuteScalar(host);
             }
@@ -64,5 +68,10 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
             return null;
         }
         #endregion
+
+        public ParameterResolverValue HostInfo(IDataLoaderContext ctx, ParameterResolverValue[] args)
+        {
+            return new ParameterResolverValue("Scripter 1.0");
+        }
     }
 }

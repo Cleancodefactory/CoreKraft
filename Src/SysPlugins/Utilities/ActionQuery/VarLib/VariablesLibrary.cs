@@ -144,9 +144,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 case "Set":
                     return Set;
                 case "Inc":
-                    return Get;
+                    return Inc;
                 case "Dec":
-                    return Set;
+                    return Dec;
                 case "Undefine":
                     return Undefine;
             }
