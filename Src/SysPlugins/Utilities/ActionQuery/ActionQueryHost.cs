@@ -24,7 +24,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             get { return _Context;  }
         }
 
-        
+       
         public ActionQueryHost(HostInterface context, bool NoDefaultLibrary = false)
         {
             _Context = context;
@@ -175,26 +175,47 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region IActionQueryHostControl
-        public bool StartTrace()
+        public bool StartTrace(IEnumerable<Instruction> program)
         {
+            _lasttrace = null;
             if (Trace)
             {
                 _stepsdone = TraceStepsLimit;
+                _lasttrace = new ActionQueryTrace(program,RecordedSteps);
                 return true;
             }
             return false;
         }
         private int _stepsdone = 0;
-        public bool Step(int pc, Instruction instruction, ParameterResolverValue[] arguments, IEnumerable<ParameterResolverValue> stack = null)
+        private ActionQueryTrace _lasttrace = null;
+        public bool Step(int pc, Instruction instruction, ParameterResolverValue[] arguments, IEnumerable<ParameterResolverValue> stack)
         {
             // TODO: Collect tracing data
+            if (_lasttrace != null)
+            {
+                _lasttrace.AddStep(RecordStep(pc, instruction, arguments, stack));
+            }
             if (_stepsdone <= 0) return false;
             return true;
         }
 
         #region Supplimentary
+
+        public ActionQueryTrace GetTraceInfo()
+        {
+            return _lasttrace;
+        }
         public bool Trace { get; set; }
         public int TraceStepsLimit { get; set; } = 1000;
+
+        public int RecordedSteps { get; set; } = 10;
+        public int RecordedStackDepth { get; set; } = 5;
+
+        protected ActionQueryStep RecordStep(int pc, Instruction instruction, ParameterResolverValue[] arguments, IEnumerable<ParameterResolverValue> stack)
+        {
+            return new ActionQueryStep(pc, instruction, arguments, stack, _Libraries.Select(l => l.GetSymbols()));
+        }
+
         #endregion
         #endregion
 

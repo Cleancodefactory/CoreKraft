@@ -8,5 +8,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
     public interface IActionQueryLibrary<HostInterface> where HostInterface: class
     {
         HostedProc<HostInterface> GetProc(string name);
+
+        SymbolSet GetSymbols();
     }
 }

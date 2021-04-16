@@ -11,7 +11,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
     public class DefaultLibraryBase<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
 
-
+        #region IActionQueryLibrary
         public virtual HostedProc<HostInterface> GetProc(string name)
         {
             switch (name)
@@ -38,6 +38,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return null;
             }
         }
+        public virtual SymbolSet GetSymbols()
+        {
+            return new SymbolSet("Default library (no symbols)", null);
+        }
+        #endregion
 
         #region Basic procedures
         public ParameterResolverValue Add(HostInterface ctx, ParameterResolverValue[] args)

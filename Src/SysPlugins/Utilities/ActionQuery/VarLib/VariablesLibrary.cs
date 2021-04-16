@@ -1,6 +1,7 @@
 ﻿using Ccf.Ck.Models.Resolvers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Ccf.Ck.SysPlugins.Utilities
@@ -135,6 +136,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 throw new ArgumentException("Dec requires string argument - the name of the variable, but got something else.");
             }
         }
+
+        #region IActionQueryLibrary
         public HostedProc<HostInteface> GetProc(string name)
         {
             switch (name)
@@ -152,5 +155,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return null;
         }
+        public virtual SymbolSet GetSymbols()
+        {
+            return new SymbolSet("Variables library", _Variables.Select(kv => new SymbolEntry(kv.Key, kv.Value)));
+        }
+        #endregion
     }
 }

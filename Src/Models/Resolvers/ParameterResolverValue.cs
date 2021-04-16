@@ -75,6 +75,27 @@ namespace Ccf.Ck.Models.Resolvers
         /// </summary>
         public EResolverValueType ValueType;
 
+        private string _ValTypeString()
+        {
+            if (Value == null) return "null";
+            if (Value is int || Value is uint) return $"{Value} int";
+            if (Value is short || Value is ushort) return $"{Value} short";
+            if (Value is char || Value is byte) return $"{Value} byte";
+            if (Value is bool) return $"{Value} bool";
+            if (Value is long || Value is ulong) return $"{Value} long";
+            if (Value is string) return $"'{Value}' string";
+            if (Value is double || Value is float) return $"{Value} double";
+            if (Value is decimal) return $"{Value} decimal";
+            return $"other({Value.GetType().Name})";
+        }
+
+        public override string ToString()
+        {
+            EValueDataType datatype = (EValueDataType)(DataType & 0x00FFFF);
+            EValueDataSize datasize = (EValueDataSize)(DataType & 0xFF0000);
+            return $"<{_ValTypeString()} <{ValueType.ToString()}> <{datatype.ToString()},{datasize.ToString()}>>";
+        }
+
         #region basic helpers
         public EValueDataType ValueDataType {
             get => (EValueDataType)(0xFFFF & (uint)DataType);

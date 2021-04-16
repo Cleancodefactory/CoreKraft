@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.ContextBasket;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Data.Base;
 using Ccf.Ck.SysPlugins.Interfaces;
@@ -26,17 +27,28 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
             string qry = GetQuery(execContext);
             if (qry != null)
             {
-                var runner = Compiler.Compile(qry);
-                if (runner.ErrorText != null)
+                try
                 {
-                    throw new Exception(runner.ErrorText);
-                }
-                var host = new ActionQueryHost<Context>(execContext)
-                {
-                    { "HostInfo", HostInfo }
-                };
+                    var runner = Compiler.Compile(qry);
+                    if (runner.ErrorText != null)
+                    {
+                        throw new Exception(runner.ErrorText);
+                    }
+                    var host = new ActionQueryHost<Context>(execContext)
+                    {
+                        { "HostInfo", HostInfo }
+                    };
 
-                var result = runner.ExecuteScalar(host);
+                    var result = runner.ExecuteScalar(host);
+                } 
+                catch (Exception ex)
+                {
+                    KraftLogger.LogError("@@@", ex);
+                    if (ex.InnerException != null)
+                    {
+                        throw ex.InnerException;
+                    }
+                }
             }
         }
         #endregion
