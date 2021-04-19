@@ -25,5 +25,7 @@ namespace Ccf.Ck.Models.DirectCall
                 _CallImp = value;
             }
         }
+
+        
     }
 }

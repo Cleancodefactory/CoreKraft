@@ -18,6 +18,10 @@ namespace Ccf.Ck.SysPlugins.Interfaces
         IPluginServiceManager PluginServiceManager { get; }
         IProcessingContext ProcessingContext { get; }
 
+        string Path { get; }
+
+        string NodeKey { get; }
+
         /// <summary>
         /// Contains the current operation - select, insert, update, delete
         /// </summary>

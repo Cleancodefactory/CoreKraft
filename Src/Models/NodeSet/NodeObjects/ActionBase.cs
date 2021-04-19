@@ -22,6 +22,12 @@ namespace Ccf.Ck.Models.NodeSet
             set;
         }
 
+        public string LoadQuery
+        {
+            get;
+            set;
+        }
+
         public string Query
         {
             get;

@@ -16,6 +16,7 @@ namespace Ccf.Ck.Models.NodeSet
 
             return false;
         }
+        public bool HasLoadQuery() => !string.IsNullOrEmpty(this.LoadQuery);
 
         public bool HasFile() => !string.IsNullOrEmpty(this.File);        
 
