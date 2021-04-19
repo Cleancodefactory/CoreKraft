@@ -66,7 +66,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             {
                 return Add(ctx, args);
             }
-            catch (Exception ex)
+            catch 
             {
                 return new ParameterResolverValue(null);
             }
@@ -106,7 +106,6 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public ParameterResolverValue TypeOf(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("TypeOf requires one argument.");
-            string stype = null;
             if (args[0].Value == null) return new ParameterResolverValue("null");
             if (args[0].Value is string) return new ParameterResolverValue("string");
             Type tc = args[0].Value.GetType();

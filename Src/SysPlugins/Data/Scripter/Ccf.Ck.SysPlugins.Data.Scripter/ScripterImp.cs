@@ -32,6 +32,7 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                     var runner = Compiler.Compile(qry);
                     if (runner.ErrorText != null)
                     {
+                        
                         throw new Exception(runner.ErrorText);
                     }
                     var host = new ActionQueryHost<Context>(execContext)
@@ -43,6 +44,7 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                 } 
                 catch (Exception ex)
                 {
+                    
                     KraftLogger.LogError("@@@", ex);
                     if (ex.InnerException != null)
                     {
