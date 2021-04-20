@@ -14,7 +14,7 @@ namespace Ccf.Ck.SysPlugins.Interfaces
         IPluginsSynchronizeContextScoped DataLoaderContextScoped { get; }
         IPluginServiceManager PluginServiceManager { get;  }
 	    IPluginAccessor<INodePlugin> CustomPluginAccessor { get; }
-        INode CurrentNode { get; } // determine what part of this will be needed !!!
+        Node CurrentNode { get; } // determine what part of this will be needed !!!
 
         object Data { get; } // The data root (comes from the client or is in a process of generation)
 

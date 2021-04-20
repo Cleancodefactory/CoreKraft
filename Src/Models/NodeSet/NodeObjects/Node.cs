@@ -20,13 +20,13 @@ namespace Ccf.Ck.Models.NodeSet
             _Parameters = new List<Parameter>();
         }
 
-#region Private Fields
+        #region Private Fields
         private List<View> _Views;
         private List<Lookup> _Lookups;
         private List<Node> _Children;
         private List<Parameter> _Parameters;
-#endregion
-#region Public Properties
+        #endregion
+        #region Public Properties
         public string NodeKey
         {
             get;
@@ -45,7 +45,7 @@ namespace Ccf.Ck.Models.NodeSet
             set;
         }
 
-        public string State
+        public bool Trace
         {
             get;
             set;
@@ -132,6 +132,6 @@ namespace Ccf.Ck.Models.NodeSet
             get;
             set;
         }
-#endregion
+        #endregion
     }
 }

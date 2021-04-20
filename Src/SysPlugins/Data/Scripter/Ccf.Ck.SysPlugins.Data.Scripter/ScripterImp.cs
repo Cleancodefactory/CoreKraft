@@ -11,6 +11,8 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
     public class ScripterImp : DataLoaderBase<ScripterSynchronizeContextScopedImp>
     {
 
+        private const string PLUGIN_INTERNAL_NAME = "ScripterImp";
+
         #region DataLoaderBase
         protected override void ExecuteRead(IDataLoaderReadContext execContext)
         {
@@ -24,6 +26,8 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
 
         protected virtual void ExecuteQuery<Context>(Context execContext) where Context: class, IDataLoaderContext
         {
+            bool trace = execContext.CurrentNode.Trace;
+
             string qry = GetQuery(execContext);
             if (qry != null)
             {
@@ -32,20 +36,39 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                     var runner = Compiler.Compile(qry);
                     if (runner.ErrorText != null)
                     {
-                        
+                        KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n{runner.ErrorText}");
                         throw new Exception(runner.ErrorText);
                     }
                     var host = new ActionQueryHost<Context>(execContext)
                     {
                         { "HostInfo", HostInfo }
                     };
-
-                    var result = runner.ExecuteScalar(host);
+                    if (trace)
+                    {
+                        host.Trace = true;
+                    }
+                    try
+                    {
+                        var result = runner.ExecuteScalar(host);
+                    } 
+                    catch
+                    {
+                        if (trace)
+                        {
+                            var traceInfo = host.GetTraceInfo();
+                            if (traceInfo != null)
+                            {
+                                KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
+                                KraftLogger.LogError(traceInfo.ToString());
+                            }
+                        }
+                        throw;
+                    }
                 } 
                 catch (Exception ex)
                 {
-                    
-                    KraftLogger.LogError("@@@", ex);
+
+                    KraftLogger.LogError(ActionQueryTrace.ExceptionToString(ex));
                     if (ex.InnerException != null)
                     {
                         throw ex.InnerException;
