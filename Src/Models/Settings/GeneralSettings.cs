@@ -4,6 +4,7 @@ using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -55,8 +56,7 @@ namespace Ccf.Ck.Models.Settings
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {
-            Regex regex = new Regex(@"(?<first>:@(wwwroot|contentroot)@)|(?:(?<optional>\[)*%(?<env>[a-zA-Z0-9_]+)%(\])*)");
-            List<string> optionalEmpty = new List<string>();
+            Regex regex = new Regex(@"(?:(@(?<first>wwwroot|contentroot)@))|(?:(?<optional>\[)*%(?<env>[a-zA-Z0-9_]+)%(\])*)");
             for (int i = 0; i < ModulesRootFolders.Count; i++)
             {
                 ModulesRootFolders[i] = regex.Replace(ModulesRootFolders[i], m =>
@@ -82,19 +82,25 @@ namespace Ccf.Ck.Models.Settings
                         string envVariable =  Environment.GetEnvironmentVariable(m.Groups["env"].Value);
                         if (string.IsNullOrEmpty(envVariable) && m.Groups["optional"].Success)
                         {
-                            optionalEmpty.Add(ModulesRootFolders[i]);
+                            return string.Empty;
                         }
                         else
                         {
-                            return envVariable;
+                            throw new Exception($"Configured path for environment variable: {m.Groups["env"]} is not valid and doesn't exist!");
                         }
                     }
                     return null;
                 });
             }
-            foreach (string item in optionalEmpty)
+            ModulesRootFolders = ModulesRootFolders.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            DirectoryInfo directoryInfo;
+            foreach (string module in ModulesRootFolders)
             {
-                ModulesRootFolders.Remove(item);
+                directoryInfo = new DirectoryInfo(module);
+                if (!directoryInfo.Exists)
+                {
+                    throw new Exception($"Configured path for start module: {module} is not valid and doesn't exist!");
+                }
             }
         }
 
