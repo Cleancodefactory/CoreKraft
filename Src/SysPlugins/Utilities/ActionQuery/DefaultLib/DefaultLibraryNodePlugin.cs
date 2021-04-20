@@ -4,6 +4,8 @@ using System.Text;
 using System.Linq;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.Models.Settings;
+using System.IO;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -43,6 +45,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return CSetting;
                 case nameof(CSettingLoader):
                     return CSettingLoader;
+                case nameof(ModuleName):
+                    return ModuleName;
+                case nameof(ModulePath):
+                    return ModulePath;
 
             }
             return base.GetProc(name);
@@ -133,10 +139,59 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Information about what is happening
+        /// <summary>
+        /// Returns the module phisical path (without args) with single argument combines it with the module path.
+        /// </summary>
+        /// <param name="_ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue ModulePath(HostInterface _ctx, ParameterResolverValue[] args)
+        {
+            var ctx = _ctx as INodePluginContext;
+            var kgcf = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+            if (ctx != null && kgcf != null)
+            {
+                var path = kgcf.GeneralSettings.ModulesRootFolder(ctx.ProcessingContext.InputModel.Module);
+                if (!path.EndsWith("\\") && !path.EndsWith("/"))
+                {
+                    path = path + "/";
+                }
+                if (args.Length > 0)
+                {
+                    var subpath = args[0].Value as string;
+                    if (string.IsNullOrWhiteSpace(subpath))
+                    {
+                        throw new ArgumentException("The argument of ModulePath, if supplied, has to be a string - the path to combine with module path");
+                    }
+                    else
+                    {
+                        if (subpath.IndexOf("..") >= 0 || subpath.StartsWith("/") || subpath.StartsWith("\\"))
+                        {
+                            throw new ArgumentException("The argument of ModulePath, if supplied, must contain path without .. and not starting with a slash");
+                        }
+                        return new ParameterResolverValue(Path.Combine(path, subpath));
+                    }
+                }
+                else
+                {
+                    return new ParameterResolverValue(path);
+                }
+            }
+            else
+            {
+                throw new Exception("Cannot obtain the context or the global settings.");
+            }
+        }
+
+        public ParameterResolverValue ModuleName(HostInterface _ctx, ParameterResolverValue[] args)
+        {
+            var ctx = _ctx as INodePluginContext;
+            return new ParameterResolverValue(ctx.ProcessingContext.InputModel.Module);
+        }
         public ParameterResolverValue NodePath(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
-            return new ParameterResolverValue(ctx.Path);
+            return new ParameterResolverValue(ctx.ProcessingContext.InputModel.Nodepath);
             
         }
         public ParameterResolverValue NodeKey(HostInterface _ctx, ParameterResolverValue[] args)
