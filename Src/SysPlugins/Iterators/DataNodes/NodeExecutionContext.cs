@@ -644,7 +644,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public IPluginServiceManager PluginServiceManager => Context.PluginServiceManager;
 
             public IPluginAccessor<INodePlugin> CustomPluginAccessor => Context.CustomService;
-            public INode CurrentNode => Context.CurrentNode;
+            public Node CurrentNode => Context.CurrentNode;
 
             public List<Dictionary<string, object>> Datastack => Context.Datastack;
             public string Path => Context.Path;

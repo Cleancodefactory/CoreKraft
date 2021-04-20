@@ -49,7 +49,7 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                     }
                     try
                     {
-                        var result = runner.ExecuteScalar(host);
+                        var result = runner.ExecuteScalar(host, ActionQueryHost<Context>.HardLimit(execContext));
                     } 
                     catch
                     {

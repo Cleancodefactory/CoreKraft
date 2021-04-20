@@ -19,6 +19,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         where HostInterface: class
     {
 
+        public const int DEFAULT_HARDLIMIT = 5000;
+        public const string HARDLIMIT_SETTING = "AQExecutionLimit";
+
         protected HostInterface _Context = null;
         public HostInterface Context { 
             get { return _Context;  }
@@ -230,5 +233,30 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return ((IEnumerable)_Callbacks).GetEnumerator();
         }
         #endregion
+
+
+        #region Static tools
+        public static int HardLimit(HostInterface ctx)
+        {
+            if (ctx is IDataLoaderContext dctx)
+            {
+                if (dctx.OwnContextScoped.CustomSettings.TryGetValue(HARDLIMIT_SETTING, out string val))
+                {
+                    if (int.TryParse(val, out int n)) return n;
+                }
+            }
+            else if (ctx is INodePluginContext nctx)
+            {
+                if (nctx.OwnContextScoped.CustomSettings.TryGetValue(HARDLIMIT_SETTING, out string val))
+                {
+                    if (int.TryParse(val, out int n)) return n;
+                }
+            }
+            
+            return DEFAULT_HARDLIMIT; // TODO define this as a constant somewhere
+        }
+        
+        #endregion
+
     }
 }

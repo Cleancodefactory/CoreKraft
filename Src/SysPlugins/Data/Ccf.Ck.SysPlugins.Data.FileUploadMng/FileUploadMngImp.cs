@@ -8,6 +8,7 @@ using Ccf.Ck.Models.ContextBasket;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
 {
@@ -20,68 +21,132 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
     /// </summary>
     public class FileUploadMngImp : DataLoaderBase<FileUploadMngSynchronizeContextScopedImp>
     {
+
+        private const string PLUGIN_INTERNAL_NAME = "FileUploadMngImp";
         public FileUploadMngImp()
         {
         }
 
         protected override void ExecuteRead(IDataLoaderReadContext execContext)
         {
+            bool trace = execContext.CurrentNode.Trace;
             string qry = GetQuery(execContext);
             if (qry != null)
             {
-                var runner = Compiler.Compile(qry);
-                if (runner.ErrorText != null)
+                try
                 {
-                    throw new Exception(runner.ErrorText);
+                    var runner = Compiler.Compile(qry);
+                    if (runner.ErrorText != null)
+                    {
+                        KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n{runner.ErrorText}");
+                        throw new Exception(runner.ErrorText);
+                    }
+                    var host = new ActionQueryHost<IDataLoaderReadContext>(execContext)
+                    {
+                        { nameof(IsPostedFile), IsPostedFile },
+                        { nameof(PostedFileSize), PostedFileSize },
+                        { nameof(PostedFileName), PostedFileName },
+                        { nameof(PostedFileType), PostedFileType },
+                        { nameof (CombinePaths), CombinePaths },
+                        { nameof(DeleteFile), DeleteFile },
+                        { nameof(SaveFile), SaveFile },
+                        { nameof(PrependFileName), PrependFileName },
+                        { nameof(CreateDirectory), CreateDirectory },
+                        { nameof(SaveFileToSpread), SaveFileToSpread },
+                        { nameof(PostedFile), this.PostedFile },
+                        { nameof(FileResponse), FileResponse }
+                    };
+                    if (trace) host.Trace = true;
+                    try
+                    {
+                        var result = runner.ExecuteScalar(host, ActionQueryHost<IDataLoaderReadContext>.HardLimit(execContext));
+                    }
+                    catch
+                    {
+                        if (trace)
+                        {
+                            var traceInfo = host.GetTraceInfo();
+                            if (traceInfo != null)
+                            {
+                                KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
+                                KraftLogger.LogError(traceInfo.ToString());
+                            }
+                        }
+                        throw;
+                    }
                 }
-                var host = new ActionQueryHost<IDataLoaderReadContext>(execContext)
+                catch (Exception ex)
                 {
-                    { nameof(IsPostedFile), IsPostedFile },
-                    { nameof(PostedFileSize), PostedFileSize },
-                    { nameof(PostedFileName), PostedFileName },
-                    { nameof(PostedFileType), PostedFileType },
-                    { nameof (CombinePaths), CombinePaths },
-                    { nameof(DeleteFile), DeleteFile },
-                    { nameof(SaveFile), SaveFile },
-                    { nameof(PrependFileName), PrependFileName },
-                    { nameof(CreateDirectory), CreateDirectory },
-                    { nameof(SaveFileToSpread), SaveFileToSpread },
-                    { nameof(PostedFile), this.PostedFile },
-                    { nameof(FileResponse), FileResponse }
-                };
-
-                var result = runner.ExecuteScalar(host);
+                    KraftLogger.LogError(ActionQueryTrace.ExceptionToString(ex));
+                    if (ex.InnerException != null)
+                    {
+                        throw ex.InnerException;
+                    }
+                }
             }
             // Else nothing to do.
         }
 
         protected override void ExecuteWrite(IDataLoaderWriteContext execContext)
         {
+            bool trace = execContext.CurrentNode.Trace;
             string qry = GetQuery(execContext);
             if (qry != null)
             {
-                var runner = Compiler.Compile(qry);
-                if (runner.ErrorText != null)
+                try
                 {
-                    throw new Exception(runner.ErrorText);
+                    var runner = Compiler.Compile(qry);
+                    if (runner.ErrorText != null)
+                    {
+                        KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n{runner.ErrorText}");
+                        throw new Exception(runner.ErrorText);
+                    }
+                    var host = new ActionQueryHost<IDataLoaderWriteContext>(execContext)
+                    {
+                        { nameof(IsPostedFile), IsPostedFile },
+                        { nameof(PostedFileSize), PostedFileSize },
+                        { nameof(PostedFileName), PostedFileName },
+                        { nameof(PostedFileType), PostedFileType },
+                        { nameof (CombinePaths), CombinePaths },
+                        { nameof(DeleteFile), DeleteFile },
+                        { nameof(SaveFile), SaveFile },
+                        { nameof(PrependFileName), PrependFileName },
+                        { nameof(CreateDirectory), CreateDirectory },
+                        { nameof(SaveFileToSpread), SaveFileToSpread },
+                        { nameof(PostedFile), this.PostedFile },
+                        { nameof(FileResponse), FileResponse }
+                    };
+                    if (trace)
+                    {
+                        host.Trace = true;
+                    }
+                    try
+                    {
+                        var result = runner.ExecuteScalar(host, ActionQueryHost<IDataLoaderWriteContext>.HardLimit(execContext));
+                    }
+                    catch
+                    {
+                        if (trace)
+                        {
+                            var traceInfo = host.GetTraceInfo();
+                            if (traceInfo != null)
+                            {
+                                KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
+                                KraftLogger.LogError(traceInfo.ToString());
+                            }
+                        }
+                        throw;
+                    }
+                    
                 }
-                var host = new ActionQueryHost<IDataLoaderWriteContext>(execContext)
+                catch (Exception ex)
                 {
-                    { nameof(IsPostedFile), IsPostedFile },
-                    { nameof(PostedFileSize), PostedFileSize },
-                    { nameof(PostedFileName), PostedFileName },
-                    { nameof(PostedFileType), PostedFileType },
-                    { nameof (CombinePaths), CombinePaths },
-                    { nameof(DeleteFile), DeleteFile },
-                    { nameof(SaveFile), SaveFile },
-                    { nameof(PrependFileName), PrependFileName },
-                    { nameof(CreateDirectory), CreateDirectory },
-                    { nameof(SaveFileToSpread), SaveFileToSpread },
-                    { nameof(PostedFile), this.PostedFile },
-                    { nameof(FileResponse), FileResponse }
-                };
-
-                var result = runner.ExecuteScalar(host);
+                    KraftLogger.LogError(ActionQueryTrace.ExceptionToString(ex));
+                    if (ex.InnerException != null)
+                    {
+                        throw ex.InnerException;
+                    }
+                }
             }
             // Else nothing to do.
         }
