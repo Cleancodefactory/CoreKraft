@@ -55,16 +55,46 @@ namespace Ccf.Ck.Models.Settings
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {
-            string path;
+            Regex regex = new Regex(@"(?<first>:@(wwwroot|contentroot)@)|(?:(?<optional>\[)*%(?<env>[a-zA-Z0-9_]+)%(\])*)");
+            List<string> optionalEmpty = new List<string>();
             for (int i = 0; i < ModulesRootFolders.Count; i++)
             {
-                path = ModulesRootFolders[i].Replace("@wwwroot@", wwwRootPath).Replace("@contentroot@", contentRootPath);
-                DirectoryInfo directoryInfo = new DirectoryInfo(path);
-                if (!directoryInfo.Exists)
+                ModulesRootFolders[i] = regex.Replace(ModulesRootFolders[i], m =>
                 {
-                    throw new Exception($"Configured path: {path} is not valid and doesn't exist!");
-                }
-                ModulesRootFolders[i] = directoryInfo.FullName;
+                    if (m.Groups["first"].Success)//wwwroot|contentroot
+                    {
+                        switch (m.Groups["first"].Value)
+                        {
+                            case "wwwroot":
+                                {
+                                    return wwwRootPath;
+                                }
+                            case "contentroot":
+                                {
+                                    return contentRootPath;
+                                }
+                            default:
+                                break;
+                        }
+                    }
+                    else if (m.Groups["env"].Success)//%something%
+                    {
+                        string envVariable =  Environment.GetEnvironmentVariable(m.Groups["env"].Value);
+                        if (string.IsNullOrEmpty(envVariable) && m.Groups["optional"].Success)
+                        {
+                            optionalEmpty.Add(ModulesRootFolders[i]);
+                        }
+                        else
+                        {
+                            return envVariable;
+                        }
+                    }
+                    return null;
+                });
+            }
+            foreach (string item in optionalEmpty)
+            {
+                ModulesRootFolders.Remove(item);
             }
         }
 
