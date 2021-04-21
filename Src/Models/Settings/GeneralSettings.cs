@@ -145,13 +145,13 @@ namespace Ccf.Ck.Models.Settings
             return _ModuleKey2Path[moduleKey.ToLower()];
         }
 
-        public Dictionary<string, string> ModuleKey2Path
-        {
-            set
-            {
-                _ModuleKey2Path = value;
-            }
-        }
+        //public Dictionary<string, string> ModuleKey2Path
+        //{
+        //    set
+        //    {
+        //        _ModuleKey2Path = value;
+        //    }
+        //}
 
         public bool EnableThemeChange { get; set; }
     }
