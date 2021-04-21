@@ -118,6 +118,12 @@ namespace Ccf.Ck.Models.KraftModule
                             depVersion.Add(item.Key.ToLower(), item.Value);
                         }
                         KraftModuleRootConf.Dependencies = depVersion;
+                        depVersion = new Dictionary<string, string>();
+                        foreach (KeyValuePair<string, string> item in KraftModuleRootConf.OptionalDependencies??new Dictionary<string, string>())
+                        {
+                            depVersion.Add(item.Key.ToLower(), item.Value);
+                        }
+                        KraftModuleRootConf.OptionalDependencies = depVersion;
                         return true;
                     }
                 }

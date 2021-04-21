@@ -80,7 +80,11 @@ namespace Ccf.Ck.Models.Settings
                     else if (m.Groups["env"].Success)//%something%
                     {
                         string envVariable =  Environment.GetEnvironmentVariable(m.Groups["env"].Value);
-                        if (string.IsNullOrEmpty(envVariable) && m.Groups["optional"].Success)
+                        if (!string.IsNullOrEmpty(envVariable))
+                        {
+                            return envVariable;
+                        }
+                        else if (m.Groups["optional"].Success)
                         {
                             return string.Empty;
                         }
