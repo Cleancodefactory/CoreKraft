@@ -69,24 +69,26 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public static string ExceptionToString(Exception ex)
         {
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine();
             Exception current = ex;
             int level = 0;
             while (current != null)
             {
                 if (current is ActionQueryException<ParameterResolverValue> acex)
                 {
-                    sb.AppendLine($"Exception level {level++}: {current.Message}");
+                    sb.AppendLine($" --- Exception level {level++}: {current.Message}");
                     sb.AppendLine($"PC={acex.Pc}");
                     sb.AppendLine($"Instruction: {acex.Instruction}");
                     var stack = acex.AQStack;
                     if (stack != null)
                     {
-                        sb.AppendLine($"stack dump: \n {string.Join("\n", stack.Select(s => s.ToString()))}\nend of stack dump ==");
+                        sb.AppendLine($" === stack dump === \n {string.Join("\n", stack.Select(s => s.ToString()))}\n === end of stack dump ==");
                     }
+                    current = current.InnerException;
                 } 
                 else
                 {
-                    sb.AppendLine($"Exception level {level++}: {current.Message}");
+                    sb.AppendLine($" --- Exception level {level++}: {current.Message}");
                     current = current.InnerException;
                 }
             }

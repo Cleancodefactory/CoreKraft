@@ -71,6 +71,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                                 KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
                                 KraftLogger.LogError(traceInfo.ToString());
                             }
+                            KraftLogger.LogError($"{runner.DumpProgram()}\n");
                         }
                         throw;
                     }
@@ -78,10 +79,9 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                 catch (Exception ex)
                 {
                     KraftLogger.LogError(ActionQueryTrace.ExceptionToString(ex));
-                    if (ex.InnerException != null)
-                    {
-                        throw ex.InnerException;
-                    }
+
+                    throw;
+                    
                 }
             }
             // Else nothing to do.
@@ -134,6 +134,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                                 KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
                                 KraftLogger.LogError(traceInfo.ToString());
                             }
+                            KraftLogger.LogError($"{runner.DumpProgram()}\n");
                         }
                         throw;
                     }
@@ -142,10 +143,8 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                 catch (Exception ex)
                 {
                     KraftLogger.LogError(ActionQueryTrace.ExceptionToString(ex));
-                    if (ex.InnerException != null)
-                    {
-                        throw ex.InnerException;
-                    }
+                    throw;
+                    
                 }
             }
             // Else nothing to do.

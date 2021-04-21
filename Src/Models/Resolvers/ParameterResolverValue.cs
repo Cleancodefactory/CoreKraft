@@ -93,7 +93,7 @@ namespace Ccf.Ck.Models.Resolvers
         {
             EValueDataType datatype = (EValueDataType)(DataType & 0x00FFFF);
             EValueDataSize datasize = (EValueDataSize)(DataType & 0xFF0000);
-            return $"<{_ValTypeString()} <{ValueType.ToString()}> <{datatype.ToString()},{datasize.ToString()}>>";
+            return $"<{_ValTypeString()} [{ValueType.ToString()}] ({datatype.ToString()},{datasize.ToString()})>";
         }
 
         #region basic helpers

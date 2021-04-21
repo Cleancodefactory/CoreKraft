@@ -69,10 +69,7 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                 {
 
                     KraftLogger.LogError(ActionQueryTrace.ExceptionToString(ex));
-                    if (ex.InnerException != null)
-                    {
-                        throw ex.InnerException;
-                    }
+                    throw;
                 }
             }
         }
