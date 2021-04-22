@@ -13,17 +13,6 @@ namespace Ccf.Ck.Models.KraftModule
 
         public IDictionary<string, IDependable<KraftDependableModule>> Dependencies { get; set; }
         public KraftModuleRootConf KraftModuleRootConf { get; set; }
-
-        
-
-        //internal IDependable<KraftModule> GetModuleAsDependable(string key)
-        //{
-        //    string pkey = ConstructValidKey(key);
-        //    if (_KraftModulesCollection.ContainsKey(pkey))
-        //    {
-        //        return _KraftModulesCollection[pkey];
-        //    }
-        //    return null;
-        //}
+        public string KraftModuleRootPath { get; set; }
     }
 }
