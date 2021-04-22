@@ -76,7 +76,7 @@ namespace Ccf.Ck.Models.KraftModule
             }
 
             //read configs and dependencies
-            IsInitialized = ReadModuleMetaConfiguration(Path.Combine(_ModulePath, DEPENDENCY_FILE_NAME), _ModulePath);
+            IsInitialized = ReadModuleMetaConfiguration(_ModulePath);
             if (IsInitialized)
             {
                 InitConfiguredPlugins(Key, Path.Combine(_ModulePath, CONFIGURATION_FILE_NAME), cachingService);
@@ -103,13 +103,18 @@ namespace Ccf.Ck.Models.KraftModule
             }
         }
 
-        private bool ReadModuleMetaConfiguration(string packageJson, string modulePath)
+        public static bool IsValidKraftModule(string modulePath)
+        {
+            return File.Exists(Path.Combine(modulePath, DEPENDENCY_FILE_NAME));
+        }
+
+        private bool ReadModuleMetaConfiguration(string modulePath)
         {
             try
             {
-                if (File.Exists(packageJson))
+                if (IsValidKraftModule(modulePath))
                 {
-                    using (StreamReader r = new StreamReader(packageJson))
+                    using (StreamReader r = new StreamReader(Path.Combine(modulePath, DEPENDENCY_FILE_NAME)))
                     {
                         Dictionary<string, string> depVersion = new Dictionary<string, string>();
                         KraftModuleRootConf = JsonConvert.DeserializeObject<KraftModuleRootConf>(r.ReadToEnd());
