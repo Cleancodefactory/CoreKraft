@@ -45,6 +45,24 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Basic procedures
+        /*
+        public ParameterResolverValue Random(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            int limit = 10;
+            if (args.Length > 0)
+            {
+                if (args[0].Value is int n)
+                {
+                    limit = n;
+                }
+                if (args[0].Value is long l)
+                {
+                    limit = (int)l;
+                }
+            }
+            var random = new Random(1);
+        }
+        */
         public ParameterResolverValue Add(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Any(a => a.Value is double || a.Value is float)) // Double result
