@@ -12,7 +12,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 {
 
     public delegate ParameterResolverValue HostedProc<H>(H arg1, ParameterResolverValue[] arg2);
-    public class ActionQueryHost<HostInterface> :
+    public class ActionQueryHost<HostInterface> : ActionQueryHostBase,
         IActionQueryHost<ParameterResolverValue>, 
         IActionQueryHostControl<ParameterResolverValue>,
         IEnumerable<KeyValuePair<string, HostedProc<HostInterface> >>
@@ -150,31 +150,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             return new ParameterResolverValue(arg);
         }
-
         public bool IsTruthyOrFalsy(ParameterResolverValue v)
         {
-            if (v.ValueType == EResolverValueType.ValueType || v.ValueType == EResolverValueType.ContentType)
-            {
-                // TODO: Redo this with converter to cover all types. Currently other types are unlikely to happen.
-                if (v.Value == null) return false;
-                if (v.Value is int i) return i != 0;
-                if (v.Value is uint ui) return ui != 0;
-                if (v.Value is double d) return d != 0;
-                if (v.Value is long l) return l != 0;
-                if (v.Value is ulong ul) return ul != 0;
-                if (v.Value is short sh) return sh != 0;
-                if (v.Value is ushort ush) return ush != 0;
-                if (v.Value is char ch) return ch != 0;
-                if (v.Value is byte bt) return bt != 0;
-                if (v.Value is bool b) return b;
-                if (v.Value is string s) return !string.IsNullOrWhiteSpace(s);
-            } 
-            else if (v.ValueType == EResolverValueType.Invalid || v.ValueType == EResolverValueType.Skip)
-            {
-                return false;
-            } 
-            return false;
+            return ActionQueryHostBase.IsTruthyOrFalsy(v);
         }
+        
         #endregion
 
         #region IActionQueryHostControl

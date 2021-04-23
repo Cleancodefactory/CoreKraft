@@ -5,6 +5,7 @@ using System.Linq;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Models.Settings;
+using System.Collections;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -34,6 +35,24 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return TypeOf;
                 case nameof(IsNumeric):
                     return IsNumeric;
+                case nameof(Random):
+                    return Random;
+                case nameof(Neg):
+                    return Neg;
+                case nameof(Equal):
+                    return Equal;
+                case nameof(Greater):
+                    return Greater;
+                case nameof(Lower):
+                    return Lower;
+                case nameof(Or):
+                    return Or;
+                case nameof(And):
+                    return And;
+                case nameof(Slice):
+                    return Slice;
+                case nameof(Length):
+                    return Length;
                 default:
                     return null;
             }
@@ -45,24 +64,60 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Basic procedures
-        /*
+
+        #region Logical
+
+        public ParameterResolverValue Or(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length == 0) return new ParameterResolverValue(false);
+            return new ParameterResolverValue(args.Any(a => ActionQueryHostBase.IsTruthyOrFalsy(a)));
+        }
+        public ParameterResolverValue And(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length == 0) return new ParameterResolverValue(false);
+            return new ParameterResolverValue(args.All(a => ActionQueryHostBase.IsTruthyOrFalsy(a)));
+        }
+        #endregion
+
+        #region Arithmetic
+
         public ParameterResolverValue Random(HostInterface ctx, ParameterResolverValue[] args)
         {
-            int limit = 10;
+            int min = 0;
+            int val = 0;
+            var random = new Random();
             if (args.Length > 0)
             {
                 if (args[0].Value is int n)
                 {
-                    limit = n;
-                }
-                if (args[0].Value is long l)
+                    min = n;
+                } 
+                else if (args[0].Value is long l)
                 {
-                    limit = (int)l;
+                    min = (int)l;
                 }
-            }
-            var random = new Random(1);
+                if (args.Length > 1) { 
+                    if (args[1].Value is int maxi)
+                    {
+                        return new ParameterResolverValue(random.Next(min, maxi));
+                    } 
+                    else if (args[1].Value is long maxl)
+                    {
+                        return new ParameterResolverValue(random.Next(min, (int)maxl));
+                    } 
+                    else
+                    {
+                        return new ParameterResolverValue(random.Next(min)); // min is max
+                    }
+                } 
+                else
+                {
+                    return new ParameterResolverValue(random.Next(min)); // min is max
+                }
+            } 
+            return new ParameterResolverValue(random.Next());
         }
-        */
+        
         public ParameterResolverValue Add(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Any(a => a.Value is double || a.Value is float)) // Double result
@@ -78,6 +133,24 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 return new ParameterResolverValue(null);
             }
         }
+        public ParameterResolverValue Neg(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("Neg needs single numeric argument");
+            var v = args[0].Value;
+            if (v is double || v is float)
+            {
+                return new ParameterResolverValue(-Convert.ToDouble(v));
+            }
+            else if (v is int || v is uint || v is short || v is ushort || v is char || v is byte)
+            {
+                return new ParameterResolverValue(-Convert.ToInt32(v));
+            }
+            else if (v is long || v is ulong)
+            {
+                return new ParameterResolverValue(-Convert.ToInt64(v));
+            }
+            return new ParameterResolverValue(null);
+        }
         public ParameterResolverValue TryAdd(HostInterface ctx, ParameterResolverValue[] args)
         {
             try
@@ -89,6 +162,82 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 return new ParameterResolverValue(null);
             }
         }
+
+        #endregion
+
+        #region Comparisons
+        public ParameterResolverValue Equal(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 2) throw new ArgumentException("Equal needs two arguments");
+            var v1 = args[0].Value;
+            var v2 = args[1].Value;
+            if (args.Any(a => a.Value == null))
+            {
+                return new ParameterResolverValue(false);
+            }
+            else if (args.Any(a => a.Value is double || a.Value is float))
+            {
+                return new ParameterResolverValue(Convert.ToDouble(v1) == Convert.ToDouble(v2));
+            }
+            else if (args.Any(a => a.Value is long || a.Value is ulong || a.Value is int || a.Value is uint || a.Value is short || a.Value is ushort || a.Value is char || a.Value is byte || a.Value is bool))
+            {
+                return new ParameterResolverValue(Convert.ToInt64(v1) == Convert.ToInt64(v2));
+            }
+            else
+            {
+                return new ParameterResolverValue(string.CompareOrdinal(v1.ToString(), v2.ToString()) == 0);
+            }
+        }
+        public ParameterResolverValue Greater(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 2) throw new ArgumentException("Greater needs two arguments");
+            var v1 = args[0].Value;
+            var v2 = args[1].Value;
+            if (args.Any(a => a.Value == null))
+            {
+                return new ParameterResolverValue(false);
+            }
+            else if (args.Any(a => a.Value is double || a.Value is float))
+            {
+                return new ParameterResolverValue(Convert.ToDouble(v1) > Convert.ToDouble(v2));
+            }
+            else if (args.Any(a => a.Value is long || a.Value is ulong || a.Value is int || a.Value is uint || a.Value is short || a.Value is ushort || a.Value is char || a.Value is byte || a.Value is bool))
+            {
+                return new ParameterResolverValue(Convert.ToInt64(v1) > Convert.ToInt64(v2));
+            }
+            else
+            {
+                return new ParameterResolverValue(string.CompareOrdinal(v1.ToString(), v2.ToString()) > 0);
+            }
+        }
+        public ParameterResolverValue Lower(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 2) throw new ArgumentException("Lower needs two arguments");
+            if (args.Length != 2) throw new ArgumentException("Greater needs two arguments");
+            var v1 = args[0].Value;
+            var v2 = args[1].Value;
+            if (args.Any(a => a.Value == null))
+            {
+                return new ParameterResolverValue(false);
+            }
+            else if (args.Any(a => a.Value is double || a.Value is float))
+            {
+                return new ParameterResolverValue(Convert.ToDouble(v1) < Convert.ToDouble(v2));
+            }
+            else if (args.Any(a => a.Value is long || a.Value is ulong || a.Value is int || a.Value is uint || a.Value is short || a.Value is ushort || a.Value is char || a.Value is byte || a.Value is bool))
+            {
+                return new ParameterResolverValue(Convert.ToInt64(v1) < Convert.ToInt64(v2));
+            }
+            else
+            {
+                return new ParameterResolverValue(string.CompareOrdinal(v1.ToString(), v2.ToString()) < 0);
+            }
+        }
+
+        #endregion
+
+        #region Strings
+
         public ParameterResolverValue Concat(HostInterface ctx, ParameterResolverValue[] args)
         {
             return new ParameterResolverValue(String.Concat(args.Select(a => a.Value != null ? a.Value.ToString() : "")));
@@ -99,6 +248,48 @@ namespace Ccf.Ck.SysPlugins.Utilities
             var val = args[0].Value as string;
             return new ParameterResolverValue(string.IsNullOrWhiteSpace(val));
         }
+        public ParameterResolverValue Slice(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length >= 2)
+            {
+                var str = Convert.ToString(args[0].Value);
+                int start = Convert.ToInt32(args[1].Value);
+                var end = str.Length;
+                if (args.Length > 2)
+                {
+                    end = Convert.ToInt32(args[2].Value);
+                }
+                if (start >= 0 && start <= str.Length && end > start && end <= str.Length)
+                {
+                    return new ParameterResolverValue(str.Substring(start, end - start));
+                } 
+                else
+                {
+                    return new ParameterResolverValue(string.Empty);
+                }
+            } 
+            else
+            {
+                throw new ArgumentException("Slice - incorrect number of arguments, 2 o3 are expected.");
+            }
+        }
+        public ParameterResolverValue Length(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("Length accepts exactly one argument.");
+            if (args[0].Value is string s)
+            {
+                return new ParameterResolverValue(s.Length);
+            }
+            else if (args[0].Value is ICollection coll)
+            {
+                return new ParameterResolverValue(coll.Count);
+            }
+            return new ParameterResolverValue(null);
+        }
+        #endregion
+
+        #region Typing
+
         public ParameterResolverValue Cast(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Cast requires two arguments.");
@@ -147,6 +338,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
             return new ParameterResolverValue(false);
         }
+
+        #endregion
 
         #endregion
 
