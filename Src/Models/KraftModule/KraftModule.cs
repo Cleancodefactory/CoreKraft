@@ -26,10 +26,10 @@ namespace Ccf.Ck.Models.KraftModule
         private readonly DependencyInjectionContainer _DependencyInjectionContainer;
         private readonly KraftModuleCollection _ModuleCollection;
         private readonly ILogger _Logger;
-        private readonly string _ModulePath;
         private readonly KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
 
         public ScriptKraftBundle ScriptKraftBundle { get; private set; }
+        public string ModulePath { get; private set; }
         public TemplateKraftBundle TemplateKraftBundle { get; private set; }
         public StyleKraftBundle StyleKraftBundle { get; private set; }
         public KraftModuleConfigurationSettings ModuleSettings { get; private set; }
@@ -69,10 +69,10 @@ namespace Ccf.Ck.Models.KraftModule
             ScriptKraftBundle = null;
             TemplateKraftBundle = null;
 
-            _ModulePath = Path.Combine(DirectoryName, moduleName);
+            ModulePath = Path.Combine(DirectoryName, moduleName);
 
             //read configs and dependencies
-            InitConfiguredPlugins(Key, Path.Combine(_ModulePath, CONFIGURATION_FILE_NAME), cachingService);
+            InitConfiguredPlugins(Key, Path.Combine(ModulePath, CONFIGURATION_FILE_NAME), cachingService);
         }
 
         public void ConstructResources(ICachingService cachingService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string startDepFile, bool isScript)
@@ -80,15 +80,15 @@ namespace Ccf.Ck.Models.KraftModule
             if (isScript)
             {
                 //process Scripts folder
-                ScriptKraftBundle = ConstructScriptsBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, JS_FOLDER_NAME), startDepFile);
+                ScriptKraftBundle = ConstructScriptsBundle(kraftGlobalConfigurationSettings, Path.Combine(ModulePath, JS_FOLDER_NAME), startDepFile);
 
                 //process Template folder               
-                TemplateKraftBundle = ConstructTmplResBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, TEMPLATES_FOLDER_NAME));
+                TemplateKraftBundle = ConstructTmplResBundle(kraftGlobalConfigurationSettings, Path.Combine(ModulePath, TEMPLATES_FOLDER_NAME));
             }
             else
             {
                 //process CSS folder
-                StyleKraftBundle = ConstructStyleBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, CSS_FOLDER_NAME), startDepFile);
+                StyleKraftBundle = ConstructStyleBundle(kraftGlobalConfigurationSettings, Path.Combine(ModulePath, CSS_FOLDER_NAME), startDepFile);
             }
         }
 

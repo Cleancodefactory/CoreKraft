@@ -411,8 +411,8 @@ namespace Ccf.Ck.Web.Middleware
                         {
                             KraftDependableModule kraftDependable = (depModule.Value as KraftDependableModule);
                             KraftModule kraftModule = modulesCollection.RegisterModule(kraftDependable.KraftModuleRootPath, depModule.Value.Key, kraftDependable, cachingService);
-                            KraftStaticFiles.RegisterStaticFiles(app, depModule.Key, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModuleImages);
-                            KraftStaticFiles.RegisterStaticFiles(app, depModule.Key, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModulePublic);
+                            KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModuleImages);
+                            KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModulePublic);
                             moduleKey2Path.Add(kraftModule.Key, kraftDependable.KraftModuleRootPath);
                             string moduleFullPath = Path.Combine(kraftDependable.KraftModuleRootPath, kraftModule.Key);
                             string path2Data = Path.Combine(moduleFullPath, "Data");
