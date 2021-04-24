@@ -132,7 +132,7 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     services.UseBindKraftProfiler(tool.Url);
                 }
-                
+
                 IServiceProvider serviceProvider = services.BuildServiceProvider();
                 IWebHostEnvironment env = serviceProvider.GetRequiredService<IWebHostEnvironment>();
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
@@ -170,7 +170,7 @@ namespace Ccf.Ck.Web.Middleware
                 #region Global Configuration Settings
 
                 _KraftGlobalConfigurationSettings.GeneralSettings.ReplaceMacrosWithPaths(env.ContentRootPath, env.WebRootPath);
-             
+
                 #endregion //Global Configuration Settings
 
                 //INodeSet service
@@ -392,7 +392,7 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     if (!Directory.Exists(dir))
                     {
-                        throw new Exception($"No \"{dir}\" directory found! The CoreKraft initialization cannot continue.");
+                        throw new Exception($"No \"{dir}\" directory found in the setting ModulesRootFolders! The CoreKraft initialization cannot continue.");
                     }
                 }
                 string kraftUrlSegment = _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlSegment;
@@ -409,44 +409,27 @@ namespace Ccf.Ck.Web.Middleware
                         Dictionary<string, string> moduleKey2Path = new Dictionary<string, string>();
                         foreach (KeyValuePair<string, IDependable<KraftDependableModule>> depModule in kraftDependableModules)
                         {
-                            KraftModule kraftModule = modulesCollection.GetModule(depModule.Value.Key);
-                            if (kraftModule != null)
-                            {
-                                continue;
-                            }
                             KraftDependableModule kraftDependable = (depModule.Value as KraftDependableModule);
-                            kraftModule = modulesCollection.RegisterModule(kraftDependable.KraftModuleRootPath, depModule.Value.Key, cachingService);
-                            if (kraftModule == null || !kraftModule.IsInitialized)
-                            {
-                                _Logger.LogInformation($"Module not created for directory \"{depModule.Value.Key}\" because of missing configuration files.");
-                                continue;
-                            }
+                            KraftModule kraftModule = modulesCollection.RegisterModule(kraftDependable.KraftModuleRootPath, depModule.Value.Key, kraftDependable, cachingService);
                             KraftStaticFiles.RegisterStaticFiles(app, depModule.Key, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModuleImages);
                             KraftStaticFiles.RegisterStaticFiles(app, depModule.Key, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModulePublic);
-                            moduleKey2Path.Add(kraftModule.Key.ToLower(), kraftDependable.KraftModuleRootPath);
-                            //The application will restart when some files changed in the modules directory and subdirectories but only in RELEASE
-                            //Check if module is initialized Robert
-                            if (kraftModule.IsInitialized)
+                            moduleKey2Path.Add(kraftModule.Key, kraftDependable.KraftModuleRootPath);
+                            string moduleFullPath = Path.Combine(kraftDependable.KraftModuleRootPath, kraftModule.Key);
+                            string path2Data = Path.Combine(moduleFullPath, "Data");
+                            if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), true))
                             {
-                                string moduleFullPath = Path.Combine(kraftDependable.KraftModuleRootPath, kraftModule.Key);
-                                string path2Data = Path.Combine(moduleFullPath, "Data");
-                                if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), true))
-                                {
-                                    throw new SecurityException($"Write access to folder {path2Data} is required!");
-                                }
-                                path2Data = Path.Combine(moduleFullPath, "Images");
-                                if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), true))
-                                {
-                                    throw new SecurityException($"Write access to folder {path2Data} is required!");
-                                }
-                                foreach (string validSubFolder in _ValidSubFoldersForWatching)
-                                {
-                                    AttachModulesWatcher(Path.Combine(moduleFullPath, validSubFolder), true, applicationLifetime, restart);
-                                }
+                                throw new SecurityException($"Write access to folder {path2Data} is required!");
+                            }
+                            path2Data = Path.Combine(moduleFullPath, "Images");
+                            if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), true))
+                            {
+                                throw new SecurityException($"Write access to folder {path2Data} is required!");
+                            }
+                            foreach (string validSubFolder in _ValidSubFoldersForWatching)
+                            {
+                                AttachModulesWatcher(Path.Combine(moduleFullPath, validSubFolder), true, applicationLifetime, restart);
                             }
                         }
-                        ////try to construct all modules
-                        modulesCollection.ResolveModuleDependencies();
                         _KraftGlobalConfigurationSettings.GeneralSettings.ModuleKey2Path = moduleKey2Path;
                     }
                     #region Watching appsettings, PassThroughJsConfig, nlogConfig

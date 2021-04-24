@@ -1,21 +1,19 @@
-﻿using Ccf.Ck.Utilities.MemoryCache;
+﻿using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Models.Settings.Modules;
 using Ccf.Ck.Utilities.DependencyContainer;
 using Ccf.Ck.Utilities.Generic.Topologies;
+using Ccf.Ck.Utilities.MemoryCache;
 using Ccf.Ck.Utilities.Web.BundleTransformations.Primitives;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 using static Ccf.Ck.Utilities.Web.BundleTransformations.Primitives.TemplateKraftBundle;
-using Ccf.Ck.Models.Settings;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Logging;
 
 namespace Ccf.Ck.Models.KraftModule
 {
-    public class KraftModule : IDependable<KraftModule>
+    public class KraftModule
     {
         //some consts, that should be extracted further
         const string CSS_FOLDER_NAME = "Css";
@@ -35,34 +33,36 @@ namespace Ccf.Ck.Models.KraftModule
         public TemplateKraftBundle TemplateKraftBundle { get; private set; }
         public StyleKraftBundle StyleKraftBundle { get; private set; }
         public KraftModuleConfigurationSettings ModuleSettings { get; private set; }
-        public KraftModuleRootConf KraftModuleRootConf { get; private set; }
-        
-        public string Key
-        {
-            get
-            {
-                return _ModuleCollection?.ConstructValidKey(KraftModuleRootConf?.Name);
-            }
-        }
-        public bool IsInitialized { get; private set; }
+        public KraftModuleRootConf KraftModuleRootConf { get; private set; }        
+        public string Key { get; private set; }
+        //public bool IsInitialized { get; private set; }
         public string DirectoryName { get; private set; }
-        public int DependencyOrderIndex { get; internal set; }
-        public IDictionary<string, IDependable<KraftModule>> Dependencies { get; internal set; }
+        public int DependencyOrderIndex { get; private set; }
+        public IDictionary<string, KraftModule> Dependencies { get; private set; }
 
-        internal KraftModule(string directoryName, string moduleName, 
-            DependencyInjectionContainer dependencyInjectionContainer, 
-            KraftModuleCollection moduleCollection, 
-            ICachingService cachingService, 
-            KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, ILogger logger)
+        internal KraftModule(string directoryName, string moduleName,
+            DependencyInjectionContainer dependencyInjectionContainer,
+            KraftModuleCollection moduleCollection,
+            ICachingService cachingService,
+            KraftDependableModule kraftDependableModule,
+            KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, 
+            ILogger logger)
         {
             _DependencyInjectionContainer = dependencyInjectionContainer;
             _ModuleCollection = moduleCollection;
             _Logger = logger;
             DirectoryName = directoryName;
             _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
-
+            Key = moduleName;
             //dependencies
-            Dependencies = new Dictionary<string, IDependable<KraftModule>>();
+            Dependencies = new Dictionary<string, KraftModule>();
+            foreach (KeyValuePair<string, IDependable<KraftDependableModule>> item in kraftDependableModule.Dependencies)
+            {
+                Dependencies.Add(item.Key, moduleCollection.GetModule(item.Key));
+            }
+            
+            DependencyOrderIndex = kraftDependableModule.DependencyOrderIndex;
+            KraftModuleRootConf = kraftDependableModule.KraftModuleRootConf;
 
             //Bundles initialize
             StyleKraftBundle = null;
@@ -70,36 +70,25 @@ namespace Ccf.Ck.Models.KraftModule
             TemplateKraftBundle = null;
 
             _ModulePath = Path.Combine(DirectoryName, moduleName);
-            if (!Directory.Exists(_ModulePath))
-            {
-                throw new DirectoryNotFoundException($"The {_ModulePath} path was not found!");
-            }
 
             //read configs and dependencies
-            IsInitialized = ReadModuleMetaConfiguration(_ModulePath);
-            if (IsInitialized)
-            {
-                InitConfiguredPlugins(Key, Path.Combine(_ModulePath, CONFIGURATION_FILE_NAME), cachingService);
-            }
+            InitConfiguredPlugins(Key, Path.Combine(_ModulePath, CONFIGURATION_FILE_NAME), cachingService);
         }
 
         public void ConstructResources(ICachingService cachingService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string startDepFile, bool isScript)
         {
-            if (IsInitialized)//This is not a module with proper configuration files
+            if (isScript)
             {
-                if (isScript)
-                {
-                    //process Scripts folder
-                    ScriptKraftBundle = ConstructScriptsBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, JS_FOLDER_NAME), startDepFile);
+                //process Scripts folder
+                ScriptKraftBundle = ConstructScriptsBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, JS_FOLDER_NAME), startDepFile);
 
-                    //process Template folder               
-                    TemplateKraftBundle = ConstructTmplResBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, TEMPLATES_FOLDER_NAME));
-                }
-                else
-                {
-                    //process CSS folder
-                    StyleKraftBundle = ConstructStyleBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, CSS_FOLDER_NAME), startDepFile);
-                }
+                //process Template folder               
+                TemplateKraftBundle = ConstructTmplResBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, TEMPLATES_FOLDER_NAME));
+            }
+            else
+            {
+                //process CSS folder
+                StyleKraftBundle = ConstructStyleBundle(kraftGlobalConfigurationSettings, Path.Combine(_ModulePath, CSS_FOLDER_NAME), startDepFile);
             }
         }
 
@@ -108,49 +97,8 @@ namespace Ccf.Ck.Models.KraftModule
             return File.Exists(Path.Combine(modulePath, DEPENDENCY_FILE_NAME));
         }
 
-        private bool ReadModuleMetaConfiguration(string modulePath)
-        {
-            try
-            {
-                if (IsValidKraftModule(modulePath))
-                {
-                    using (StreamReader r = new StreamReader(Path.Combine(modulePath, DEPENDENCY_FILE_NAME)))
-                    {
-                        Dictionary<string, string> depVersion = new Dictionary<string, string>();
-                        KraftModuleRootConf = JsonConvert.DeserializeObject<KraftModuleRootConf>(r.ReadToEnd());
-                        foreach (KeyValuePair<string, string> item in KraftModuleRootConf.Dependencies)
-                        {
-                            depVersion.Add(item.Key.ToLower(), item.Value);
-                        }
-                        KraftModuleRootConf.Dependencies = depVersion;
-                        depVersion = new Dictionary<string, string>();
-                        foreach (KeyValuePair<string, string> item in KraftModuleRootConf.OptionalDependencies??new Dictionary<string, string>())
-                        {
-                            depVersion.Add(item.Key.ToLower(), item.Value);
-                        }
-                        KraftModuleRootConf.OptionalDependencies = depVersion;
-                        return true;
-                    }
-                }
-                else
-                {
-                    //Obviously this folder doesn't contain configuration file, so we are not handling it anymore
-                    return false;
-                }
-            }
-            catch (Exception boom)
-            {
-                throw new Exception($"Reading module's meta configuration file failed for module \"{modulePath}\". {boom.Message}");
-            }
-        }
-
         private void InitConfiguredPlugins(string moduleKey, string configFile, ICachingService cachingService)
         {
-            if (!File.Exists(configFile))
-            {
-                throw new FileNotFoundException($"The {configFile} file was not found!");
-            }
-
             //Init the kraft module configurations model
             ModuleSettings = new KraftModuleConfigurationSettings(_DependencyInjectionContainer, cachingService, _KraftGlobalConfigurationSettings);
 
@@ -161,21 +109,6 @@ namespace Ccf.Ck.Models.KraftModule
             configurationRoot.Bind("KraftModuleConfigurationSettings", ModuleSettings);
 
             ModuleSettings.LoadDefinedObjects(moduleKey, configFile);
-        }
-
-        internal void ConstructDependencies()
-        {
-            Dependencies = new Dictionary<string, IDependable<KraftModule>>();
-
-            foreach (KeyValuePair<string, string> dependency in KraftModuleRootConf.Dependencies)
-            {
-                IDependable<KraftModule> depModule = _ModuleCollection.GetModuleAsDependable(dependency.Key);
-                if (depModule == null)
-                {
-                    throw new Exception($"No module with a key \"{dependency.Key}\" is loaded!");
-                }
-                Dependencies.Add(depModule.Key, depModule);
-            }
         }
 
         private StyleKraftBundle ConstructStyleBundle(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, string resFolderPath, string resProfileFileName)
