@@ -19,14 +19,16 @@ namespace Ccf.Ck.Models.KraftModule
     public static class ExtensionMethods
     {
         const string RESOURCEDEPENDENCY_FILE_NAME = "Module.dep";
-        static ILogger _Logger;
-        static ICachingService _CachingService;
-        static KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
-        static KraftModuleCollection _ModulesCollection;
+        private static ILogger _Logger;
+        private static ICachingService _CachingService;
+        private static KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
+        private static KraftModuleCollection _ModulesCollection;
+        private static IApplicationBuilder _App;
 
         public static void Init(IApplicationBuilder app, ILogger logger)
         {
             _Logger = logger;
+            _App = app;
             _CachingService = app.ApplicationServices.GetService<ICachingService>();
             _KraftGlobalConfigurationSettings = app.ApplicationServices.GetService<KraftGlobalConfigurationSettings>();
             _ModulesCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
@@ -68,7 +70,7 @@ namespace Ccf.Ck.Models.KraftModule
                     {
                         using (KraftProfiler.Current.Step($"Time loading {kraftDepModule.Key}: "))
                         {
-                            scriptBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.ScriptKraftBundle, _Logger));
+                            scriptBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.ScriptKraftBundle, _App, _Logger));
                             scriptBundle.Transforms.Add(new JsCleanupTransformation());
                         }
                     }
@@ -131,7 +133,7 @@ namespace Ccf.Ck.Models.KraftModule
                     kraftDepModule.ConstructResources(_CachingService, _KraftGlobalConfigurationSettings, moduleDepStartFile, false);
                     if (kraftDepModule.StyleKraftBundle != null)
                     {
-                        styleBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.StyleKraftBundle, _Logger));
+                        styleBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.StyleKraftBundle, _App, _Logger));
                     }
                 }
 

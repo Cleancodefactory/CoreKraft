@@ -1,4 +1,7 @@
 ﻿using Ccf.Ck.Utilities.Web.BundleTransformations.Primitives;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,12 +15,16 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
         private const string FILEUSINGPATTERN = "^((\\s*)|(\\s*\\/\\/){1})#(?i)using(?-i)\\s*\\\"(?<files>.*)\\\"";
         private static readonly Regex _FileUsingRegex = new Regex(FILEUSINGPATTERN, RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
-        public string[] Process(KraftBundle kraftBundle, ILogger logger)
+        public string[] Process(KraftBundle kraftBundle, IApplicationBuilder app, ILogger logger)
         {
             #region Check validity
             if (kraftBundle == null)
             {
                 throw new ArgumentNullException(nameof(kraftBundle));
+            }
+            if (app == null)
+            {
+                throw new ArgumentNullException(nameof(app));
             }
             if (logger == null)
             {
@@ -55,11 +62,11 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
                 }
                 //outputFilesList.Add(bootstrapFile.ToString());
             }
-            outputFilesList = ProcessMappedFiles2VirtualPaths(outputFilesList, kraftBundle.ContentRootPath);
+            outputFilesList = ProcessMappedFiles2VirtualPaths(outputFilesList, kraftBundle.ContentRootPath, app);
             return outputFilesList.ToArray();
         }
 
-        private List<string> ProcessMappedFiles2VirtualPaths(List<string> outputFilesList, string contentRootPath)
+        private List<string> ProcessMappedFiles2VirtualPaths(List<string> outputFilesList, string contentRootPath, IApplicationBuilder app)
         {
             List<string> virtualFilePaths = new List<string>();
             int pos;
@@ -67,13 +74,38 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
             foreach (string file in outputFilesList)
             {
                 pos = file.IndexOf(contentRootPath);
-                if (pos < 1)
+                if (pos == 0)
                 {
                     fileVirtualName = file.Remove(pos, contentRootPath.Length);
+                }
+                else if (pos == -1) //Content root not found, obviously an optional dependency outside of the content root
+                {
+                    //RegisterStaticFiles(app, file, "modules", "css", "images");
+
                 }
                 virtualFilePaths.Add(fileVirtualName.Replace(@"\", @"/"));
             }
             return virtualFilePaths;
+        }
+
+        internal static void RegisterStaticFiles(IApplicationBuilder builder, string modulePath, string startNode, string resourceSegmentName, string type)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(modulePath);
+            DirectoryInfo dirInfo = new DirectoryInfo(Path.Combine(modulePath, type));
+            if (dirInfo.Exists)
+            {
+                builder.UseStaticFiles(new StaticFileOptions
+                {
+                    ServeUnknownFileTypes = false,
+                    DefaultContentType = "image/png",
+                    FileProvider = new PhysicalFileProvider(dirInfo.FullName),
+                    RequestPath = new PathString($"/{startNode}/{resourceSegmentName}/{directoryInfo.Name}/{type}"),
+                    OnPrepareResponse = ctx =>
+                    {
+                        ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
+                    }
+                });
+            }
         }
 
         private void ParseFilesForIncludesRecursive(FileInfo currentFile, DirectoryInfo currentDir, ILogger logger, List<string> outputFilesList)
