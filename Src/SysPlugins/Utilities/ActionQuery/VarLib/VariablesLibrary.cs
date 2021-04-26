@@ -159,6 +159,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             return new SymbolSet("Variables library", _Variables.Select(kv => new SymbolEntry(kv.Key, kv.Value)));
         }
+        void ClearDisposables()
+        {
+            _Variables = null;
+        }
         #endregion
     }
 }

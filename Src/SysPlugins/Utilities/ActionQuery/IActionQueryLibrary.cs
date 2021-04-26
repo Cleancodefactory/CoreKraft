@@ -10,5 +10,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         HostedProc<HostInterface> GetProc(string name);
 
         SymbolSet GetSymbols();
+
+        void ClearDisposables();
     }
 }

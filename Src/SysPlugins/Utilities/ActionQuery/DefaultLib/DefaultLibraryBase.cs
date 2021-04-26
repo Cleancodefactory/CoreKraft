@@ -61,6 +61,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             return new SymbolSet("Default library (no symbols)", null);
         }
+        public void ClearDisposables()
+        {
+            // Nothing by default
+        }
         #endregion
 
         #region Basic procedures

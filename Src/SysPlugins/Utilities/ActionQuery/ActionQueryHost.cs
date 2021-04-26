@@ -15,7 +15,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
     public class ActionQueryHost<HostInterface> : ActionQueryHostBase,
         IActionQueryHost<ParameterResolverValue>, 
         IActionQueryHostControl<ParameterResolverValue>,
-        IEnumerable<KeyValuePair<string, HostedProc<HostInterface> >>
+        IEnumerable<KeyValuePair<string, HostedProc<HostInterface> >>,
+        IDisposable
         where HostInterface: class
     {
 
@@ -45,6 +46,21 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 }
             }
         }
+
+        #region IDisposable
+        private bool _IsDisposed;
+        public void Dispose()
+        {
+            if (!_IsDisposed)
+            {
+
+                _Libraries.ForEach(l => l.ClearDisposables());
+                GC.SuppressFinalize(this);
+
+                _IsDisposed = true;
+            }
+        }
+        #endregion
 
 
         #region Own callbacks
