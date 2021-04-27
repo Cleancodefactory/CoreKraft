@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
 {
@@ -41,7 +43,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                         KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n{runner.ErrorText}");
                         throw new Exception(runner.ErrorText);
                     }
-                    var host = new ActionQueryHost<IDataLoaderReadContext>(execContext)
+                    using (var host = new ActionQueryHost<IDataLoaderReadContext>(execContext)
                     {
                         { nameof(IsPostedFile), IsPostedFile },
                         { nameof(PostedFileSize), PostedFileSize },
@@ -54,26 +56,30 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                         { nameof(CreateDirectory), CreateDirectory },
                         { nameof(SaveFileToSpread), SaveFileToSpread },
                         { nameof(PostedFile), this.PostedFile },
-                        { nameof(FileResponse), FileResponse }
-                    };
-                    if (trace) host.Trace = true;
-                    try
+                        { nameof(FileResponse), FileResponse },
+                        { nameof(FileExists), FileExists }
+                    })
                     {
-                        var result = runner.ExecuteScalar(host, ActionQueryHost<IDataLoaderReadContext>.HardLimit(execContext));
-                    }
-                    catch
-                    {
-                        if (trace)
+                        host.AddLibrary(new BasicImageLib<IDataLoaderReadContext>());
+                        if (trace) host.Trace = true;
+                        try
                         {
-                            var traceInfo = host.GetTraceInfo();
-                            if (traceInfo != null)
-                            {
-                                KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
-                                KraftLogger.LogError(traceInfo.ToString());
-                            }
-                            KraftLogger.LogError($"{runner.DumpProgram()}\n");
+                            var result = runner.ExecuteScalar(host, ActionQueryHost<IDataLoaderReadContext>.HardLimit(execContext));
                         }
-                        throw;
+                        catch
+                        {
+                            if (trace)
+                            {
+                                var traceInfo = host.GetTraceInfo();
+                                if (traceInfo != null)
+                                {
+                                    KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
+                                    KraftLogger.LogError(traceInfo.ToString());
+                                }
+                                KraftLogger.LogError($"{runner.DumpProgram()}\n");
+                            }
+                            throw;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -101,44 +107,47 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                         KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n{runner.ErrorText}");
                         throw new Exception(runner.ErrorText);
                     }
-                    var host = new ActionQueryHost<IDataLoaderWriteContext>(execContext)
+                    using (var host = new ActionQueryHost<IDataLoaderWriteContext>(execContext)
+                            {
+                                { nameof(IsPostedFile), IsPostedFile },
+                                { nameof(PostedFileSize), PostedFileSize },
+                                { nameof(PostedFileName), PostedFileName },
+                                { nameof(PostedFileType), PostedFileType },
+                                { nameof (CombinePaths), CombinePaths },
+                                { nameof(DeleteFile), DeleteFile },
+                                { nameof(SaveFile), SaveFile },
+                                { nameof(PrependFileName), PrependFileName },
+                                { nameof(CreateDirectory), CreateDirectory },
+                                { nameof(SaveFileToSpread), SaveFileToSpread },
+                                { nameof(PostedFile), this.PostedFile },
+                                { nameof(FileResponse), FileResponse },
+                                { nameof(FileExists), FileExists }
+                            })
                     {
-                        { nameof(IsPostedFile), IsPostedFile },
-                        { nameof(PostedFileSize), PostedFileSize },
-                        { nameof(PostedFileName), PostedFileName },
-                        { nameof(PostedFileType), PostedFileType },
-                        { nameof (CombinePaths), CombinePaths },
-                        { nameof(DeleteFile), DeleteFile },
-                        { nameof(SaveFile), SaveFile },
-                        { nameof(PrependFileName), PrependFileName },
-                        { nameof(CreateDirectory), CreateDirectory },
-                        { nameof(SaveFileToSpread), SaveFileToSpread },
-                        { nameof(PostedFile), this.PostedFile },
-                        { nameof(FileResponse), FileResponse }
-                    };
-                    if (trace)
-                    {
-                        host.Trace = true;
-                    }
-                    try
-                    {
-                        var result = runner.ExecuteScalar(host, ActionQueryHost<IDataLoaderWriteContext>.HardLimit(execContext));
-                    }
-                    catch
-                    {
+                        host.AddLibrary(new BasicImageLib<IDataLoaderWriteContext>());
                         if (trace)
                         {
-                            var traceInfo = host.GetTraceInfo();
-                            if (traceInfo != null)
-                            {
-                                KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
-                                KraftLogger.LogError(traceInfo.ToString());
-                            }
-                            KraftLogger.LogError($"{runner.DumpProgram()}\n");
+                            host.Trace = true;
                         }
-                        throw;
+                        try
+                        {
+                            var result = runner.ExecuteScalar(host, ActionQueryHost<IDataLoaderWriteContext>.HardLimit(execContext));
+                        }
+                        catch
+                        {
+                            if (trace)
+                            {
+                                var traceInfo = host.GetTraceInfo();
+                                if (traceInfo != null)
+                                {
+                                    KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
+                                    KraftLogger.LogError(traceInfo.ToString());
+                                }
+                                KraftLogger.LogError($"{runner.DumpProgram()}\n");
+                            }
+                            throw;
+                        }
                     }
-                    
                 }
                 catch (Exception ex)
                 {
@@ -326,14 +335,26 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
         /// <returns></returns>
         public ParameterResolverValue PostedFile(IDataLoaderContext ctx, ParameterResolverValue[] args)
         {
-            if (args.Length != 2) throw new ArgumentException("PostedFile accepts 1 or 2 arguments (filepath[, contentType])");
+            if (args.Length < 1) throw new ArgumentException("PostedFile accepts 1 or 2 arguments (filepath[, contentType])");
             var filepath = args[0].Value as string;
-            var contentType = args[1].Value as string; // TODO: Calc if missing
+            string contentType = null;
+            if (args.Length > 1)
+            {
+                contentType = args[1].Value as string; // TODO: Calc if missing
+            }
+            if (contentType == null)
+            {
+                if (!(new FileExtensionContentTypeProvider().TryGetContentType(filepath, out contentType))) {
+                    contentType = "application/octet-stream";
+                };
+
+            }
+            
             if (string.IsNullOrWhiteSpace(filepath)) throw new ArgumentException("PostedFile - filepath is empty or null");
             if (!File.Exists(filepath)) throw new Exception("PostedFile - file does not exist");
             var fi = new FileInfo(filepath);
 
-            var pf  = new PostedFile(contentType, 0, Path.GetFileName(filepath), filepath, path =>
+            var pf  = new PostedFile(contentType, fi.Length, Path.GetFileName(filepath), filepath, path =>
             {
                 return File.Open(path as string, FileMode.Open);
             }, filepath);
@@ -346,6 +367,13 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
             if (pf == null) throw new ArgumentException("FileResponse - argument is not IPostedFile. Use FileResponse(PostedFile(...))");
             ctx.ProcessingContext.ReturnModel.BinaryData = pf;
             return new ParameterResolverValue(pf);
+        }
+        public ParameterResolverValue FileExists(IDataLoaderContext ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("FileExists requies one argument - the path to the file");
+            var path = Convert.ToString(args[0].Value);
+
+            return new ParameterResolverValue(File.Exists(path));
         }
         #endregion
 

@@ -39,30 +39,30 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                         KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n{runner.ErrorText}");
                         throw new Exception(runner.ErrorText);
                     }
-                    var host = new ActionQueryHost<Context>(execContext)
-                    {
-                        { "HostInfo", HostInfo }
-                    };
-                    if (trace)
-                    {
-                        host.Trace = true;
-                    }
-                    try
-                    {
-                        var result = runner.ExecuteScalar(host, ActionQueryHost<Context>.HardLimit(execContext));
-                    } 
-                    catch
-                    {
+                    using (var host = new ActionQueryHost<Context>(execContext) {
+                            { "HostInfo", HostInfo }
+                        }) {
                         if (trace)
                         {
-                            var traceInfo = host.GetTraceInfo();
-                            if (traceInfo != null)
-                            {
-                                KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
-                                KraftLogger.LogError(traceInfo.ToString());
-                            }
+                            host.Trace = true;
                         }
-                        throw;
+                        try
+                        {
+                            var result = runner.ExecuteScalar(host, ActionQueryHost<Context>.HardLimit(execContext));
+                        }
+                        catch
+                        {
+                            if (trace)
+                            {
+                                var traceInfo = host.GetTraceInfo();
+                                if (traceInfo != null)
+                                {
+                                    KraftLogger.LogError($"{execContext.LocationInfo(PLUGIN_INTERNAL_NAME)}\n");
+                                    KraftLogger.LogError(traceInfo.ToString());
+                                }
+                            }
+                            throw;
+                        }
                     }
                 } 
                 catch (Exception ex)

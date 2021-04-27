@@ -61,6 +61,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             return new SymbolSet("Default library (no symbols)", null);
         }
+        public void ClearDisposables()
+        {
+            // Nothing by default
+        }
         #endregion
 
         #region Basic procedures
@@ -84,7 +88,6 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public ParameterResolverValue Random(HostInterface ctx, ParameterResolverValue[] args)
         {
             int min = 0;
-            int val = 0;
             var random = new Random();
             if (args.Length > 0)
             {

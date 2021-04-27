@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\Support\ActionQueryLibs\Files\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files.csproj" />
+    <ProjectReference Include="..\..\Support\ActionQueryLibs\Images\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images.csproj" />
     <ProjectReference Include="..\..\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
     <ProjectReference Include="..\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
   </ItemGroup>
