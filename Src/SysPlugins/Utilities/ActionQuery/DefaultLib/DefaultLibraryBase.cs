@@ -88,7 +88,6 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public ParameterResolverValue Random(HostInterface ctx, ParameterResolverValue[] args)
         {
             int min = 0;
-            int val = 0;
             var random = new Random();
             if (args.Length > 0)
             {

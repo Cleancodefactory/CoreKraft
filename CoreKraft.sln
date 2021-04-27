@@ -133,6 +133,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ActionQueryLibs", "ActionQu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images", "Src\SysPlugins\Support\ActionQueryLibs\Images\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images.csproj", "{482DE9EE-F576-4B2A-9006-223B5102A7C6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files", "Src\SysPlugins\Support\ActionQueryLibs\Files\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files.csproj", "{243CBA4B-1103-4DD3-A35C-F2E42F0801B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -351,6 +353,10 @@ Global
 		{482DE9EE-F576-4B2A-9006-223B5102A7C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{482DE9EE-F576-4B2A-9006-223B5102A7C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{482DE9EE-F576-4B2A-9006-223B5102A7C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{243CBA4B-1103-4DD3-A35C-F2E42F0801B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{243CBA4B-1103-4DD3-A35C-F2E42F0801B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{243CBA4B-1103-4DD3-A35C-F2E42F0801B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{243CBA4B-1103-4DD3-A35C-F2E42F0801B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -414,6 +420,7 @@ Global
 		{3477B396-A77A-4DC7-AC4F-FD0D694E7BB8} = {8216ED90-BBBC-415B-9691-29B63FA0E94D}
 		{4578DA4B-1939-4DB9-BB75-8B7C139D6C70} = {6D104A3B-CBCF-4E36-820A-B548EC03A1AD}
 		{482DE9EE-F576-4B2A-9006-223B5102A7C6} = {4578DA4B-1939-4DB9-BB75-8B7C139D6C70}
+		{243CBA4B-1103-4DD3-A35C-F2E42F0801B5} = {4578DA4B-1939-4DB9-BB75-8B7C139D6C70}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BFC34E53-EAB6-4384-87CE-222E5781116F}

@@ -26,13 +26,27 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             {
                 case nameof(CreateImage):
                     return CreateImage;
+                case nameof(DisposeImage):
+                    return DisposeImage;
+                case nameof(ResizeImage):
+                    return ResizeImage;
+                case nameof(SaveImage):
+                    return SaveImage;
+                case nameof(LoadImage):
+                    return LoadImage;
+                case nameof(ImageHeight):
+                    return ImageHeight;
+                case nameof(ImageWidth):
+                    return ImageWidth;
+                case nameof(IsImage):
+                    return IsImage;
             }
             return null;
         }
 
         public SymbolSet GetSymbols()
         {
-            return new SymbolSet("Default library (no symbols)", null);
+            return new SymbolSet("Basic Image library (no symbols)", null);
         }
 
         private List<object> _disposables = new List<object>();
@@ -152,6 +166,36 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 _disposables.Add(image);
             }
             return new ParameterResolverValue(image);
+        }
+        public ParameterResolverValue ImageHeight(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("ImageHeight requires one argument - the image");
+            Image image = args[0].Value as Image;
+            if (image != null)
+            {
+                return new ParameterResolverValue(image.Height);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue ImageWidth(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("ImageWidth requires one argument - the image");
+            Image image = args[0].Value as Image;
+            if (image != null)
+            {
+                return new ParameterResolverValue(image.Width);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue IsImage(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("IsImage requires one argument - the image");
+            Image image = args[0].Value as Image;
+            if (image != null)
+            {
+                return new ParameterResolverValue(true);
+            }
+            return new ParameterResolverValue(false);
         }
     }
 }

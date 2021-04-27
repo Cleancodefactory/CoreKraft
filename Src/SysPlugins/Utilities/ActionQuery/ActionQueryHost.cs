@@ -12,7 +12,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 {
 
     public delegate ParameterResolverValue HostedProc<H>(H arg1, ParameterResolverValue[] arg2);
-    public class ActionQueryHost<HostInterface> : ActionQueryHostBase,
+    public class ActionQueryHost<HostInterface> : 
         IActionQueryHost<ParameterResolverValue>, 
         IActionQueryHostControl<ParameterResolverValue>,
         IEnumerable<KeyValuePair<string, HostedProc<HostInterface> >>,
