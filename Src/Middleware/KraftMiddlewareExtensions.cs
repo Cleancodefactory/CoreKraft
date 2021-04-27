@@ -384,7 +384,13 @@ namespace Ccf.Ck.Web.Middleware
                     app.UseDeveloperExceptionPage();
                 }
 
-                BundleCollection bundleCollection = app.UseBundling(env, loggerFactory.CreateLogger("Bundling"), _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlCssJsSegment, _KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization);
+                string rootVirtualPath = "/modules";
+                BundleCollection bundleCollection = app.UseBundling(env,
+                    _KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders,
+                    rootVirtualPath,
+                    loggerFactory.CreateLogger("Bundling"),
+                    _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlCssJsSegment,
+                    _KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization);
                 bundleCollection.EnableInstrumentations = env.IsDevelopment(); //Logging enabled 
 
                 #region Initial module registration

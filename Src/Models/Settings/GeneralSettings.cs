@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
@@ -56,7 +55,7 @@ namespace Ccf.Ck.Models.Settings
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {
-            Regex regex = new Regex(@"(?:(@(?<first>wwwroot|contentroot)@))|(?:(?<optional>\[)*%(?<env>[a-zA-Z0-9_]+)%(\])*)");
+            Regex regex = new Regex(@"(?:(@(?<first>wwwroot|contentroot)@))|(?:%(?<env>[a-zA-Z0-9_]+)%*)");
             for (int i = 0; i < ModulesRootFolders.Count; i++)
             {
                 ModulesRootFolders[i] = regex.Replace(ModulesRootFolders[i], m =>
@@ -84,13 +83,9 @@ namespace Ccf.Ck.Models.Settings
                         {
                             return envVariable;
                         }
-                        else if (m.Groups["optional"].Success)
-                        {
-                            return string.Empty;
-                        }
                         else
                         {
-                            throw new Exception($"Configured path for environment variable: {m.Groups["env"]} is not valid and doesn't exist!");
+                            return string.Empty; //Variable not valid or not populated
                         }
                     }
                     return null;

@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="1.0.22" />
-    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="1.0.16" />
   </ItemGroup>
 
   <ItemGroup>

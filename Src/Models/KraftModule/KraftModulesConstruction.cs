@@ -1,8 +1,5 @@
-﻿using Ccf.Ck.Models.KraftModule;
-using Ccf.Ck.Models.Settings.Modules;
+﻿using Ccf.Ck.Models.Settings.Modules;
 using Ccf.Ck.Utilities.Generic.Topologies;
-using Ccf.Ck.Utilities.MemoryCache;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -53,7 +50,7 @@ namespace Ccf.Ck.Models.KraftModule
                 kraftDependableModule.KraftModuleRootPath = Directory.GetParent(module.Value).FullName;
                 foreach (KeyValuePair<string, string> item in kraftDependableModule.KraftModuleRootConf.OptionalDependencies)
                 {
-                    if (allReferencedModules.ContainsKey(item.Key))
+                    if (allReferencedModules.ContainsKey(item.Key))//Check if module loaded. If true put it safely in the regular dependencies
                     {
                         kraftDependableModule.KraftModuleRootConf.Dependencies.Add(item.Key, item.Value);
                     }

@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Utilities.Web.BundleTransformations.Primitives;
+﻿using Ccf.Ck.Libs.Web.Bundling;
+using Ccf.Ck.Utilities.Web.BundleTransformations.Primitives;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
@@ -15,16 +16,12 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
         private const string FILEUSINGPATTERN = "^((\\s*)|(\\s*\\/\\/){1})#(?i)using(?-i)\\s*\\\"(?<files>.*)\\\"";
         private static readonly Regex _FileUsingRegex = new Regex(FILEUSINGPATTERN, RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
-        public string[] Process(KraftBundle kraftBundle, IApplicationBuilder app, ILogger logger)
+        public InputFile[] Process(KraftBundle kraftBundle, string modulePath, string moduleName, string rootVirtualPath, ILogger logger)
         {
             #region Check validity
             if (kraftBundle == null)
             {
                 throw new ArgumentNullException(nameof(kraftBundle));
-            }
-            if (app == null)
-            {
-                throw new ArgumentNullException(nameof(app));
             }
             if (logger == null)
             {
@@ -51,7 +48,6 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
             List<string> outputFilesList = new List<string>();
             DirectoryInfo scrRootDir = new DirectoryInfo(kraftBundle.StartDirPath);
 
-            //start parsing from the script file of the builder object
             foreach (string profile in kraftBundleProfiles.ProfileFiles)
             {
                 FileInfo bootstrapFile = new FileInfo(Path.Combine(kraftBundle.StartDirPath, profile));
@@ -60,52 +56,32 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
                     ParseFilesForIncludesRecursive(bootstrapFile, scrRootDir, logger, outputFilesList);
                     break;
                 }
-                //outputFilesList.Add(bootstrapFile.ToString());
             }
-            outputFilesList = ProcessMappedFiles2VirtualPaths(outputFilesList, kraftBundle.ContentRootPath, app);
-            return outputFilesList.ToArray();
+
+            InputFile[] inputFiles = ProcessMappedFiles2VirtualPaths(outputFilesList, modulePath, moduleName);
+            return inputFiles;
         }
 
-        private List<string> ProcessMappedFiles2VirtualPaths(List<string> outputFilesList, string contentRootPath, IApplicationBuilder app)
+        private InputFile[] ProcessMappedFiles2VirtualPaths(List<string> outputFilesList, string modulePath, string moduleName)
         {
-            List<string> virtualFilePaths = new List<string>();
             int pos;
-            string fileVirtualName = string.Empty;
-            foreach (string file in outputFilesList)
+            InputFile[] inputFiles = new InputFile[outputFilesList.Count];
+            string file;
+            for (int i = 0; i < outputFilesList.Count; i++)
             {
-                pos = file.IndexOf(contentRootPath);
+                file = outputFilesList[i];
+                pos = file.IndexOf(modulePath);
                 if (pos == 0)
                 {
-                    fileVirtualName = file.Remove(pos, contentRootPath.Length);
+                    string fileVirtualName = "/modules/" + moduleName + file.Remove(pos, modulePath.Length);
+                    inputFiles[i] = new InputFile { PhysicalPath = file, VirtualPath = fileVirtualName.Replace(@"\", @"/") };
                 }
-                else if (pos == -1) //Content root not found, obviously an optional dependency outside of the content root
+                else
                 {
-                    //RegisterStaticFiles(app, file, "modules", "css", "images");
-
+                    throw new Exception($"Can't create virtual path for file {outputFilesList[i]}");
                 }
-                virtualFilePaths.Add(fileVirtualName.Replace(@"\", @"/"));
             }
-            return virtualFilePaths;
-        }
-
-        internal static void RegisterStaticFiles(IApplicationBuilder builder, string modulePath, string startNode, string resourceSegmentName, string type)
-        {
-            DirectoryInfo directoryInfo = new DirectoryInfo(modulePath);
-            DirectoryInfo dirInfo = new DirectoryInfo(Path.Combine(modulePath, type));
-            if (dirInfo.Exists)
-            {
-                builder.UseStaticFiles(new StaticFileOptions
-                {
-                    ServeUnknownFileTypes = false,
-                    DefaultContentType = "image/png",
-                    FileProvider = new PhysicalFileProvider(dirInfo.FullName),
-                    RequestPath = new PathString($"/{startNode}/{resourceSegmentName}/{directoryInfo.Name}/{type}"),
-                    OnPrepareResponse = ctx =>
-                    {
-                        ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
-                    }
-                });
-            }
+            return inputFiles;
         }
 
         private void ParseFilesForIncludesRecursive(FileInfo currentFile, DirectoryInfo currentDir, ILogger logger, List<string> outputFilesList)
