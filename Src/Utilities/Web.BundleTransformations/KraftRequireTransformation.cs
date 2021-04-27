@@ -1,4 +1,8 @@
-﻿using Ccf.Ck.Utilities.Web.BundleTransformations.Primitives;
+﻿using Ccf.Ck.Libs.Web.Bundling;
+using Ccf.Ck.Utilities.Web.BundleTransformations.Primitives;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,7 +16,7 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
         private const string FILEUSINGPATTERN = "^((\\s*)|(\\s*\\/\\/){1})#(?i)using(?-i)\\s*\\\"(?<files>.*)\\\"";
         private static readonly Regex _FileUsingRegex = new Regex(FILEUSINGPATTERN, RegexOptions.Multiline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
-        public string[] Process(KraftBundle kraftBundle, ILogger logger)
+        public InputFile[] Process(KraftBundle kraftBundle, string modulePath, string moduleName, string rootVirtualPath, ILogger logger)
         {
             #region Check validity
             if (kraftBundle == null)
@@ -44,7 +48,6 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
             List<string> outputFilesList = new List<string>();
             DirectoryInfo scrRootDir = new DirectoryInfo(kraftBundle.StartDirPath);
 
-            //start parsing from the script file of the builder object
             foreach (string profile in kraftBundleProfiles.ProfileFiles)
             {
                 FileInfo bootstrapFile = new FileInfo(Path.Combine(kraftBundle.StartDirPath, profile));
@@ -53,27 +56,32 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
                     ParseFilesForIncludesRecursive(bootstrapFile, scrRootDir, logger, outputFilesList);
                     break;
                 }
-                //outputFilesList.Add(bootstrapFile.ToString());
             }
-            outputFilesList = ProcessMappedFiles2VirtualPaths(outputFilesList, kraftBundle.ContentRootPath);
-            return outputFilesList.ToArray();
+
+            InputFile[] inputFiles = ProcessMappedFiles2VirtualPaths(outputFilesList, modulePath, moduleName);
+            return inputFiles;
         }
 
-        private List<string> ProcessMappedFiles2VirtualPaths(List<string> outputFilesList, string contentRootPath)
+        private InputFile[] ProcessMappedFiles2VirtualPaths(List<string> outputFilesList, string modulePath, string moduleName)
         {
-            List<string> virtualFilePaths = new List<string>();
             int pos;
-            string fileVirtualName = string.Empty;
-            foreach (string file in outputFilesList)
+            InputFile[] inputFiles = new InputFile[outputFilesList.Count];
+            string file;
+            for (int i = 0; i < outputFilesList.Count; i++)
             {
-                pos = file.IndexOf(contentRootPath);
-                if (pos < 1)
+                file = outputFilesList[i];
+                pos = file.IndexOf(modulePath);
+                if (pos == 0)
                 {
-                    fileVirtualName = file.Remove(pos, contentRootPath.Length);
+                    string fileVirtualName = "/modules/" + moduleName + file.Remove(pos, modulePath.Length);
+                    inputFiles[i] = new InputFile { PhysicalPath = file, VirtualPath = fileVirtualName.Replace(@"\", @"/") };
                 }
-                virtualFilePaths.Add(fileVirtualName.Replace(@"\", @"/"));
+                else
+                {
+                    throw new Exception($"Can't create virtual path for file {outputFilesList[i]}");
+                }
             }
-            return virtualFilePaths;
+            return inputFiles;
         }
 
         private void ParseFilesForIncludesRecursive(FileInfo currentFile, DirectoryInfo currentDir, ILogger logger, List<string> outputFilesList)

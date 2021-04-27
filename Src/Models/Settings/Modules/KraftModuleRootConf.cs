@@ -12,6 +12,7 @@ namespace Ccf.Ck.Models.Settings.Modules
         public List<KraftModuleSignal> Signals { get; set; }
         public string License { get; set; }
         public Dictionary<string, string> Dependencies { get; set; }
+        public Dictionary<string, string> OptionalDependencies { get; set; }
         public List<KraftModuleRelease> Release { get; set; }
     }
 }

@@ -19,21 +19,19 @@ namespace Ccf.Ck.Models.KraftModule
     public static class ExtensionMethods
     {
         const string RESOURCEDEPENDENCY_FILE_NAME = "Module.dep";
-        static ILogger _Logger;
-        static ICachingService _CachingService;
-        static KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
-        static KraftModuleCollection _ModulesCollection;
+        private static ILogger _Logger;
+        private static ICachingService _CachingService;
+        private static KraftModuleCollection _ModulesCollection;
 
         public static void Init(IApplicationBuilder app, ILogger logger)
         {
             _Logger = logger;
             _CachingService = app.ApplicationServices.GetService<ICachingService>();
-            _KraftGlobalConfigurationSettings = app.ApplicationServices.GetService<KraftGlobalConfigurationSettings>();
             _ModulesCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
         }
         #region Render Scripts and Css
         //Called from the Razor-Views or master page
-        public static Scripts KraftScripts(this Profile profile, string moduleDepStartFile = RESOURCEDEPENDENCY_FILE_NAME)
+        public static Scripts KraftScripts(this Profile profile, string moduleDepStartFile = RESOURCEDEPENDENCY_FILE_NAME, string rootVirtualPath = "/modules")
         {
             if (!profile.HasScriptBundle(profile.Key + "-scripts"))
             {
@@ -48,27 +46,18 @@ namespace Ccf.Ck.Models.KraftModule
                     throw new Exception($"No CoreKraft module found for bundle target \"{profile.Key}\"!");
                 }
 
-                static void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
-                {
-                    foreach (var dep in kmodule.Dependencies)
-                    {
-                        Dive(dep.Value as KraftModule, deps);
-                    }
-                    deps.Add(kmodule);
-                }
-
                 HashSet<KraftModule> targetDeps = new HashSet<KraftModule>();
                 Dive(profileTargetModule, targetDeps);
                 List<KraftModule> targetDepsSorted = targetDeps.OrderBy(x => x.DependencyOrderIndex).ToList<KraftModule>();
 
                 foreach (KraftModule kraftDepModule in targetDepsSorted)
                 {
-                    kraftDepModule.ConstructResources(_CachingService, _KraftGlobalConfigurationSettings, moduleDepStartFile, true);
+                    kraftDepModule.ConstructResources(_CachingService, kraftDepModule.DirectoryName, moduleDepStartFile, true);
                     if (kraftDepModule.ScriptKraftBundle != null)
                     {
                         using (KraftProfiler.Current.Step($"Time loading {kraftDepModule.Key}: "))
                         {
-                            scriptBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.ScriptKraftBundle, _Logger));
+                            scriptBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.ScriptKraftBundle, kraftDepModule.ModulePath, kraftDepModule.Key, rootVirtualPath, _Logger));
                             scriptBundle.Transforms.Add(new JsCleanupTransformation());
                         }
                     }
@@ -101,7 +90,7 @@ namespace Ccf.Ck.Models.KraftModule
         }
 
         //Called from the Razor-Views or master page
-        public static Styles KraftStyles(this Profile profile, string moduleDepStartFile = RESOURCEDEPENDENCY_FILE_NAME)
+        public static Styles KraftStyles(this Profile profile, string moduleDepStartFile = RESOURCEDEPENDENCY_FILE_NAME, string rootVirtualPaht = "/modules")
         {
             if (!profile.HasStyleBundle(profile.Key + "-css"))
             {
@@ -111,15 +100,9 @@ namespace Ccf.Ck.Models.KraftModule
 
                 //try to get the target module
                 KraftModule profileTargetModule = _ModulesCollection.GetModule(profile.Key);
-                if (profileTargetModule == null) throw new Exception($"No CoreKraft module found for bundle target \"{profile.Key}\"!");
-
-                static void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
+                if (profileTargetModule == null)
                 {
-                    foreach (var dep in kmodule.Dependencies)
-                    {
-                        Dive(dep.Value as KraftModule, deps);
-                    }
-                    deps.Add(kmodule);
+                    throw new Exception($"No CoreKraft module found for bundle target \"{profile.Key}\"!");
                 }
 
                 HashSet<KraftModule> targetDeps = new HashSet<KraftModule>();
@@ -128,10 +111,10 @@ namespace Ccf.Ck.Models.KraftModule
 
                 foreach (KraftModule kraftDepModule in targetDepsSorted)
                 {
-                    kraftDepModule.ConstructResources(_CachingService, _KraftGlobalConfigurationSettings, moduleDepStartFile, false);
+                    kraftDepModule.ConstructResources(_CachingService, kraftDepModule.DirectoryName, moduleDepStartFile, false);
                     if (kraftDepModule.StyleKraftBundle != null)
                     {
-                        styleBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.StyleKraftBundle, _Logger));
+                        styleBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.StyleKraftBundle, kraftDepModule.ModulePath, kraftDepModule.Key, rootVirtualPaht, _Logger));
                     }
                 }
 
@@ -144,5 +127,14 @@ namespace Ccf.Ck.Models.KraftModule
             }
         }
         #endregion Render Scripts and Css
+
+        static void Dive(KraftModule kmodule, HashSet<KraftModule> deps)
+        {
+            foreach (var dep in kmodule.Dependencies)
+            {
+                Dive(dep.Value as KraftModule, deps);
+            }
+            deps.Add(kmodule);
+        }
     }
 }

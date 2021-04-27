@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -55,16 +55,51 @@ namespace Ccf.Ck.Models.Settings
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {
-            string path;
+            Regex regex = new Regex(@"(?:(@(?<first>wwwroot|contentroot)@))|(?:%(?<env>[a-zA-Z0-9_]+)%*)");
             for (int i = 0; i < ModulesRootFolders.Count; i++)
             {
-                path = ModulesRootFolders[i].Replace("@wwwroot@", wwwRootPath).Replace("@contentroot@", contentRootPath);
-                DirectoryInfo directoryInfo = new DirectoryInfo(path);
+                ModulesRootFolders[i] = regex.Replace(ModulesRootFolders[i], m =>
+                {
+                    if (m.Groups["first"].Success)//wwwroot|contentroot
+                    {
+                        switch (m.Groups["first"].Value)
+                        {
+                            case "wwwroot":
+                                {
+                                    return wwwRootPath;
+                                }
+                            case "contentroot":
+                                {
+                                    return contentRootPath;
+                                }
+                            default:
+                                break;
+                        }
+                    }
+                    else if (m.Groups["env"].Success)//%something%
+                    {
+                        string envVariable =  Environment.GetEnvironmentVariable(m.Groups["env"].Value);
+                        if (!string.IsNullOrEmpty(envVariable))
+                        {
+                            return envVariable;
+                        }
+                        else
+                        {
+                            return string.Empty; //Variable not valid or not populated
+                        }
+                    }
+                    return null;
+                });
+            }
+            ModulesRootFolders = ModulesRootFolders.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            DirectoryInfo directoryInfo;
+            foreach (string module in ModulesRootFolders)
+            {
+                directoryInfo = new DirectoryInfo(module);
                 if (!directoryInfo.Exists)
                 {
-                    throw new Exception($"Configured path: {path} is not valid and doesn't exist!");
+                    throw new Exception($"Configured path for start module: {module} is not valid and doesn't exist!");
                 }
-                ModulesRootFolders[i] = directoryInfo.FullName;
             }
         }
 
