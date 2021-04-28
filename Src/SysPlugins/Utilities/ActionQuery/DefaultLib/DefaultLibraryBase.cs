@@ -6,6 +6,7 @@ using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Models.Settings;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -53,6 +54,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return Slice;
                 case nameof(Length):
                     return Length;
+                case nameof(Replace):
+                    return Replace;
+                case nameof(RegexReplace):
+                    return RegexReplace;
                 default:
                     return null;
             }
@@ -288,6 +293,31 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 return new ParameterResolverValue(coll.Count);
             }
             return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue Replace(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 3) throw new ArgumentException("Replace accepts exactly 3  argument.");
+            string str = Convert.ToString(args[0].Value);
+            string patt = Convert.ToString(args[1].Value);
+            string rep = Convert.ToString(args[2].Value);
+            return new ParameterResolverValue(str.Replace(patt, rep));
+        }
+        public ParameterResolverValue RegexReplace(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 3) throw new ArgumentException("RegexReplace accepts exactly 3  argument.");
+            string str = Convert.ToString(args[0].Value);
+            string patt = Convert.ToString(args[1].Value);
+            string rep = Convert.ToString(args[2].Value);
+            if (!string.IsNullOrWhiteSpace(patt))
+            {
+                Regex rex = new Regex(patt);
+                return new ParameterResolverValue(rex.Replace(str, rep));
+            } 
+            else
+            {
+                return new ParameterResolverValue(str);
+            }
+            
         }
         #endregion
 

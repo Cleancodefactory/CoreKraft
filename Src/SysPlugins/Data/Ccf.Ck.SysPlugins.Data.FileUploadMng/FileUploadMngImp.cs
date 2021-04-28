@@ -328,7 +328,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
         }
         
         /// <summary>
-        /// Sets the response to bynary with an implicitly created PostedFile
+        /// Creates a PostedFile from a disk file.
         /// </summary>
         /// <param name="ctx"></param>
         /// <param name="args">(string filepath, string contentType)</param>

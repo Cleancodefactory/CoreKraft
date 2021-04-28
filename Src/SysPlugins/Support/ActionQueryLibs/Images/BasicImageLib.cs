@@ -40,6 +40,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     return ImageWidth;
                 case nameof(IsImage):
                     return IsImage;
+                case nameof(JpegFromImage):
+                    return JpegFromImage;
+                case nameof(GifFromImage):
+                    return GifFromImage;
+                case nameof(PngFromImage):
+                    return PngFromImage;
             }
             return null;
         }
@@ -196,6 +202,81 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 return new ParameterResolverValue(true);
             }
             return new ParameterResolverValue(false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        private IPostedFile _PostedFileFromImage(Image image, string astype, string dispFilename)
+        {
+            if (image != null)
+            {
+                string name = "unnamed";
+                if (!string.IsNullOrWhiteSpace(dispFilename))
+                {
+                    name = dispFilename;
+                }
+                Action<Image, Stream> proc = null;
+                string ct = null;
+                if (astype == "jpeg" || astype == "jpg")
+                {
+                    proc = ImageExtensions.SaveAsJpeg;
+                    ct = "image/jpeg";
+                    name = name + ".jpg";
+                } 
+                else if (astype == "gif")
+                {
+                    proc = ImageExtensions.SaveAsGif;
+                    ct = "image/gif";
+                    name = name + ".gif";
+                } 
+                else if (astype == "png")
+                {
+                    proc = ImageExtensions.SaveAsPng;
+                    ct = "image/png";
+                    name = name + ".png";
+                }
+                else
+                {
+                    throw new ArgumentException("The image type is not recognized.");
+                }
+                if (proc != null)
+                {
+                    var ms = new MemoryStream();
+                    proc(image, ms);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    var pf = new PostedFile(ct, ms.Length, name, name, m => m as Stream, ms);
+                    return pf;
+                }
+            }
+            return null;
+        }
+        private ParameterResolverValue __PostedFileFromImage(ParameterResolverValue[] args, string _type)
+        {
+            Image image = null;
+            string type = _type ?? "jpeg";
+            string name = null;
+            if (args.Length >= 1) image = args[0].Value as Image;
+            if (args.Length >= 2) name = Convert.ToString(args[1].Value);
+            return new ParameterResolverValue(_PostedFileFromImage(image, type, name));
+        }
+        public ParameterResolverValue JpegFromImage(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 1) throw new ArgumentException("JpegFromImage has too few arguments");
+            return __PostedFileFromImage(args, "jpeg");
+        }
+        public ParameterResolverValue GifFromImage(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 1) throw new ArgumentException("GifFromImage has too few arguments");
+            return __PostedFileFromImage(args, "gif");
+        }
+        public ParameterResolverValue PngFromImage(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 1) throw new ArgumentException("GifFromImage has too few arguments");
+            return __PostedFileFromImage(args,"png");
         }
     }
 }
