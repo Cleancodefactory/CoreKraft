@@ -46,6 +46,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return ModuleName;
                 case nameof(ModulePath):
                     return ModulePath;
+
+                case nameof(ResetResultState):
+                    return ResetResultState;
+                case nameof(SetResultDeleted):
+                    return SetResultDeleted;
+                case nameof(SetResultNew):
+                    return SetResultNew;
+                case nameof(SetResultUpdated):
+                    return SetResultUpdated;
             }
             return base.GetProc(name);
         }
@@ -90,6 +99,66 @@ namespace Ccf.Ck.SysPlugins.Utilities
             {
                 return new ParameterResolverValue(false);
             }
+        }
+        private Dictionary<string, object> _GetResult(HostInterface ctx)
+        {
+            Dictionary<string, object> result = null;
+            if (ctx is IDataLoaderReadContext rctx)
+            {
+                if (rctx.Results.Count > 0)
+                {
+                    result = rctx.Results[rctx.Results.Count - 1];
+                }
+                else
+                {
+                    throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
+                }
+            }
+            else if (ctx is IDataLoaderWriteContext wctx)
+            {
+                result = wctx.Row;
+            }
+            else
+            {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+            return result;
+        }
+        public ParameterResolverValue ResetResultState(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            var result = _GetResult(ctx);
+            if (ctx is IDataLoaderContext dtx)
+            {
+                dtx.DataState.SetUnchanged(result);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue SetResultDeleted(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            var result = _GetResult(ctx);
+            if (ctx is IDataLoaderContext dtx)
+            {
+                dtx.DataState.SetDeleted(result);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue SetResultNew(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            var result = _GetResult(ctx);
+            if (ctx is IDataLoaderContext dtx)
+            {
+                dtx.DataState.SetNew(result);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue SetResultUpdated(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            var result = _GetResult(ctx);
+            if (ctx is IDataLoaderContext dtx)
+            {
+                dtx.DataState.SetUpdated(result);
+            }
+            return new ParameterResolverValue(null);
         }
         public ParameterResolverValue SetResult(HostInterface ctx, ParameterResolverValue[] args)
         {

@@ -252,18 +252,18 @@ namespace Ccf.Ck.Processing.Web.Request
                 if (types[i]) { // Dict to create
                     if (types[i-1]) {
                         // create dict in dict
-                        anchor = GetCreateXinDictionary<Dictionary<string,object>>(anchor, parts[i]);
+                        anchor = GetCreateXinDictionary<Dictionary<string,object>>(anchor, parts[i-1]);
                     } else {
                         // create dict in array
-                        anchor = GetCreateXinArray<Dictionary<string,object>>(anchor, parts[i]);
+                        anchor = GetCreateXinArray<Dictionary<string,object>>(anchor, parts[i-1]);
                     }
                 } else { // Array to create
                     if (types[i-1]) {
                         // create array in dict
-                        anchor = GetCreateXinDictionary<List<object>>(anchor, parts[i]);
+                        anchor = GetCreateXinDictionary<List<object>>(anchor, parts[i-1]);
                     } else {
                         // create array in array
-                        anchor = GetCreateXinArray<List<object>>(anchor, parts[i]);
+                        anchor = GetCreateXinArray<List<object>>(anchor, parts[i-1]);
                     }
                 }
             }

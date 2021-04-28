@@ -50,6 +50,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 case nameof(ModulePath):
                     return ModulePath;
 
+                case nameof(ResetResultState):
+                    return ResetResultState;
+                case nameof(SetResultDeleted):
+                    return SetResultDeleted;
+                case nameof(SetResultNew):
+                    return SetResultNew;
+                case nameof(SetResultUpdated):
+                    return SetResultUpdated;
             }
             return base.GetProc(name);
         }
@@ -136,6 +144,68 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(lastvalue);
         }
+
+        private Dictionary<string, object> _GetResult(HostInterface ctx)
+        {
+            Dictionary<string, object> result = null;
+            if (ctx is INodePluginReadContext rctx)
+            {
+                if (rctx.Results.Count > 0)
+                {
+                    result = rctx.Results[rctx.Results.Count - 1];
+                }
+                else
+                {
+                    throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
+                }
+            }
+            else if (ctx is INodePluginWriteContext wctx)
+            {
+                result = wctx.Row;
+            }
+            else
+            {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+            return result;
+        }
+        public ParameterResolverValue ResetResultState(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            var result = _GetResult(ctx);
+            if (ctx is INodePluginContext dtx)
+            {
+                dtx.DataState.SetUnchanged(result);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue SetResultDeleted(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            var result = _GetResult(ctx);
+            if (ctx is INodePluginContext dtx)
+            {
+                dtx.DataState.SetDeleted(result);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue SetResultNew(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            var result = _GetResult(ctx);
+            if (ctx is INodePluginContext dtx)
+            {
+                dtx.DataState.SetNew(result);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue SetResultUpdated(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            var result = _GetResult(ctx);
+            if (ctx is INodePluginContext dtx)
+            {
+                dtx.DataState.SetUpdated(result);
+            }
+            return new ParameterResolverValue(null);
+        }
+
         #endregion
 
         #region Information about what is happening
