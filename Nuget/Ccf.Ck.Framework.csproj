@@ -50,6 +50,7 @@
       - Version 1.0.38: Fixed bug with IHost not showing starting process in the console
       - Version 1.0.39: Update referenced project: Ccf.Ck.NodePlugins.Base for nuget
       - Version 1.0.40: Support for Optional Dependencies; ActionQuery host implemented: 2 plugins (Scripter and ManagedFileUpload) are supporting it natively; 2 optional libs were added (for images and files)
+	  - Version 1.0.41: Bug fixing in Scripter plugin
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
