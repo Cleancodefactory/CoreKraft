@@ -11,7 +11,8 @@ namespace Ccf.Ck.SysPlugins.Data.Base
 
         #region IDataLoaderPlugin
 
-        public override void Execute(IDataLoaderContext execContext)
+        /*
+        sealed public override void Execute(IDataLoaderContext execContext)
         {
             // TODO: Needs a bit more effort to pack exception from the called methods
             if (execContext.Action == ACTION_READ)
@@ -27,8 +28,9 @@ namespace Ccf.Ck.SysPlugins.Data.Base
                 throw new Exception("Unknown action " + (execContext.Action ?? "null"));
             }
         }
+        */
 
-        protected override void ExecuteRead(IDataLoaderReadContext execContext)
+        sealed protected override void ExecuteRead(IDataLoaderReadContext execContext)
         {
             var results = Read(execContext);
             if (results != null && results.Count > 0)
@@ -37,7 +39,7 @@ namespace Ccf.Ck.SysPlugins.Data.Base
             }
         }
 
-        protected override void ExecuteWrite(IDataLoaderWriteContext execContext)
+        sealed protected override void ExecuteWrite(IDataLoaderWriteContext execContext)
         {
             var u = Write(execContext);
             if (u != null)

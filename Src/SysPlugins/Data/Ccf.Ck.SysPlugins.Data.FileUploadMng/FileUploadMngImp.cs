@@ -159,34 +159,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
             // Else nothing to do.
         }
 
-        #region Helpers
-        
-        private string GetQuery(IDataLoaderContext ctx)
-        {
-            if (ctx.Action == ModelConstants.ACTION_READ)
-            {
-                var op = ctx.CurrentNode?.Read?.Select;
-                if (op != null)
-                {
-                    return op.Query;
-                }
-            } 
-            else if (ctx.Action == ModelConstants.ACTION_WRITE)
-            {
-                switch (ctx.Operation)
-                {
-                    case ModelConstants.OPERATION_INSERT:
-                        return ctx.CurrentNode?.Write?.Insert?.Query;
-                    case ModelConstants.OPERATION_UPDATE:
-                        return ctx.CurrentNode?.Write?.Update?.Query;
-                    case ModelConstants.OPERATION_DELETE:
-                        return ctx.CurrentNode?.Write?.Delete?.Query;
-                }
-            }
-            return null;
-        }
-        #endregion
-
+       
         #region Available functions - usable in the query
         public ParameterResolverValue IsPostedFile(IDataLoaderContext ctx, ParameterResolverValue[] args)
         {

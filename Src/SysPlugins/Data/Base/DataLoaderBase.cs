@@ -8,7 +8,7 @@ namespace Ccf.Ck.SysPlugins.Data.Base
     {
         public DataLoaderBase() { }
 
-        public override void Execute(IDataLoaderContext execContext)
+        sealed public override void Execute(IDataLoaderContext execContext)
         {
             // TODO: Needs a bit more effort to pack exception from the called methods
             if (execContext.Action == ACTION_READ)
