@@ -15,7 +15,7 @@ namespace Ccf.Ck.SysPlugins.Data.UploadFileStream.BaseClasses
             MediaTypeHeaderValue mediaType;
             bool hasMediaTypeHeader = MediaTypeHeaderValue.TryParse(section.ContentType, out mediaType);
             // UTF-7 is insecure and should not be honored. UTF-8 will succeed in most cases.
-            if (!hasMediaTypeHeader || Encoding.UTF7.Equals(mediaType.Encoding))
+            if (!hasMediaTypeHeader || Encoding.UTF8.Equals(mediaType.Encoding))
             {
                 return Encoding.UTF8;
             }

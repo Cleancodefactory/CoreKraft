@@ -250,19 +250,12 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
                     {
                         using (IImageEditor imageEditor = new ImageEditor(postedFile))
                         {
-                            try
-                            {
-                                imageEditor.Save(Path.Combine(settings.UploadFolder, fileName));
+                            imageEditor.Save(Path.Combine(settings.UploadFolder, fileName));
 
-                                previewName = GeneratePreviewName(fileName);
+                            previewName = GeneratePreviewName(fileName);
 
-                                imageEditor.Resize(width, height);
-                                imageEditor.Save(Path.Combine(settings.UploadFolder, previewName));
-                            }
-                            catch (Exception ex)
-                            {
-                                throw ex;
-                            }
+                            imageEditor.Resize(width, height);
+                            imageEditor.Save(Path.Combine(settings.UploadFolder, previewName));
                         }
                     }
                     else
