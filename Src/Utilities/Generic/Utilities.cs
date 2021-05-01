@@ -1,12 +1,11 @@
 ﻿using Ccf.Ck.Libs.Logging;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Security;
 using System.Security.Cryptography;
-using System.Security.Permissions;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Utilities.Generic
@@ -81,16 +80,31 @@ namespace Ccf.Ck.Utilities.Generic
                 {
                     dirInfo.Create();
                 }
-                FileIOPermission directoryPermission = new FileIOPermission(FileIOPermissionAccess.Write, dirInfo.FullName);
+                string testFileName = Path.Combine(dirInfo.FullName, "output.txt");
                 try
                 {
-                    directoryPermission.Demand();
+                    using (FileStream stream = new FileStream(testFileName, FileMode.Create, FileAccess.Write, FileShare.Write, 4096))
+                    {
+                        var bytes = Encoding.UTF8.GetBytes("");
+                        stream.Write(bytes, 0, bytes.Length);
+                    }
+                }
+                finally
+                {
+                    File.Delete(testFileName);
+                }                
+                
+                try
+                {
+                    //directoryPermission.Demand();
                     if (recursive)
                     {
                         foreach (FileInfo file in dirInfo.GetFiles())
                         {
-                            directoryPermission = new FileIOPermission(FileIOPermissionAccess.Write, file.FullName);
-                            directoryPermission.Demand();
+                            using (FileStream outputFile = File.OpenWrite(file.FullName))
+                            {
+                                outputFile.Close();
+                            }
                         }
                         foreach (DirectoryInfo directory in dirInfo.GetDirectories())
                         {

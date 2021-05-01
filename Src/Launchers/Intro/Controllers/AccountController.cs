@@ -24,7 +24,7 @@ namespace Ccf.Ck.Launchers.Intro.Controllers
         }
 
         [HttpGet, HttpPost]
-        public ActionResult SignOut()
+        public new ActionResult SignOut()
         {
             // Instruct the cookies middleware to delete the local cookie created when the user agent
             // is redirected from the identity provider after a successful authorization flow and
