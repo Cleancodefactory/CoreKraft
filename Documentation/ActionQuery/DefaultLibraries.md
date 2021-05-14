@@ -113,20 +113,43 @@ __Add( arg {, arg} )__ - Returns the sum of all the arguments.
 
 **Neg(arg)** - Returns the argument with inverted sign if the value is numeric and null otherwise. The numeric values are converted to double if they are float or double, to Int32 if they are integers shorter or same length as int, Int64 it the are longer. It is not recommended to use this with unsigned numbers, because of the chance to lose precision or convert them wrongly, usage with unsigned numbers should be done with care and will be safe only if they are smaller than the signed integer of the same size.
 
-Equal
+**Equal(arg1,arg2)**
 
-Greater
+**Greater(arg1, arg2)**
 
-Lower
+**Lower(arg1, arg2)**
 
-Or
+**Or([arg1 [, arg2 [, arg3 ... ]]])**
 
-And
+**And([arg1 [, arg2 [,arg3 ...]]])**
 
-Slice
+**Slice(stting, start [,end])**
                     
-Length
+**Length(string)**
 
+**Replace(string, findwhat, replacewith)**
+
+**RegexReplace(string, pattern, replacewith)**
+
+**Split(string [, separator])**
+
+**List([arg1 [,arg2 [,arg3 ...]]])**
+
+**ConsumeOne(list)**
+
+**ListAdd(list[, arg2 [,arg3 [,arg4 ...]]])**
+
+**ListGet(list,index)**
+
+**ListInsert(list, index, value)**
+
+**ListRemove(list[ , index1 [,index2 [,index3]]])**
+
+**ListSet(list, index, value)**
+
+**ListClear(list)**
+
+**AsList(value)**
 
 
 
