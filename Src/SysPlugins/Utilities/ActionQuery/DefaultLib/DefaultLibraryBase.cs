@@ -58,6 +58,27 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return Replace;
                 case nameof(RegexReplace):
                     return RegexReplace;
+                case nameof(Split):
+                    return Split;
+                // Lists
+                case nameof(ConsumeOne):
+                    return ConsumeOne;
+                case nameof(List):
+                    return List;
+                case nameof(ListAdd):
+                    return ListAdd;
+                case nameof(ListGet):
+                    return ListGet;
+                case nameof(ListInsert):
+                    return ListInsert;
+                case nameof(ListRemove):
+                    return ListRemove;
+                case nameof(ListSet):
+                    return ListSet;
+                case nameof(ListClear):
+                    return ListClear;
+                case nameof(AsList):
+                    return AsList;
                 default:
                     return null;
             }
@@ -171,6 +192,178 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
+        #endregion
+
+        #region Enumeration and collections
+        /// <summary>
+        /// Consumes one item from a List or queue
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue ConsumeOne(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("ConsumeOne takes one argument - a collection ");
+            var _coll = args[0].Value;
+            if (_coll is Queue<ParameterResolverValue> queue)
+            {
+                if (queue.Count > 0)
+                {
+                    return queue.Dequeue();
+                }
+            } 
+            else if (_coll is IList<ParameterResolverValue> list)
+            {
+                if (list.Count > 0)
+                {
+                    var r = list[list.Count - 1];
+                    list.RemoveAt(list.Count - 1);
+                    return r;
+                }
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue List(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            var list = new List<ParameterResolverValue>(); // The new list
+            if (args.Length > 0)
+            {
+                for (int i = 0;i < args.Length; i++)
+                {
+                    var arg = args[i];
+                    if (arg.Value is IEnumerable<ParameterResolverValue> lp)
+                    {
+                        list.AddRange(lp);
+                    } 
+                    else
+                    {
+                        list.Add(arg);
+                    }
+                }
+            }
+            return new ParameterResolverValue(list);
+        }
+        public ParameterResolverValue ListAdd(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 1) throw new ArgumentException("ListAdd requires some arguments");
+            var list = args[0].Value as IList<ParameterResolverValue>;
+            if (list != null)
+            {
+                for (int i = 1; i < args.Length; i++)
+                {
+                    list.Add(args[i]); // TODO: Should we break lists?
+                }
+            } 
+            else
+            {
+                return new ParameterResolverValue(null);
+            }
+            return new ParameterResolverValue(list);
+        }
+        public ParameterResolverValue ListRemove(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 1) throw new ArgumentException("ListRemove requires some arguments");
+            var list = args[0].Value as IList<ParameterResolverValue>;
+            if (list != null)
+            {
+                var indices = args.OrderByDescending(a => Convert.ToInt32(a.Value));
+                if (indices.Count() > 0)
+                {
+                    foreach (var index in indices)
+                    {
+                        if (IsNumeric(index.Value))
+                        {
+                            var i = Convert.ToInt32(index.Value);
+                            list.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                return new ParameterResolverValue(null);
+            }
+            return new ParameterResolverValue(list);
+        }
+        public ParameterResolverValue ListInsert(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 3) throw new ArgumentException("ListInsert requires 3 arguments");
+            var list = args[0].Value as IList<ParameterResolverValue>;
+            if (list == null) return new ParameterResolverValue(null);
+            if (!IsNumeric(args[1].Value)) throw new ArgumentException("ListInsert argument 2 (index) is not numeric");
+            var index = Convert.ToInt32(args[1].Value);
+            list.Insert(index, args[2]);
+            return new ParameterResolverValue(list);
+        }
+        public ParameterResolverValue ListGet(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 2) throw new ArgumentException("ListGet requires 2 arguments");
+            var list = args[0].Value as IList<ParameterResolverValue>;
+            if (list == null) return new ParameterResolverValue(null);
+            if (!IsNumeric(args[1].Value)) throw new ArgumentException("ListGet index (arg 2) is not numeric");
+            var index = Convert.ToInt32(args[1].Value);
+            if (index >=0 && index < list.Count)
+            {
+                return list[index];
+            }
+            else
+            {
+                return new ParameterResolverValue(null);
+            }
+        }
+        public ParameterResolverValue ListSet(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 3) throw new ArgumentException("ListSet requires 3 arguments");
+            var list = args[0].Value as IList<ParameterResolverValue>;
+            if (list == null) return new ParameterResolverValue(null);
+            if (!IsNumeric(args[1].Value)) throw new ArgumentException("ListSet index (arg 2) is not numeric");
+            var index = Convert.ToInt32(args[1].Value);
+            if (index >= 0 && index < list.Count)
+            {
+                list[index] = args[2];
+                return new ParameterResolverValue(list);
+            }
+            else
+            {
+                throw new IndexOutOfRangeException("ListSet index is out of range");
+            }
+        }
+        public ParameterResolverValue ListClear(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("ListClear requires 1 argument");
+            var list = args[0].Value as IList<ParameterResolverValue>;
+            if (list == null) return new ParameterResolverValue(null);
+            list.Clear();
+            return new ParameterResolverValue(list);
+        }
+        public ParameterResolverValue AsList(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("AsList requires 1 argument");
+            var arg = args[0].Value;
+            if (arg is string)
+            {
+                return new ParameterResolverValue(new List<ParameterResolverValue>() { new ParameterResolverValue(arg) });
+            }
+            var list = new List<ParameterResolverValue>();
+            if (arg is IDictionary argd)
+            {
+                foreach (object o in argd.Values)
+                {
+                    list.Add(new ParameterResolverValue(o));
+                }
+                return new ParameterResolverValue(list);
+            }
+            if (arg is IEnumerable arge)
+            {
+                foreach (object o in arge)
+                {
+                    list.Add(new ParameterResolverValue(o));
+                }
+                return new ParameterResolverValue(list);
+            }
+            list.Add(new ParameterResolverValue(arg));
+            return new ParameterResolverValue(arg);
+        }
         #endregion
 
         #region Comparisons
@@ -319,6 +512,28 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             
         }
+        public ParameterResolverValue Split(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 1) throw new ArgumentException("Split requires at least 1 argument");
+            var str = Convert.ToString(args[0].Value);
+            if (args.Length > 1)
+            {
+                var sep = Convert.ToString(args[1].Value);
+                if (string.IsNullOrEmpty(sep))
+                {
+                    return new ParameterResolverValue(new List<ParameterResolverValue>() { new ParameterResolverValue(str) });
+                } 
+                else
+                {
+                    return new ParameterResolverValue(str.Split(sep).Select(s => new ParameterResolverValue(s)).ToList());
+                }
+            
+            }
+            else
+            {
+                return new ParameterResolverValue(str.Split(',').Select(s => new ParameterResolverValue(s)).ToList());
+            }
+        }
         #endregion
 
         #region Typing
@@ -361,15 +576,18 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue("unknown");
         }
 
+        public static bool IsNumeric(object v)  {
+            if (v == null) return false;
+            Type tc = v.GetType();
+            if (tc == typeof(int) || tc == typeof(uint) || tc == typeof(long) || tc == typeof(ulong)
+                || tc == typeof(double) || tc == typeof(float) || tc == typeof(short) || tc == typeof(ushort) ||
+                tc == typeof(char) || tc == typeof(byte)) return true;
+            return false;
+        }
         public ParameterResolverValue IsNumeric(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("IsNumeric requires one argument.");
-            Type tc = args[0].Value.GetType();
-            if (tc == typeof(int) || tc == typeof(uint) || tc == typeof(long) || tc == typeof(ulong)
-                || tc == typeof(double) || tc == typeof(float) || tc == typeof(short) || tc == typeof(ushort) ||
-                tc == typeof(char) || tc == typeof(byte)) return new ParameterResolverValue(true);
-
-            return new ParameterResolverValue(false);
+            return new ParameterResolverValue(IsNumeric(args[0].Value));
         }
 
         #endregion
