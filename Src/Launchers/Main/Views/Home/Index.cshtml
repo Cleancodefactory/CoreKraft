@@ -28,7 +28,7 @@
     @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles(string.IsNullOrWhiteSpace(Model.GeneralSettings.Theme) ? "Module.dep" : Model.GeneralSettings.Theme + ".dep").Render()
 </head>
 <body>
-    <div id="container" class="themed">
+    <div id="t" class="themed">
     </div>
     @{
         var bindKraftConfiguration = Html.Raw(Model.GeneralSettings.BindKraftConfiguration);
