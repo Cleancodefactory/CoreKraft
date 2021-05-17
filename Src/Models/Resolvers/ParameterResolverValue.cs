@@ -24,13 +24,23 @@ namespace Ccf.Ck.Models.Resolvers
                 uint dataType = (uint)EValueDataType.any,
                 uint size = 0)
         {
-            Value = value;
-            DataType = dataType;
-            DataSize = size;
-            ValueType = vtype;
-            if (value is ICollection)
+            if (value is ParameterResolverValue prv)
             {
-                DataType |= (uint)EValueDataType.Collection;
+                Value = prv.Value;
+                DataType = prv.DataType;
+                DataSize = prv.DataSize;
+                ValueType = prv.ValueType;
+            }
+            else
+            {
+                Value = value;
+                DataType = dataType;
+                DataSize = size;
+                ValueType = vtype;
+                if (value is ICollection)
+                {
+                    DataType |= (uint)EValueDataType.Collection;
+                }
             }
         }
         /// <summary>
@@ -47,14 +57,24 @@ namespace Ccf.Ck.Models.Resolvers
                 uint reserved = 0,
                 uint size = 0)
         {
-            Value = value;
-            DataType = (uint)datatype | (uint)datasize | reserved;
-            if (value is ICollection && reserved == 0 && (DataType & (uint)EValueDataType.AdvancedMask) == 0)
+            if (value is ParameterResolverValue prv)
             {
-                DataType |= (uint)EValueDataType.Collection;
+                Value = prv.Value;
+                DataType = prv.DataType;
+                DataSize = prv.DataSize;
+                ValueType = prv.ValueType;
             }
-            DataSize = size;
-            ValueType = EResolverValueType.ValueType;
+            else
+            {
+                Value = value;
+                DataType = (uint)datatype | (uint)datasize | reserved;
+                if (value is ICollection && reserved == 0 && (DataType & (uint)EValueDataType.AdvancedMask) == 0)
+                {
+                    DataType |= (uint)EValueDataType.Collection;
+                }
+                DataSize = size;
+                ValueType = EResolverValueType.ValueType;
+            }
         }
         /// <summary>
         /// The value itself
