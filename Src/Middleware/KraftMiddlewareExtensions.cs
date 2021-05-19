@@ -315,7 +315,8 @@ namespace Ccf.Ck.Web.Middleware
                 });
 
                 //Signals
-                services.AddHostedService<SignalService>();
+                services.AddSingleton<SignalService>();
+                services.AddHostedService<SignalService>(sp => sp.GetRequiredService<SignalService>());
                 //End Signals
                 //RecordersStore which contians dictionary of the running instances
                 services.AddSingleton<RecordersStoreImp>();
@@ -413,6 +414,7 @@ namespace Ccf.Ck.Web.Middleware
 
                         ICachingService cachingService = app.ApplicationServices.GetService<ICachingService>();
                         Dictionary<string, string> moduleKey2Path = new Dictionary<string, string>();
+                        SignalService signalService = app.ApplicationServices.GetService<SignalService>();
                         foreach (KeyValuePair<string, IDependable<KraftDependableModule>> depModule in kraftDependableModules)
                         {
                             KraftDependableModule kraftDependable = (depModule.Value as KraftDependableModule);
@@ -433,7 +435,7 @@ namespace Ccf.Ck.Web.Middleware
                             }
                             foreach (string validSubFolder in _ValidSubFoldersForWatching)
                             {
-                                AttachModulesWatcher(Path.Combine(moduleFullPath, validSubFolder), true, applicationLifetime, restart);
+                                signalService.AttachModulesWatcher(Path.Combine(moduleFullPath, validSubFolder), true, applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
                             }
                         }
                         _KraftGlobalConfigurationSettings.GeneralSettings.ModuleKey2Path = moduleKey2Path;
@@ -614,54 +616,6 @@ namespace Ccf.Ck.Web.Middleware
                 }
             }
             return null;
-        }
-
-        private static void AttachModulesWatcher(string moduleFolder, bool includeSubdirectories, IHostApplicationLifetime applicationLifetime, Action<bool> restart)
-        {
-            if (!Directory.Exists(moduleFolder))
-            {
-                //Do nothing for none existant folders
-                return;
-            }
-            FileSystemWatcher fileWatcher;
-            RestartReason restartReason = new RestartReason();
-            fileWatcher = new FileSystemWatcher(moduleFolder)
-            {
-                // watch for everything
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
-                IncludeSubdirectories = includeSubdirectories,
-                Filter = "*.*"
-            };
-            // Add event handlers.
-            fileWatcher.Changed += OnChanged;
-            fileWatcher.Created += OnChanged;
-            fileWatcher.Deleted += OnChanged;
-            fileWatcher.Renamed += OnRenamed;
-
-            // Begin watching...
-            fileWatcher.EnableRaisingEvents = true;
-
-
-            void OnChanged(object source, FileSystemEventArgs e)
-            {
-                fileWatcher.EnableRaisingEvents = false;
-                //Bug in Docker which will trigger OnChanged during StartUp (How to fix?)
-                AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
-                AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
-                restartReason.Reason = "File Changed";
-                restartReason.Description = $"ChangeType: {e.ChangeType} file {e.FullPath}";
-                RestartApplication(applicationLifetime, restartReason, restart);
-            }
-
-            void OnRenamed(object source, RenamedEventArgs e)
-            {
-                fileWatcher.EnableRaisingEvents = false;
-                AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
-                AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
-                restartReason.Reason = "File Renamed";
-                restartReason.Description = $"Renaming from {e.OldFullPath} to {e.FullPath}";
-                RestartApplication(applicationLifetime, restartReason, restart);
-            }
         }
     }
 }
