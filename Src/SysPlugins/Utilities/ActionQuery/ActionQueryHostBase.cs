@@ -25,6 +25,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 if (v.Value is byte bt) return bt != 0;
                 if (v.Value is bool b) return b;
                 if (v.Value is string s) return !string.IsNullOrWhiteSpace(s);
+                return true;
             }
             else if (v.ValueType == EResolverValueType.Invalid || v.ValueType == EResolverValueType.Skip)
             {
