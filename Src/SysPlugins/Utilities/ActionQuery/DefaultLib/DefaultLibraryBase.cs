@@ -57,6 +57,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return RegexReplace;
                 case nameof(Split):
                     return Split;
+                case nameof(Trim):
+                    return Trim;
                 // Lists
                 case nameof(ConsumeOne):
                     return ConsumeOne;
@@ -571,6 +573,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
             {
                 return new ParameterResolverValue(str.Split(',').Select(s => new ParameterResolverValue(s)).ToList());
             }
+        }
+        public ParameterResolverValue Trim(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("Trim requires oneparameter.");
+            var str = Convert.ToString(args[0].Value);
+            return new ParameterResolverValue(str.Trim());
         }
         #endregion
 

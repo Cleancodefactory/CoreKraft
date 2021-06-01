@@ -135,6 +135,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.SysPlugins.Support.A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files", "Src\SysPlugins\Support\ActionQueryLibs\Files\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files.csproj", "{243CBA4B-1103-4DD3-A35C-F2E42F0801B5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls", "Src\SysPlugins\Support\ActionQueryLibs\InternalCalls\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls.csproj", "{7EB3BC43-7C1E-4488-9E3C-AC5902ED4A28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -357,6 +359,10 @@ Global
 		{243CBA4B-1103-4DD3-A35C-F2E42F0801B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{243CBA4B-1103-4DD3-A35C-F2E42F0801B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{243CBA4B-1103-4DD3-A35C-F2E42F0801B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EB3BC43-7C1E-4488-9E3C-AC5902ED4A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EB3BC43-7C1E-4488-9E3C-AC5902ED4A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EB3BC43-7C1E-4488-9E3C-AC5902ED4A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EB3BC43-7C1E-4488-9E3C-AC5902ED4A28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -421,6 +427,7 @@ Global
 		{4578DA4B-1939-4DB9-BB75-8B7C139D6C70} = {6D104A3B-CBCF-4E36-820A-B548EC03A1AD}
 		{482DE9EE-F576-4B2A-9006-223B5102A7C6} = {4578DA4B-1939-4DB9-BB75-8B7C139D6C70}
 		{243CBA4B-1103-4DD3-A35C-F2E42F0801B5} = {4578DA4B-1939-4DB9-BB75-8B7C139D6C70}
+		{7EB3BC43-7C1E-4488-9E3C-AC5902ED4A28} = {4578DA4B-1939-4DB9-BB75-8B7C139D6C70}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BFC34E53-EAB6-4384-87CE-222E5781116F}
