@@ -93,6 +93,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return AsDict;
                 case nameof(IsDictCompatible):
                     return IsDictCompatible;
+                // Errors
+                case "Error":
+                    return Error.GenError;
+                case nameof(Error.IsError):
+                    return Error.IsError;
+                case nameof(Error.ErrorText):
+                    return Error.ErrorText;
+                case nameof(Error.ErrorCode):
+                    return Error.ErrorCode;
                 default:
                     return null;
             }
@@ -706,5 +715,40 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             throw new Exception(extext);
         }
+
+        #region Additional helpers for internal use
+        public static object ConvertFromGenericData(object data) {
+            if (data is Dictionary<string, object> dict) {
+                return new ParameterResolverValue(dict.ToDictionary(kv => kv.Key, kv => new ParameterResolverValue(ConvertFromGenericData(kv.Value))));
+            } else if (data is string s) {
+                return new ParameterResolverValue(s);
+            } else if (data is IEnumerable enmr) {
+                var list = new List<ParameterResolverValue>();
+                foreach (object o in enmr) {
+                    list.Add(new ParameterResolverValue(ConvertFromGenericData(o)));
+                }
+                return new ParameterResolverValue(list);
+            } else {
+                return new ParameterResolverValue(data);
+            }
+        }
+        public static object ConvertToGenericData(object data) {
+            if (data is Dictionary<string, ParameterResolverValue> dict) {
+                return (dict.ToDictionary(kv => kv.Key, kv => ConvertToGenericData(kv.Value.Value)));
+            } else if (data is ParameterResolverValue pv) {
+                return pv.Value;
+            } else if (data is List<ParameterResolverValue> lst) {
+                var list = new List<Dictionary<string, object>>();
+                foreach (var v in lst) {
+
+                    list.Add(new ParameterResolverValue(ConvertFromGenericData(o)));
+                }
+                return new ParameterResolverValue(list);
+            } else {
+                return new ParameterResolverValue(data);
+            }
+        }
+
+        #endregion
     }
 }
