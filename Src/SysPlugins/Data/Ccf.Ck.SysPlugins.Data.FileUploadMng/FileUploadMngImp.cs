@@ -11,6 +11,8 @@ using System.IO;
 using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images;
 using Microsoft.AspNetCore.StaticFiles;
+using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
+using Ccf.Ck.Processing.Web.ResponseBuilder;
 
 namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
 {
@@ -339,6 +341,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
             var pf = args[0].Value as IPostedFile;
             if (pf == null) throw new ArgumentException("FileResponse - argument is not IPostedFile. Use FileResponse(PostedFile(...))");
             ctx.ProcessingContext.ReturnModel.BinaryData = pf;
+            ctx.ProcessingContext.ReturnModel.ResponseBuilder = new BinaryResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx.ProcessingContext }));
             return new ParameterResolverValue(pf);
         }
         public ParameterResolverValue FileExists(IDataLoaderContext ctx, ParameterResolverValue[] args)
