@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.DirectCall;
+using dcall = Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Utilities;
 using System;
@@ -18,15 +19,17 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         {
             switch (name)
             {
-                //case nameof(PngFromImage):
-                //   return PngFromImage;
+                case nameof(CallRead):
+                   return CallRead;
+                case nameof(CallWrite):
+                    return CallWrite;
             }
             return null;
         }
 
         public SymbolSet GetSymbols()
         {
-            return new SymbolSet("Basic Image library (no symbols)", null);
+            return new SymbolSet("Internal calls library (no symbols)", null);
         }
 
         private List<object> _disposables = new List<object>();
@@ -55,7 +58,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         /// <param name="address">Syntax is: module/nodeset/nodepath</param>
         /// <param name="input"></param>
         /// <returns></returns>
-        private bool ParseCallAddress(string address, InputModel input)
+        private bool ParseCallAddress(string address, dcall.InputModel input)
         {
             Match m = reAddress.Match(address);
             if (m.Success)
@@ -84,9 +87,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 
         #region Functions
 
-        public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args)
+        private ParameterResolverValue _Call(bool isWrite,HostInterface ctx, ParameterResolverValue[] args)
         {
-            InputModel inp = new InputModel() { IsWriteOperation = false };
+            dcall.InputModel inp = new dcall.InputModel() { IsWriteOperation = isWrite };
             ReturnModel ret = null;
 
             if (args.Length < 1) throw new ArgumentException("CallRead needs at least one argument - the address to call.");
@@ -99,15 +102,24 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                 } else {
                     throw new ArgumentException("Main arguments are currently supported only as a Dictionary. Use Dict and related functions from the default library to create one.");
                 }
+                if (args.Length > 2) {
+                    if (args[2].Value is Dictionary<string, ParameterResolverValue> qdict) {
+                        inp.QueryCollection = qdict.ToDictionary(kv => kv.Key, kv => kv.Value.Value);
+                    } else {
+                        throw new ArgumentException("Query collection arguments are currently supported only as a Dictionary. Use Dict and related functions from the default library to create one.");
+                    }
+                }
             }
             ret = DirectCallService.Instance.Call(inp).Result;
             if (ret.IsSuccessful) {
                 if (ret.BinaryData is IPostedFile pf) {
                     return new ParameterResolverValue(pf);
                 } else if (ret.Data != null) {
-                    if (ret.Data is Dictionary<string, object>) {
-
-                    } else if (ret.Data is List<)
+                    return ret.Data switch {
+                        Dictionary<string, object> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
+                        List<Dictionary<string, object>> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
+                        _ => new ParameterResolverValue(null)
+                    };
                 } else {
                     return new ParameterResolverValue(null);
                 }
@@ -116,6 +128,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             }
         }
 
+        public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args) {
+            return _Call(false, ctx, args);
+        }
+        public ParameterResolverValue CallWrite(HostInterface ctx, ParameterResolverValue[] args) {
+            return _Call(true, ctx, args);
+        }
         #endregion
 
     }

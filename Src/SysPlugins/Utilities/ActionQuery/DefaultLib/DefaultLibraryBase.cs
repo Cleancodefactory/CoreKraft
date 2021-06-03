@@ -64,6 +64,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return ConsumeOne;
                 case nameof(List):
                     return List;
+                case nameof(ValueList):
+                    return ValueList;
                 case nameof(ListAdd):
                     return ListAdd;
                 case nameof(ListGet):
@@ -78,6 +80,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return ListClear;
                 case nameof(AsList):
                     return AsList;
+                case nameof(AsValueList):
+                    return AsValueList;
                 // Dict
                 case nameof(Dict):
                     return Dict;
@@ -223,6 +227,20 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(list);
         }
+        public ParameterResolverValue ValueList(HostInterface ctx, ParameterResolverValue[] args) {
+            var list = new ValueList<ParameterResolverValue>(); // The new list
+            if (args.Length > 0) {
+                for (int i = 0; i < args.Length; i++) {
+                    var arg = args[i];
+                    if (arg.Value is IEnumerable<ParameterResolverValue> lp) {
+                        list.AddRange(lp);
+                    } else {
+                        list.Add(arg);
+                    }
+                }
+            }
+            return new ParameterResolverValue(list);
+        }
         public ParameterResolverValue ListAdd(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("ListAdd requires some arguments");
             var list = args[0].Value as IList<ParameterResolverValue>;
@@ -294,13 +312,13 @@ namespace Ccf.Ck.SysPlugins.Utilities
             list.Clear();
             return new ParameterResolverValue(list);
         }
-        public ParameterResolverValue AsList(HostInterface ctx, ParameterResolverValue[] args) {
+        private ParameterResolverValue _AsList<L>(HostInterface ctx, ParameterResolverValue[] args) where L: List<ParameterResolverValue>, new() {
             if (args.Length != 1) throw new ArgumentException("AsList requires 1 argument");
             var arg = args[0].Value;
             if (arg is string) {
                 return new ParameterResolverValue(new List<ParameterResolverValue>() { new ParameterResolverValue(arg) });
             }
-            var list = new List<ParameterResolverValue>();
+            var list = new L();
             if (arg is IDictionary argd) {
                 foreach (object o in argd.Values) {
                     list.Add(new ParameterResolverValue(o));
@@ -315,6 +333,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             list.Add(new ParameterResolverValue(arg));
             return new ParameterResolverValue(arg);
+        }
+        public ParameterResolverValue AsList(HostInterface ctx, ParameterResolverValue[] args) {
+            return _AsList<List<ParameterResolverValue>>(ctx, args);
+        }
+        public ParameterResolverValue AsValueList(HostInterface ctx, ParameterResolverValue[] args) {
+            return _AsList<ValueList<ParameterResolverValue>>(ctx, args);
         }
         #endregion
 
@@ -717,7 +741,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         #region Additional helpers for internal use
-        public static object ConvertFromGenericData(object data) {
+        public static ParameterResolverValue ConvertFromGenericData(object data) {
             if (data is Dictionary<string, object> dict) {
                 return new ParameterResolverValue(dict.ToDictionary(kv => kv.Key, kv => new ParameterResolverValue(ConvertFromGenericData(kv.Value))));
             } else if (data is string s) {
@@ -734,21 +758,34 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
         public static object ConvertToGenericData(object data) {
             if (data is Dictionary<string, ParameterResolverValue> dict) {
-                return (dict.ToDictionary(kv => kv.Key, kv => ConvertToGenericData(kv.Value.Value)));
+                return (dict.ToDictionary(kv => kv.Key, kv => ConvertToGenericData(kv.Value.Value))); // <string, object>
             } else if (data is ParameterResolverValue pv) {
-                return pv.Value;
-            } else if (data is List<ParameterResolverValue> lst) {
+                return ConvertToGenericData(pv.Value);
+            } else if (data is ValueList<ParameterResolverValue> vlst) {
+                var list = new List<object>();
+                foreach (var v in vlst) {
+                    list.Add(v.Value);
+                }
+                return list;
+            } else if (data is IEnumerable<ParameterResolverValue> lst) {
                 var list = new List<Dictionary<string, object>>();
                 foreach (var v in lst) {
-
-                    list.Add(new ParameterResolverValue(ConvertFromGenericData(o)));
+                    if (v.Value is Dictionary<string, ParameterResolverValue> pdict) {
+                        list.Add(ConvertToGenericData(pdict) as Dictionary<string, object>);
+                    } else {
+                        throw new FormatException("A list contains non-dictionary elements. Error occured while convertng to generic data.");
+                    }
                 }
-                return new ParameterResolverValue(list);
+                return list;
             } else {
-                return new ParameterResolverValue(data);
+                return data;
             }
         }
 
+        #endregion
+
+        #region Conversions
+        // Empty reagion
         #endregion
     }
 }
