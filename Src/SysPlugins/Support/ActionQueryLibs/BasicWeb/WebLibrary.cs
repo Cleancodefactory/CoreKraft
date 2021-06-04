@@ -22,13 +22,15 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         private HttpClient http = null;
         public WebLibrary() {
             http = new HttpClient();
+            _disposables.Add(http);
         }
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
         {
             switch (name)
             {
-                
+                case nameof(WGetJson):
+                    return WGetJson;
             }
             return null;
         }
@@ -75,14 +77,26 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
             var accpets = new MediaTypeWithQualityHeaderValue("application/json");
             msg.Headers.Accept.Add(accpets);
-            var respose = http.SendAsync(msg).Result;
+            using var respose = http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
                 var mt = respose.Content.Headers.ContentType?.MediaType;
                 if (mt != null && reJSONMedia.IsMatch(mt)) {
                     var jsonstring = respose.Content.ReadAsStringAsync().Result;
-                    Utf8JsonReader x = new Utf8JsonReader()
-                    JsonSerializer.Deserialize()
+                    // Utf8JsonReader x = new Utf8JsonReader()
+                    try {
+                        var kirech = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonstring);
+                        return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(kirech);
+                    } catch (JsonException jex) {
+                        var asphalt = JsonSerializer.Deserialize<List<object>>(jsonstring);
+                        return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(asphalt);
+                    } catch (Exception) {
+                        return Error.Create("Cannot parse the returned content.");
+                    }
+                } else {
+                    return Error.Create($"Unsupported result media: {mt}");
                 }
+            } else {
+                return Error.Create($"HTTP error: {Convert.ToInt32(respose.StatusCode)}");
             }
         }
         

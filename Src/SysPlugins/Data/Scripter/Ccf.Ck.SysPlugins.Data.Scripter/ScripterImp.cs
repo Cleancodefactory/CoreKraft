@@ -3,8 +3,12 @@ using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Data.Base;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb;
+using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images;
+using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls;
 using Ccf.Ck.SysPlugins.Utilities;
 using System;
+using System.Linq;
 
 namespace Ccf.Ck.SysPlugins.Data.Scripter
 {
@@ -42,6 +46,27 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                     using (var host = new ActionQueryHost<Context>(execContext) {
                             { "HostInfo", HostInfo }
                         }) {
+                        if (execContext.OwnContextScoped.CustomSettings.TryGetValue("libraries", out string libs) && !string.IsNullOrWhiteSpace(libs)) {
+                            var _ = libs.Split(',').Distinct();
+                            foreach (var v in _) {
+                                switch (v) {
+                                    case "basicimage":
+                                        host.AddLibrary(new BasicImageLib<Context>());
+                                        break;
+                                    case "basicweb":
+                                        host.AddLibrary(new WebLibrary<Context>());
+                                        break;
+                                    case "files":
+                                        //st.AddLibrary(new WebLibrary<Context>());
+                                        break;
+                                    case "internalcalls":
+                                        host.AddLibrary(new DirectCallLib<Context>());
+                                        break;
+
+                                }
+                            }
+
+                        }
                         if (trace)
                         {
                             host.Trace = true;

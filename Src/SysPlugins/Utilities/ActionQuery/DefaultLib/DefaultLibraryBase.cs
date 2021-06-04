@@ -773,7 +773,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     if (v.Value is Dictionary<string, ParameterResolverValue> pdict) {
                         list.Add(ConvertToGenericData(pdict) as Dictionary<string, object>);
                     } else {
-                        throw new FormatException("A list contains non-dictionary elements. Error occured while convertng to generic data.");
+                        throw new FormatException("A list contains non-dictionary elements. Error occurred while converting to generic data.");
                     }
                 }
                 return list;
