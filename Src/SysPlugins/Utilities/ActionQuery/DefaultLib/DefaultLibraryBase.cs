@@ -47,6 +47,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return Or;
                 case nameof(And):
                     return And;
+                case nameof(Not):
+                    return Not;
+                case nameof(IsNull):
+                    return IsNull;
+                case nameof(NotNull):
+                    return NotNull;
                 case nameof(Slice):
                     return Slice;
                 case nameof(Length):
@@ -97,6 +103,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return AsDict;
                 case nameof(IsDictCompatible):
                     return IsDictCompatible;
+                case nameof(ToData):
+                    return ToData;
+                case nameof(ToGeneralData):
+                    return ToGeneralData;
                 // Errors
                 case "Error":
                     return Error.GenError;
@@ -129,6 +139,30 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public ParameterResolverValue And(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length == 0) return new ParameterResolverValue(false);
             return new ParameterResolverValue(args.All(a => ActionQueryHostBase.IsTruthyOrFalsy(a)));
+        }
+        public ParameterResolverValue Not(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
+            if (ActionQueryHostBase.IsTruthyOrFalsy(args[0])) {
+                return new ParameterResolverValue(false);
+            } else {
+                return new ParameterResolverValue(true);
+            }
+        }
+        public ParameterResolverValue IsNull(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
+            if (args[0].Value == null) {
+                return new ParameterResolverValue(true);
+            } else {
+                return new ParameterResolverValue(false);
+            }
+        }
+        public ParameterResolverValue NotNull(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
+            if (args[0].Value == null) {
+                return new ParameterResolverValue(false);
+            } else {
+                return new ParameterResolverValue(true);
+            }
         }
         #endregion
 
@@ -439,8 +473,47 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
         #endregion
 
+        #region Navigation through Dict/List structures
+        public ParameterResolverValue NavGet(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length < 2) throw new ArgumentException("NavGetGet requires two or more arguments");
+            ParameterResolverValue[] chain = null;
+            if (args[1].Value is List<ParameterResolverValue> plist) {
+                chain = plist.ToArray();
+            } else {
+                chain = args.Skip(1).ToArray();
+            }
+
+            object cur = args[0].Value;
+            for (int i = 0; i < chain.Length; i++) {
+                var idx = chain[i];
+                if (cur is IDictionary<string, ParameterResolverValue> pdict) {
+                    if (idx.Value is string skey) {
+                        if (pdict.ContainsKey(skey)) {
+                            cur = pdict[skey].Value;
+                            continue;
+                        } else {
+                            cur = null;
+                            break;
+                        }
+                    }
+                    return Error.Create("NavGet - Non-string value applied to dictionary node");
+                } else if (cur is List<ParameterResolverValue> plist) {
+
+                }
+            }
+            return new ParameterResolverValue(cur);
+
+            var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
+            if (dict == null || args[1].Value == null) return new ParameterResolverValue(null);
+
+            var key = Convert.ToString(args[1].Value);
+            if (!dict.ContainsKey(key)) return new ParameterResolverValue(null);
+            return dict[key];
+        }
+        #endregion
+
         #region Comparisons
-            public ParameterResolverValue Equal(HostInterface ctx, ParameterResolverValue[] args)
+        public ParameterResolverValue Equal(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Equal needs two arguments");
             var v1 = args[0].Value;
@@ -782,10 +855,33 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
+        public static object ConvertToGeneralData(object data) {
+            if (data is Dictionary<string, ParameterResolverValue> dict) {
+                return (dict.ToDictionary(kv => kv.Key, kv => ConvertToGeneralData(kv.Value.Value))); // <string, object>
+            } else if (data is ParameterResolverValue pv) {
+                return ConvertToGenericData(pv.Value);
+            } else if (data is IEnumerable<ParameterResolverValue> vlst) {
+                var list = new List<object>();
+                foreach (var v in vlst) {
+                    list.Add(ConvertToGeneralData(v.Value));
+                }
+                return list;
+            } else {
+                return data;
+            }
+        }
+
         #endregion
 
         #region Conversions
-        // Empty reagion
+        public ParameterResolverValue ToData(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("ToData takes one argument");
+            return new ParameterResolverValue(ConvertToGenericData(args[0].Value));
+        }
+        public ParameterResolverValue ToGeneralData(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("ToGeneralData takes one argument");
+            return new ParameterResolverValue(ConvertToGeneralData(args[0].Value));
+        }
         #endregion
     }
 }

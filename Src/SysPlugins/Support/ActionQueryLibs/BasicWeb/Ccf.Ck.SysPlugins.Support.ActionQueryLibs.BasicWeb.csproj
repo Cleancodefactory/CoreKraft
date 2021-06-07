@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Models\DirectCall\Ccf.Ck.Models.DirectCall.csproj" />
     <ProjectReference Include="..\..\..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\..\..\Utilities\Json\Ccf.Ck.Utilities.Json.csproj" />
     <ProjectReference Include="..\..\..\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
   </ItemGroup>
 
