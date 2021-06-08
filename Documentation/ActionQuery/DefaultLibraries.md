@@ -15,7 +15,7 @@ The main library offers slightly different functionality depending on the contex
 The majority of the functions are the same in all cases - check the notes for each function for specifics. If not marked otherwise the
 function is available in all contexts.
 
-## Variables library
+## Variables library (Will be replaced by in-language feature soon)
 
 _This library is available in all contexts without any context specific differences._
 
@@ -123,9 +123,15 @@ __Add( arg {, arg} )__ - Returns the sum of all the arguments.
 
 **And([arg1 [, arg2 [,arg3 ...]]])**
 
+**Not(arg1)**
+
+**IsNull(arg1)**
+
+**NotNull(arg1)**
+
 **Slice(stting, start [,end])**
                     
-**Length(string)**
+**Length(string | List | Dict)**
 
 **Replace(string, findwhat, replacewith)**
 
@@ -133,7 +139,11 @@ __Add( arg {, arg} )__ - Returns the sum of all the arguments.
 
 **Split(string [, separator])**
 
+**Trim(string)**
+
 **List([arg1 [,arg2 [,arg3 ...]]])**
+
+**ValueList([arg1 [,arg2 [,arg3 ...]]])**
 
 **ConsumeOne(list)**
 
@@ -143,7 +153,7 @@ __Add( arg {, arg} )__ - Returns the sum of all the arguments.
 
 **ListInsert(list, index, value)**
 
-**ListRemove(list[ , index1 [,index2 [,index3]]])**
+**ListRemove(list[ , index1 [,index2 [,index3 ...]]])**
 
 **ListSet(list, index, value)**
 
@@ -151,7 +161,36 @@ __Add( arg {, arg} )__ - Returns the sum of all the arguments.
 
 **AsList(value)**
 
+**AsValueList(value)**
 
+**Dict([key, value [, key, value [, key, value ...]]])**
+
+**DictSet(dict, [key, value [, key, value [, key, value ...]]])**
+
+**DictGet(dict, key)**
+
+**DictClear(dict, key)**
+
+**DictRemove(dict [, key [, key,[key ... ]]])**
+
+**AsDict(value [, value2])**
+
+**IsDictCompatible(value [, value2])**
+
+**NavGet(dict | list [, key | index [, key | index ...]])**
+
+**ToData(value)**
+
+**ToGeneralData(value)**
+
+**Error(code , text)**
+**Error(text)**
+
+**IsError(value)**
+
+**ErrorText(error)**
+
+**ErrorCode(error)**
 
 ### NodeSet plugins library
 

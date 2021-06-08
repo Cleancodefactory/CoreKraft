@@ -107,6 +107,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return ToData;
                 case nameof(ToGeneralData):
                     return ToGeneralData;
+                // Nav
+                case nameof(NavGet):
+                    return NavGet;
                 // Errors
                 case "Error":
                     return Error.GenError;
@@ -487,28 +490,26 @@ namespace Ccf.Ck.SysPlugins.Utilities
             for (int i = 0; i < chain.Length; i++) {
                 var idx = chain[i];
                 if (cur is IDictionary<string, ParameterResolverValue> pdict) {
-                    if (idx.Value is string skey) {
-                        if (pdict.ContainsKey(skey)) {
-                            cur = pdict[skey].Value;
-                            continue;
-                        } else {
-                            cur = null;
-                            break;
-                        }
+                    string skey = Convert.ToString(idx.Value);
+                    if (pdict.ContainsKey(skey)) {
+                        cur = pdict[skey].Value;
+                        continue;
+                    } else {
+                        cur = null;
+                        break;
                     }
-                    return Error.Create("NavGet - Non-string value applied to dictionary node");
-                } else if (cur is List<ParameterResolverValue> plist) {
-
+                } else if (cur is List<ParameterResolverValue> list) {
+                    int index = Convert.ToInt32(idx.Value);
+                    if (index >= 0 && index < list.Count) {
+                        cur = list[index].Value;
+                        continue;
+                    } else {
+                        cur = null;
+                        break;
+                    }
                 }
             }
             return new ParameterResolverValue(cur);
-
-            var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
-            if (dict == null || args[1].Value == null) return new ParameterResolverValue(null);
-
-            var key = Convert.ToString(args[1].Value);
-            if (!dict.ContainsKey(key)) return new ParameterResolverValue(null);
-            return dict[key];
         }
         #endregion
 
