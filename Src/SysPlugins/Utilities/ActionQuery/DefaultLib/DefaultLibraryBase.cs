@@ -14,114 +14,64 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region IActionQueryLibrary
         public virtual HostedProc<HostInterface> GetProc(string name) {
-            switch (name) {
-                case nameof(Add):
-                    return Add;
-                case nameof(TryAdd):
-                    return TryAdd;
-                case nameof(Concat):
-                    return Concat;
-                case nameof(Cast):
-                    return Cast;
-                case nameof(GSetting):
-                    return GSetting;
-                case nameof(Throw):
-                    return Throw;
-                case nameof(IsEmpty):
-                    return IsEmpty;
-                case nameof(TypeOf):
-                    return TypeOf;
-                case nameof(IsNumeric):
-                    return IsNumeric;
-                case nameof(Random):
-                    return Random;
-                case nameof(Neg):
-                    return Neg;
-                case nameof(Equal):
-                    return Equal;
-                case nameof(Greater):
-                    return Greater;
-                case nameof(Lower):
-                    return Lower;
-                case nameof(Or):
-                    return Or;
-                case nameof(And):
-                    return And;
-                case nameof(Not):
-                    return Not;
-                case nameof(IsNull):
-                    return IsNull;
-                case nameof(NotNull):
-                    return NotNull;
-                case nameof(Slice):
-                    return Slice;
-                case nameof(Length):
-                    return Length;
-                case nameof(Replace):
-                    return Replace;
-                case nameof(RegexReplace):
-                    return RegexReplace;
-                case nameof(Split):
-                    return Split;
-                case nameof(Trim):
-                    return Trim;
+            return name switch
+            {
+                nameof(Add) => Add,
+                nameof(TryAdd) => TryAdd,
+                nameof(Concat) => Concat,
+                nameof(Cast) => Cast,
+                nameof(GSetting) => GSetting,
+                nameof(Throw) => Throw,
+                nameof(IsEmpty) => IsEmpty,
+                nameof(TypeOf) => TypeOf,
+                nameof(IsNumeric) => IsNumeric,
+                nameof(Random) => Random,
+                nameof(Neg) => Neg,
+                nameof(Equal) => Equal,
+                nameof(Greater) => Greater,
+                nameof(Lower) => Lower,
+                nameof(Or) => Or,
+                nameof(And) => And,
+                nameof(Not) => Not,
+                nameof(IsNull) => IsNull,
+                nameof(NotNull) => NotNull,
+                nameof(Slice) => Slice,
+                nameof(Length) => Length,
+                nameof(Replace) => Replace,
+                nameof(RegexReplace) => RegexReplace,
+                nameof(Split) => Split,
+                nameof(Trim) => Trim,
                 // Lists
-                case nameof(ConsumeOne):
-                    return ConsumeOne;
-                case nameof(List):
-                    return List;
-                case nameof(ValueList):
-                    return ValueList;
-                case nameof(ListAdd):
-                    return ListAdd;
-                case nameof(ListGet):
-                    return ListGet;
-                case nameof(ListInsert):
-                    return ListInsert;
-                case nameof(ListRemove):
-                    return ListRemove;
-                case nameof(ListSet):
-                    return ListSet;
-                case nameof(ListClear):
-                    return ListClear;
-                case nameof(AsList):
-                    return AsList;
-                case nameof(AsValueList):
-                    return AsValueList;
+                nameof(ConsumeOne) => ConsumeOne,
+                nameof(List) => List,
+                nameof(ValueList) => ValueList,
+                nameof(ListAdd) => ListAdd,
+                nameof(ListGet) => ListGet,
+                nameof(ListInsert) => ListInsert,
+                nameof(ListRemove) => ListRemove,
+                nameof(ListSet) => ListSet,
+                nameof(ListClear) => ListClear,
+                nameof(AsList) => AsList,
+                nameof(AsValueList) => AsValueList,
                 // Dict
-                case nameof(Dict):
-                    return Dict;
-                case nameof(DictSet):
-                    return DictSet;
-                case nameof(DictGet):
-                    return DictGet;
-                case nameof(DictClear):
-                    return DictClear;
-                case nameof(DictRemove):
-                    return DictRemove;
-                case nameof(AsDict):
-                    return AsDict;
-                case nameof(IsDictCompatible):
-                    return IsDictCompatible;
-                case nameof(ToData):
-                    return ToData;
-                case nameof(ToGeneralData):
-                    return ToGeneralData;
+                nameof(Dict) => Dict,
+                nameof(DictSet) => DictSet,
+                nameof(DictGet) => DictGet,
+                nameof(DictClear) => DictClear,
+                nameof(DictRemove) => DictRemove,
+                nameof(AsDict) => AsDict,
+                nameof(IsDictCompatible) => IsDictCompatible,
+                nameof(ToNodesetData) => ToNodesetData,
+                nameof(ToGeneralData) => ToGeneralData,
                 // Nav
-                case nameof(NavGet):
-                    return NavGet;
+                nameof(NavGet) => NavGet,
                 // Errors
-                case "Error":
-                    return Error.GenError;
-                case nameof(Error.IsError):
-                    return Error.IsError;
-                case nameof(Error.ErrorText):
-                    return Error.ErrorText;
-                case nameof(Error.ErrorCode):
-                    return Error.ErrorCode;
-                default:
-                    return null;
-            }
+                "Error" => Error.GenError,
+                nameof(Error.IsError) => Error.IsError,
+                nameof(Error.ErrorText) => Error.ErrorText,
+                nameof(Error.ErrorCode) => Error.ErrorCode,
+                _ => null,
+            };
         }
         public virtual SymbolSet GetSymbols() {
             return new SymbolSet("Default library (no symbols)", null);
@@ -875,7 +825,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Conversions
-        public ParameterResolverValue ToData(HostInterface ctx, ParameterResolverValue[] args) {
+        public ParameterResolverValue ToNodesetData(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("ToData takes one argument");
             return new ParameterResolverValue(ConvertToGenericData(args[0].Value));
         }
