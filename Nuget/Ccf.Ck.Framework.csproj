@@ -76,5 +76,6 @@
     <ProjectReference Include="..\Src\SysPlugins\Support\ParameterExpression\Ccf.Ck.SysPlugins.Support.ParameterExpression.csproj" />
     <ProjectReference Include="..\Src\SysPlugins\Support\ParameterValidation\Ccf.Ck.SysPlugins.Support.ParameterValidation.csproj" />
     <ProjectReference Include="..\Src\SysPlugins\Data\UserProfileManager\Ccf.Ck.SysPlugins.Data.UserProfileManager.csproj" />
+    <ProjectReference Include="..\Src\SysPlugins\Data\Scripter\Ccf.Ck.SysPlugins.Data.Scripter.csproj" />
   </ItemGroup>
 </Project>

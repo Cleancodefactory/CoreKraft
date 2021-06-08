@@ -14,86 +14,64 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region IActionQueryLibrary
         public virtual HostedProc<HostInterface> GetProc(string name) {
-            switch (name) {
-                case nameof(Add):
-                    return Add;
-                case nameof(TryAdd):
-                    return TryAdd;
-                case nameof(Concat):
-                    return Concat;
-                case nameof(Cast):
-                    return Cast;
-                case nameof(GSetting):
-                    return GSetting;
-                case nameof(Throw):
-                    return Throw;
-                case nameof(IsEmpty):
-                    return IsEmpty;
-                case nameof(TypeOf):
-                    return TypeOf;
-                case nameof(IsNumeric):
-                    return IsNumeric;
-                case nameof(Random):
-                    return Random;
-                case nameof(Neg):
-                    return Neg;
-                case nameof(Equal):
-                    return Equal;
-                case nameof(Greater):
-                    return Greater;
-                case nameof(Lower):
-                    return Lower;
-                case nameof(Or):
-                    return Or;
-                case nameof(And):
-                    return And;
-                case nameof(Slice):
-                    return Slice;
-                case nameof(Length):
-                    return Length;
-                case nameof(Replace):
-                    return Replace;
-                case nameof(RegexReplace):
-                    return RegexReplace;
-                case nameof(Split):
-                    return Split;
+            return name switch
+            {
+                nameof(Add) => Add,
+                nameof(TryAdd) => TryAdd,
+                nameof(Concat) => Concat,
+                nameof(Cast) => Cast,
+                nameof(GSetting) => GSetting,
+                nameof(Throw) => Throw,
+                nameof(IsEmpty) => IsEmpty,
+                nameof(TypeOf) => TypeOf,
+                nameof(IsNumeric) => IsNumeric,
+                nameof(Random) => Random,
+                nameof(Neg) => Neg,
+                nameof(Equal) => Equal,
+                nameof(Greater) => Greater,
+                nameof(Lower) => Lower,
+                nameof(Or) => Or,
+                nameof(And) => And,
+                nameof(Not) => Not,
+                nameof(IsNull) => IsNull,
+                nameof(NotNull) => NotNull,
+                nameof(Slice) => Slice,
+                nameof(Length) => Length,
+                nameof(Replace) => Replace,
+                nameof(RegexReplace) => RegexReplace,
+                nameof(Split) => Split,
+                nameof(Trim) => Trim,
                 // Lists
-                case nameof(ConsumeOne):
-                    return ConsumeOne;
-                case nameof(List):
-                    return List;
-                case nameof(ListAdd):
-                    return ListAdd;
-                case nameof(ListGet):
-                    return ListGet;
-                case nameof(ListInsert):
-                    return ListInsert;
-                case nameof(ListRemove):
-                    return ListRemove;
-                case nameof(ListSet):
-                    return ListSet;
-                case nameof(ListClear):
-                    return ListClear;
-                case nameof(AsList):
-                    return AsList;
+                nameof(ConsumeOne) => ConsumeOne,
+                nameof(List) => List,
+                nameof(ValueList) => ValueList,
+                nameof(ListAdd) => ListAdd,
+                nameof(ListGet) => ListGet,
+                nameof(ListInsert) => ListInsert,
+                nameof(ListRemove) => ListRemove,
+                nameof(ListSet) => ListSet,
+                nameof(ListClear) => ListClear,
+                nameof(AsList) => AsList,
+                nameof(AsValueList) => AsValueList,
                 // Dict
-                case nameof(Dict):
-                    return Dict;
-                case nameof(DictSet):
-                    return DictSet;
-                case nameof(DictGet):
-                    return DictGet;
-                case nameof(DictClear):
-                    return DictClear;
-                case nameof(DictRemove):
-                    return DictRemove;
-                case nameof(AsDict):
-                    return AsDict;
-                case nameof(IsDictCompatible):
-                    return IsDictCompatible;
-                default:
-                    return null;
-            }
+                nameof(Dict) => Dict,
+                nameof(DictSet) => DictSet,
+                nameof(DictGet) => DictGet,
+                nameof(DictClear) => DictClear,
+                nameof(DictRemove) => DictRemove,
+                nameof(AsDict) => AsDict,
+                nameof(IsDictCompatible) => IsDictCompatible,
+                nameof(ToNodesetData) => ToNodesetData,
+                nameof(ToGeneralData) => ToGeneralData,
+                // Nav
+                nameof(NavGet) => NavGet,
+                // Errors
+                "Error" => Error.GenError,
+                nameof(Error.IsError) => Error.IsError,
+                nameof(Error.ErrorText) => Error.ErrorText,
+                nameof(Error.ErrorCode) => Error.ErrorCode,
+                _ => null,
+            };
         }
         public virtual SymbolSet GetSymbols() {
             return new SymbolSet("Default library (no symbols)", null);
@@ -114,6 +92,30 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public ParameterResolverValue And(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length == 0) return new ParameterResolverValue(false);
             return new ParameterResolverValue(args.All(a => ActionQueryHostBase.IsTruthyOrFalsy(a)));
+        }
+        public ParameterResolverValue Not(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
+            if (ActionQueryHostBase.IsTruthyOrFalsy(args[0])) {
+                return new ParameterResolverValue(false);
+            } else {
+                return new ParameterResolverValue(true);
+            }
+        }
+        public ParameterResolverValue IsNull(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
+            if (args[0].Value == null) {
+                return new ParameterResolverValue(true);
+            } else {
+                return new ParameterResolverValue(false);
+            }
+        }
+        public ParameterResolverValue NotNull(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
+            if (args[0].Value == null) {
+                return new ParameterResolverValue(false);
+            } else {
+                return new ParameterResolverValue(true);
+            }
         }
         #endregion
 
@@ -212,6 +214,20 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(list);
         }
+        public ParameterResolverValue ValueList(HostInterface ctx, ParameterResolverValue[] args) {
+            var list = new ValueList<ParameterResolverValue>(); // The new list
+            if (args.Length > 0) {
+                for (int i = 0; i < args.Length; i++) {
+                    var arg = args[i];
+                    if (arg.Value is IEnumerable<ParameterResolverValue> lp) {
+                        list.AddRange(lp);
+                    } else {
+                        list.Add(arg);
+                    }
+                }
+            }
+            return new ParameterResolverValue(list);
+        }
         public ParameterResolverValue ListAdd(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("ListAdd requires some arguments");
             var list = args[0].Value as IList<ParameterResolverValue>;
@@ -283,13 +299,13 @@ namespace Ccf.Ck.SysPlugins.Utilities
             list.Clear();
             return new ParameterResolverValue(list);
         }
-        public ParameterResolverValue AsList(HostInterface ctx, ParameterResolverValue[] args) {
+        private ParameterResolverValue _AsList<L>(HostInterface ctx, ParameterResolverValue[] args) where L: List<ParameterResolverValue>, new() {
             if (args.Length != 1) throw new ArgumentException("AsList requires 1 argument");
             var arg = args[0].Value;
             if (arg is string) {
                 return new ParameterResolverValue(new List<ParameterResolverValue>() { new ParameterResolverValue(arg) });
             }
-            var list = new List<ParameterResolverValue>();
+            var list = new L();
             if (arg is IDictionary argd) {
                 foreach (object o in argd.Values) {
                     list.Add(new ParameterResolverValue(o));
@@ -304,6 +320,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             list.Add(new ParameterResolverValue(arg));
             return new ParameterResolverValue(arg);
+        }
+        public ParameterResolverValue AsList(HostInterface ctx, ParameterResolverValue[] args) {
+            return _AsList<List<ParameterResolverValue>>(ctx, args);
+        }
+        public ParameterResolverValue AsValueList(HostInterface ctx, ParameterResolverValue[] args) {
+            return _AsList<ValueList<ParameterResolverValue>>(ctx, args);
         }
         #endregion
 
@@ -404,8 +426,45 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
         #endregion
 
+        #region Navigation through Dict/List structures
+        public ParameterResolverValue NavGet(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length < 2) throw new ArgumentException("NavGetGet requires two or more arguments");
+            ParameterResolverValue[] chain = null;
+            if (args[1].Value is List<ParameterResolverValue> plist) {
+                chain = plist.ToArray();
+            } else {
+                chain = args.Skip(1).ToArray();
+            }
+
+            object cur = args[0].Value;
+            for (int i = 0; i < chain.Length; i++) {
+                var idx = chain[i];
+                if (cur is IDictionary<string, ParameterResolverValue> pdict) {
+                    string skey = Convert.ToString(idx.Value);
+                    if (pdict.ContainsKey(skey)) {
+                        cur = pdict[skey].Value;
+                        continue;
+                    } else {
+                        cur = null;
+                        break;
+                    }
+                } else if (cur is List<ParameterResolverValue> list) {
+                    int index = Convert.ToInt32(idx.Value);
+                    if (index >= 0 && index < list.Count) {
+                        cur = list[index].Value;
+                        continue;
+                    } else {
+                        cur = null;
+                        break;
+                    }
+                }
+            }
+            return new ParameterResolverValue(cur);
+        }
+        #endregion
+
         #region Comparisons
-            public ParameterResolverValue Equal(HostInterface ctx, ParameterResolverValue[] args)
+        public ParameterResolverValue Equal(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Equal needs two arguments");
             var v1 = args[0].Value;
@@ -572,6 +631,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 return new ParameterResolverValue(str.Split(',').Select(s => new ParameterResolverValue(s)).ToList());
             }
         }
+        public ParameterResolverValue Trim(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("Trim requires oneparameter.");
+            var str = Convert.ToString(args[0].Value);
+            return new ParameterResolverValue(str.Trim());
+        }
         #endregion
 
         #region Typing
@@ -698,5 +763,76 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             throw new Exception(extext);
         }
+
+        #region Additional helpers for internal use
+        public static ParameterResolverValue ConvertFromGenericData(object data) {
+            if (data is Dictionary<string, object> dict) {
+                return new ParameterResolverValue(dict.ToDictionary(kv => kv.Key, kv => new ParameterResolverValue(ConvertFromGenericData(kv.Value))));
+            } else if (data is string s) {
+                return new ParameterResolverValue(s);
+            } else if (data is IEnumerable enmr) {
+                var list = new List<ParameterResolverValue>();
+                foreach (object o in enmr) {
+                    list.Add(new ParameterResolverValue(ConvertFromGenericData(o)));
+                }
+                return new ParameterResolverValue(list);
+            } else {
+                return new ParameterResolverValue(data);
+            }
+        }
+        public static object ConvertToGenericData(object data) {
+            if (data is Dictionary<string, ParameterResolverValue> dict) {
+                return (dict.ToDictionary(kv => kv.Key, kv => ConvertToGenericData(kv.Value.Value))); // <string, object>
+            } else if (data is ParameterResolverValue pv) {
+                return ConvertToGenericData(pv.Value);
+            } else if (data is ValueList<ParameterResolverValue> vlst) {
+                var list = new List<object>();
+                foreach (var v in vlst) {
+                    list.Add(v.Value);
+                }
+                return list;
+            } else if (data is IEnumerable<ParameterResolverValue> lst) {
+                var list = new List<Dictionary<string, object>>();
+                foreach (var v in lst) {
+                    if (v.Value is Dictionary<string, ParameterResolverValue> pdict) {
+                        list.Add(ConvertToGenericData(pdict) as Dictionary<string, object>);
+                    } else {
+                        throw new FormatException("A list contains non-dictionary elements. Error occurred while converting to generic data.");
+                    }
+                }
+                return list;
+            } else {
+                return data;
+            }
+        }
+
+        public static object ConvertToGeneralData(object data) {
+            if (data is Dictionary<string, ParameterResolverValue> dict) {
+                return (dict.ToDictionary(kv => kv.Key, kv => ConvertToGeneralData(kv.Value.Value))); // <string, object>
+            } else if (data is ParameterResolverValue pv) {
+                return ConvertToGenericData(pv.Value);
+            } else if (data is IEnumerable<ParameterResolverValue> vlst) {
+                var list = new List<object>();
+                foreach (var v in vlst) {
+                    list.Add(ConvertToGeneralData(v.Value));
+                }
+                return list;
+            } else {
+                return data;
+            }
+        }
+
+        #endregion
+
+        #region Conversions
+        public ParameterResolverValue ToNodesetData(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("ToData takes one argument");
+            return new ParameterResolverValue(ConvertToGenericData(args[0].Value));
+        }
+        public ParameterResolverValue ToGeneralData(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("ToGeneralData takes one argument");
+            return new ParameterResolverValue(ConvertToGeneralData(args[0].Value));
+        }
+        #endregion
     }
 }

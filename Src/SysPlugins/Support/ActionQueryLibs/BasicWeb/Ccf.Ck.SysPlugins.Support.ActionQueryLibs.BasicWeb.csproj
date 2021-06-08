@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package provides internal functions for basic WEB requests.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Models\DirectCall\Ccf.Ck.Models.DirectCall.csproj" />
+    <ProjectReference Include="..\..\..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\..\..\Utilities\Json\Ccf.Ck.Utilities.Json.csproj" />
+    <ProjectReference Include="..\..\..\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
+  </ItemGroup>
+
+</Project>
