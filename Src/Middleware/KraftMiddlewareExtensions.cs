@@ -53,6 +53,7 @@ namespace Ccf.Ck.Web.Middleware
         static IConfiguration _Configuration = null;
         static readonly object _SyncRoot = new Object();
         private static readonly List<string> _ValidSubFoldersForWatching = new List<string> { "Css", "Documentation", "Localization", "NodeSets", "Scripts", "Templates", "Views" };
+        private const string _PLUGINSREFERENCES = "_PluginsReferences";
 
         public static IServiceProvider UseBindKraft(this IServiceCollection services, IConfiguration configuration)
         {
@@ -424,18 +425,30 @@ namespace Ccf.Ck.Web.Middleware
                             moduleKey2Path.Add(kraftModule.Key, kraftDependable.KraftModuleRootPath);
                             string moduleFullPath = Path.Combine(kraftDependable.KraftModuleRootPath, kraftModule.Key);
                             string path2Data = Path.Combine(moduleFullPath, "Data");
-                            if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), true))
+                            if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), !env.IsDevelopment()))
                             {
                                 throw new SecurityException($"Write access to folder {path2Data} is required!");
                             }
                             path2Data = Path.Combine(moduleFullPath, "Images");
-                            if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), true))
+                            if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), !env.IsDevelopment()))
                             {
                                 throw new SecurityException($"Write access to folder {path2Data} is required!");
                             }
                             foreach (string validSubFolder in _ValidSubFoldersForWatching)
                             {
                                 signalService.AttachModulesWatcher(Path.Combine(moduleFullPath, validSubFolder), true, applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
+                            }
+                        }
+                        //Restart when changes in the _PluginsReferences
+                        if (env.IsDevelopment())
+                        {
+                            foreach (string fullPathToModuleDir in _KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders)
+                            {
+                                string pluginReferences = Path.Combine(fullPathToModuleDir, _PLUGINSREFERENCES);
+                                if (Directory.Exists(pluginReferences))
+                                {
+                                    signalService.AttachModulesWatcher(pluginReferences, false, applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
+                                }
                             }
                         }
                         _KraftGlobalConfigurationSettings.GeneralSettings.ModuleKey2Path = moduleKey2Path;

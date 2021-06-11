@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Launchers.Main.ActionFilters;
 using Ccf.Ck.Launchers.Main.Routing;
+using Ccf.Ck.Launchers.Main.Utils;
 using Ccf.Ck.Models.EmailSettings;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Web.Middleware;
@@ -22,6 +23,8 @@ namespace Ccf.Ck.Launchers.Main
     {
         private IConfigurationRoot _Configuration { get; }
         private KraftGlobalConfigurationSettings _KraftGlobalConfiguration;
+        private static RazorAssemblyLoadContext _RazorAssemblyLoadContext;
+        private static ApplicationPartManager _ApplicationPartManager;
 
         public Startup(IWebHostEnvironment env)
         {
@@ -102,6 +105,29 @@ namespace Ccf.Ck.Launchers.Main
 
         private void ConfigureApplicationParts(ApplicationPartManager apm)
         {
+            if (_RazorAssemblyLoadContext != null && _ApplicationPartManager != null)
+            {
+                for (int i = _ApplicationPartManager.ApplicationParts.Count - 1; i >= 0; i--)
+                {
+                    _ApplicationPartManager.ApplicationParts.Remove(_ApplicationPartManager.ApplicationParts[i]);
+                }
+                for (int i = _ApplicationPartManager.FeatureProviders.Count - 1; i >= 0; i--)
+                {
+                    _ApplicationPartManager.FeatureProviders.Remove(_ApplicationPartManager.FeatureProviders[i]);
+                }
+                Console.WriteLine($"Unloading razor assemblies");
+                _RazorAssemblyLoadContext.Unload();
+                _RazorAssemblyLoadContext = null;
+                _ApplicationPartManager = null;
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+            _ApplicationPartManager = apm;
+            //    //string codeBase = Assembly.GetExecutingAssembly().Location;
+            //    //UriBuilder uri = new UriBuilder(codeBase);
+            //    //string path = Uri.UnescapeDataString(uri.Path);
+            //    //_RazorAssemblyLoadContext = new RazorAssemblyLoadContext(Path.GetDirectoryName(path));
+            _RazorAssemblyLoadContext = new RazorAssemblyLoadContext();
             foreach (string rootFolder in _KraftGlobalConfiguration.GeneralSettings.ModulesRootFolders)
             {
                 string rootPath = Path.Combine(rootFolder, "_PluginsReferences");
@@ -111,15 +137,20 @@ namespace Ccf.Ck.Launchers.Main
                     assemblyFile = new FileInfo(Path.Combine(rootPath, codeAssembly));
                     if (assemblyFile.Exists)
                     {
-                        Assembly assemblyCode = Assembly.LoadFile(assemblyFile.FullName);
+                        //Assembly assemblyCode = Assembly.LoadFile(assemblyFile.FullName);
+                        Assembly assemblyCode = _RazorAssemblyLoadContext.LoadFromAssemblyPath(assemblyFile.FullName);
                         apm.ApplicationParts.Add(new AssemblyPart(assemblyCode));
                     }
                 }
-                assemblyFile = new FileInfo(Path.Combine(rootPath, _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.AssemblyNameViews));
-                if (assemblyFile.Exists)
+                foreach (string viewAssembly in _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.AssemblyNamesView)
                 {
-                    Assembly assemblyViews = Assembly.LoadFile(assemblyFile.FullName);
-                    apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assemblyViews));
+                    assemblyFile = new FileInfo(Path.Combine(rootPath, viewAssembly));
+                    if (assemblyFile.Exists)
+                    {
+                        //Assembly assemblyViews = Assembly.LoadFile(assemblyFile.FullName);
+                        Assembly assemblyViews = _RazorAssemblyLoadContext.LoadFromAssemblyPath(assemblyFile.FullName);
+                        apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assemblyViews));
+                    }
                 }
             }
         }

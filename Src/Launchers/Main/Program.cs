@@ -32,7 +32,7 @@ namespace Ccf.Ck.Launchers.Main
             _RestartRequest = restart;
             if (restart)
             {
-                Console.WriteLine("Restarting App");
+                Console.WriteLine($"========= Restarting App at: {DateTime.Now.ToLongTimeString()} =========");
             }
             _CancellationToken.Cancel();
         }
