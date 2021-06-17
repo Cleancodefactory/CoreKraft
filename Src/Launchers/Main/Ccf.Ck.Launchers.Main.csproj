@@ -29,7 +29,6 @@
     <ProjectReference Include="..\..\SysPlugins\Data\Json\Ccf.Ck.SysPlugins.Data.Json.csproj" />
     <ProjectReference Include="..\..\SysPlugins\Data\RawFiles\Ccf.Ck.SysPlugins.Data.RawFiles.csproj" />
     <ProjectReference Include="..\..\SysPlugins\Data\RequestProxy\Ccf.Ck.SysPlugins.Data.RequestProxy.csproj" />
-    <ProjectReference Include="..\..\SysPlugins\Data\Scripter\Ccf.Ck.SysPlugins.Data.Scripter.csproj" />
     <ProjectReference Include="..\..\SysPlugins\Data\UploadFileStream\Ccf.Ck.SysPlugins.Data.UploadFileStream.csproj" />
     <ProjectReference Include="..\..\SysPlugins\Data\UserProfileManager\Ccf.Ck.SysPlugins.Data.UserProfileManager.csproj" />
     <ProjectReference Include="..\..\SysPlugins\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
