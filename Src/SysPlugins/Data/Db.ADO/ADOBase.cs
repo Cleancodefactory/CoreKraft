@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.SysPlugins.Data.Base;
+using Ccf.Ck.SysPlugins.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Text;
 using System.Text.RegularExpressions;
-using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Models.NodeSet;
-using Ccf.Ck.SysPlugins.Data.Base;
-using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.Models.Resolvers;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
-using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 {
@@ -98,6 +99,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             //  null wich stops the processing here.
             List<Dictionary<string, object>> results = new List<Dictionary<string, object>>();
             string sqlQuery = null;
+            List<string> parameters = new List<string>();
             try
             {
                 Node node = execContext.CurrentNode;
@@ -122,7 +124,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                         // This will set the resulting command text if everything is Ok.
                         // The processing will make replacements in the SQL and bind parameters by requesting them from the resolver expressions configured on this node.
                         // TODO: Some try...catching is necessary.
-                        sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext);
+                        sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext, out parameters);
+                        LogExecution(sqlQuery, execContext, parameters);
                         using (DbDataReader reader = cmd.ExecuteReader())
                         {
                             do
@@ -168,12 +171,39 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             {
                 if (!string.IsNullOrEmpty(sqlQuery))
                 {
-                    KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {Environment.NewLine}{sqlQuery}", ex, execContext);
+                    string parametersAsString = string.Join(Environment.NewLine, parameters);
+                    KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {Environment.NewLine}{parametersAsString}{Environment.NewLine}{sqlQuery}", ex, execContext);
                 }
                 throw;
             }
             return results; // TODO: Decide what behavior we want with empty statements. I for one prefer null result, effectively stopping the operation.
         }
+
+        private void LogExecution(string sqlQuery, IDataLoaderContext execContext, List<string> parameters)
+        {
+            string env = execContext?.ProcessingContext?.InputModel?.KraftGlobalConfigurationSettings?.EnvironmentSettings?.EnvironmentName;
+            if (!string.IsNullOrEmpty(env) && env.Equals("development", StringComparison.OrdinalIgnoreCase))
+            {
+                string parametersAsString = string.Join(Environment.NewLine, parameters);
+                string readOrWriteAction = string.Empty;
+                if (execContext is IDataLoaderReadContext)
+                {
+                    readOrWriteAction = "Read";
+                }
+                else if (execContext is IDataLoaderWriteContext)
+                {
+                    readOrWriteAction = "Write";
+                }
+                StringBuilder sb = new StringBuilder(10000);
+                sb.Append($"Operation: {readOrWriteAction} {Environment.NewLine}");
+                sb.Append($"Nodeset: {execContext.LoadedNodeSet.NodeSet.Name} {Environment.NewLine}");
+                sb.Append($"Nodekey: {execContext.NodeKey} {Environment.NewLine}");
+                sb.Append($"Parameters: {Environment.NewLine}{parametersAsString} {Environment.NewLine}");
+                sb.Append($"SQLQuery: {sqlQuery} {Environment.NewLine}");
+                KraftLogger.LogDebug(sb.ToString(), execContext);
+            }
+        }
+
         /// <summary>
         /// Unlike read write is called exactly once per each row and not called at all if the row's state does not require actual writing.
         /// </summary>
@@ -183,6 +213,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         protected override object Write(IDataLoaderWriteContext execContext)
         { //IDataLoaderContext execContext, Configuration configuration) {
             string sqlQuery = null;
+            List<string> parameters = new List<string>();
             try
             {
                 Node node = execContext.CurrentNode;
@@ -203,7 +234,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     {
                         cmd.Transaction = trans;
                         cmd.Parameters.Clear();
-                        sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext);
+                        sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext, out parameters);
+                        LogExecution(sqlQuery, execContext, parameters);
                         using (DbDataReader reader = cmd.ExecuteReader())
                         {
                             do
@@ -237,7 +269,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             {
                 if (!string.IsNullOrEmpty(sqlQuery))
                 {
-                    KraftLogger.LogError($"Write(IDataLoaderWriteContext execContext) >> SQL: {Environment.NewLine}{sqlQuery}", ex, execContext);
+                    string parametersAsString = string.Join(Environment.NewLine, parameters);
+                    KraftLogger.LogError($"Write(IDataLoaderWriteContext execContext) >> SQL: {Environment.NewLine}{parametersAsString}{Environment.NewLine}{sqlQuery}", ex, execContext);
                 }
                 throw;
             }
@@ -331,11 +364,18 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <param name="cmd"></param>
         /// <param name="sql"></param>
         /// <param name="execContext"></param>
-        protected virtual string ProcessCommand(DbCommand cmd, string sql, IDataLoaderContext execContext)
+        protected virtual string ProcessCommand(DbCommand cmd, string sql, IDataLoaderContext execContext, out List<string> parameters)
         {
+            parameters = new List<string>();
             if (string.IsNullOrWhiteSpace(sql)) return null; // We just do nothing in this case.
             Regex reg = new Regex(@"@([a-zA-Z_][a-zA-Z0-9_\$]*)", RegexOptions.None); // This should be configurable
+            string result = BindParameters(cmd, sql, execContext, parameters, reg);
+            cmd.CommandText = result;
+            return result;
+        }
 
+        private string BindParameters(DbCommand cmd, string sql, IDataLoaderContext execContext, List<string> parameters, Regex reg)
+        {
             string result = reg.Replace(sql, m =>
             {
                 if (m.Groups[1].Success)
@@ -354,6 +394,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 }
                                 // Bind value
                                 BindParameter(cmd, paramname, v);
+                                parameters.Add($"Paramname: {paramname} and Paramvalue: {v.Value}");
                                 return "@" + paramname;
                             case EResolverValueType.Skip:
                                 return "@" + paramname;
@@ -361,6 +402,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 // Replace text
                                 // We ignore all kinds of type info and we just use ToString();
                                 string x = v.Value == null ? "" : v.Value.ToString();
+                                parameters.Add($"Paramname: {paramname} and Paramvalue: {v.Value}");
                                 return x;
                         }
                     }// else skip the rest and leave them unbound. TODO: We will see if this is the correct default behavior.
@@ -371,7 +413,6 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 }
                 return m.Value;
             });
-            cmd.CommandText = result;
             return result;
         }
         #endregion
