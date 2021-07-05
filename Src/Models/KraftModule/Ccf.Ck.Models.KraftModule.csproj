@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="5.0.1" />
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>

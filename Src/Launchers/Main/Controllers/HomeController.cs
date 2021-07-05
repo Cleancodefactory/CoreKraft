@@ -5,6 +5,7 @@ using Ccf.Ck.Models.Settings;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using System.Text.RegularExpressions;
 
 namespace Ccf.Ck.Launchers.Main.Controllers
@@ -74,6 +75,16 @@ namespace Ccf.Ck.Launchers.Main.Controllers
 
         public IActionResult CatchAll(string catchAll)
         {
+            RazorCatchAll razorCatchAll = _KraftGlobalConfigurationSettings.GeneralSettings.RazorAreaAssembly.ParseRazorCatchAll();
+            if (razorCatchAll != null)
+            {
+                string param = razorCatchAll.CatchAllParameter;
+                RouteValueDictionary v = new RouteValueDictionary();
+                v.Add(param, catchAll);
+
+                return RedirectToAction(razorCatchAll.CatchAllAction, razorCatchAll.CatchAllController, v);
+            }
+            
             if (!string.IsNullOrEmpty(catchAll))
             {
                 if (PATTERNSTATICFILES.Matches(catchAll).Count > 0)
