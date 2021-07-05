@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ccf.Ck.Libs.Logging;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(Cast) => Cast,
                 nameof(GSetting) => GSetting,
                 nameof(Throw) => Throw,
+                nameof(Debug) => Debug,
                 nameof(IsEmpty) => IsEmpty,
                 nameof(TypeOf) => TypeOf,
                 nameof(IsNumeric) => IsNumeric,
@@ -762,6 +764,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 extext = "Exception raised intentionally from an ActionQuery code";
             }
             throw new Exception(extext);
+        }
+        public ParameterResolverValue Debug(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length > 0) {
+                string log = string.Join(',', args.Select(a => Convert.ToString(a.Value)));
+                KraftLogger.LogError($"ACDebug: {log}\n");
+                return new ParameterResolverValue(args[0]);
+            }
+            return new ParameterResolverValue(null);
         }
 
         #region Additional helpers for internal use
