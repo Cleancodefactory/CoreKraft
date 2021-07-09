@@ -10,6 +10,10 @@ namespace Ccf.Ck.Models.NodeSet
             if (this.File != null)
             {
                 FileInfo fi = new FileInfo(this.File);
+                if (string.IsNullOrEmpty(fi.Extension))
+                {
+                    throw new Exception($"File: {fi.FullName} does not have an extension. Please recheck!");
+                }
                 string extension = fi.Extension.Substring(1);
                 return ext.Equals(extension, StringComparison.CurrentCultureIgnoreCase);
             }
