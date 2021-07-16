@@ -22,6 +22,10 @@
     @{ if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.Manifest))
         {
             <link rel="manifest" href="@Model.GeneralSettings.ProgressiveWebApp.Manifest">
+            if (System.IO.File.Exists(System.IO.Path.Combine(Model.EnvironmentSettings.WebRootPath, "manifest/icon_152x152.png")))
+            {
+                <link rel="apple-touch-icon" href='@Url.Content("~/manifest/icon_152x152.png")' />
+            }
         } }
 
     <title>@ViewData["Title"]</title>
