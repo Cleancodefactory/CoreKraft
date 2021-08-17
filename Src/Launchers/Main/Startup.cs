@@ -46,6 +46,7 @@ namespace Ccf.Ck.Launchers.Main
             {
                 services.Configure<CookiePolicyOptions>(options =>
                 {
+                    options.Secure = CookieSecurePolicy.Always;
                     // This lambda determines whether user consent for non-essential 
                     // cookies is needed for a given request.
                     options.CheckConsentNeeded = context => true;
