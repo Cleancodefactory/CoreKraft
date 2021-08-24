@@ -500,6 +500,21 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 _ => new ParameterResolverValue(null),
             };
         }
+        public ParameterResolverValue IfThenElse(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            var condition = args[0].Value;
+            var positive = args[1].Value;
+            var negative = args[2].Value;
+
+            if (condition != null && int.TryParse(condition.ToString(), out int ncondition)) {
+                if (ncondition != 0 ) {
+                    return new ParameterResolverValue(positive);
+                }
+                return new ParameterResolverValue(negative);
+            } else {
+                return new ParameterResolverValue(negative);
+            }
+
+        }
 
         /// <summary>
         /// Resolver to get an auth token, from the authorization server, for the currently supported providers.
