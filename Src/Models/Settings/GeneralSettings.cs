@@ -21,6 +21,7 @@ namespace Ccf.Ck.Models.Settings
             SupportedLanguages = new List<string>();
             Theme = "Module";
             ToolsSettings = new ToolsSettings();
+            WatchSubFoldersForRestart = new List<string>();
         }
         public string ServerHostKey { get; set; }
         public bool EnableOptimization { get; set; }
@@ -51,6 +52,8 @@ namespace Ccf.Ck.Models.Settings
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
         public List<string> SupportedLanguages { get; set; }
+        public List<string> WatchSubFoldersForRestart { get; set; }
+        
         public ToolsSettings ToolsSettings { get; set; }
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)

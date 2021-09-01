@@ -434,7 +434,7 @@ namespace Ccf.Ck.Web.Middleware
                             {
                                 throw new SecurityException($"Write access to folder {path2Data} is required!");
                             }
-                            foreach (string validSubFolder in _ValidSubFoldersForWatching)
+                            foreach (string validSubFolder in _KraftGlobalConfigurationSettings.GeneralSettings.WatchSubFoldersForRestart.Count > 0 ? _KraftGlobalConfigurationSettings.GeneralSettings.WatchSubFoldersForRestart : _ValidSubFoldersForWatching)
                             {
                                 signalService.AttachModulesWatcher(Path.Combine(moduleFullPath, validSubFolder), true, applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
                             }
