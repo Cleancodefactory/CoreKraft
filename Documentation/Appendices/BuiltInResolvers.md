@@ -94,9 +94,9 @@ Where the initial data comes from? Notice the `GetFrom` resolver, it fetches a v
 
 ### GetFrom(sources, paramname)
 
-sources - A string specifying comma separated list of sources to check.
+**sources** - A string specifying comma separated list of sources to check.
 
-paramname - The name to look for.
+**paramname** - The name to look for.
 
 Gets a value from the standard sources. When a list of sources is specified, checks them in the order specified until a parameter with the paramname is found or returns null if the list is exhausted.
 
@@ -137,17 +137,44 @@ If there is a logged on user, returns the email provided by the authorization se
 
 ### HasRoleName(role)
 
+Returns a 0 | 1 result indicating if the logged on user has the `role`.
+
+**role** - a string specifying the role name. These are the roles given by the authorization server, any application specific roles are its own concern.
+
 ### Or(a,b)
 
+Returns 0 | 1 result indicating if the any one of the two arguments is true like.
+
+**a**, **b** - Arguments to check.
 ### Concat(a, b)
+
+Converts the two arguments to string (if they are not strings already) and returns a string of them both concatenated one after the other.
+
+**a**, **b** - The arguments to concatenate.
 
 ### Replace(a, b, c)
 
+Returns a string `a` with all occurrences of `b` replaced with `c`.
+
+The arguments `a` and `b` are not converted to string - they have to be strings. The argument **c** is converted to string.
+
+_This behavior is chosen because when replacing substrings the conversion of the base string and substring being searched often requires specific conversion._
+
 ### Coalesce(a, b)
+
+Returns the first argument if it is not null, otherwise returns the second argument.
 
 ### NumAsText(a)
 
+If the argument is numeric returns it as `content string`, in all other cases it returns the `content string` "**null**".
+
 ### CastAs(a, b)
+
+Casts `b` to the type specified by `a`
+
+**a** - a string specifying the type to which to convert the second argument. The supported type names are "`int`", "`uint`", "`double`" and "`string`".
+
+**b** - the argument to convert.
 
 ### Add(a, b)
 
@@ -170,6 +197,12 @@ If there is a logged on user, returns the email provided by the authorization se
 ### IntegerContent(a)
 
 ### idlist(a,b)
+
+### IfThenElse(condition, pos, neg)
+
+**condition** - null or a numeric value. If it is true like hte resolver returns pos, otherwise neg.
+
+**pos**, **neg** - The two possible returnees, they will be returned "as is" without type or flags changed.
 
 
 
