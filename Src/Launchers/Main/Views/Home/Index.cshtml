@@ -18,15 +18,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="initial-scale=1, width=device-width, maximum-scale=1, minimum-scale=1, user-scalable=no">
-    @{ if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.Manifest))
+
+    @{
+        if (Model.GeneralSettings.MetaTags != null && Model.GeneralSettings.MetaTags.Count > 0)
+        {
+            foreach (string metaTag in Model.GeneralSettings.MetaTags)
+            {
+                @Html.Raw(metaTag)                
+            }
+        }
+        else
+        {
+            <meta name="viewport" content="initial-scale=1.0, width=device-width">
+        }
+        if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.Manifest))
         {
             <link rel="manifest" href="@Model.GeneralSettings.ProgressiveWebApp.Manifest">
             if (System.IO.File.Exists(System.IO.Path.Combine(Model.EnvironmentSettings.WebRootPath, "manifest/icon_152x152.png")))
             {
                 <link rel="apple-touch-icon" href='@Url.Content("~/manifest/icon_152x152.png")' />
             }
-        } }
+        }
+    }
 
     <title>@ViewData["Title"]</title>
     @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftStyles(string.IsNullOrWhiteSpace(Model.GeneralSettings.Theme) ? "Module.dep" : Model.GeneralSettings.Theme + ".dep").Render()

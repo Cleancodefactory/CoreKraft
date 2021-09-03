@@ -49,6 +49,7 @@ namespace Ccf.Ck.Models.Settings
         public SignalRSettings SignalRSettings { get; set; }
         public SignalSettings SignalSettings { get; set; }
         public List<HostingServiceSetting> HostingServiceSettings { get; set; }
+        public List<string> MetaTags { get; set; }
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
         public List<string> SupportedLanguages { get; set; }
