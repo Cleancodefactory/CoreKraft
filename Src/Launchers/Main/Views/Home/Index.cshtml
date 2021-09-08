@@ -24,7 +24,7 @@
         {
             foreach (string metaTag in Model.GeneralSettings.MetaTags)
             {
-                @Html.Raw(metaTag)                
+                @Html.Raw(metaTag)
             }
         }
         else
@@ -51,10 +51,21 @@
         var bindKraftConfiguration = Html.Raw(Model.GeneralSettings.BindKraftConfiguration);
     }
     <script type="text/javascript">
-            //global base path
+        //global base path
         g_ApplicationBasePath = "@Url.Content("~/")";
         g_ApplicationCulture = "@Thread.CurrentThread.CurrentCulture.IetfLanguageTag";
         g_BindKraftConfiguration = @bindKraftConfiguration;
+        g_BindKraftConfiguration.IsDevelopment = @(Model.EnvironmentSettings.IsDevelopment()?1:0);
+        var errorShown = false;
+        g_BindKraftConfiguration.ParseTimeErrorHandler = function (message, source, lineno, colno, error) {
+            if (errorShown) return false;
+            errorShown = true;
+            //window.location = g_ApplicationBasePath + "home/unsupported";
+            return false;
+        };
+
+        window.onerror = g_BindKraftConfiguration.ParseTimeErrorHandler;
+
     </script>
     @{
         ToolSettings tool = KraftToolsRouteBuilder.GetTool(Model, "profiler");

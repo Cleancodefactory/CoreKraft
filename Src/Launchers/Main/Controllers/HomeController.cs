@@ -58,6 +58,11 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             return View(_KraftGlobalConfigurationSettings);
         }
 
+        public IActionResult Unsupported()
+        {
+            return View();
+        }
+
         public IActionResult SetLanguage(string culture, string returnUrl)
         {
             try
@@ -84,7 +89,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
 
                 return RedirectToAction(razorCatchAll.CatchAllAction, razorCatchAll.CatchAllController, v);
             }
-            
+
             if (!string.IsNullOrEmpty(catchAll))
             {
                 if (PATTERNSTATICFILES.Matches(catchAll).Count > 0)
