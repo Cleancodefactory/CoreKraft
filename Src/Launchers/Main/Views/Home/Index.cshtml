@@ -49,23 +49,30 @@
     </div>
     @{
         var bindKraftConfiguration = Html.Raw(Model.GeneralSettings.BindKraftConfiguration);
+        int isDevelopment = Model.EnvironmentSettings.IsDevelopment() ? 1 : 0;
     }
     <script type="text/javascript">
         //global base path
         g_ApplicationBasePath = "@Url.Content("~/")";
         g_ApplicationCulture = "@Thread.CurrentThread.CurrentCulture.IetfLanguageTag";
         g_BindKraftConfiguration = @bindKraftConfiguration;
-        g_BindKraftConfiguration.IsDevelopment = @(Model.EnvironmentSettings.IsDevelopment()?1:0);
-        var errorShown = false;
-        g_BindKraftConfiguration.ParseTimeErrorHandler = function (message, source, lineno, colno, error) {
-            if (errorShown) return false;
-            errorShown = true;
-            //window.location = g_ApplicationBasePath + "home/unsupported";
-            return false;
-        };
+        g_BindKraftConfiguration.IsDevelopment = @(isDevelopment);
+        g_BindKraftConfiguration.ParseTimeErrorHandler = null;
+        @{ if (isDevelopment != 1)
+            {
+                <text>
+                    var errorShown = false;
+                    g_BindKraftConfiguration.ParseTimeErrorHandler = function(message, source, lineno, colno, error) {
+                        if (errorShown) return false;
+                        errorShown = true;
+                        window.location = g_ApplicationBasePath + "home/unsupported";
+                        return false;
+                    };
 
-        window.onerror = g_BindKraftConfiguration.ParseTimeErrorHandler;
-
+                    window.onerror = g_BindKraftConfiguration.ParseTimeErrorHandler;
+                </text>
+            }
+        }
     </script>
     @{
         ToolSettings tool = KraftToolsRouteBuilder.GetTool(Model, "profiler");
