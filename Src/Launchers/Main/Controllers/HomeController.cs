@@ -60,8 +60,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
 
         public IActionResult Unsupported()
         {
-            IExceptionHandlerPathFeature exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-            KraftLogger.LogCritical($"Method: public IActionResult Unsupported for path: {exceptionHandlerPathFeature?.Path}", exceptionHandlerPathFeature?.Error);
+            KraftLogger.LogInformation($"Method: public IActionResult Unsupported Browser");
             return View();
         }
 
