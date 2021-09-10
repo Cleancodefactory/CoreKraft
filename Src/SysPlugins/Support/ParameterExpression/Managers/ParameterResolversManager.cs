@@ -153,6 +153,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                     Name = "AsContent"
                                 }
                             },
+                            { 
+                                  new Resolver() {
+                                      Alias = "CheckedText",
+                                      Arguments = 2,
+                                      Name = "CheckedText"
+                                  }
+                            },
                             {
                                 new Resolver()
                                 {
