@@ -113,27 +113,33 @@ __Add( arg {, arg} )__ - Returns the sum of all the arguments.
 
 **Neg(arg)** - Returns the argument with inverted sign if the value is numeric and null otherwise. The numeric values are converted to double if they are float or double, to Int32 if they are integers shorter or same length as int, Int64 it the are longer. It is not recommended to use this with unsigned numbers, because of the chance to lose precision or convert them wrongly, usage with unsigned numbers should be done with care and will be safe only if they are smaller than the signed integer of the same size.
 
-**Equal(arg1,arg2)**
+**Equal(arg1,arg2)** - Compares the two arguments.
+`arg1`, `arg2` are treated as follows:
 
-**Greater(arg1, arg2)**
+- If any of the two is null `false` is returned.
+- If any of the arguments is `float` or `double`, they are converted to `double` and compared.
+- If any of the arguments is integer (any size, signed or unsigned), they are converted to int64 and compared.
+- The arguments are converted to strings and compared - case sensitive.
 
-**Lower(arg1, arg2)**
+**Greater(arg1, arg2)** - Compares the arguments and if arg1 is greater than arg2, returns true, otherwise returns false. See **Equal** for how the arguments are compared.
 
-**Or([arg1 [, arg2 [, arg3 ... ]]])**
+**Lower(arg1, arg2)** - Compares the arguments and if arg1 is smaller than arg2, returns true, otherwise returns false. See **Equal** for how the arguments are compared.
 
-**And([arg1 [, arg2 [,arg3 ...]]])**
+**Or([arg1 [, arg2 [, arg3 ... ]]])** - Returns true if any of the arguments is a truthy value, otherwise returns false.
 
-**Not(arg1)**
+**And([arg1 [, arg2 [,arg3 ...]]])** - Returns true if all of the arguments are  truthy values, otherwise returns false.
 
-**IsNull(arg1)**
+**Not(arg1)** - Inverts the truthiness of the argument. Returns a boolean result.
 
-**NotNull(arg1)**
+**IsNull(arg1)** - Returns true if the argument is null, otherwise returns false.
 
-**Slice(stting, start [,end])**
+**NotNull(arg1)** - Returns true if the argument is not null, otherwise returns false.
+
+**Slice(string, start [,end])** - Returns a string containing the characters from the original `string` starting at `start` and ending at `end` (not including the end). If end is omitted, returns to the end of the string.
                     
-**Length(string | List | Dict)**
+**Length(string | List | Dict)** - Depending on the type of the argument, returns the length of the string, list or dictionary.
 
-**Replace(string, findwhat, replacewith)**
+**Replace(string, findwhat, replacewith)** - Replaces all the occurrences of `findwhat` in the `string` with the string passed in `replacewidth`.
 
 **RegexReplace(string, pattern, replacewith)**
 
