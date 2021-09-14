@@ -385,7 +385,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
         public ParameterResolverValue AsDict(HostInterface ctx, ParameterResolverValue[] args) {
-            if (args.Length < 1) throw new ArgumentException("DictClear requires at least one argument");
+            if (args.Length < 1) throw new ArgumentException("AsDict requires at least one argument");
             object arg1 = args[0].Value;
             object arg2 = null;
             if (args.Length > 1) arg2 = args[1].Value;
@@ -419,7 +419,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
         public ParameterResolverValue IsDictCompatible(HostInterface ctx, ParameterResolverValue[] args) {
-            if (args.Length < 1) throw new ArgumentException("DictClear requires at least one argument");
+            if (args.Length < 1) throw new ArgumentException("IsDictCompatible requires at least one argument");
             object arg1 = args[0].Value;
             object arg2 = null;
             if (args.Length > 1) arg2 = args[1].Value;

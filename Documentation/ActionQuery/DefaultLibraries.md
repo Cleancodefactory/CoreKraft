@@ -3,7 +3,7 @@
 There are two libraries currently loaded when ActionQuery host is created without the option to exclude them.
 
 ```C#
-var host = new ActionQueryHost<IDataLoaderReadContext>(IDataLoaderReadContext context,bool false);
+var host = new ActionQueryHost<IDataLoaderReadContext>(IDataLoaderReadContext context,bool withoutlibs);
 
 ```
 
@@ -141,47 +141,77 @@ __Add( arg {, arg} )__ - Returns the sum of all the arguments.
 
 **Replace(string, findwhat, replacewith)** - Replaces all the occurrences of `findwhat` in the `string` with the string passed in `replacewidth`.
 
-**RegexReplace(string, pattern, replacewith)**
+**RegexReplace(string, pattern, replacewith)** - Replaces substrings matching the `pattern` in the `string` with the `replacewith`. The pattern uses the C# regular expression syntax. All arguments are converted to strings if they are other types. `Returns`: the resulting string.
 
-**Split(string [, separator])**
+**Split(string [, separator])** - Splits the string using the specified separator or using "," if it is omitted. The result is an AC list (see List functions).
 
-**Trim(string)**
+**Trim(string)** - Trims the string and returns the resulting string.
 
-**List([arg1 [,arg2 [,arg3 ...]]])**
+#### List functions
 
-**ValueList([arg1 [,arg2 [,arg3 ...]]])**
+The default library supports work with lists which are internally represented as `List<ParameterResolverValue>` classes. This means that any lists received from outside (from node parameters for example) must be converted to internal lists (we will call them AC lists below) before the other functions can be used on them.
 
-**ConsumeOne(list)**
+There are two kinds of AC lists which are completely interchangeable for internal use, but impact when data created internally has to be send outside after conversion with `ToNodesetData`. The need comes from the way CoreKraft processes NodeSets. This is explained in detail in the ToNodesetData function below.
 
-**ListAdd(list[, arg2 [,arg3 [,arg4 ...]]])**
+**List([arg1 [,arg2 [,arg3 ...]]])** - Creates and AC list with the arguments added as items in the list. With no arguments it will create an empty list. `Returns`: the created AC list.
 
-**ListGet(list,index)**
+**ValueList([arg1 [,arg2 [,arg3 ...]]])** - The same as `List`, but the created AC list is marked as one containing values. See ToNodesetData for details.
 
-**ListInsert(list, index, value)**
+**ConsumeOne(list)** - Works with AC lists and with `Queue<ParameterResolverValue>`. The latter are not directly supported by the default library, but can be produced by functions in a hosting plugin or another library.
 
-**ListRemove(list[ , index1 [,index2 [,index3 ...]]])**
+When the argument is an AC list removes the last argument of the list and returns it. If the list is empty returns null. Can be used efficiently in `while` cycles to consume an entire list.
 
-**ListSet(list, index, value)**
+When used with queue, dequeues one element and returns it. If the queue is empty returns null. Can be used efficiently in `while` cycles.
 
-**ListClear(list)**
+**ListAdd(list[, arg2 [,arg3 [,arg4 ...]]])** - Adds items at the end of an AC list. `Returns`: the AC list.
 
-**AsList(value)**
+**ListGet(list,index)** - Gets the element ar `index` and returns it. If the `index` is out of range returns `null`.
 
-**AsValueList(value)**
+**ListInsert(list, index, value)** - inserts an element in the AC list at the specified index. Will fail only if the underlying List.insert method fails. Use it with the same assumptions. Returns: the AC list.
 
-**Dict([key, value [, key, value [, key, value ...]]])**
+**ListRemove(list[ , index1 [,index2 [,index3 ...]]])** - removes the element(s) at the specified indexes. The indexes are the positions before doing any removal. Returns: the modified AC list.
 
-**DictSet(dict, [key, value [, key, value [, key, value ...]]])**
+**ListSet(list, index, value)** - sets an element in an AC list. The index must exist in the AC list or an exception will occur.
 
-**DictGet(dict, key)**
+**ListClear(list)** - clears the AC list and returns it.
 
-**DictClear(dict, key)**
+**AsList(value)** - Converts an externally obtained list-like object into AC list. When receiving enumerable values from a node parameter or from function calling something external they may contain all kinds of values and they need to be packed into `ParameterResolverValue` objects in order to be used internally. AsDict does exactly that.
 
-**DictRemove(dict [, key [, key,[key ... ]]])**
+This function can be also used to create a copy of an existing AC list. Just call AsList(`list`) and the result will be a copy of `list`.
 
-**AsDict(value [, value2])**
+This function accepts dictionaries as an argument. The produced AC list will contain only the values from the dictionary. The dictionary can be AC dictionary too.
 
-**IsDictCompatible(value [, value2])**
+**AsValueList(value)** - The same as `AsList`, but marks the list as list of values. See `ToNodesetData` for more details.
+
+#### Dictionary functions
+
+The default library supports work with dictionaries which internally are represented by `Dcitionary<string, ParameterResolverValue>` classes which we will call AC dictionaries where appropriate. Most functions work with this kind of dictionaries and you need to convert any dictionaries coming from the outside to the internally supported type. This is done with `AsDict` function described below.
+
+This means that if an external parameter contains some dictionary data you have to pass it through `AsDict` in order to use functions like `DictGet`, `DictSet` and so on.
+
+**Dict([key, value [, key, value [, key, value ...]]])** - Creates an AC dictionary. Can be used without arguments to create an empty one or with pairs of arguments to add elements on creation. The argument pairs are [`key`, `value`] which means that the key will be converted as string and will be the key of the next argument in the dictionary. This pattern is used in all the dictionary functions below where appropriate. `Returns`: the new AC dictionary.
+
+**DictSet(dict, [key, value [, key, value [, key, value ...]]])** - sets elements of an AC dictionary. The argument `dict` is the dictionary, wile after it any number of pairs [`key`, `value`] can be specified. Each pair will set an element in the dictionary, if an element with that key does not exist it will be created, if it exists its value will be set with the new one. `Returns`: the same AC dictionary passed with the `dict` argument with the changes applied to it.
+
+**DictGet(dict, key)** - Gets a value of an element in an AC dictionary. The `dict` is the dictionary to look into, the `key` is the key to look up. If the key is missing `null` wil be returned. `Returns`: the value of the key.
+
+**DictClear(dict, key)** - Clears an AC dictionary And `returns` it.
+
+**DictRemove(dict [, key [, key,[key ... ]]])** - Removes elements from an AC dictionary, The first argument is the AC dictionary, after it any number of keys can be specified. All the specified keys are removed from the dictionary. `Returns`: the dictionary.
+
+**AsDict(value [, value2])** - Converts external object to AC dictionary. Used most often to convert dictionaries obtained from node parameters into usable AC dictionaries. Can be used in two ways:
+
+**single argument**: The argument must be a dictionary-like value. Converts the external dictionary to AC dictionary. Used
+
+**two arguments**: Both arguments must be enumerable. The first one is expected to contain the keys and the second to contain the values for the AC dictionary that will be created from them. The arguments will be treated as parallel lists and if certain element of the first one (the one specifying the keys) contains a null element, the corresponding value will not be added in the AC dictionary because `null` is not usable as a key. 
+
+`Returns`: The constructed AC dictionary.
+
+The function does not throw exceptions for inappropriate arguments and will return an empty dictionary in such a case. To determine if it will work with certain arguments use `IsDictCompatible` with the same arguments in some kind of logical construct (`if` for example) and deal with the situation appropriately.
+
+**IsDictCompatible(value [, value2])** - Checks if AsDict can succeed with the same arguments. See `AsDict` for more details about the arguments.
+
+#### Combined Dictionary / List functions
 
 **NavGet(dict | list [, key | index [, key | index ...]])**
 
