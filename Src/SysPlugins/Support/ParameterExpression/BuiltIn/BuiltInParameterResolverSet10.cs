@@ -318,6 +318,30 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             return new ParameterResolverValue(resultval, EResolverValueType.ContentType);
         }
         /// <summary>
+        ///     Returns the first argument only if it  converted to string matches the regular expression defined by the second
+        /// Arguments:
+        ///     0 - First parameter
+        ///     1 - Second parameter
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue CheckedText(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (args[0].Value == null) return new ParameterResolverValue(null, EResolverValueType.Invalid);
+            var text = args[0].Value.ToString();
+            
+            string refield = args[2].Value?.ToString() ?? null;
+            if (refield == null) {
+                throw new ArgumentException("2-d argument of CheckedText is required and has to specify a regular expression for the first argument's validation.");
+            }
+            Regex reField = new Regex(refield, RegexOptions.IgnoreCase);
+            if (reField.IsMatch(text)) {
+                // Returned as content type to help use it directly (not recommended though - use it as argument to OrderBy)
+                return new ParameterResolverValue(text, EResolverValueType.ContentType);
+            }
+            return new ParameterResolverValue(null, EResolverValueType.Invalid);
+        }
+        /// <summary>
         /// Generates an order by entry FIELDNAME ASC|DESC
         /// Arguments:
         ///     0 - Fieldname

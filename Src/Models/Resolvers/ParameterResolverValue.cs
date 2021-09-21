@@ -126,6 +126,15 @@ namespace Ccf.Ck.Models.Resolvers
             set => DataType = ((0xFFFF & (uint)DataType) | (uint)value);
         }
         #endregion
+
+        #region Static tools
+        public static object Strip(object val) {
+            if (val is ParameterResolverValue prv) {
+                return prv.Value;
+            }
+            return val;
+        }
+        #endregion
     }
 
     #region Chaining helpers
