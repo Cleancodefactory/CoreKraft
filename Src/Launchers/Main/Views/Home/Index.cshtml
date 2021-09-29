@@ -58,7 +58,7 @@
         g_BindKraftConfiguration = @bindKraftConfiguration;
         g_BindKraftConfiguration.IsDevelopment = @(isDevelopment);
         g_BindKraftConfiguration.ParseTimeErrorHandler = null;
-        @{ if (isDevelopment != 1)
+        @{ if (isDevelopment != 0)
             {
                 <text>
                     var errorShown = false;
@@ -70,6 +70,18 @@
                     };
 
                     window.onerror = g_BindKraftConfiguration.ParseTimeErrorHandler;
+                </text>
+            }
+        }
+        @{ if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.Manifest))
+            {
+                // PWA - SW
+                <text>
+                    if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker
+                    .register('/sw.js') // Loading from root in order to make it encompass the whole thing
+                    .then(_ => console.log("SW: CoreKraft service worker is registered"));
+                    }
                 </text>
             }
         }
