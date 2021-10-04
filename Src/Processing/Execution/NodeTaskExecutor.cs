@@ -45,7 +45,7 @@ namespace Ccf.Ck.Processing.Execution
                 {
                     using (KraftProfiler.Current.Step("Execution time loading data: "))
                     {
-                        if (loaderContextDefinition.StartNode != null && loaderContextDefinition.StartNode.HasValidDataSection(processingContext.InputModel.IsWriteOperation))
+                        if (loaderContextDefinition.StartNode != null /*&& loaderContextDefinition.StartNode.HasValidDataSection(processingContext.InputModel.IsWriteOperation)*/)
                         {
                             IDataIteratorPlugin dataIteratorPlugin = Utilities.GetPlugin<IDataIteratorPlugin>(_KraftModuleConfigurationSettings.NodeSetSettings.SourceLoaderMapping.NodesDataIterator.NodesDataIteratorConf.Name, _TransactionScope.DependencyInjectionContainer, _KraftModuleConfigurationSettings, ELoaderType.DataLoader, true);
                             GenericUtilities.CheckNullOrEmpty(dataIteratorPlugin, true);
