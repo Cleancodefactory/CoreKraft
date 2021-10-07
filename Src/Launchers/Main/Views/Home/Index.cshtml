@@ -58,7 +58,7 @@
         g_BindKraftConfiguration = @bindKraftConfiguration;
         g_BindKraftConfiguration.IsDevelopment = @(isDevelopment);
         g_BindKraftConfiguration.ParseTimeErrorHandler = null;
-        @{ if (isDevelopment != 0)
+        @{ if (isDevelopment != 1)
             {
                 <text>
                     var errorShown = false;
