@@ -24,10 +24,19 @@ namespace Ccf.Ck.Launchers.Main.Routing
             foreach (RouteMapping routing in _KraftGlobalConfigurationSettings.GeneralSettings.RazorAreaAssembly.RouteMappings)
             {
                 Regex rg = new Regex(routing.SlugExpression, RegexOptions.IgnoreCase);
-                if (rg.Matches(httpContext.Request.Path).Count > 0)
+                Match match = rg.Match(httpContext.Request.Path);
+                if (match.Success)
                 {
                     values["controller"] = routing.Controller;
                     values["action"] = routing.Action;
+
+                    foreach (Group group in match.Groups)
+                    {
+                        if (!string.IsNullOrWhiteSpace(group.Name) && group.Name.Length > 1)
+                        {
+                            values[group.Name.Trim()] = group.Value?.Trim();
+                        }
+                    }
                     break;
                 }
             }
