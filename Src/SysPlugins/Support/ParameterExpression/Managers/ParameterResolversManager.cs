@@ -50,6 +50,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                 }
                             },
                             {
+                                new Resolver() {
+                                    Alias = "CurrentData",
+                                    Arguments = 0,
+                                    Name = "CurrentData"
+                                }
+                            },
+                            {
                                 new Resolver()
                                 {
                                      Alias = "GetUserId",

@@ -155,6 +155,15 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             string source = argsCasted[0].Value as string;
             return new ParameterResolverValue(StdGetParameterValue(source, paramName, ctx));
         }
+        public ParameterResolverValue CurrentData(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            ResolverArguments<ParameterResolverValue> argsCasted = args as ResolverArguments<ParameterResolverValue>;
+            if (ctx.Action == ACTION_WRITE) {
+                return new ParameterResolverValue(ctx.Row);
+            } else {
+                throw new InvalidOperationException("The Currentdata resolver canbe used only for write operations.");
+            }
+        }
+        
 
         public ParameterResolverValue IntegerContent(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             if (args.Count != 1) throw new Exception("IntegerCountent declared with wrong number of arguments (must be 1)");
