@@ -87,6 +87,8 @@ namespace Ccf.Ck.Utilities.NodeSetService
                 startNode.Views = new List<View>(startNode.Views.OrderBy(viewDefinition => viewDefinition.ExecutionOrder));
             }
 
+            LoadCustomPluginQueries(nodeSetFile, startNode);
+
             ReorderPlugins(startNode.Read);
             ReorderPlugins(startNode.Write);
 
@@ -117,6 +119,7 @@ namespace Ccf.Ck.Utilities.NodeSetService
             }
         }
 
+        private void LoadCustomPluginQueries()
         private void LoadQueryFiles(string fileName, Node node)
         {
             if (node != null)
