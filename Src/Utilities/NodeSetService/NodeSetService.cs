@@ -119,7 +119,35 @@ namespace Ccf.Ck.Utilities.NodeSetService
             }
         }
 
-        private void LoadCustomPluginQueries()
+        private void LoadCustomPluginQueries(string fileName, Node node) {
+            // This method must be called before transferring the custom plugins to the special collections (before, after, after children)
+            if (node != null) {
+                if (node.Read != null && node.Read.CustomPlugins != null) {
+                    foreach (CustomPlugin plugin in node.Read.CustomPlugins) {
+                        if (!string.IsNullOrWhiteSpace(plugin.LoadQuery)) {
+                            ReadNodeQueryFile(fileName, plugin);
+                        }
+                    }
+                }
+                if (node.Write != null && node.Write.CustomPlugins != null) {
+                    foreach (CustomPlugin plugin in node.Write.CustomPlugins) {
+                        if (!string.IsNullOrWhiteSpace(plugin.LoadQuery)) {
+                            ReadNodeQueryFile(fileName, plugin);
+                        }
+                    }
+                }
+            }
+        }
+        private void ReadNodeQueryFile(string fileName, CustomPlugin plugin) {
+            string filePath = CalculateFilePath(fileName, plugin.LoadQuery);
+            if (!File.Exists(filePath)) {
+                throw new FileNotFoundException($"The requested file in loadquery field of custom plugin: {filePath} was not found");
+            }
+
+            plugin.Query = File.ReadAllText(filePath);
+            plugin.LoadQuery = null;
+        }
+
         private void LoadQueryFiles(string fileName, Node node)
         {
             if (node != null)
