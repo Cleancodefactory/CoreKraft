@@ -50,7 +50,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         #endregion
 
         #region Helpers
-        private static Regex reAddress = new Regex(@"^([a-zA-Z][a-zA-Z0-9\-\.\_]*)/([a-zA-Z][a-zA-Z0-9\-\.\_]*)(?:([a-zA-Z][a-zA-Z0-9\-\.\_]*))?$",RegexOptions.Compiled);
+        private static Regex reAddress = new Regex(@"^([a-zA-Z][a-zA-Z0-9\-\._]*)/([a-zA-Z][a-zA-Z0-9\-\._]*)(?:/([a-zA-Z][a-zA-Z0-9\-\._]*))?$", RegexOptions.Compiled);
         /// <summary>
         /// Parses the address into module, nodeset, nodepath
         /// 
@@ -65,13 +65,13 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             {
                 if (m.Groups[0].Success)
                 {
-                    input.Module = m.Groups[0].Value;
-                    if (m.Groups[1].Success)
+                    input.Module = m.Groups[1].Value;
+                    if (m.Groups[2].Success)
                     {
-                        input.Nodeset = m.Groups[1].Value;
-                        if (m.Groups[2].Success)
+                        input.Nodeset = m.Groups[2].Value;
+                        if (m.Groups[3].Success)
                         {
-                            input.Nodepath = m.Groups[2].Value;
+                            input.Nodepath = m.Groups[3].Value;
                         } 
                         else
                         {
