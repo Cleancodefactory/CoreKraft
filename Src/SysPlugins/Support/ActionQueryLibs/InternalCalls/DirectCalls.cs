@@ -100,7 +100,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                 if (args[1].Value is Dictionary<string, ParameterResolverValue> indict) {
                     inp.Data = indict.ToDictionary(kv => kv.Key, kv => kv.Value.Value);
                 } else {
-                    throw new ArgumentException("Main arguments are currently supported only as a Dictionary. Use Dict and related functions from the default library to create one.");
+                    throw new ArgumentException("Main arguments are currently supported only as a internal AC Dictionary (Dictionary<string, ParameterResolverValue>). Use Dict and related functions from the default library to create one.");
                 }
                 if (args.Length > 2) {
                     if (args[2].Value is Dictionary<string, ParameterResolverValue> qdict) {
