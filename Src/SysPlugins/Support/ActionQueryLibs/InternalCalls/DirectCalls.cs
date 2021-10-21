@@ -127,7 +127,13 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                 return Error.Create(ret.ErrorMessage);
             }
         }
-
+        /// <summary>
+        /// Prototype(AC):
+        /// CallRead(string, InternalDictionary) : ParamaterResolverValue|Dict|List
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args);
         }

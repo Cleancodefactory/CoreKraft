@@ -775,13 +775,31 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         #region Additional helpers for internal use
+        /// <summary>
+        /// This method converts generic nodeset data to internally usable data (by the AC script). However it is
+        /// a bit more tollerant than it should be. For instance it will pack lists not containing dictionaries as ValueList.
+        /// This is intentional, because the nodesets can violate the generic data convention and it can be for a reason - in such
+        /// a case the script will still be able to work with the data. 
+        /// Potential pitfalls: A custom list violating the generic data convention may still contain dictionaries, this will
+        /// be mostly Ok, unless the script mistakenly detects this as something corresponsing to a node. While this is unlikely
+        /// scenario, it is still possible and one should be aware of the possibility.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static ParameterResolverValue ConvertFromGenericData(object data) {
             if (data is Dictionary<string, object> dict) {
                 return new ParameterResolverValue(dict.ToDictionary(kv => kv.Key, kv => new ParameterResolverValue(ConvertFromGenericData(kv.Value))));
             } else if (data is string s) {
                 return new ParameterResolverValue(s);
-            } else if (data is IEnumerable enmr) {
+            } else if (data is IEnumerable<Dictionary<string,object>> glist) {
+                // cosher data for a generic list -> pack it as List
                 var list = new List<ParameterResolverValue>();
+                foreach (var o in glist) {
+                    list.Add(new ParameterResolverValue(ConvertFromGenericData(o)));
+                }
+                return new ParameterResolverValue(list);
+            } else if (data is IEnumerable enmr) {
+                var list = new ValueList<ParameterResolverValue>();
                 foreach (object o in enmr) {
                     list.Add(new ParameterResolverValue(ConvertFromGenericData(o)));
                 }
