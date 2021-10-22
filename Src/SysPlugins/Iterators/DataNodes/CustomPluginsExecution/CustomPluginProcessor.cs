@@ -16,6 +16,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes.CustomPluginsExecution
                     INodePlugin plugin = p.CustomPluginAccessor.LoadPlugin(customPlugin.CustomPluginName);
                     // Here the customplugin's context is attached
                     // the dataloader's context is attached in the iterator
+                    p.CustomPlugin = customPlugin;
                     p.OwnContextScoped = p.CustomPluginAccessor.GetPluginsSynchronizeContextScoped(customPlugin.CustomPluginName, plugin).Result;
                     plugin?.Execute(p);
                 }

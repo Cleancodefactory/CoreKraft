@@ -1,6 +1,13 @@
-﻿using Ccf.Ck.NodePlugins.Base;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.NodePlugins.Base;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb;
+using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images;
+using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls;
+using Ccf.Ck.SysPlugins.Utilities;
 using System;
+using System.Linq;
 
 namespace Ccf.Ck.NodePlugins.Scripter {
     public class NodeScripterImp: NodePluginBase<NodeScripterSynchronizeContextScopedImp> {
@@ -78,12 +85,15 @@ namespace Ccf.Ck.NodePlugins.Scripter {
 
 
 
-        public ParameterResolverValue HostInfo(IDataLoaderContext ctx, ParameterResolverValue[] args) {
-            return new ParameterResolverValue("Scripter 1.0");
+        public ParameterResolverValue HostInfo(INodePluginContext ctx, ParameterResolverValue[] args) {
+            return new ParameterResolverValue("NodeScripter 1.0");
         }
 
         private string GetQuery(INodePluginContext context) {
-
+            if (context.CustomPlugin != null) {
+                return context.CustomPlugin.Query;
+            }
+            return null;
         }
     }
 }

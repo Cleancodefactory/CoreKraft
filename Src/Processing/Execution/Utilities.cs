@@ -13,6 +13,9 @@ namespace Ccf.Ck.Processing.Execution
         internal static T GetPlugin<T>(string key, DependencyInjectionContainer dependencyInjectionContainer, KraftModuleConfigurationSettings kraftConfigurationSettings, ELoaderType pluginType, bool isIterator = false) where T : class
         {
             LoaderProperties loaderProperties = GetLoaderProperties(key, kraftConfigurationSettings, pluginType, isIterator);
+            if (loaderProperties == null) {
+                throw new NullReferenceException($"Cannot find the configuration for {key}, check your Configuration.json to verify if it exists.");
+            }
             return dependencyInjectionContainer.Get(loaderProperties.InterfaceAsType, kraftConfigurationSettings.ModuleName + loaderProperties.ImplementationAsString) as T;
         }
 
