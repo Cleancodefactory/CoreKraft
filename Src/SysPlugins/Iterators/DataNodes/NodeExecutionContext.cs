@@ -663,7 +663,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             {
                 return Context.Evaluate(expressionName, oldargs);
             }
-
+            public CustomPlugin CustomPlugin { get; set; }
         }
 
         public class CustomPluginReadContext : CustomPluginContext, INodePluginReadContext {

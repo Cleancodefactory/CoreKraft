@@ -41,5 +41,6 @@ namespace Ccf.Ck.SysPlugins.Interfaces
 
         ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null);
         
+        CustomPlugin CustomPlugin { get; set; }
     }
 }

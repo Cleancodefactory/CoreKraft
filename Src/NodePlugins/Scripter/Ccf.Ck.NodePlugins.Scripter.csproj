@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Support\ActionQueryLibs\BasicWeb\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Support\ActionQueryLibs\Files\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Support\ActionQueryLibs\Images\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Support\ActionQueryLibs\InternalCalls\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
+    <ProjectReference Include="..\Base\Ccf.Ck.NodePlugins.Base.csproj" />
+  </ItemGroup>
+
+</Project>

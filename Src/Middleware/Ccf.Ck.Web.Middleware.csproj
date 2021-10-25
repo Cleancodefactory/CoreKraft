@@ -44,6 +44,7 @@
     <ProjectReference Include="..\Models\Settings\Ccf.Ck.Models.Settings.csproj" />
     <ProjectReference Include="..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
     <ProjectReference Include="..\Models\Web.Settings\Ccf.Ck.Models.Web.Settings.csproj" />
+    <ProjectReference Include="..\NodePlugins\Scripter\Ccf.Ck.NodePlugins.Scripter.csproj" />
     <ProjectReference Include="..\Processing\Execution\Ccf.Ck.Processing.Execution.csproj" />
     <ProjectReference Include="..\Processing\Web.RequestProcessing\Ccf.Ck.Processing.Web.Request.csproj" />
     <ProjectReference Include="..\Processing\Web.ResponseBuilder\Ccf.Ck.Processing.Web.ResponseBuilder.csproj" />

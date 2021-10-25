@@ -43,7 +43,7 @@ namespace Ccf.Ck.SysPlugins.Data.Json
             {
                 string filePath = Path.Combine(directoryPath, node.Read.Select.File);
 
-                string cacheKey = $"{execContext.ProcessingContext.InputModel.NodeSet}{execContext.ProcessingContext.InputModel.Nodepath}{node.NodeKey}_Json";
+                string cacheKey = $"{execContext.ProcessingContext.InputModel.Module}{execContext.ProcessingContext.InputModel.NodeSet}{execContext.ProcessingContext.InputModel.Nodepath}{node.NodeKey}_Json";
                 ICachingService cachingService = execContext.PluginServiceManager.GetService<ICachingService>(typeof(ICachingService));
                 string cachedJson = cachingService.Get<string>(cacheKey);
                 if (cachedJson == null)
