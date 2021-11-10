@@ -7,5 +7,6 @@ namespace Ccf.Ck.Models.Settings
     public class ProgressiveWebAppSettings
     {
         public string Manifest { get; set; }
+        public string ServiceWorkerUrl { get; set; }
     }
 }

@@ -73,13 +73,13 @@
                 </text>
             }
         }
-        @{ if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.Manifest))
+        @{ if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl) && isDevelopment == 0)
             {
                 // PWA - SW
                 <text>
                     if ('serviceWorker' in navigator) {
                     navigator.serviceWorker
-                    .register('/sw.js') // Loading from root in order to make it encompass the whole thing
+                    .register(Model.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl) // Loading from root in order to make it encompass the whole thing
                     .then(_ => console.log("SW: CoreKraft service worker is registered"));
                     }
                 </text>
