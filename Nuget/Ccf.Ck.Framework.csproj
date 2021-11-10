@@ -53,6 +53,7 @@
       - Version 1.0.41: Bug fixing in Scripter plugin
       - Version 5.0.0: Migrate to net5.0
       - Version 5.0.1: Introduce meta tags for screen orientation and scaling
+      - Version 5.0.2: Introduce NodeScripter engine which allows execution of custom scripts as part of the NodeSet-Execution
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
