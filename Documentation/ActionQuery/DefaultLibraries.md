@@ -1,6 +1,6 @@
 ﻿# Standard libraries for ActionQuery in CoreKraft
 
-There are two libraries currently loaded when ActionQuery host is created without the option to exclude them.
+There are 3 libraries currently loaded when ActionQuery host is created (can be suppressed if necessary).
 
 ```C#
 var host = new ActionQueryHost<IDataLoaderReadContext>(IDataLoaderReadContext context,bool withoutlibs);
@@ -9,11 +9,16 @@ var host = new ActionQueryHost<IDataLoaderReadContext>(IDataLoaderReadContext co
 
 The first argument can be any of the `IDataLoaderReadContext`/`IDataLoaderWriteContext` or `INodePluginReadContext`/`INodePluginWriteContext`.
 
-The second argument is optional and if true is passed the libraries described here are **not available**.
+The second argument `withoutlibs` is optional and if `true` is passed the libraries described here are **`not available`**. This may be needed in some specific cases when a plugin wants to enable very specific scripts to work only with its own features without access to anything else.
 
-The main library offers slightly different functionality depending on the context in order to offer what's actually needed in each case. 
-The majority of the functions are the same in all cases - check the notes for each function for specifics. If not marked otherwise the
-function is available in all contexts.
+The default libraries described further in this document are 3:
+
+- `Variables library` - access to variables available for the running script and its host (same for all contexts)
+
+- `Default libraries` - Currently a single general purpose set of functions for all kinds of operations: arithmetic, strings, dictionaries, lists and so on. In future additional libraries may be added. (same for all contexts)
+
+- `Nodeset library` - Contains functions for querying and changing node data in Nodeset execution current node. (there are some minor differences between scripts running in DataLoader context and CustomPlugin context.)
+
 
 ## Variables library (Will be replaced by in-language feature soon)
 
@@ -228,10 +233,40 @@ The function does not throw exceptions for inappropriate arguments and will retu
 
 **ErrorCode(error)**
 
-### NodeSet plugins library
+### NodeSet library
 
-Contains the Basic library and additional set of functions enabling the scripts to implement useful functionality in the context of a NodeSet.
+Contains additional set of functions enabling the scripts to implement useful functionality in the context of the currently executing nod of the NodeSet.
 
-TODO:
+Please check the contexts in which the functions are available. Some of them are applicable only in certain cases - e.g. result manipulation is different on read and on write. When a function is not available this will cause a corresponding error.
+
+**NodePath()**
+
+**NodeKey()**
+
+**Action()**
+
+**Operation()**
+
+**AddResult( `dict | ( key, value [key, value [, key, value ...]])` )**
+
+**HasResults()**
+
+**SetResult(`dict | ( key, value [key, value [, key, value ...]])`)**
+
+**CSetting(`name [,default]`)**
+
+**CSettingLoader(`name [, default]`)**
+
+**ModuleName()**
+
+**ModulePath(`[combinepath]`)**
+
+**ResetResultState()**
+
+**SetResultDeleted()**
+
+**SetResultNew()**
+
+**SetResultUpdated()**
 
 
