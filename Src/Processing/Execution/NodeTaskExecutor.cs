@@ -68,6 +68,8 @@ namespace Ccf.Ck.Processing.Execution
                     _TransactionScope.RollbackTransactions();
                 }
                 KraftLogger.LogError(ex.Message, ex);
+
+                throw; //Throw to aniliate the _CollectiveCall break
             }
         }
 
