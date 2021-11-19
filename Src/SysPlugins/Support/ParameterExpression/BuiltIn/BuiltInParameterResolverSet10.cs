@@ -190,6 +190,12 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             return new ParameterResolverValue(null, EResolverValueType.Skip);
         }
 
+        public ParameterResolverValue GetHostingUrl(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+            return new ParameterResolverValue(settings.GeneralSettings.HostingUrl);
+        }
+
         public ParameterResolverValue GetUserId(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {
             InputModel inputModel = ctx.ProcessingContext.InputModel;

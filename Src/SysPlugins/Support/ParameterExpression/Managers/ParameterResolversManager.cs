@@ -59,6 +59,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "GetHostingUrl",
+                                     Arguments = 0,
+                                     Name = "GetHostingUrl"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "GetUserId",
                                      Arguments = 0,
                                      Name = "GetUserId"
