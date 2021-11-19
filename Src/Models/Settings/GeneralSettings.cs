@@ -40,6 +40,7 @@ namespace Ccf.Ck.Models.Settings
         public string KraftUrlModuleImages { get; set; }
         public string KraftUrlModulePublic { get; set; }
         public string KraftRequestFlagsKey { get; set; }
+        public string HostingUrl { get; set; }
         public AuthorizationSection AuthorizationSection { get; set; }
         public string Authority { get; set; }
         public string ClientId { get; set; }

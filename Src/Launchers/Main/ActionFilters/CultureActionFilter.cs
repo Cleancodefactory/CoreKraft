@@ -80,9 +80,9 @@ namespace Ccf.Ck.Launchers.Main.ActionFilters
                        .ToArray() ?? Array.Empty<string>();
 
             //Absolute match
-            foreach (string userLanguage in userLanguages)
+            foreach (string defaultLanguage in defaultLanguagesOrdered) 
             {
-                foreach (string defaultLanguage in defaultLanguagesOrdered)
+                foreach (string userLanguage in userLanguages)
                 {
                     if (userLanguage.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase))
                     {
@@ -92,16 +92,23 @@ namespace Ccf.Ck.Launchers.Main.ActionFilters
             }
 
             //Relaxed match
-            foreach (string userLanguage in userLanguages)
+            foreach (string defaultLanguage in defaultLanguagesOrdered) 
             {
-                string[] partsUserLanguage = userLanguage.Split("-");
-                foreach (string defaultLanguage in defaultLanguagesOrdered)
+                string[] partsUserLanguage = defaultLanguage.Split("-");
+                foreach (string userLanguage in userLanguages)
                 {
-                    string[] partsDefaultLanguage = defaultLanguage.Split("-");
+                    string[] partsDefaultLanguage = userLanguage.Split("-");
                     
                     if (partsUserLanguage[0].Equals(partsDefaultLanguage[0], StringComparison.OrdinalIgnoreCase))
                     {
                         return defaultLanguage;
+                    }
+                    else if(partsUserLanguage.Length == 2 && partsDefaultLanguage.Length == 2)
+                    {
+                        if (partsUserLanguage[1].Equals(partsDefaultLanguage[1], StringComparison.OrdinalIgnoreCase))
+                        {
+                            return defaultLanguage;
+                        }
                     }
                 }
             }
