@@ -339,7 +339,7 @@ namespace Ccf.Ck.Web.Middleware
             //    if (string.Equals(context.Request.Path.Value, "/", StringComparison.OrdinalIgnoreCase))
             //    {
             //        AntiforgeryTokenSet tokens = app.ApplicationServices.GetService<IAntiforgery>().GetAndStoreTokens(context);
-            //        context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions() { HttpOnly = false });
+            //        context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions() { HttpOnly = true, Secure = true, IsEssential = true, SameSite=SameSiteMode.Strict });
             //    }
             //    return next(context);
             //});
