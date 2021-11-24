@@ -48,7 +48,7 @@
         var bindKraftConfiguration = Html.Raw(Model.GeneralSettings.BindKraftConfiguration);
         int isDevelopment = Model.EnvironmentSettings.IsDevelopment() ? 1 : 0;
     }
-    <script type="text/javascript">
+<script type="text/javascript">
         //global base path
         g_ApplicationBasePath = "@Url.Content("~/")";
         g_ApplicationCulture = "@Thread.CurrentThread.CurrentCulture.IetfLanguageTag";
@@ -68,9 +68,20 @@
 
                     window.onerror = g_BindKraftConfiguration.ParseTimeErrorHandler;
                 </text>
+                if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl))
+                {
+                    // PWA - SW
+                    <text>
+                        if ('serviceWorker' in navigator) {
+                            navigator.serviceWorker
+                            .register('@Model.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl')
+                            .then(_ => console.log("SW: CoreKraft service worker is registered"));
+                        }
+                    </text>
+                }
             }
         }
-    </script>
+</script>
     @{
         ToolSettings tool = KraftToolsRouteBuilder.GetTool(Model, "profiler");
         if (tool != null && tool.Enabled)//Profiler enabled enabled from configuration
@@ -81,9 +92,3 @@
     @BundleCollection.Instance.Profile(Model.GeneralSettings.DefaultStartModule).KraftScripts().Render()
 </body>
 </html>
-
-
-
-
-
-
