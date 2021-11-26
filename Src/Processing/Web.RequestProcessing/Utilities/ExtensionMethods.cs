@@ -67,10 +67,16 @@ namespace Ccf.Ck.Processing.Web.Request.Utilities
                     }
                 case HttpStatusCode.Unauthorized:
                     {
-                        //HttpRequest request = httpContext.Request;
+                        HttpRequest request = httpContext.Request;
                         httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        //string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent(), request.Path.ToUriComponent(), request.QueryString.ToUriComponent());
-                        //httpContext.ChallengeAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties() { RedirectUri = redirectUrl });
+                        string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent(), request.Path.ToUriComponent(), request.QueryString.ToUriComponent());
+                        AuthenticationProperties authenticationProperties = new AuthenticationProperties
+                        {
+                            RedirectUri = redirectUrl
+                        };
+                        httpContext.Request.Headers.Clear();
+                        //DO NOT INCLUDE because we are in ajax request here (handled in the client)
+                        //httpContext.ChallengeAsync(OpenIdConnectDefaults.AuthenticationScheme, authenticationProperties);
                         break;
                     }
                 default:

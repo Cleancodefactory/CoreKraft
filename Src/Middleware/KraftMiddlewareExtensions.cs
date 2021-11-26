@@ -220,7 +220,9 @@ namespace Ccf.Ck.Web.Middleware
                         {
                             OnRedirectToIdentityProvider = context =>
                             {
-                                string returnUrl = context.HttpContext.Session.GetString("returnurl");//Has returnurl already in user's session
+                                //Has returnurl already in user's session
+                                //Method: static void KraftResult(HttpContext httpContext, HttpStatusCode statusCode, string error = null)
+                                string returnUrl = context?.Properties?.RedirectUri;
                                 if (string.IsNullOrEmpty(returnUrl))
                                 {
                                     if (context.Request.Query.ContainsKey("returnurl"))//Is passed as parameter in the url
