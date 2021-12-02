@@ -373,6 +373,12 @@ namespace Ccf.Ck.Web.Middleware
                     FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "wwwroot")),
                     ServeUnknownFileTypes = true,
                     RequestPath = new PathString(string.Empty),
+                    OnPrepareResponse = ctx => {
+                        if (ctx.File.Name.Equals(_KraftGlobalConfigurationSettings.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl, StringComparison.OrdinalIgnoreCase))
+                        {
+                            ctx.Context.Response.Headers.Append("Cache-Control", $"public, no-cache");
+                        }
+                    }
                 });
 
                 ExtensionMethods.Init(app, _Logger);
