@@ -376,7 +376,7 @@ namespace Ccf.Ck.Web.Middleware
                     OnPrepareResponse = ctx => {
                         if (ctx.File.Name.Equals(_KraftGlobalConfigurationSettings.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl, StringComparison.OrdinalIgnoreCase))
                         {
-                            ctx.Context.Response.Headers.Append("Cache-Control", $"public, no-cache");
+                            ctx.Context.Response.Headers.Append("Cache-Control", "max-age=0, private, no-cache");
                         }
                     }
                 });
