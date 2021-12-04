@@ -42,7 +42,18 @@ namespace Ccf.Ck.Launchers.Main.ActionFilters
                     {
                         try
                         {
-                            requestCulture = new RequestCulture(providerCultureResult.Cultures[0].ToString(), providerCultureResult.UICultures[0].ToString());
+                            string[] userLanguages;
+                            string[] firstPartOfLang = providerCultureResult.Cultures[0].ToString().Split("-");
+                            userLanguages = new string[] { providerCultureResult.Cultures[0].ToString(), firstPartOfLang[0] };
+                            string preferencedLang = GetPreferencedLanguagesOrDefault(userLanguages);
+                            if (!string.IsNullOrEmpty(userLanguages.FirstOrDefault(l => l.Equals(preferencedLang, StringComparison.OrdinalIgnoreCase))))
+                            {
+                                requestCulture = new RequestCulture(providerCultureResult.Cultures[0].ToString(), providerCultureResult.UICultures[0].ToString());
+                            }
+                            else
+                            {
+                                requestCulture = AppendCookie(context);
+                            }
                         }
                         catch
                         {
@@ -66,18 +77,18 @@ namespace Ccf.Ck.Launchers.Main.ActionFilters
 
         private RequestCulture AppendCookie(ActionExecutingContext context)
         {
-            string culture = GetBrowserPreferencedLanguagesOrDefault(context.HttpContext.Request);
-            return CookieHandler.AppendCookie(context.HttpContext.Response, culture);
-        }
-
-        private string GetBrowserPreferencedLanguagesOrDefault(HttpRequest request)
-        {
-            List<string> defaultLanguagesOrdered = _KraftGlobalConfigurationSettings.GeneralSettings.SupportedLanguages;
-            string[] userLanguages = request.GetTypedHeaders()
+            string[] userLanguages = context.HttpContext.Request.GetTypedHeaders()
                        .AcceptLanguage
                        ?.OrderByDescending(x => x.Quality ?? 1) // Quality defines priority from 0 to 1, where 1 is the highest.
                        .Select(x => x.Value.ToString())
                        .ToArray() ?? Array.Empty<string>();
+            string culture = GetPreferencedLanguagesOrDefault(userLanguages);
+            return CookieHandler.AppendCookie(context.HttpContext.Response, culture);
+        }
+
+        private string GetPreferencedLanguagesOrDefault(string[] userLanguages)
+        {
+            List<string> defaultLanguagesOrdered = _KraftGlobalConfigurationSettings.GeneralSettings.SupportedLanguages;
 
             //Absolute match
             foreach (string defaultLanguage in defaultLanguagesOrdered) 
