@@ -57,6 +57,7 @@
       - Version 5.0.3: Moving ServiceWorker Registration to the landing pages
       - Version 5.0.4: Register service worker
       - Version 5.0.5: Don't cache service worker, respect language preferences in appsettings
+      - Version 5.0.6: Fix an error with ProgressiveWebApps
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
