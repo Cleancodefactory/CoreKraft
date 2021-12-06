@@ -374,11 +374,14 @@ namespace Ccf.Ck.Web.Middleware
                     ServeUnknownFileTypes = true,
                     RequestPath = new PathString(string.Empty),
                     OnPrepareResponse = ctx => {
-                        if (!string.IsNullOrEmpty(_KraftGlobalConfigurationSettings.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl))
+                        if (_KraftGlobalConfigurationSettings.GeneralSettings.ProgressiveWebApp != null)
                         {
-                            if (ctx.File.Name.Equals(_KraftGlobalConfigurationSettings.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl.Replace("/", string.Empty), StringComparison.OrdinalIgnoreCase))
+                            if (!string.IsNullOrEmpty(_KraftGlobalConfigurationSettings.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl))
                             {
-                                ctx.Context.Response.Headers.Append("Cache-Control", "max-age=0, private, no-cache");
+                                if (ctx.File.Name.Equals(_KraftGlobalConfigurationSettings.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl.Replace("/", string.Empty), StringComparison.OrdinalIgnoreCase))
+                                {
+                                    ctx.Context.Response.Headers.Append("Cache-Control", "max-age=0, private, no-cache");
+                                }
                             }
                         }
                     }
