@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
+    <ProjectReference Include="..\..\..\..\Processing\Web.ResponseBuilder\Ccf.Ck.Processing.Web.ResponseBuilder.csproj" />
     <ProjectReference Include="..\..\..\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
   </ItemGroup>
 
