@@ -80,7 +80,7 @@ namespace Ccf.Ck.Utilities.Generic
                 {
                     dirInfo.Create();
                 }
-                string testFileName = Path.Combine(dirInfo.FullName, "output.txt");
+                string testFileName = Path.Combine(dirInfo.FullName, Guid.NewGuid().ToString());
                 try
                 {
                     using (FileStream stream = new FileStream(testFileName, FileMode.Create, FileAccess.Write, FileShare.Write, 4096))
@@ -96,16 +96,8 @@ namespace Ccf.Ck.Utilities.Generic
                 
                 try
                 {
-                    //directoryPermission.Demand();
                     if (recursive)
                     {
-                        foreach (FileInfo file in dirInfo.GetFiles())
-                        {
-                            using (FileStream outputFile = File.OpenWrite(file.FullName))
-                            {
-                                outputFile.Close();
-                            }
-                        }
                         foreach (DirectoryInfo directory in dirInfo.GetDirectories())
                         {
                             return HasWritePermissionOnDir(directory, recursive);
