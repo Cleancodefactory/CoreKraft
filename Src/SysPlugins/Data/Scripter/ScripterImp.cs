@@ -46,7 +46,9 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                     using (var host = new ActionQueryHost<Context>(execContext) {
                             { "HostInfo", HostInfo }
                         }) {
-                        if (execContext.OwnContextScoped.CustomSettings.TryGetValue("libraries", out string libs) && !string.IsNullOrWhiteSpace(libs)) {
+                        if (execContext.OwnContextScoped.CustomSettings != null &&
+                            execContext.OwnContextScoped.CustomSettings.TryGetValue("libraries", out string libs) 
+                            && !string.IsNullOrWhiteSpace(libs)) {
                             var _ = libs.Split(',').Distinct();
                             foreach (var v in _) {
                                 switch (v) {
