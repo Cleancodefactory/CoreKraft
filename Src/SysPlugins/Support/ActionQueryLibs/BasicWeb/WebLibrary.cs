@@ -33,8 +33,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             {
                 case nameof(WGetJson):
                     return WGetJson;
+                case nameof(WGetString):
+                    return WGetString;
                 case nameof(WPostJson):
                     return WPostJson;
+                case nameof(BuildQueryString):
+                    return BuildQueryString;
             }
             return null;
         }
@@ -61,9 +65,25 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         }
         #endregion
 
-        
+
 
         #region Functions
+
+        public ParameterResolverValue BuildQueryString(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("Wrong number of arguments for BuildQueyString");
+            
+            
+            if (args[0].Value is Dictionary<string, ParameterResolverValue> pdict) {
+                var query = HttpUtility.ParseQueryString(string.Empty);
+                foreach (var kv in pdict) {
+                    query[kv.Key] = Convert.ToString(kv.Value.Value);
+                }
+                return new ParameterResolverValue(query.ToString());
+            } else {
+                throw new ArgumentException("The argument for BuildQueyString must be dictionary");
+            }
+        }
+
         private Regex reJSONMedia = new Regex("^.+/json.*$");
         /// <summary>
         /// WGetJson(url, Dict of queryparams): dict
@@ -102,6 +122,35 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                     }
                 } else {
                     return Error.Create($"Unsupported result media: {mt}");
+                }
+            } else {
+                return Error.Create($"HTTP error: {Convert.ToInt32(respose.StatusCode)}");
+            }
+        }
+
+        public ParameterResolverValue WGetString(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length < 1) throw new ArgumentException("Not enough arguments to construct request");
+            var url = Convert.ToString(args[0].Value);
+            UriBuilder uri = new UriBuilder(url);
+            if (args.Length > 1) {
+                if (args[1].Value is Dictionary<string, ParameterResolverValue> pdict) {
+                    var query = HttpUtility.ParseQueryString(string.Empty);
+                    foreach (var kv in pdict) {
+                        query[kv.Key] = Convert.ToString(kv.Value.Value);
+                    }
+                    uri.Query = query.ToString();
+                }
+            }
+            HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
+            var accpets = new MediaTypeWithQualityHeaderValue("application/octet-stream");
+            msg.Headers.Accept.Add(accpets);
+            using var respose = http.SendAsync(msg).Result;
+            if (respose.StatusCode == HttpStatusCode.OK) {
+                try {
+                    var rstring = respose.Content.ReadAsStringAsync().Result;
+                    return new ParameterResolverValue(rstring);
+                } catch (Exception) {
+                    return Error.Create("Cannot parse the returned content.");
                 }
             } else {
                 return Error.Create($"HTTP error: {Convert.ToInt32(respose.StatusCode)}");

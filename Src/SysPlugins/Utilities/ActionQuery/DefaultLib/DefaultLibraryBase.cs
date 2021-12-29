@@ -43,6 +43,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(RegexReplace) => RegexReplace,
                 nameof(Split) => Split,
                 nameof(Trim) => Trim,
+                nameof(EncodeBase64) => EncodeBase64,
+                nameof(DecodeBase64) => DecodeBase64,
+                nameof(MD5) => MD5,
+
                 // Lists
                 nameof(ConsumeOne) => ConsumeOne,
                 nameof(List) => List,
@@ -635,9 +639,40 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
         public ParameterResolverValue Trim(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (args.Length != 1) throw new ArgumentException("Trim requires oneparameter.");
+            if (args.Length != 1) throw new ArgumentException("Trim requires one parameter.");
             var str = Convert.ToString(args[0].Value);
             return new ParameterResolverValue(str.Trim());
+        }
+        public ParameterResolverValue EncodeBase64(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("EncodeBase64 requires one parameter.");
+            var text = Convert.ToString(args[0].Value);
+            byte[] textAsBytes = System.Text.Encoding.UTF8.GetBytes(text);
+            string encodedText = Convert.ToBase64String(textAsBytes);
+            return new ParameterResolverValue(encodedText);
+        }
+
+        public ParameterResolverValue DecodeBase64(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("DecodeBase64 requires one parameter.");
+            var encodedText = Convert.ToString(args[0].Value);
+            byte[] textAsBytes = Convert.FromBase64String(encodedText);
+            string text = System.Text.ASCIIEncoding.UTF8.GetString(textAsBytes);
+            return new ParameterResolverValue(text);
+        }
+        public ParameterResolverValue MD5(HostInterface ctx, ParameterResolverValue[] args) {
+            string format = "x2";
+            if (args.Length < 1 || args.Length > 2) throw new ArgumentException("MD5 accepts 1 or 2 arguments");
+            if (args.Length > 1) {
+                format = args[1].Value.ToString();
+            }
+            var text = args[0].Value.ToString();
+            System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();
+            byte[] textAsBytes = System.Text.Encoding.UTF8.GetBytes(text);
+            byte[] hash = md5.ComputeHash(textAsBytes);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < hash.Length; i++) {
+                sb.Append(hash[i].ToString("x2"));
+            }
+            return new ParameterResolverValue(sb.ToString());
         }
         #endregion
 
