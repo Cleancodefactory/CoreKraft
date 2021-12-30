@@ -94,6 +94,11 @@ namespace Ccf.Ck.Launchers.Main
                 {
                     endpoints.MapDynamicControllerRoute<DynamicHostRouteTransformer>(_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.DefaultRouting);
                 }
+                // Controller supporting redirect acceptor pages
+                endpoints.MapControllerRoute(
+                name: "acceptor",
+                pattern: "Redirect/{action=Index}/{id?}");
+
                 endpoints.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");

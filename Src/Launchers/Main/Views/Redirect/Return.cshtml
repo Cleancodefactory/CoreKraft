@@ -1,0 +1,64 @@
+@using Ccf.Ck.Libs.Web.Bundling
+@using Ccf.Ck.Models.KraftModule
+@using Ccf.Ck.Models.Settings
+@using System.Threading
+@using Ccf.Ck.Web.Middleware
+@using Ccf.Ck.Models.DirectCall
+@*addTagHelper *, Ccf.Ck.Utilities.Profiling*@
+
+@model KraftGlobalConfigurationSettings
+
+@{ ViewData["Title"] = "Returning"; /*Model.GeneralSettings.DefaultStartModule;*/ }
+
+@{
+    Layout = null;
+    ReturnModel returnModel = ViewData["returnModel"] as ReturnModel;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, width=device-width">
+
+    <title>@ViewData["Title"]</title>
+</head>
+<body>
+    @{
+        if (returnModel.IsSuccessful) {
+            <h1>Processed successfuly</h1>
+        } else {
+            <h1>Error processing the return response</h1>
+            <p>@returnModel.ErrorMessage</p>
+        }
+    }
+    
+    @{
+        var bindKraftConfiguration = Html.Raw(Model.GeneralSettings.BindKraftConfiguration);
+        int isDevelopment = Model.EnvironmentSettings.IsDevelopment() ? 1 : 0;
+    }
+    <script type="text/javascript">
+        
+        
+        
+        @{ 
+           
+            <text>
+            var success = @(returnModel.IsSuccessful?"true":"false");
+            if (window.opener != null) {
+                if (success) {
+                    window.opener.focus();
+                    window.opener.CCF_BKDM1_PaySera.OnRemoteResult("success",window);
+                    
+                } else {
+                    window.opener.focus();
+                    window.opener.CCF_BKDM1_PaySera.OnRemoteResult("failure", window);
+                }
+            } else {
+                alert("I am lost!");
+            }
+            </text>
+        }
+    </script>
+
+</body>
+</html>

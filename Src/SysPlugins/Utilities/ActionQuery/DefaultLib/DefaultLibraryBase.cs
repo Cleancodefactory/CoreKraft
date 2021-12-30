@@ -777,6 +777,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return new ParameterResolverValue(kgcf.GeneralSettings.DefaultStartModule);
                 case "ClientId":
                     return new ParameterResolverValue(kgcf.GeneralSettings.ClientId);
+                case "HostingUrl":
+                    return new ParameterResolverValue(kgcf.GeneralSettings.HostingUrl);
+                case "KraftUrlSegment":
+                    return new ParameterResolverValue(kgcf.GeneralSettings.KraftUrlSegment);
 
             }
             throw new ArgumentException($"The setting {name} is not supported");

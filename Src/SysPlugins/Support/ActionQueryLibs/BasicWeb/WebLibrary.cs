@@ -16,6 +16,7 @@ using System.Web;
 using Newtonsoft.Json;
 using Ccf.Ck.Utilities.Json;
 
+
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 {
     public class WebLibrary<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
@@ -39,6 +40,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                     return WPostJson;
                 case nameof(BuildQueryString):
                     return BuildQueryString;
+                case nameof(UnbuildQueryString):
+                    return UnbuildQueryString;
             }
             return null;
         }
@@ -82,6 +85,30 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             } else {
                 throw new ArgumentException("The argument for BuildQueyString must be dictionary");
             }
+        }
+        public ParameterResolverValue UnbuildQueryString(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("UnbuildQueryString requires exactly one argument.");
+            string s;
+            if (args[0].Value != null) {
+                s = args[0].Value.ToString();
+            } else {
+                return new ParameterResolverValue(null);
+            }
+            var coll = HttpUtility.ParseQueryString(s);
+            var dic = new Dictionary<string, ParameterResolverValue>();
+            if (coll.HasKeys()) {
+                foreach (var k in coll.AllKeys) {
+                    var vals = coll.GetValues(k);
+                    if (vals != null) {
+                        if (vals.Length > 1) {
+                            dic.Add(k, new ParameterResolverValue(new ValueList<string>(vals)));
+                        } else {
+                            dic.Add(k, new ParameterResolverValue(vals[0]));
+                        }
+                    }
+                }
+            }
+            return new ParameterResolverValue(dic);
         }
 
         private Regex reJSONMedia = new Regex("^.+/json.*$");
