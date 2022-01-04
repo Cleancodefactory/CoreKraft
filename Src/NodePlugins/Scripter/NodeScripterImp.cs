@@ -2,6 +2,7 @@
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.NodePlugins.Base;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files;
 using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb;
 using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images;
 using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls;
@@ -50,7 +51,7 @@ namespace Ccf.Ck.NodePlugins.Scripter {
                                         host.AddLibrary(new WebLibrary<Context>());
                                         break;
                                     case "files":
-                                        //st.AddLibrary(new WebLibrary<Context>());
+                                        host.AddLibrary(new BasicFiles<Context>());
                                         break;
                                     case "internalcalls":
                                         host.AddLibrary(new DirectCallLib<Context>());

@@ -118,9 +118,34 @@ ActionQuery does not have any functions built into it. All the functions that en
 
 ## Libraries supplied by CoreKraft
 
-TODO:
+[basicimage](Libs/basicimage.md)
 
+[basicweb](Libs/basicweb.md)
 
+[files](Libs/files.md)
+
+[internalcalls](Libs/internalcalls.md)
+
+To use any or all of the libraries specify their names (see above) as a comma separated list in the plugin configuration in configuration.json. E.g.
+
+```JSON
+
+        {
+              "Name": "Scripter",
+              "ImplementationAsString": "Ccf.Ck.SysPlugins.Data.Scripter.ScripterImp, Ccf.Ck.SysPlugins.Data.Scripter",
+              "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.IDataLoaderPlugin, Ccf.Ck.SysPlugins.Interfaces",
+              "Default": true,
+              "CustomSettings": {
+                "libraries": "basicweb,files,internalcalls,basicimage",
+                ... other settings ...
+              }
+        }
+
+```
+
+The same syntax applies to NodeScripter too.
+
+There must be no spaces in the string!
 
 ## Using the ActionQuery support in externally written plugins.
 
