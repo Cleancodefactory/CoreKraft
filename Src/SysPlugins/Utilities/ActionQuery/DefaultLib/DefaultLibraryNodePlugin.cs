@@ -59,6 +59,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return SetResultNew;
                 case nameof(SetResultUpdated):
                     return SetResultUpdated;
+                case nameof(GetStatePropertyName):
+                    return GetStatePropertyName;
             }
             return base.GetProc(name);
         }
@@ -178,6 +180,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
             return result;
+        }
+        public ParameterResolverValue GetStatePropertyName(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is INodePluginContext dtx) {
+                return new ParameterResolverValue(dtx.DataState.StatePropertyName);
+            }
+            return new ParameterResolverValue(null);
         }
         public ParameterResolverValue ResetResultState(HostInterface ctx, ParameterResolverValue[] args)
         {

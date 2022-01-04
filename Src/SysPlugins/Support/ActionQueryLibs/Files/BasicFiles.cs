@@ -144,6 +144,35 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             }
             return new ParameterResolverValue(path);
         }
+        public ParameterResolverValue CalcSpreadName(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 4) throw new ArgumentException("CalcSpreadName requires 4 arguments (sring basedir, int spread, long id, postedfile)");
+            string basedir;
+            int spread;
+            long id;
+            IPostedFile file;
+            try {
+                basedir = args[0].Value as string;
+                spread = Convert.ToInt32(args[1].Value);
+                id = Convert.ToInt64(args[2].Value);
+                file = args[3].Value as IPostedFile;
+                if (file == null) throw new ArgumentException("There is no a posted file");
+            } catch (Exception ex) {
+                throw new ArgumentException("CalcSpreadName has some invalid arguments", ex);
+            }
+            if (!Directory.Exists(basedir)) {
+                Directory.CreateDirectory(basedir);
+            }
+            string subdir = (id % spread).ToString();
+            string filedir = Path.Combine(basedir, subdir);
+            if (!Directory.Exists(filedir)) {
+                Directory.CreateDirectory(filedir);
+            }
+            string filespreaddir = Path.Combine(subdir, $"{id}-{file.FileName}");
+            string filefullpath = Path.Combine(basedir, filespreaddir);
+            
+            return new ParameterResolverValue(filespreaddir);
+        }
+
         /// <summary>
         /// File names will look like 345-somename.jpg
         /// </summary>
