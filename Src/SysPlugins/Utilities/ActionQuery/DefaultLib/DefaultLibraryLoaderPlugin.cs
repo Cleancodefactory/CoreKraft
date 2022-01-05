@@ -40,6 +40,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return HasResults;
                 case nameof(SetResult):
                     return SetResult;
+                case nameof(ClearResultExcept):
+                    return ClearResultExcept;
 
                 case nameof(CSetting):
                     return CSetting;
@@ -219,6 +221,40 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 }
                 return new ParameterResolverValue(lastvalue);
             }
+        }
+
+        public ParameterResolverValue ClearResultExcept(HostInterface ctx, ParameterResolverValue[] args) {
+            Dictionary<string, object> result = null;
+            if (ctx is IDataLoaderReadContext rctx) {
+                if (rctx.Results.Count > 0) {
+                    result = rctx.Results[rctx.Results.Count - 1];
+                } else {
+                    throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
+                }
+            } else if (ctx is IDataLoaderWriteContext wctx) {
+                result = wctx.Row;
+            } else {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+            List<string> preservekeys = new List<string>(10);
+            if (args.Length == 1 && args[0].Value is IList list) {
+                foreach (object e in list) {
+                    preservekeys.Add(Convert.ToString(ParameterResolverValue.Strip(e)));
+                }
+            } else {
+                for (int i = 0; i < args.Length; i++) {
+                    var name = Convert.ToString(args[i].Value);
+
+                    if (!string.IsNullOrEmpty(name)) {
+                        preservekeys.Add(name);
+                    }    
+                }
+            }
+            var keys = result.Keys.Where(k => !preservekeys.Contains(k));
+            foreach (var k in keys) {
+                result.Remove(k);
+            }
+            return new ParameterResolverValue(preservekeys.ConvertAll(s => new ParameterResolverValue(s)));
         }
         #endregion
 
