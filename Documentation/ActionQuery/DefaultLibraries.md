@@ -152,6 +152,12 @@ __Add( arg {, arg} )__ - Returns the sum of all the arguments.
 
 **Trim(string)** - Trims the string and returns the resulting string.
 
+**EncodeBase64(arg)** - Converts the to string and encodes it to base64 which is returned as string.
+
+**DecodeBase64(arg)** - Converts the argument to string and decodes it from base64 to UTF8 string.
+
+**MD5(arg)** - Converts the argument to string, then treating it as UTF8 string converts it to bytes. The hash is calculated from those bytes and returned as string containing the resulting has in bytes listed in hexdecimal (two digits per byte).
+
 #### List functions
 
 The default library supports work with lists which are internally represented as `List<ParameterResolverValue>` classes. This means that any lists received from outside (from node parameters for example) must be converted to internal lists (we will call them AC lists below) before the other functions can be used on them.
@@ -204,11 +210,13 @@ This means that if an external parameter contains some dictionary data you have 
 
 **DictRemove(dict [, key [, key,[key ... ]]])** - Removes elements from an AC dictionary, The first argument is the AC dictionary, after it any number of keys can be specified. All the specified keys are removed from the dictionary. `Returns`: the dictionary.
 
+**DictRemoveExcept(dict [, key [, key ...]])** - Clears all the values in the dictionary except those listed after the first argument, which is the dictionary to clear.
+
 **AsDict(value [, value2])** - Converts external object to AC dictionary. Used most often to convert dictionaries obtained from node parameters into usable AC dictionaries. Can be used in two ways:
 
-**single argument**: The argument must be a dictionary-like value. Converts the external dictionary to AC dictionary. Used
+> **single argument**: The argument must be a dictionary-like value. Converts the external dictionary to AC dictionary. Used
 
-**two arguments**: Both arguments must be enumerable. The first one is expected to contain the keys and the second to contain the values for the AC dictionary that will be created from them. The arguments will be treated as parallel lists and if certain element of the first one (the one specifying the keys) contains a null element, the corresponding value will not be added in the AC dictionary because `null` is not usable as a key. 
+> **two arguments**: Both arguments must be enumerable. The first one is expected to contain the keys and the second to contain the values for the AC dictionary that will be created from them. The arguments will be treated as parallel lists and if certain element of the first one (the one specifying the keys) contains a null element, the corresponding value will not be added in the AC dictionary because `null` is not usable as a key. 
 
 `Returns`: The constructed AC dictionary.
 
@@ -220,7 +228,7 @@ The function does not throw exceptions for inappropriate arguments and will retu
 
 **NavGet(dict | list [, key | index [, key | index ...]])**
 
-**ToData(value)**
+**ToNodesetData(value)**
 
 **ToGeneralData(value)**
 
@@ -252,6 +260,8 @@ Please check the contexts in which the functions are available. Some of them are
 **HasResults()**
 
 **SetResult(`dict | ( key, value [key, value [, key, value ...]])`)**
+
+**ClearResultExcept(`dict | ([key [, key ...]])`)**
 
 **CSetting(`name [,default]`)**
 

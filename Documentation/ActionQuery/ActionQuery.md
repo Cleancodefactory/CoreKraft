@@ -147,6 +147,9 @@ The same syntax applies to NodeScripter too.
 
 There must be no spaces in the string!
 
+## Useful resolvers for AC scripts
+
+CurrentData - TODO: describe it.
 ## Using the ActionQuery support in externally written plugins.
 
 TODO:
