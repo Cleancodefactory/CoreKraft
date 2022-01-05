@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.NodeSet;
+using System;
 using System.Collections.Generic;
 
 namespace Ccf.Ck.SysPlugins.Interfaces
@@ -11,6 +12,6 @@ namespace Ccf.Ck.SysPlugins.Interfaces
         /// <param name="customPlugins"></param>
         /// <param name="ctx"></param>
         /// <returns></returns>
-        void Execute(IEnumerable<CustomPlugin> customPlugins, INodePluginContext ctx);
+        void Execute(IEnumerable<CustomPlugin> customPlugins, INodePluginContext ctx, Func<bool> bailOut);
     }
 }

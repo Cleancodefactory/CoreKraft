@@ -40,7 +40,9 @@ namespace Ccf.Ck.SysPlugins.Interfaces
         string Operation { get; }
 
         ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null);
-        
+
+        void BailOut();
+
         CustomPlugin CustomPlugin { get; set; }
     }
 }

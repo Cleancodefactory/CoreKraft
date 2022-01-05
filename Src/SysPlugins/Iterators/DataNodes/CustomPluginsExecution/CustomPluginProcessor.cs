@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.SysPlugins.Interfaces;
 
@@ -6,7 +7,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes.CustomPluginsExecution
 {
     public class CustomPluginProcessor : ICustomPluginProcessor
     {
-        public void Execute(IEnumerable<CustomPlugin> customPlugins, INodePluginContext p)
+        public void Execute(IEnumerable<CustomPlugin> customPlugins, INodePluginContext p, Func<bool> bailOut)
         {
             foreach (CustomPlugin customPlugin in customPlugins)
             {
@@ -19,6 +20,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes.CustomPluginsExecution
                     p.CustomPlugin = customPlugin;
                     p.OwnContextScoped = p.CustomPluginAccessor.GetPluginsSynchronizeContextScoped(customPlugin.CustomPluginName, plugin).Result;
                     plugin?.Execute(p);
+                    if (bailOut()) return;
                 }
             }
         }

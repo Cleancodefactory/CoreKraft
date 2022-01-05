@@ -65,6 +65,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             NodeKey = currentNode.NodeKey;
             Datastack = dic.Datastack;
             OverrideAction = dic.OverrideAction;
+            BailOut = () => { dic.BailOut = true; };
         }
         #endregion
 
@@ -304,6 +305,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             }
         }
         public Stack<string> OverrideAction { get; private set; }
+
+        public Action BailOut { get; private set; }
         public string Operation { get; private set; }
         /// <summary>
         /// Own scoped context - 
@@ -593,7 +596,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             {
                 Context = ctx;
             }
-
+            public void BailOut() {
+                Context.BailOut();
+            }
         }
         /// <summary>
         /// This is the proxy presented to the resolvers

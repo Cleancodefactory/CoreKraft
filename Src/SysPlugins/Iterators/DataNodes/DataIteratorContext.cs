@@ -21,6 +21,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         public IProcessingContext ProcessingContext { get; internal set; }
         public ListStack<Dictionary<string, object>> Datastack { get; private set; }
         public Stack<string> OverrideAction { get; private set; }
+        /// <summary>
+        /// If set the reqursion should stop and bail immediately
+        /// </summary>
+        public bool BailOut { get; set; } = false;
         internal void CheckNulls()
         {
             if (DataLoaderPluginAccessor == null)

@@ -61,7 +61,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
             //  Trace.WithContext(dataIteratorContext.ProcessingContext.TraceId).Log("Nodeset READ operation starting- nodeset: {0}, modekey: {1}",dataIteratorContext.LoadedNodeSet.StartNode.NodeSet.Name, dataIteratorContext.LoadedNodeSet.StartNode.NodeKey);
             var results = new List<Dictionary<string, object>>() { new Dictionary<string, object>() { } };
-            dataIteratorContext.ProcessingContext.ReturnModel.Data = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext);
+            object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext);
+            if (dataIteratorContext.BailOut) return;
+            dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
         }
 
         /// <summary>
@@ -78,6 +80,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         private object ExecuteReadNode(Node node, IEnumerable<Dictionary<string, object>> parentResult, DataIteratorContext dataIteratorContext)
         {
             #region Preparation of necessary structures
+            bool _bailOut() {
+                return dataIteratorContext.BailOut;
+            }
             object returnResult = null;
             // We have to iterate through the parent rows, so we cannot create the results here, but we will do it as soon as possible
             List<Dictionary<string, object>> results = null;
@@ -126,7 +131,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     #region 3.3 execute BEFORE SQL plugins over the results
                     if (node.Read != null)
                     {
-                        plugins.Execute(node.Read.BeforeNodeActionPlugins, execContextManager.CustomPluginProxy);
+                        plugins.Execute(node.Read.BeforeNodeActionPlugins, execContextManager.CustomPluginProxy, _bailOut);
+                        if (_bailOut()) return null;
                     }
                     #endregion
 
@@ -159,6 +165,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     if (execContextManager.LoaderContext.StartNode.Read != null && dataPlugin != null)
                     {
                         dataPlugin.Execute(execContextManager.LoaderPluginProxy);
+                        if (_bailOut()) return null;
                     }
                     // The data  loader plugins are responsible to put their results into the REsults collection in the execution context
 
@@ -255,7 +262,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // Now the plugins are required to write to the REsults of the execution context themselves.
                     if (node.Read != null)
                     {
-                        plugins?.Execute(node.Read.AfterNodeActionPlugins, execContextManager.CustomPluginProxy);
+                        plugins?.Execute(node.Read.AfterNodeActionPlugins, execContextManager.CustomPluginProxy, _bailOut);
+                        if (_bailOut()) return null;
                     }
 
                     #region DEPRECATED CODE - see above
@@ -294,6 +302,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     foreach (Node childNode in node.Children.OrderBy(n => n.ExecutionOrder))
                     {
                         ExecuteReadNode(childNode, results, dataIteratorContext);
+                        if (_bailOut()) return null;
                     }
 
                     #region Child Nodes (Deprecated code)
@@ -312,7 +321,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // 7.1. - execute plugin
                     if (node.Read != null)
                     {
-                        plugins?.Execute(node.Read.AfterNodeChildrenPlugins, execContextManager.CustomPluginProxy);
+                        plugins?.Execute(node.Read.AfterNodeChildrenPlugins, execContextManager.CustomPluginProxy, _bailOut);
+                        if (_bailOut()) return null;
                     }
                     // 7.2. Accomodate the custom plugin results into the results
                     #region DEPRECATED CODE
@@ -407,16 +417,21 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         private void BeginWriteOperation(DataIteratorContext dataIteratorContext)
         {
-            dataIteratorContext.ProcessingContext.ReturnModel.Data =
-                ExecuteWriteNode(dataIteratorContext.LoadedNodeSet.StartNode,
+            object result = ExecuteWriteNode(dataIteratorContext.LoadedNodeSet.StartNode,
                                   dataIteratorContext.ProcessingContext.InputModel.Data,
                                   dataIteratorContext.LoadedNodeSet.StartNode.NodeKey.Trim(),
                                   dataIteratorContext);
+            if (dataIteratorContext.BailOut) return;
+            dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
+                
         }
 
         private object ExecuteWriteNode(Node node, object dataNode, string nodePath, DataIteratorContext dataIteratorContext)
         {
             #region Preparation of necessary structures
+            bool _bailOut() {
+                return dataIteratorContext.BailOut;
+            }
             List<Dictionary<string, object>> currentNode = null;
             object result = dataNode;
 
@@ -515,7 +530,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 if (node.Write != null)
                 {
                     // customPluginsResults = 
-                    plugins?.Execute(node.Write.BeforeNodeActionPlugins, execContextManager.CustomPluginProxy);
+                    plugins?.Execute(node.Write.BeforeNodeActionPlugins, execContextManager.CustomPluginProxy, _bailOut);
+                    if (_bailOut()) return null;
                 }
                 #region DEPRECATED CODE Execute BeforeSQL plugins
                 //pluginExecuteParameters = new CustomPluginExecuteParameters
@@ -570,6 +586,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                                             object currentDataNode = row[childNode.NodeKey.Trim()];
                                             row[childNode.NodeKey.Trim()] =
                                                 ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
+                                            if (_bailOut()) break;
                                         }
 
                                     }
@@ -577,6 +594,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                             }
 
                             dataIteratorContext.OverrideAction.Pop();
+                            if (_bailOut()) return null;
                         }
                     }
                 }
@@ -588,6 +606,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 if (operation != OPERATION_UNCHANGED && dataPlugin != null)
                 {
                     dataPlugin?.Execute(execContextManager.LoaderPluginProxy);
+                    if (_bailOut()) return null;
                 }
                 #region (DEPRECATED CODE)
                 // 7.1. Accomodate the results from before sql plugins
@@ -623,7 +642,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 #region 8.1. Execute the plugins (after sql)
                 if (node.Write != null)
                 {
-                    plugins?.Execute(node.Write.AfterNodeActionPlugins, execContextManager.CustomPluginProxy);
+                    plugins?.Execute(node.Write.AfterNodeActionPlugins, execContextManager.CustomPluginProxy, _bailOut );
+                    if (_bailOut()) return null;
                 }
                 #endregion
 
@@ -660,6 +680,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                                         object currentDataNode = row[childNode.NodeKey.Trim()];
                                         row[childNode.NodeKey.Trim()] =
                                             ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
+                                        if (_bailOut()) return null;
                                     }
 
                                 }
@@ -693,7 +714,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 // 11. Execute the plugins for after children
                 if (node.Write != null)
                 {
-                    plugins?.Execute(node.Write.AfterNodeChildrenPlugins, execContextManager.CustomPluginProxy);
+                    plugins?.Execute(node.Write.AfterNodeChildrenPlugins, execContextManager.CustomPluginProxy, _bailOut);
+                    if (_bailOut()) return null;
                 }
                 #region DEPRECATED CODE
                 // 11.1. Accomodate the results from the plugins.
@@ -753,24 +775,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             return new ReadOnlyDictionary<string, object>(currentResult);
         }
 
-        private object IterateChildren(Node node, string nodePath, object dataNode, DataIteratorContext dataIteratorContext)
-        {
-            if (dataNode is Dictionary<string, object> dictionaryDataNode)
-            {
-                foreach (Node childNode in node.Children)
-                {
-                    string currentNodePath = (!string.IsNullOrEmpty(nodePath))
-                                                 ? nodePath + "." + childNode.NodeKey.Trim()
-                                                 : childNode.NodeKey.Trim();
-                    object currentDataNode = dictionaryDataNode[childNode.NodeKey.Trim()];
-
-                    dictionaryDataNode[childNode.NodeKey.Trim()] =
-                        ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
-                }
-            }
-            return dataNode;
-        }
-
         #endregion
 
         #region Helpers
@@ -800,6 +804,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             return result;
         }
 
+        /* Kept fpr reference "what we did with varying data in the input"
         private void ExtractDataNode(object dataNode, ref List<Dictionary<string, object>> currentNode, ref object result)
         {
             if (dataNode is IDictionary<string, object>)
@@ -832,6 +837,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
             }
         }
+        */
 
         private string GetWriteAction(Stack<string> overrideAction, string state)
         {
@@ -854,45 +860,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
             }
         }
-        // TODO: IS this still needed here? We moved this kind of activity to the plugins
-        private void ApplyResultsToRow(Dictionary<string, object> row, IEnumerable<Dictionary<string, object>> customPluginResults)
-        {
-            if (row != null && customPluginResults != null)
-            {
-                foreach (var customPluginResult in customPluginResults)
-                {
-                    if (customPluginResult != null)
-                    {
-                        foreach (var kvp in customPluginResult)
-                        {
-                            row[kvp.Key] = kvp.Value;
-                        }
-                    }
-                }
-            }
-        }
 
-        private string GetSqlStatement(Node node, string action)
-        {
-            string result = string.Empty;
-            switch (action)
-            {
-                case OPERATION_SELECT:
-                    if ((node.Read.Select != null) && node.Read.Select.HasStatement()) result = node.Read.Select.Query;
-                    break;
-                case OPERATION_INSERT:
-                    if ((node.Write.Insert != null) && node.Write.Insert.HasStatement()) result = node.Write.Insert.Query;
-                    break;
-                case OPERATION_DELETE:
-                    if ((node.Write.Delete != null) && node.Write.Delete.HasStatement()) result = node.Write.Delete.Query;
-                    break;
-                case OPERATION_UPDATE:
-                    if ((node.Write.Update != null) && node.Write.Update.HasStatement()) result = node.Write.Update.Query;
-                    break;
-
-            }
-            return result;
-        }
         #endregion
     }
 }
