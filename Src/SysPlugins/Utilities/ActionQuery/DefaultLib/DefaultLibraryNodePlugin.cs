@@ -44,6 +44,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return OverrideResponseData;
                 case nameof(ForceJSONResponse):
                     return ForceJSONResponse;
+                case nameof(ForceTextResponse):
+                    return ForceTextResponse;
 
                 case nameof(AddResult):
                     return AddResult;
@@ -99,6 +101,18 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 ctx2.ProcessingContext.ReturnModel.ResponseBuilder = new JsonResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx2.ProcessingContext }));
             }
             return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue ForceTextResponse(HostInterface ctx, ParameterResolverValue[] args) {
+            string contentType = null;
+            if (args.Length > 0) {
+                contentType = Convert.ToString(args[0].Value);
+            }
+            if (ctx is IDataLoaderContext ctx1) {
+                ctx1.ProcessingContext.ReturnModel.ResponseBuilder = new TextResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx1.ProcessingContext }), contentType);
+            } else if (ctx is INodePluginContext ctx2) {
+                ctx2.ProcessingContext.ReturnModel.ResponseBuilder = new TextResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx2.ProcessingContext }), contentType);
+            }
+            return new ParameterResolverValue(contentType);
         }
 
         #region
