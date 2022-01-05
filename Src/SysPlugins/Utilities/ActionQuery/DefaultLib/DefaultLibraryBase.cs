@@ -65,6 +65,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(DictGet) => DictGet,
                 nameof(DictClear) => DictClear,
                 nameof(DictRemove) => DictRemove,
+                nameof(DictRemoveExcept) => DictRemoveExcept,
                 nameof(AsDict) => AsDict,
                 nameof(IsDictCompatible) => IsDictCompatible,
                 nameof(ToNodesetData) => ToNodesetData,
@@ -385,6 +386,19 @@ namespace Ccf.Ck.SysPlugins.Utilities
             var keys = args.Skip(1).Select(a => Convert.ToString(a.Value));
             foreach (var key in keys) {
                 dict.Remove(key);
+            }
+            return new ParameterResolverValue(dict);
+        }
+        public ParameterResolverValue DictRemoveExcept(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length < 1) throw new ArgumentException("DictRemoveExcept requires at least one argument");
+            var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
+            if (dict == null) return new ParameterResolverValue(null);
+
+            var preservekeys = args.Skip(1).Select(a => Convert.ToString(a.Value)).ToList();
+            foreach (var key in dict.Keys) {
+                if (!preservekeys.Contains(key)) {
+                    dict.Remove(key);
+                }
             }
             return new ParameterResolverValue(dict);
         }
