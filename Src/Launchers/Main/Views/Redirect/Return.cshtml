@@ -4,6 +4,9 @@
 @using System.Threading
 @using Ccf.Ck.Web.Middleware
 @using Ccf.Ck.Models.DirectCall
+@using System.Text.Json
+@using System.Text.Json.Serialization
+
 @*addTagHelper *, Ccf.Ck.Utilities.Profiling*@
 
 @model KraftGlobalConfigurationSettings
@@ -24,36 +27,41 @@
 </head>
 <body>
     @{
-        if (returnModel.IsSuccessful) {
+        if (returnModel.IsSuccessful)
+        {
             <h1>Processed successfuly</h1>
-        } else {
+        }
+        else
+        {
             <h1>Error processing the return response</h1>
             <p>@returnModel.ErrorMessage</p>
         }
     }
-    
+
     @{
         var bindKraftConfiguration = Html.Raw(Model.GeneralSettings.BindKraftConfiguration);
         int isDevelopment = Model.EnvironmentSettings.IsDevelopment() ? 1 : 0;
     }
     <script type="text/javascript">
-        
-        
-        
-        @{ 
-           
+
+
+
+        @{
+            var data = JsonSerializer.Serialize(returnModel);
             <text>
             var success = @(returnModel.IsSuccessful?"true":"false");
+            var data = @Html.Raw(data);
             if (window.opener != null) {
                 if (success) {
                     window.opener.focus();
-                    window.opener.CCF_BKDM1_PaySera.OnRemoteResult("success",window);
-                    
+                    window.opener.CCF_BKDM1_PaySera.OnRemoteResult("success", window, data);
+
                 } else {
                     window.opener.focus();
-                    window.opener.CCF_BKDM1_PaySera.OnRemoteResult("failure", window);
+                    window.opener.CCF_BKDM1_PaySera.OnRemoteResult("failure", window, data);
                 }
-            } else {
+            }
+            else {
                 alert("I am lost!");
             }
             </text>

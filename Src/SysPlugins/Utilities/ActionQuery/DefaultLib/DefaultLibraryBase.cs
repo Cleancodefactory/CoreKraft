@@ -907,7 +907,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Conversions
         public ParameterResolverValue ToNodesetData(HostInterface ctx, ParameterResolverValue[] args) {
-            if (args.Length != 1) throw new ArgumentException("ToData takes one argument");
+            if (args.Length != 1) throw new ArgumentException("ToNodesetData takes one argument");
             return new ParameterResolverValue(ConvertToGenericData(args[0].Value));
         }
         public ParameterResolverValue ToGeneralData(HostInterface ctx, ParameterResolverValue[] args) {
