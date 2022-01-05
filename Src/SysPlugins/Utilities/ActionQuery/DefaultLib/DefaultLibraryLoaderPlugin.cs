@@ -7,6 +7,9 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Models.Settings;
 using System.IO;
 using System.Collections;
+using Ccf.Ck.Processing.Web.ResponseBuilder;
+using Ccf.Ck.Models.ContextBasket;
+using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -33,6 +36,13 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return Action;
                 case nameof(Operation):
                     return Operation;
+
+                case nameof(BailOut):
+                    return BailOut;
+                case nameof(OverrideResponseData):
+                    return OverrideResponseData;
+                case nameof(ForceJSONResponse):
+                    return ForceJSONResponse;
 
                 case nameof(AddResult):
                     return AddResult;
@@ -62,6 +72,30 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return GetStatePropertyName;
             }
             return base.GetProc(name);
+        }
+
+        public ParameterResolverValue BailOut(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is IDataLoaderContext rctx) {
+                rctx.BailOut();
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue OverrideResponseData(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("OverrideResponseData requires exactly 1 argument");
+            if (ctx is IDataLoaderContext ctx1) {
+                ctx1.ProcessingContext.ReturnModel.Data = args[0].Value;
+            } else if (ctx is INodePluginContext ctx2) {
+                ctx2.ProcessingContext.ReturnModel.Data = args[0].Value;
+            }
+            return args[0];
+        }
+        public ParameterResolverValue ForceJSONResponse(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is IDataLoaderContext ctx1) {
+                ctx1.ProcessingContext.ReturnModel.ResponseBuilder = new JsonResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx1.ProcessingContext }));
+            } else if (ctx is INodePluginContext ctx2) {
+                ctx2.ProcessingContext.ReturnModel.ResponseBuilder = new JsonResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx2.ProcessingContext }));
+            }
+            return new ParameterResolverValue(null);
         }
 
         #region results

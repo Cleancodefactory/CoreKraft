@@ -251,7 +251,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             if (ctx is IDataLoaderContext ctx1) {
                 ctx1.ProcessingContext.ReturnModel.BinaryData = pf;
                 ctx1.ProcessingContext.ReturnModel.ResponseBuilder = new BinaryResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx1.ProcessingContext }));
-            } else if (ctx is IDataLoaderContext ctx2) {
+            } else if (ctx is INodePluginContext ctx2) {
                 ctx2.ProcessingContext.ReturnModel.BinaryData = pf;
                 ctx2.ProcessingContext.ReturnModel.ResponseBuilder = new BinaryResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx2.ProcessingContext }));
             }
