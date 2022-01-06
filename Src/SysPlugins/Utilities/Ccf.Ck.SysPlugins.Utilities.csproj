@@ -12,14 +12,12 @@
     <PackageDescription>This package provides System Plugin with all data utilities in CoreKraft.</PackageDescription>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.ActionQuery" Version="1.0.3" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
     <ProjectReference Include="..\..\Processing\Web.ResponseBuilder\Ccf.Ck.Processing.Web.ResponseBuilder.csproj" />
     <ProjectReference Include="..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+    <ProjectReference Include="..\..\..\..\ActionQuery-src\Ccf.Ck.Libs.ActionQuery.csproj" />
   </ItemGroup>
 
 </Project>
