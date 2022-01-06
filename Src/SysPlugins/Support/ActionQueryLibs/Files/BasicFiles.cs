@@ -113,7 +113,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         }
         public ParameterResolverValue DeleteFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("DeleteFile takes single argument: filepath");
-            string savepath = args[1].Value as string;
+            string savepath = args[0].Value as string;
             if (savepath == null) throw new ArgumentException("DeleteFile: filepath is null or not a string");
             if (!Path.IsPathFullyQualified(savepath)) throw new ArgumentException("DeleteFile the specified path is not fully qualified. Did you forget to combine paths?");
             
