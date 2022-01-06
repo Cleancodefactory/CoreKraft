@@ -327,6 +327,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 {
                     path = path + "/";
                 }
+                path = path + ctx.ProcessingContext.InputModel.Module + "/";
                 if (args.Length > 0)
                 {
                     var subpath = args[0].Value as string;
