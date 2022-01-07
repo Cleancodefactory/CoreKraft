@@ -97,7 +97,7 @@ namespace Ccf.Ck.Launchers.Main
                 // Controller supporting redirect acceptor pages
                 endpoints.MapControllerRoute(
                 name: "acceptor",
-                pattern: "Redirect/{action=Index}/{id?}");
+                pattern: "Accept/{action=Index}/{id?}");
 
                 endpoints.MapControllerRoute(
                 name: "default",
