@@ -9,14 +9,14 @@ using System.Text.RegularExpressions;
 using dcall = Ccf.Ck.Models.DirectCall;
 
 namespace Ccf.Ck.Launchers.Main.Controllers {
-    public class AcceptController : Controller
+    public class RedirectController : Controller
     {
         private const string NODE_ADDRESS_NAME = "$node_address"; // <module>/<nodeset>[/<node_path1.nodepath2....>]
         private const string ACTION_NAME = "$reason";
         private static readonly string[] OUR_NAMES = new String[] { NODE_ADDRESS_NAME, ACTION_NAME };
 
         private readonly KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
-        public AcceptController(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) {
+        public RedirectController(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) {
             _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
         }
 
