@@ -89,7 +89,7 @@ namespace Ccf.Ck.NodePlugins.Scripter {
 
 
         public ParameterResolverValue HostInfo(INodePluginContext ctx, ParameterResolverValue[] args) {
-            return new ParameterResolverValue("NodeScripter 1.0");
+            return new ParameterResolverValue("NodeScripter 1.1");
         }
 
         private string GetQuery(INodePluginContext context) {

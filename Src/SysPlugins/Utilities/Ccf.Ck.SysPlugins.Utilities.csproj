@@ -13,9 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.ActionQuery" Version="1.0.3" />
+    <PackageReference Include="Ccf.Ck.Libs.ActionQuery" Version="1.1.0" />
   </ItemGroup>
 
+  
   <ItemGroup>
     <ProjectReference Include="..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
     <ProjectReference Include="..\..\Processing\Web.ResponseBuilder\Ccf.Ck.Processing.Web.ResponseBuilder.csproj" />

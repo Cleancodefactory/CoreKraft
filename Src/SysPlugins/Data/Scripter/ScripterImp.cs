@@ -107,7 +107,7 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
 
         public ParameterResolverValue HostInfo(IDataLoaderContext ctx, ParameterResolverValue[] args)
         {
-            return new ParameterResolverValue("Scripter 1.0");
+            return new ParameterResolverValue("Scripter 1.1");
         }
     }
 }

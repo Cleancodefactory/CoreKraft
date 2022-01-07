@@ -10,7 +10,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
     {
         private Dictionary<string, ParameterResolverValue> _Variables = new Dictionary<string, ParameterResolverValue>();
 
-
+        public ParameterResolverValue SetVar(string name, ParameterResolverValue value) {
+            if (name != null) {
+                _Variables[name] = value;
+                return value;
+            } else {
+                throw new ArgumentException("The expected name of variable is null or not a string");
+            }
+        }
         public ParameterResolverValue Set(HostInteface ctx, ParameterResolverValue[] args)
         {
             if (args.Length % 2 != 0)
@@ -59,6 +66,17 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(n);
         }
+        public ParameterResolverValue GetVar(string name) {
+            if (name != null) {
+                if (_Variables.ContainsKey(name)) {
+                    return _Variables[name];
+                } else {
+                    return new ParameterResolverValue(null);
+                }
+            } else {
+                throw new ArgumentException("The name of the variable is null or not a string");
+            }
+        }
         public ParameterResolverValue Get(HostInteface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1)
@@ -66,21 +84,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 throw new ArgumentException("Get requires single argument - the name of the variable to get.");
             }
             var name = args[0].Value as string;
-            if (name != null)
-            {
-                if (_Variables.ContainsKey(name))
-                {
-                    return _Variables[name];
-                }
-                else
-                {
-                    return new ParameterResolverValue(null);
-                }
-            } 
-            else
-            {
-                throw new ArgumentException("Get requires string argument - the name of the variable, but got something else.");
-            }
+            return GetVar(name);
         }
         public ParameterResolverValue Inc(HostInteface ctx, ParameterResolverValue[] args)
         {

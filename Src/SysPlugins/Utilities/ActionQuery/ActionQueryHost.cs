@@ -27,21 +27,22 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public HostInterface Context { 
             get { return _Context;  }
         }
+        protected VariablesLibrary<HostInterface> _VariablesLibrary;
 
-       
         public ActionQueryHost(HostInterface context, bool NoDefaultLibrary = false)
         {
             _Context = context;
+            _VariablesLibrary = new VariablesLibrary<HostInterface>();
             if (!NoDefaultLibrary)
             {
                 if (context is INodePluginContext)
                 {
-                    AddLibrary(new VariablesLibrary<HostInterface>());
+                    AddLibrary(_VariablesLibrary);
                     AddLibrary(DefaultLibraryNodePlugin<HostInterface>.Instance);
                 }
                 else if (context is IDataLoaderContext)
                 {
-                    AddLibrary(new VariablesLibrary<HostInterface>());
+                    AddLibrary(_VariablesLibrary);
                     AddLibrary(DefaultLibraryLoaderPlugin<HostInterface>.Instance);
                 }
             }
@@ -251,7 +252,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
             
             return DEFAULT_HARDLIMIT; // TODO define this as a constant somewhere
         }
-        
+
+        public ParameterResolverValue GetVar(string varname) {
+            return _VariablesLibrary.GetVar(varname);
+        }
+
+        public ParameterResolverValue SetVar(string varname, ParameterResolverValue value) {
+            return _VariablesLibrary.SetVar(varname, value);
+        }
+
         #endregion
 
     }
