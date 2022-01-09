@@ -195,11 +195,29 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
-                                    Alias = "ApiTokenFromAuth",
-                                    Arguments = 1,
-                                    Name = "ApiTokenFromAuth"
+                                    Alias = "OrderBy2",
+                                    Arguments = 2,
+                                    Name = "OrderBy"
+
                                 }
                             },
+                            {
+                                new Resolver()
+                                {
+                                    Alias = "OrderBy3",
+                                    Arguments = 3,
+                                    Name = "OrderBy"
+
+                                }
+                            },
+                            //{
+                            //    new Resolver()
+                            //    {
+                            //        Alias = "ApiTokenFromAuth",
+                            //        Arguments = 1,
+                            //        Name = "ApiTokenFromAuth"
+                            //    }
+                            //},
                             {
                                 new Resolver()
                                 {
@@ -217,30 +235,6 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                 }
                             },
                             ////////////////////////// TEST ONES ///////////////////
-
-                            {
-                                new Resolver()
-                                {
-                                     Alias = "SayHello",
-                                     Arguments = 0,
-                                     Name = "SayHello"
-                                }
-                            },
-                            {
-                                new Resolver()
-                                {
-                                     Alias = "NumParams",
-                                     Arguments = 0,
-                                     Name = "NumParams"
-                                }
-                            },
-                            {
-                                new Resolver() {
-                                    Alias = "StandardParameter",
-                                    Arguments = 0,
-                                    Name = "StandardParameter"
-                                }
-                            },
                             {
                                 new Resolver()
                                 {

@@ -264,7 +264,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             string replaceKey = args[1].Value as string;
             string replaceWith = (args[2].Value != null) ? args[2].Value.ToString() : "";
 
-            if (string.IsNullOrEmpty(baseString) || string.IsNullOrEmpty(baseString)) {
+            if (string.IsNullOrEmpty(baseString) || string.IsNullOrEmpty(replaceKey)) {
                 return new ParameterResolverValue(baseString);
             }
             var result = baseString.Replace(replaceKey, replaceWith);
@@ -698,33 +698,25 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         /// <param name="ctx"></param>
         /// <param name="inargs"></param>
         /// <returns></returns>
-        public ParameterResolverValue StandardParameter(IParameterResolverContext ctx, IList<ParameterResolverValue> inargs) {
-            var args = inargs as ResolverArguments<ParameterResolverValue>;
-            var inputModel = ctx.ProcessingContext.InputModel;
-            object paramValue = null;
-            string paramName = args?.Name.Value as string;
+        //public ParameterResolverValue StandardParameter(IParameterResolverContext ctx, IList<ParameterResolverValue> inargs) {
+        //    var args = inargs as ResolverArguments<ParameterResolverValue>;
+        //    var inputModel = ctx.ProcessingContext.InputModel;
+        //    object paramValue = null;
+        //    string paramName = args?.Name.Value as string;
 
-            void GetParameterValue(IDictionary <string, object> row)
-            {
-                if (paramValue == null && row != null && row.ContainsKey(paramName))
-                    paramValue = row[paramName];
-            }
+        //    void GetParameterValue(IDictionary <string, object> row)
+        //    {
+        //        if (paramValue == null && row != null && row.ContainsKey(paramName))
+        //            paramValue = row[paramName];
+        //    }
 
-            if (paramValue == null) GetParameterValue(ctx.Row);
-            if (paramValue == null) GetParameterValue(inputModel.Server);
-            if (paramValue == null) GetParameterValue(inputModel.Client);
-            if (paramValue == null) GetParameterValue(inputModel.Data);
+        //    if (paramValue == null) GetParameterValue(ctx.Row);
+        //    if (paramValue == null) GetParameterValue(inputModel.Server);
+        //    if (paramValue == null) GetParameterValue(inputModel.Client);
+        //    if (paramValue == null) GetParameterValue(inputModel.Data);
 
-            return new ParameterResolverValue(paramValue, EValueDataType.any);
-        }
-        public ParameterResolverValue SayHello()
-        {
-            return new ParameterResolverValue("hello world!");
-        }
-        public ParameterResolverValue NumParams(IParameterResolverContext ctx) 
-        {
-            return new ParameterResolverValue(0);
-        }
+        //    return new ParameterResolverValue(paramValue, EValueDataType.any);
+        //}
         #endregion
 
         #region idlist
