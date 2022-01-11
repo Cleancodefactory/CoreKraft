@@ -2,6 +2,7 @@
 using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.SysPlugins.Data.Base;
 using Ccf.Ck.SysPlugins.Interfaces;
 using System;
@@ -151,7 +152,16 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                             {
                                                 throw new Exception($"Duplicated field name in the output of a query. The field is:{fldname}, the query is: {cmd.CommandText}");
                                             }
-                                            object v = reader.GetValue(i);
+                                            object v;
+                                            if (reader.GetFieldType(i) == typeof(byte[])) {
+                                                long fldLength = reader.GetBytes(i, 0, null, 0, 0);
+                                                byte[] bytes = new byte[fldLength];
+                                                long lread = reader.GetBytes(i, 0, bytes, 0, (int)fldLength);
+                                                // TODO: lread may be more to the point then fldLength ?
+                                                v = (PostedFile)bytes;
+                                            } else {
+                                                v = reader.GetValue(i);
+                                            }
                                             currentResult.Add(fldname, (v is DBNull) ? null : v);
 
                                         }
@@ -313,8 +323,13 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     {
                         // Different providers may sometimes use different properties and specific enums to specify the type.
                         // Additional measures may be needed as well, so we leave the operation in an overridable method.
-                        AssignParameterType(param, GetParameterType(value.Value));
-                        param.Value = value.Value.Value;
+                        if (value.Value.Value is PostedFile pf) {
+                            AssignParameterType(param, null); // TODO lets see what will happen
+                            param.Value = pf.ToBytes();
+                        } else {
+                            AssignParameterType(param, GetParameterType(value.Value));
+                            param.Value = value.Value.Value;
+                        }
                     }
                 }
                 cmd.Parameters.Add(param);
@@ -392,6 +407,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 {
                                     throw new Exception("Loader doesn't support Table-Valued Parameters");
                                 }
+                                
                                 // Bind value
                                 BindParameter(cmd, paramname, v);
                                 parameters.Add($"Paramname: {paramname} and Paramvalue: {v.Value}");

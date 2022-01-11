@@ -100,14 +100,16 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     var val = LoaderContext.Evaluate(varname);
                     if (val.ValueType == EResolverValueType.Invalid) {
                         KraftLogger.LogError($"Expected parameter in connection string: {m.Groups[1].Value} was not resolved! Check that parameter's expression. It is recommended to not define it on node basis, but only in a nodeset root!");
-                        // TODO: What shall we return on error? This is temporary decision - there should be something better or just excepton.
-                        return m.Value;
+                        // DECIDED: Throw! Thoughts: What shall we return on error? This is temporary decision - there should be something better or just excepton.
+                        throw new Exception("A variable used in the connection string cannot be resolved. Check if all the %<varname>% entries have paramaters matching varname in the node parameters.");
+                        //return m.Value;
                     }
                     if (!string.IsNullOrWhiteSpace(val.Value + "")) {
                         return val.Value.ToString();
                     } else {
                         KraftLogger.LogError($"Expected parameter in connection string: {m.Groups[1].Value} was not found or cannot be resolved!");
-                        return m.Value;
+                        throw new Exception("A variable used in the connection string cannot be resolved or is null/empty. Check if all the %<varname>% entries have paramaters matching varname in the node parameters.");
+                        //return m.Value;
                     }
                 });
 

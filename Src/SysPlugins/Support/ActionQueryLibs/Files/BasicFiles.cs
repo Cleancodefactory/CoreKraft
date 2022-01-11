@@ -232,17 +232,30 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 if (!(new FileExtensionContentTypeProvider().TryGetContentType(filepath, out contentType))) {
                     contentType = "application/octet-stream";
                 };
-
             }
 
-            if (string.IsNullOrWhiteSpace(filepath)) throw new ArgumentException("PostedFile - filepath is empty or null");
-            if (!File.Exists(filepath)) throw new Exception("PostedFile - file does not exist");
-            var fi = new FileInfo(filepath);
+            if (string.IsNullOrWhiteSpace(filepath)) {
+                var posted = args[0].Value as IPostedFile;
+                if (posted != null) {
+                    string name = null, fileName = null;
+                    if (args.Length > 2) name = args[2].Value as string;
+                    if (args.Length > 3) fileName = args[3].Value as string;
+                    return new ParameterResolverValue(new PostedFile(posted, contentType, name, fileName)); 
+                } else {
+                    throw new ArgumentException("PostedFile - forst argument must be filepath or another PostedFile and it is not!");
+                }
+            } else {
+                if (!File.Exists(filepath)) throw new Exception("PostedFile - file does not exist");
+                var fi = new FileInfo(filepath);
 
-            var pf = new PostedFile(contentType, fi.Length, Path.GetFileName(filepath), filepath, path => {
-                return File.Open(path as string, FileMode.Open);
-            }, filepath);
-            return new ParameterResolverValue(pf);
+                var pf = new PostedFile(contentType, fi.Length, Path.GetFileName(filepath), filepath, path => {
+                    return File.Open(path as string, FileMode.Open);
+                }, filepath);
+                return new ParameterResolverValue(pf);
+            }
+            //throw new ArgumentException("PostedFile - filepath is empty or null");
+            
+            
         }
         public ParameterResolverValue FileResponse(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("FileResponse accepts 1 argument (PostedFile)");
