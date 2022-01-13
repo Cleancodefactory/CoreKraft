@@ -101,9 +101,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             string savepath = args[1].Value as string;
             if (savepath == null || file == null) throw new ArgumentException("SaveFile: either file, path or both are null");
             if (!Path.IsPathFullyQualified(savepath)) throw new ArgumentException("SaveFile the specified path is not fully qualified. Did you forget to combine paths?");
-            using (var stream = new FileStream(savepath, FileMode.Create)) {
-                file.OpenReadStream().CopyTo(stream);
-            }
+            using var stream = new FileStream(savepath, FileMode.Create);
+            using var source = file.OpenReadStream();
+            source.CopyTo(stream);
+            
             var scope = Scope(ctx);
             if (scope is IFileTransactionSupport fts) {
                 fts.DeleteOnRollback(savepath);
@@ -111,6 +112,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             
             return new ParameterResolverValue(true);
         }
+
         public ParameterResolverValue DeleteFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("DeleteFile takes single argument: filepath");
             string savepath = args[0].Value as string;
@@ -205,9 +207,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             string filespreaddir = Path.Combine(subdir, $"{id}-{file.FileName}");
             string filefullpath = Path.Combine(basedir, filespreaddir);
             // Saving
-            using (var stream = new FileStream(filefullpath, FileMode.Create)) {
-                file.OpenReadStream().CopyTo(stream);
-            }
+            using var stream = new FileStream(filefullpath, FileMode.Create);
+            using var strm = file.OpenReadStream();
+            strm.CopyTo(stream);
+            
             var scope = Scope(ctx);
             if (scope is IFileTransactionSupport fts) {
                 fts.DeleteOnRollback(filefullpath);
@@ -249,7 +252,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 var fi = new FileInfo(filepath);
 
                 var pf = new PostedFile(contentType, fi.Length, Path.GetFileName(filepath), filepath, path => {
-                    return File.Open(path as string, FileMode.Open);
+                    return File.Open(path as string, FileMode.Open, FileAccess.Read, FileShare.Read);
                 }, filepath);
                 return new ParameterResolverValue(pf);
             }
