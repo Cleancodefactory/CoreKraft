@@ -54,6 +54,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return SetResult;
                 case nameof(ClearResultExcept):
                     return ClearResultExcept;
+                case nameof(ResultsCount):
+                    return ResultsCount;
+                case nameof(GetResult):
+                    return GetResult;
+                case nameof(GetAllResults):
+                    return GetAllResults;
+                case nameof(RemoveResult):
+                    return RemoveResult;
+
 
                 case nameof(CSetting):
                     return CSetting;
@@ -303,6 +312,75 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 result.Remove(k);
             }
             return new ParameterResolverValue(preservekeys.ConvertAll(s => new ParameterResolverValue(s)));
+        }
+
+        /// <summary>
+        /// ResultsCount(): int
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue ResultsCount(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is IDataLoaderReadContext rctx) {
+                return new ParameterResolverValue(rctx.Results.Count);
+            } else if (ctx is IDataLoaderWriteContext wctx) {
+                return new ParameterResolverValue(1);
+            } else {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+        }
+        /// <summary>
+        /// Read: GetResult(index) : Dict
+        /// Write: GetResult() : Dict
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue GetResult(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is IDataLoaderReadContext rctx) {
+                if (args.Length < 1) throw new ArgumentException("GetResult in read actions requires an argument - the index of the result to return.");
+                var index = Convert.ToInt32(args[0].Value);
+                if (index >=0 && index < rctx.Results.Count) {
+                    return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results[index]);
+                }
+                return new ParameterResolverValue(null);
+            } else if (ctx is IDataLoaderWriteContext wctx) {
+                return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(wctx.Row);
+            } else {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+        }
+        public ParameterResolverValue RemoveResult(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is IDataLoaderReadContext rctx) {
+                if (args.Length < 1) throw new ArgumentException("RemoveResult in read actions requires an argument - the index of the result to return.");
+                var index = Convert.ToInt32(args[0].Value);
+                if (index >= 0 && index < rctx.Results.Count) {
+                    var result = DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results[index]);
+                    rctx.Results.RemoveAt(index);
+                    return result;
+                }
+                return new ParameterResolverValue(null);
+            } else if (ctx is IDataLoaderWriteContext wctx) {
+                throw new Exception("RemoveResult cannot be used in write actions.");
+            } else {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+        }
+        /// <summary>
+        /// Read: GetAllResults():List
+        /// Write: GetAllResults():Dict
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue GetAllResults(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is IDataLoaderReadContext rctx) {
+                return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results);
+            } else if (ctx is IDataLoaderWriteContext wctx) {
+                return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(wctx.Row);
+            } else {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
         }
         #endregion
 
