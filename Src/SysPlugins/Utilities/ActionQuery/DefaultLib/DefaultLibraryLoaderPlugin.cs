@@ -62,6 +62,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return GetAllResults;
                 case nameof(RemoveResult):
                     return RemoveResult;
+                case nameof(ModifyResult):
+                    return ModifyResult;
 
 
                 case nameof(CSetting):
@@ -233,6 +235,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 dtx.DataState.SetUpdated(result);
             }
             return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue ModifyResult(HostInterface ctx, ParameterResolverValue[] args) {
+            throw new InvalidOperationException("ModifyResult is supported only in node plugins. DataLoaders must produce results sequentially in order to stick to universaly expected behaviour!");
         }
         public ParameterResolverValue SetResult(HostInterface ctx, ParameterResolverValue[] args)
         {

@@ -63,6 +63,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return GetAllResults;
                 case nameof(RemoveResult):
                     return RemoveResult;
+                case nameof(ModifyResult):
+                    return ModifyResult;
 
                 case nameof(CSetting):
                     return CSetting;
@@ -169,6 +171,53 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 return new ParameterResolverValue(false);
             }
         }
+
+        public ParameterResolverValue ModifyResult(HostInterface ctx, ParameterResolverValue[] args) {
+            Dictionary<string, object> result = null;
+            if (ctx is INodePluginReadContext rctx) {
+                if (rctx.Results.Count > 0) {
+                    if (args.Length > 1) {
+                        var index = Convert.ToUInt32(args[0].Value);
+                        if (index >= 0 && index < rctx.Results.Count) {
+                            result = rctx.Results[rctx.Results.Count - 1];
+                        } else {
+                            throw new IndexOutOfRangeException("ModifyResult specified indes (first arg) is out of range");
+                        }
+                    } else {
+                        throw new ArgumentException("ModifyResult requires some arguments.");
+                    }
+                } else {
+                    throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
+                }
+            } else if (ctx is INodePluginWriteContext wctx) {
+                throw new InvalidOperationException("ModifyResult is not available for write actions - use SetResult instead.");
+            } else {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+
+            if (args.Length == 2 && args[1].Value is IDictionary _dict) {
+                foreach (DictionaryEntry e in _dict) {
+                    result[Convert.ToString(e.Key)] = ParameterResolverValue.Strip(e.Value);
+                }
+                // In this case we cannot guarantee which one is the last value and we return null in order to avoid misunderstandings.
+                return new ParameterResolverValue(null);
+            } else {
+                var count = (args.Length - 1) / 2;
+                object lastvalue = null;
+                for (int i = 0; i < count; i++) {
+                    var name = args[1 + i * 2].Value as string;
+                    var value = args[i * 2 + 2].Value;
+                    if (name != null) {
+                        result[name] = value;
+                        lastvalue = value;
+                    } else {
+                        throw new ArgumentException($"ModifyResult works with 1 argument or with even number of arguments after the index (first arg) repeatig name, value pattern. The {i * 2} argument is not a string.");
+                    }
+                }
+                return new ParameterResolverValue(lastvalue);
+            }
+        }
+
         public ParameterResolverValue SetResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;
