@@ -70,6 +70,8 @@ __Undefine(varname *{, varname})__ - Unsets/undefines the `varname`.
 
 **Inc** and **Dec** can be used in `while` and `if` constructs as a condition, when they reach 0 they become a falsy value with the corresponding effect on the constructs.
 
+From ActionQuery v1.1 the dedicated variable access syntax accesses the same variables as Set/Get/Inc/Dec functions. E.g. Set('a',123) will do the same as $a(123), also $i(0),Inc('i') will work with the same variable and after Inc it will be equal to 1 in this example.
+
 ## Default libraries
 
 The default libraries contain both general purpose function and functions that perform actions through the context (a node in a NodeSet). The latter will often act differently or will not be available for all contexts. Check any notes in the list to make sure what the function does and if it is available/usable in the particular context. So, default libraries are considered as consisting of basic and NodeSet oriented functions:
@@ -247,19 +249,39 @@ Contains additional set of functions enabling the scripts to implement useful fu
 
 Please check the contexts in which the functions are available. Some of them are applicable only in certain cases - e.g. result manipulation is different on read and on write. When a function is not available this will cause a corresponding error.
 
-**NodePath()**
+**NodePath()** - returns the full path of the node from the current nodeset. The result is a string containg the node names in the path separated with `.`
 
-**NodeKey()**
+**NodeKey()** - Returns the key name of the current node.
 
-**Action()**
+**Action()** - returns the action: `read` or `write` as string.
 
-**Operation()**
+**Operation()** - returns the operation under which the script is executed. Applies to both data loader and node scripts. The returned value is string and can be one of these `select`, `insert`, `update`, `delete`.
 
-**AddResult( `dict | ( key, value [key, value [, key, value ...]])` )**
+**AddResult( `dict | ( key, value [key, value [, key, value ...]])` )** - Works only in read actions. Creates a new result (resulting row). After it until AddResult is called again SetResult works on the recently added result. Can be called without arguments to create an empty result.
 
-**HasResults()**
+> `dict` - A Dict obtained/created previously. All the Dict values are assigned to the result under the same keys.
 
-**SetResult(`dict | ( key, value [key, value [, key, value ...]])`)**
+> `key, value [key, value [, key, value ...]]` - key, value pairs to assign to the result the values under corresponding keys in the result.
+
+**HasResults()** - returns `true` or `false` depending on if any result exists. In write actions always returns `true`.
+
+**SetResult(`dict | ( key, value [key, value [, key, value ...]])`)** - Sets the result/current result/row. In read actions a result have exist (in DataLoader scripts use AddResult, In Node scripts the node should have produced at least one result otherwise SetResult will fail. To avoid that check ResultsCount or HasResults first).
+
+> `dict` - A Dict obtained/created previously. All the Dict values are assigned to the result under the same keys.
+
+> `key, value [key, value [, key, value ...]]` - key, value pairs to assign to the result the values under corresponding keys in the result.
+
+> In both cases existing values with the same keys will be overwritten.
+
+**ResultsCount()** - returns the number of result dictionaries in read actions and always 1 in write actions.
+
+**GetResult(index)** - Gets result specified by `index`. index must be between >=0 and < ResultsCount(). In write actions always returns the only result (any arguments are ignored). The return value is a Dict with copy of the result and not the result itself. (see Dictionary functions above)
+
+**RemoveResult(index)** - Removes result specified by `index`. `index` must be between >=0 and < ResultsCount(). In write actions throws an exception.
+
+**GetAllResults()** - in read actions returns List of Dict objects (see List and Dict above) which are copies of all the results accumulated so far in the current node. In write actions returns a Dict with the current row.
+
+**ModifyResult(index, ( dict | ( key, value [, key, value ...]))** - Works only in read actions. Modifies the result indicated by `index`, by setting the specified values one by one or by using dictionary in the same fashion like SetResult. As in write actions there is a single current row, which is also the result, this function throws an exception in order to stimulate usage of SetResult in these cases.
 
 **ClearResultExcept(`dict | ([key [, key ...]])`)**
 
@@ -267,16 +289,22 @@ Please check the contexts in which the functions are available. Some of them are
 
 **CSettingLoader(`name [, default]`)**
 
-**ModuleName()**
+**ModuleName()** - Returns module name
 
-**ModulePath(`[combinepath]`)**
+**ModulePath(`[combinepath]`)** - Returns the physical module path of the current module. If argument is passed combines them. This function allows easy construction of physical path to parts of the module. For example to get the physical path of the module's Data directory use `ModulePath('Data')`.
 
-**ResetResultState()**
+#### Result state functions
 
-**SetResultDeleted()**
+Most of these functions set the state property of the current result. To avoid the need to know the values indicating the states, there are separate functions for each state. Setting the states is most obvious when using SQL and DB plugins. If a script does that job think about your script in terms of a database operation - i.e. what kind of operation it implements if you want to describe it as a replacement of an SQL query.
+
+**ResetResultState()** - Resets the state of the current result to unchanged.
+
+**SetResultDeleted()** - Sets the state of the current result to deleted. If you want to impact the current execution process this should be set in a node script executed in `beforenodeaction` phase. 
 
 **SetResultNew()**
 
 **SetResultUpdated()**
+
+**GetStatePropertyName**
 
 
