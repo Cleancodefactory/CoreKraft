@@ -64,17 +64,17 @@ namespace Ccf.Ck.Models.NodeRequest
                     KraftLogger.LogWarning($"Parameter from header-collection {headerItem.Key} with value {headerItem.Value} already exist in the collection and cannot be added.");
                 }                
             }
-            foreach (KeyValuePair<string, object> formItem in parameters.FormCollection ?? new Dictionary<string, object>())
-            {
-                if (!result.ContainsKey(formItem.Key))
-                {
-                    result.Add(formItem.Key, formItem.Value);
-                }
-                else
-                {
-                    KraftLogger.LogWarning($"Parameter from form-body {formItem.Key} with value {formItem.Value} already exist in the collection and cannot be added.");
-                }                
-            }
+            //foreach (KeyValuePair<string, object> formItem in parameters.FormCollection ?? new Dictionary<string, object>())
+            //{
+            //    if (!result.ContainsKey(formItem.Key))
+            //    {
+            //        result.Add(formItem.Key, formItem.Value);
+            //    }
+            //    else
+            //    {
+            //        KraftLogger.LogWarning($"Parameter from form-body {formItem.Key} with value {formItem.Value} already exist in the collection and cannot be added.");
+            //    }                
+            //}
             foreach (KeyValuePair<string, object> queryItem in parameters.QueryCollection ?? new Dictionary<string, object>())
             {
                 if (!result.ContainsKey(queryItem.Key))

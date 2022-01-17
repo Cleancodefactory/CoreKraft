@@ -388,8 +388,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <returns></returns>
         public ParameterResolverValue GetResult(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is INodePluginReadContext rctx) {
-                if (args.Length < 1) throw new ArgumentException("GetResult in read actions requires an argument - the index of the result to return.");
-                var index = Convert.ToInt32(args[0].Value);
+                int index = -1;
+                if (args.Length < 1) {//throw new ArgumentException("GetResult in read actions requires an argument - the index of the result to return.");
+                    index = rctx.Results.Count - 1;
+                } else {
+                    index = Convert.ToInt32(args[0].Value);
+                }
                 if (index >= 0 && index < rctx.Results.Count) {
                     return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results[index]);
                 }

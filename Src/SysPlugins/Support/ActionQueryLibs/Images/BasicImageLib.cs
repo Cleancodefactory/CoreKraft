@@ -30,6 +30,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     return DisposeImage;
                 case nameof(ResizeImage):
                     return ResizeImage;
+                case nameof(ThumbImage):
+                    return ThumbImage;
                 case nameof(SaveImage):
                     return SaveImage;
                 case nameof(LoadImage):
@@ -85,15 +87,16 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             if (file != null)
             {
 
-                var strm = file.OpenReadStream();
-                var image = Image.Load(strm);
-                lock (_LockObject)
-                {
-                    _disposables.Add(image);
+                using var strm = file.OpenReadStream();
+                try {
+                    var image = Image.Load(strm);
+                    lock (_LockObject) {
+                        _disposables.Add(image);
+                    }
+                    return new ParameterResolverValue(image);
+                } catch (Exception ex) {
+                    //
                 }
-                strm.Close();
-                return new ParameterResolverValue(image);
-
             }
             return new ParameterResolverValue(null);
         }
@@ -144,6 +147,28 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     image.Mutate(pc => pc.Resize(width, height));
                 }
                 return new ParameterResolverValue(image);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue ThumbImage(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length < 2) throw new ArgumentException("ThumbImage requires 2 arguments");
+            var image = args[0].Value as Image;
+            if (image != null) {
+                var size = Convert.ToInt32(args[1].Value);
+                var width = 0;
+                var height = 0;
+                if (size < 32 || size > 2048) size = 256;
+                if (image.Width >= image.Height) {
+                    width = size;
+                    height = size * height / width;
+                } else {
+                    height = size;
+                    width = size * width / height;
+                }
+                if (width > 0 && height > 0) {
+                    image.Mutate(pc => pc.Resize(width, height));
+                    return new ParameterResolverValue(image);
+                } 
             }
             return new ParameterResolverValue(null);
         }

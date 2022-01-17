@@ -153,14 +153,18 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                                 throw new Exception($"Duplicated field name in the output of a query. The field is:{fldname}, the query is: {cmd.CommandText}");
                                             }
                                             object v;
-                                            if (reader.GetFieldType(i) == typeof(byte[])) {
-                                                long fldLength = reader.GetBytes(i, 0, null, 0, 0);
-                                                byte[] bytes = new byte[fldLength];
-                                                long lread = reader.GetBytes(i, 0, bytes, 0, (int)fldLength);
-                                                // TODO: lread may be more to the point then fldLength ?
-                                                v = (PostedFile)bytes;
+                                            if (reader.IsDBNull(i)) {
+                                                v = null;
                                             } else {
-                                                v = reader.GetValue(i);
+                                                if (reader.GetFieldType(i) == typeof(byte[])) {
+                                                    long fldLength = reader.GetBytes(i, 0, null, 0, 0);
+                                                    byte[] bytes = new byte[fldLength];
+                                                    long lread = reader.GetBytes(i, 0, bytes, 0, (int)fldLength);
+                                                    // TODO: lread may be more to the point then fldLength ?
+                                                    v = (PostedFile)bytes;
+                                                } else {
+                                                    v = reader.GetValue(i);
+                                                }
                                             }
                                             currentResult.Add(fldname, (v is DBNull) ? null : v);
 
@@ -259,7 +263,22 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                         fname = fname.ToLower().Trim();
                                         // fname = fname.Trim(); // TODO: We have to rethink this - lowercasing seems more inconvenience than a viable protection against human mistakes.
                                         if (fname.Length == 0) throw new Exception("Empty field name in a store context in nodedesfinition: " + node.NodeSet.Name);
-                                        object v = reader.GetValue(i);
+
+
+                                        object v;
+                                        if (reader.IsDBNull(i)) {
+                                            v = null;
+                                        } else {
+                                            if (reader.GetFieldType(i) == typeof(byte[])) {
+                                                long fldLength = reader.GetBytes(i, 0, null, 0, 0);
+                                                byte[] bytes = new byte[fldLength];
+                                                long lread = reader.GetBytes(i, 0, bytes, 0, (int)fldLength);
+                                                // TODO: lread may be more to the point then fldLength ?
+                                                v = (PostedFile)bytes;
+                                            } else {
+                                                v = reader.GetValue(i);
+                                            }
+                                        }
                                         execContext.Row[fname] = (v is DBNull) ? null : v;
                                     }
                                 }

@@ -275,7 +275,7 @@ Please check the contexts in which the functions are available. Some of them are
 
 **ResultsCount()** - returns the number of result dictionaries in read actions and always 1 in write actions.
 
-**GetResult(index)** - Gets result specified by `index`. index must be between >=0 and < ResultsCount(). In write actions always returns the only result (any arguments are ignored). The return value is a Dict with copy of the result and not the result itself. (see Dictionary functions above)
+**GetResult(index)** - In read actions gets result specified by `index`. index must be between >=0 and < ResultsCount(). The index can be also omitted and then the last (current) result will be returned as Dict. In write actions always returns the only result (any arguments are ignored). The return value is a Dict with copy of the result and not the result itself. (see Dictionary functions above)
 
 **RemoveResult(index)** - Removes result specified by `index`. `index` must be between >=0 and < ResultsCount(). In write actions throws an exception.
 

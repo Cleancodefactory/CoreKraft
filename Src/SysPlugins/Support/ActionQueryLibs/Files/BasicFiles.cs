@@ -123,6 +123,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 var scope = Scope(ctx);
                 if (scope is IFileTransactionSupport fts) {
                     fts.DeleteOnCommit(savepath);
+                } else {
+                    File.Delete(savepath);
                 }
             }
             return new ParameterResolverValue(true);
@@ -263,7 +265,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         public ParameterResolverValue FileResponse(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("FileResponse accepts 1 argument (PostedFile)");
             var pf = args[0].Value as IPostedFile;
-            if (pf == null) throw new ArgumentException("FileResponse - argument is not IPostedFile. Use FileResponse(PostedFile(...))");
+            //if (pf == null) throw new ArgumentException("FileResponse - argument is not IPostedFile. Use FileResponse(PostedFile(...))");
             if (ctx is IDataLoaderContext ctx1) {
                 ctx1.ProcessingContext.ReturnModel.BinaryData = pf;
                 ctx1.ProcessingContext.ReturnModel.ResponseBuilder = new BinaryResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx1.ProcessingContext }));

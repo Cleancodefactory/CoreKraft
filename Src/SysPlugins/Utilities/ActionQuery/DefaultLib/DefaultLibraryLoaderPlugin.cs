@@ -342,14 +342,18 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="args"></param>
         /// <returns></returns>
         public ParameterResolverValue GetResult(HostInterface ctx, ParameterResolverValue[] args) {
-            if (ctx is IDataLoaderReadContext rctx) {
-                if (args.Length < 1) throw new ArgumentException("GetResult in read actions requires an argument - the index of the result to return.");
-                var index = Convert.ToInt32(args[0].Value);
-                if (index >=0 && index < rctx.Results.Count) {
+            if (ctx is INodePluginReadContext rctx) {
+                int index = -1;
+                if (args.Length < 1) {//throw new ArgumentException("GetResult in read actions requires an argument - the index of the result to return.");
+                    index = rctx.Results.Count - 1;
+                } else {
+                    index = Convert.ToInt32(args[0].Value);
+                }
+                if (index >= 0 && index < rctx.Results.Count) {
                     return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results[index]);
                 }
                 return new ParameterResolverValue(null);
-            } else if (ctx is IDataLoaderWriteContext wctx) {
+            } else if (ctx is INodePluginWriteContext wctx) {
                 return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(wctx.Row);
             } else {
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
