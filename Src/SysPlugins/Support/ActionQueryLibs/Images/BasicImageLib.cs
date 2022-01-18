@@ -160,10 +160,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 if (size < 32 || size > 2048) size = 256;
                 if (image.Width >= image.Height) {
                     width = size;
-                    height = size * height / width;
+                    height = size * image.Height / image.Width;
                 } else {
                     height = size;
-                    width = size * width / height;
+                    width = size * image.Width / image.Height;
                 }
                 if (width > 0 && height > 0) {
                     image.Mutate(pc => pc.Resize(width, height));
@@ -273,7 +273,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     var ms = new MemoryStream();
                     proc(image, ms);
                     ms.Seek(0, SeekOrigin.Begin);
-                    var pf = new PostedFile(ct, ms.Length, name, name, m => m as Stream, ms);
+                    
+                    var pf = new PostedFile(ct, ms.Length, name, name, m => new MemoryStream(m as byte[]), ms.GetBuffer());
                     return pf;
                 }
             }

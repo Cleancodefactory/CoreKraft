@@ -45,9 +45,10 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 {
                     context.Response.ContentType = postedFile.ContentType;
                 }
-                using var pfs = postedFile.OpenReadStream();
+                using (var pfs = postedFile.OpenReadStream()) {
 
-                pfs.CopyTo(context.Response.Body);
+                    pfs.CopyTo(context.Response.Body);
+                }
                 //context.Response.SendFileAsync(postedFile.FileName).Wait();
             }
         }
