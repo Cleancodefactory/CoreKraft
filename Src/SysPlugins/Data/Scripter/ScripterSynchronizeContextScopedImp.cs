@@ -13,10 +13,20 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
         private List<string> _deleteOnCommit = new List<string>();
 
         public void DeleteOnRollback(string filepath) {
-            if (!string.IsNullOrWhiteSpace(filepath)) _deleteOnRollback.Add(filepath);
+            if (!string.IsNullOrWhiteSpace(filepath)) {
+                _deleteOnRollback.Add(filepath);
+                if (_deleteOnCommit.IndexOf(filepath) >= 0) {
+                    _deleteOnCommit.Remove(filepath);
+                }
+            }
         }
         public void DeleteOnCommit(string filepath) {
-            if (!string.IsNullOrWhiteSpace(filepath)) _deleteOnCommit.Add(filepath);
+            if (!string.IsNullOrWhiteSpace(filepath)) {
+                _deleteOnCommit.Add(filepath);
+                if (_deleteOnRollback.IndexOf(filepath) >= 0) {
+                    _deleteOnRollback.Remove(filepath);
+                }
+            }
         }
 
         public void CommitTransaction() {
