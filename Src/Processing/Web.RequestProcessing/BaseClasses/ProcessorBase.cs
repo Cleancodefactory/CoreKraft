@@ -14,6 +14,9 @@ using Ccf.Ck.Models.NodeRequest;
 
 namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 {
+    /// <summary>
+    /// Ultimate Base common for WEB and non-WEB requests
+    /// </summary>
     public abstract class ProcessorBase : IProcessorHandler
     {
         public enum ERequestMethod

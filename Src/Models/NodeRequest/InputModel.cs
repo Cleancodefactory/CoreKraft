@@ -64,6 +64,7 @@ namespace Ccf.Ck.Models.NodeRequest
                     KraftLogger.LogWarning($"Parameter from header-collection {headerItem.Key} with value {headerItem.Value} already exist in the collection and cannot be added.");
                 }                
             }
+            // Reminder that form data have bneen in the Client collection before 20.01.2022
             //foreach (KeyValuePair<string, object> formItem in parameters.FormCollection ?? new Dictionary<string, object>())
             //{
             //    if (!result.ContainsKey(formItem.Key))

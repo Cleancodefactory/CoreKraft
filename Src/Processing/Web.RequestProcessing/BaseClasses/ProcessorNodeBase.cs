@@ -22,6 +22,9 @@ using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 {
+    /// <summary>
+    /// This class is common for all the requests comming normaly from the WEB
+    /// </summary>
     public abstract class ProcessorNodeBase : ProcessorBase
     {
         protected Dictionary<string, object> _QueryCollection;

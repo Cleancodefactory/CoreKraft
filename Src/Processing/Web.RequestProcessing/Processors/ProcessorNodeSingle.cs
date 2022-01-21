@@ -31,8 +31,12 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             InputModelParameters inputModelParameters = CreateBaseInputModelParameters(_KraftGlobalConfigurationSettings, securityModel);
             inputModelParameters = ExtendInputModelParameters(inputModelParameters);
-            inputModelParameters.Data = GetBodyJson<Dictionary<string, object>>(_HttpContext.Request);
-            inputModelParameters.FormCollection = _FormCollection;
+            if (_RequestContentType == ESupportedContentTypes.JSON) {
+                inputModelParameters.Data = GetBodyJson<Dictionary<string, object>>(_HttpContext.Request);
+            } else if (_RequestContentType == ESupportedContentTypes.FORM_URLENCODED) {
+                inputModelParameters.Data = _FormCollection;
+            }
+            
             inputModelParameters.LoaderType = GetLoaderType(kraftRequestFlagsKey);
             _ProcessingContextCollection = new ProcessingContextCollection(CreateProcessingContexts(new List<InputModel> { new InputModel(inputModelParameters) }));
             return _ProcessingContextCollection;

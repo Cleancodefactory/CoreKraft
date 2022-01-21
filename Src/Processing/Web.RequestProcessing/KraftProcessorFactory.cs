@@ -52,7 +52,7 @@ namespace Ccf.Ck.Processing.Web.Request
                             {
                                 return new ProcessorNodeBatch(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
                             }
-                        default:
+                        default: // Processes read, write, single
                             {
                                 //Here we have the CoreKraft configured entry point
                                 switch (contentType)
