@@ -22,6 +22,8 @@ namespace Ccf.Ck.Models.Settings
             Theme = "Module";
             ToolsSettings = new ToolsSettings();
             WatchSubFoldersForRestart = new List<string>();
+            SignalSettings = new SignalSettings();
+            HostingServiceSettings = new List<HostingServiceSetting>();
         }
         public string ServerHostKey { get; set; }
         public bool EnableOptimization { get; set; }

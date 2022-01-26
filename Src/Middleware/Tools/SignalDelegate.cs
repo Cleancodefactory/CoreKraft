@@ -70,7 +70,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
             }
 
             //Collect signals
-            foreach (string signal in signalsResponse.SignalSettings.OnSystemStartup ?? new List<string>())
+            foreach (string signal in signalsResponse.SignalSettings.OnSystemStartup)
             {
                 SignalWithType signalWithType = new SignalWithType
                 {
@@ -81,7 +81,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
             }
 
             //Collect signals
-            foreach (string signal in signalsResponse.SignalSettings.OnSystemShutdown ?? new List<string>())
+            foreach (string signal in signalsResponse.SignalSettings.OnSystemShutdown)
             {
                 SignalWithType signalWithType = new SignalWithType
                 {
