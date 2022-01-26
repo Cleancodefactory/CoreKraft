@@ -20,5 +20,14 @@ namespace Ccf.Ck.Launchers.Main.Utils
             new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1), Secure = true, IsEssential = true, SameSite=SameSiteMode.Strict });
             return requestCulture;
         }
+
+        public static void RemoveCookie(HttpResponse response, string cookieName)
+        {
+            var cookies = response.Cookies;
+            response.Cookies.Delete(cookieName, new CookieOptions()
+            {
+                Secure = true,
+            });
+        }
     }
 }
