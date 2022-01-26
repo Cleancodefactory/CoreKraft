@@ -98,10 +98,10 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 connectionString = _DynamicParameterRegEx.Replace(connectionString, m => {
                     string varname = m.Groups[1].Value;
                     var val = LoaderContext.Evaluate(varname);
-                    if (val.ValueType == EResolverValueType.Invalid) {
+                    if (val.Value == null || val.ValueType == EResolverValueType.Invalid) {
                         KraftLogger.LogError($"Expected parameter in connection string: {m.Groups[1].Value} was not resolved! Check that parameter's expression. It is recommended to not define it on node basis, but only in a nodeset root!");
                         // DECIDED: Throw! Thoughts: What shall we return on error? This is temporary decision - there should be something better or just excepton.
-                        throw new Exception("A variable used in the connection string cannot be resolved. Check if all the %<varname>% entries have paramaters matching varname in the node parameters.");
+                        throw new Exception("A variable used in the connection string cannot be resolved or resolves to null. Check if all the %<varname>% entries have paramaters matching varname in the node parameters.");
                         //return m.Value;
                     }
                     if (!string.IsNullOrWhiteSpace(val.Value + "")) {
