@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 using Ccf.Ck.Models.NodeRequest;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 {
@@ -98,7 +99,22 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             }
             if (args.Length > 1) {
                 if (args[1].Value is Dictionary<string, ParameterResolverValue> indict) {
-                    inp.Data = indict.ToDictionary(kv => kv.Key, kv => kv.Value.Value);
+                    if (isWrite)
+                    {
+                        var data = DefaultLibraryBase<HostInterface>.ConvertToGenericData(indict);
+                        if (data is Dictionary<string,object> _dictData)
+                        {
+                            inp.Data = _dictData;
+                        } else
+                        {
+                            // TODO: This should not happen
+                            KraftLogger.LogError("in _Call The passed Data dictionary did not convert correctly", indict);
+                        }
+                    } else
+                    {
+                        inp.Data = indict.ToDictionary(kv => kv.Key, kv => kv.Value.Value);
+                    }
+                    
                 } else {
                     throw new ArgumentException("Main arguments are currently supported only as a internal AC Dictionary (Dictionary<string, ParameterResolverValue>). Use Dict and related functions from the default library to create one.");
                 }
