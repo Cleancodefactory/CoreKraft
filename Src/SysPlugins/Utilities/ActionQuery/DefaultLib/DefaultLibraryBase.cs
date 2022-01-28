@@ -51,6 +51,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(ConsumeOne) => ConsumeOne,
                 nameof(List) => List,
                 nameof(ValueList) => ValueList,
+                nameof(IsList) => IsList,
                 nameof(ListAdd) => ListAdd,
                 nameof(ListGet) => ListGet,
                 nameof(ListInsert) => ListInsert,
@@ -235,6 +236,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 }
             }
             return new ParameterResolverValue(list);
+        }
+        public ParameterResolverValue IsList(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length < 1) throw new ArgumentException("IsList requires an argument");
+            return new ParameterResolverValue(args[0].Value is List<ParameterResolverValue>);
         }
         public ParameterResolverValue ListAdd(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("ListAdd requires some arguments");
