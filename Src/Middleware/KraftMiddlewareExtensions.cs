@@ -254,10 +254,26 @@ namespace Ccf.Ck.Web.Middleware
                             },
                             OnAuthenticationFailed = context =>
                             {
-                                KraftLogger.LogError("OnAuthenticationFailed in KraftMiddlewareExtensions", context.Exception);
-                                HttpRequest request = context.Request;
-                                context.Properties.RedirectUri = context.ProtocolMessage.RedirectUri?.Replace("http://", "https://");
-                                return Task.CompletedTask;
+                                if (context.Exception is OpenIdConnectProtocolException)
+                                {
+                                    try
+                                    {
+                                        context.HandleResponse();
+                                        context.Response.Redirect("/acount/signin");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        KraftLogger.LogError("OnAuthenticationFailed in KraftMiddlewareExtensions: OpenIdConnectProtocolException", ex);
+                                        throw;
+                                    }
+                                    return Task.FromResult<object>(null);
+                                }
+                                else
+                                {
+                                    KraftLogger.LogError("OnAuthenticationFailed in KraftMiddlewareExtensions", context.Exception);
+                                    context.Properties.RedirectUri = context.ProtocolMessage.RedirectUri?.Replace("http://", "https://");
+                                    return Task.CompletedTask;
+                                }                                
                             },
                             OnTokenValidated = context =>
                             {
