@@ -1,6 +1,6 @@
 ﻿# Standard libraries for ActionQuery in CoreKraft
 
-There are 3 libraries currently loaded when ActionQuery host is created (can be suppressed if necessary).
+There are 3 libraries currently loaded when ActionQuery host is created (can be suppressed if necessary). When hosting the ActionQuery in a plugin:
 
 ```C#
 var host = new ActionQueryHost<IDataLoaderReadContext>(IDataLoaderReadContext context,bool withoutlibs);
@@ -9,28 +9,32 @@ var host = new ActionQueryHost<IDataLoaderReadContext>(IDataLoaderReadContext co
 
 The first argument can be any of the `IDataLoaderReadContext`/`IDataLoaderWriteContext` or `INodePluginReadContext`/`INodePluginWriteContext`.
 
-The second argument `withoutlibs` is optional and if `true` is passed the libraries described here are **`not available`**. This may be needed in some specific cases when a plugin wants to enable very specific scripts to work only with its own features without access to anything else.
+The second argument `withoutlibs` is optional and if `true` is passed the libraries described here are **`not available`** except the variables library but it will be accessible only by the variable set/get syntax (`$varname(value)` - sets variable `$varname` - gets variable).
+
+This may be needed in some specific cases when a plugin wants to enable very specific scripts to work only with its own features without access to anything else. See [hosting ActionQuery](AQHosting.md) for more details.
 
 The default libraries described further in this document are 3:
 
-- `Variables library` - access to variables available for the running script and its host (same for all contexts)
+- `Variables library` - access to variables available for the running script and its host (same for all contexts). This library is always included, but when the host is created without default libraries, the functions of the library are not available, while the variables remain accessible through the Action Query variable set / get syntax (`$varname(value)` - sets variable).
 
-- `Default libraries` - Currently a single general purpose set of functions for all kinds of operations: arithmetic, strings, dictionaries, lists and so on. In future additional libraries may be added. (same for all contexts)
+- `Default libraries` - Currently a single general purpose set of functions for all kinds of operations: arithmetic, strings, dictionaries, lists and so on. In future additional libraries may be added. The scripts can hold in values and variables anything, but the Dict and List types are manageable by this library. Most functions from optional libraries work with them when possible.
 
 - `Nodeset library` - Contains functions for querying and changing node data in Nodeset execution current node. (there are some minor differences between scripts running in DataLoader context and CustomPlugin context.)
 
 
-## Variables library (Will be replaced by in-language feature soon)
+## Variables library (Get/Set are equivalent to the set get variable syntax)
 
 _This library is available in all contexts without any context specific differences._
 
 ### Functions
 
-**Get(varname)** - Returns the value of the `varname`.
+**Get(varname)** 
 
-> varname - a string, the name of the variable.
+Returns the value of the `varname`.
 
-> returns the value of the variable or `null` if the variable is not defined.
+varname - a string, the name of the variable.
+
+returns the value of the variable or `null` if the variable is not defined.
 
 __Set(varname, value *{, varname, value })__ - Sets the `varname` to the specified `value`.
 
@@ -170,6 +174,8 @@ There are two kinds of AC lists which are completely interchangeable for interna
 
 **ValueList([arg1 [,arg2 [,arg3 ...]]])** - The same as `List`, but the created AC list is marked as one containing values. See ToNodesetData for details.
 
+**IsList(arg)** - Checks if arg is a List created by List or ValueList or returned from another function. `Returns`: `true` or `false`.
+
 **ConsumeOne(list)** - Works with AC lists and with `Queue<ParameterResolverValue>`. The latter are not directly supported by the default library, but can be produced by functions in a hosting plugin or another library.
 
 When the argument is an AC list removes the last argument of the list and returns it. If the list is empty returns null. Can be used efficiently in `while` cycles to consume an entire list.
@@ -203,6 +209,8 @@ The default library supports work with dictionaries which internally are represe
 This means that if an external parameter contains some dictionary data you have to pass it through `AsDict` in order to use functions like `DictGet`, `DictSet` and so on.
 
 **Dict([key, value [, key, value [, key, value ...]]])** - Creates an AC dictionary. Can be used without arguments to create an empty one or with pairs of arguments to add elements on creation. The argument pairs are [`key`, `value`] which means that the key will be converted as string and will be the key of the next argument in the dictionary. This pattern is used in all the dictionary functions below where appropriate. `Returns`: the new AC dictionary.
+
+**IsDict(arg)** - Checks if arg is a Dict created by Dict or returned from another function. `Returns`: `true` or `false`.
 
 **DictSet(dict, [key, value [, key, value [, key, value ...]]])** - sets elements of an AC dictionary. The argument `dict` is the dictionary, wile after it any number of pairs [`key`, `value`] can be specified. Each pair will set an element in the dictionary, if an element with that key does not exist it will be created, if it exists its value will be set with the new one. `Returns`: the same AC dictionary passed with the `dict` argument with the changes applied to it.
 
