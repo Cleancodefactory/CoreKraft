@@ -105,7 +105,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     }
                     return new ParameterResolverValue(image);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //
                 }
