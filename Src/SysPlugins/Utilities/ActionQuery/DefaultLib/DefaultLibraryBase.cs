@@ -61,6 +61,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(AsValueList) => AsValueList,
                 // Dict
                 nameof(Dict) => Dict,
+                nameof(IsDict) => IsDict,
                 nameof(DictSet) => DictSet,
                 nameof(DictGet) => DictGet,
                 nameof(DictClear) => DictClear,
@@ -348,6 +349,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 }
             }
             return new ParameterResolverValue(dict);
+        }
+        public ParameterResolverValue IsDict(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 1) throw new ArgumentException("IsDict requires an argument.");
+            return new ParameterResolverValue(args[0].Value is Dictionary <string, ParameterResolverValue>);
         }
         public ParameterResolverValue DictSet(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length % 2 == 0) throw new ArgumentException("DictSet requires odd number of  arguments");
