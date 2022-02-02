@@ -5,4 +5,16 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\SysPlugins\Support\ActionQueryLibs\BasicWeb\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Support\ActionQueryLibs\Files\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Support\ActionQueryLibs\Images\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Support\ActionQueryLibs\InternalCalls\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls.csproj" />
+    <ProjectReference Include="..\..\SysPlugins\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
+  </ItemGroup>
+
 </Project>

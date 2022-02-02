@@ -1,6 +1,7 @@
 ﻿using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Utilities;
+using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
@@ -88,6 +89,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
+        /// 
+        [DocToolAttribute("Image1","Image1","Image1")]
         public ParameterResolverValue CreateImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("Image - not enough arguments.");
@@ -112,6 +115,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             }
             return new ParameterResolverValue(null);
         }
+        [DocToolAttribute("Image2", "Image2", "Image2")]
         public ParameterResolverValue DisposeImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             int x;

@@ -10,6 +10,7 @@ using System.Collections;
 using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.Processing.Web.ResponseBuilder;
+using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -89,12 +90,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return base.GetProc(name);
         }
 
+        [DocToolAttribute("Node1","Node1","Node1")]
         public ParameterResolverValue BailOut(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is INodePluginContext rctx) {
                 rctx.BailOut();
             }
             return new ParameterResolverValue(null);
         }
+        [DocToolAttribute("Node2", "Node2", "Node2")]
         public ParameterResolverValue OverrideResponseData(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("OverrideResponseData requires exactly 1 argument");
             if (ctx is IDataLoaderContext ctx1) {

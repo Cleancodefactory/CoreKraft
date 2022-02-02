@@ -15,7 +15,7 @@ using System.Net.Http.Headers;
 using System.Web;
 using Newtonsoft.Json;
 using Ccf.Ck.Utilities.Json;
-
+using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 {
@@ -46,12 +46,14 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             return null;
         }
 
+        [DocToolAttribute("Web1", "Web1", "Web1")]
         public SymbolSet GetSymbols()
         {
             return new SymbolSet("Basic Web requests library (no symbols)", null);
         }
 
         private List<object> _disposables = new List<object>();
+        [DocToolAttribute("Web2", "Web2", "Web2")]
         public void ClearDisposables()
         {
             lock (_LockObject)
