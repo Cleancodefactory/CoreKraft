@@ -16,6 +16,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 {
     public class DefaultLibraryNodePlugin<HostInterface>: DefaultLibraryBase<HostInterface> where HostInterface: class
     {
+        private const string LIBRARYNAME = "DefaultLibraryNode";
         public DefaultLibraryNodePlugin()
         {
 
@@ -90,14 +91,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return base.GetProc(name);
         }
 
-        [DocToolAttribute("Node1","Node1","Node1")]
         public ParameterResolverValue BailOut(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is INodePluginContext rctx) {
                 rctx.BailOut();
             }
             return new ParameterResolverValue(null);
         }
-        [DocToolAttribute("Node2", "Node2", "Node2")]
         public ParameterResolverValue OverrideResponseData(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("OverrideResponseData requires exactly 1 argument");
             if (ctx is IDataLoaderContext ctx1) {

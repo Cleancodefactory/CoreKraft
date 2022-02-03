@@ -24,6 +24,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
     {
         private object _LockObject = new Object();
         private static FontCollection _FontCollection;
+        private const string LIBRARYNAME = "BasicImageLib";
+
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
         {
@@ -90,7 +92,6 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         /// <param name="args"></param>
         /// <returns></returns>
         /// 
-        [DocToolAttribute("Image1","Image1","Image1")]
         public ParameterResolverValue CreateImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("Image - not enough arguments.");
@@ -115,7 +116,6 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             }
             return new ParameterResolverValue(null);
         }
-        [DocToolAttribute("Image2", "Image2", "Image2")]
         public ParameterResolverValue DisposeImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             int x;

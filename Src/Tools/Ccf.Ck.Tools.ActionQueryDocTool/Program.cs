@@ -13,59 +13,89 @@ namespace Ccf.Ck.Tools.ActionQueryDocTool
     {
         static void Main(string[] args)
         {
-            // Load necessary assemblies
-            Assembly utilitiesAssembly = Assembly.LoadFrom(@"..\..\..\..\..\SysPlugins\Utilities\bin\Debug\net5.0\Ccf.Ck.SysPlugins.Utilities.dll");
-            Assembly webAssembly = Assembly.LoadFrom(@"..\..\..\..\..\SysPlugins\Support\ActionQueryLibs\BasicWeb\bin\Debug\net5.0\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb.dll");
-            Assembly fileAssembly = Assembly.LoadFrom(@"..\..\..\..\..\SysPlugins\Support\ActionQueryLibs\Files\bin\Debug\net5.0\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files.dll");
-            Assembly imagesAssembly = Assembly.LoadFrom(@"..\..\..\..\..\SysPlugins\Support\ActionQueryLibs\Images\bin\Debug\net5.0\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images.dll");
+            if (args.Length == 1)
+            {
+                try
+                {
+                    List<Assembly> loadedAssemblies = LoadAssemblies();
+                    List<object> exportMethodsInfo = CollectCustomAttributes(loadedAssemblies);
+                    string path = args[0];
+                    JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
+                    string jsonString = JsonSerializer.Serialize(exportMethodsInfo, options);
+                    File.WriteAllText(path, jsonString);
+                    Console.WriteLine("Success extracting meta info for the exported functions");
+                    Console.ReadLine();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.ReadLine();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Full path to export file as parameter needed");
+                Console.ReadLine();
+            }            
+        }
 
-            // Get all classes
-            Type[] utilitiesTypes = utilitiesAssembly.GetTypes();
-            Type[] webTypes = webAssembly.GetTypes();
-            Type[] fileTypes= fileAssembly.GetTypes();
-            Type[] imageTypes = imagesAssembly.GetTypes();
+        private static List<Assembly> LoadAssemblies()
+        {
+            //Load all available assemblies in the bin folder and make them available for CustomAttribute search
+            List<Assembly> loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            string[] loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
 
-            // Load specific classes needed
-            Type loaderPlugin = utilitiesTypes.Where(x => x.Name.Contains("LoaderPlugin")).FirstOrDefault();
-            Type nodePlugin = utilitiesTypes.Where(x => x.Name.Contains("NodePlugin")).FirstOrDefault();
-            Type webPlugin = webTypes.Where(x => x.Name.Contains("WebLibrary")).FirstOrDefault();
-            Type filesPlugin = fileTypes.Where(x => x.Name.Contains("BasicFiles")).FirstOrDefault();
-            Type imagesPlugin = imageTypes.Where(x => x.Name.Contains("BasicImageLib")).FirstOrDefault();
+            string[] referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+            List<string> toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
 
-            //Type webPlugin = webTypes.Where(x => x.Name.Contains("NodePlugin")).FirstOrDefault();
+            toLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path))));
+            //loadedAssemblies contains all the possible referenced types loaded
+            return loadedAssemblies;
+        }
 
-            // Filter class methods to only include specific methods
-            List<MethodInfo> methodInfo = new List<MethodInfo>();
-            methodInfo.AddRange(loaderPlugin.GetMethods().Where(x => x.GetCustomAttributes().Any(y => y.GetType().Name == "DocToolAttribute")).ToArray());
-            methodInfo.AddRange(nodePlugin.GetMethods().Where(x => x.GetCustomAttributes().Any(y => y.GetType().Name == "DocToolAttribute")).ToArray());
-            methodInfo.AddRange(webPlugin.GetMethods().Where(x => x.GetCustomAttributes().Any(y => y.GetType().Name == "DocToolAttribute")).ToArray());
-            methodInfo.AddRange(filesPlugin.GetMethods().Where(x => x.GetCustomAttributes().Any(y => y.GetType().Name == "DocToolAttribute")).ToArray());
-            methodInfo.AddRange(imagesPlugin.GetMethods().Where(x => x.GetCustomAttributes().Any(y => y.GetType().Name == "DocToolAttribute")).ToArray());
+        private static List<object> CollectCustomAttributes(List<Assembly> loadedAssemblies)
+        {
+            List<MethodAttributes> methodAttributesCollection = new List<MethodAttributes>();
+
+            foreach (Assembly assembly in loadedAssemblies)
+            {
+                Type[] types = assembly.GetTypes();
+                foreach (Type classType in types)
+                {
+                    foreach (MethodInfo methodInfo in classType.GetMethods())
+                    {
+                        Attribute functionAttribute = methodInfo.GetCustomAttribute(typeof(FunctionAttribute), false);
+                        if (functionAttribute != null)//only when FunctionAttribute present
+                        {
+                            MethodAttributes methodAttributes = new MethodAttributes();
+                            methodAttributes.FunctionAttribute = (FunctionAttribute)functionAttribute;
+                            methodAttributes.ParameterAttributes = methodInfo.GetCustomAttributes(typeof(ParameterAttribute)).Cast<ParameterAttribute>().ToList();
+                            methodAttributes.ParameterPatternAttributes = methodInfo.GetCustomAttributes(typeof(ParameterPatternAttribute)).Cast<ParameterPatternAttribute>().ToList();
+                            methodAttributes.ResultAttribute = (ResultAttribute)methodInfo.GetCustomAttribute(typeof(ResultAttribute));
+                            methodAttributesCollection.Add(methodAttributes);
+                        }
+                    }
+                }
+            }
 
             int counter = 1;
             List<object> exportMethodsInfo = new List<object>();
 
-            foreach (var method in  methodInfo)
+            foreach (MethodAttributes methodAttributes in methodAttributesCollection)
             {
-                var attribute = method.GetCustomAttribute<DocToolAttribute>();
                 var exportMethodMetaData = new
                 {
-                    label = attribute.label,
-                    kind = "CompletionItemKind.Function",
+                    label = methodAttributes.FunctionAttribute.FunctionName,
+                    kind = 3,//CompletionItemKind.Function
                     data = counter,
-                    detail = "Detail " + attribute.summary,
-                    documentation = attribute.docLink
+                    detail = methodAttributes.CompileDetail(),
+                    documentation = methodAttributes.CompileDocumentation()
                 };
 
                 counter++;
                 exportMethodsInfo.Add(exportMethodMetaData);
             }
-
-            var path = @"C:\_Development";
-
-            JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
-            string jsonString = JsonSerializer.Serialize(exportMethodsInfo, options);
-            File.WriteAllText(Path.Combine(path, "Definition.json"), jsonString);
+            return exportMethodsInfo;
         }
     }
 }

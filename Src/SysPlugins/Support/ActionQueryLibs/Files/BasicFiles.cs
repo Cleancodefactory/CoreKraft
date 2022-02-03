@@ -17,6 +17,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
     public class BasicFiles<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class {
 
         private object _LockObject = new Object();
+        private const string LIBRARYNAME = "BasicFiles";
+
         public BasicFiles() {
             //_disposables.Add(http);
         }
@@ -58,13 +60,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         #endregion
 
         #region Functions
-
-        [DocToolAttribute("BasicFiles1","BasicFiles1","BasicFile1")]
         public ParameterResolverValue IsPostedFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("IsFile accepts single argument.");
             return new ParameterResolverValue(args[0].Value is IPostedFile);
         }
-        [DocToolAttribute("BasicFiles2", "BasicFiles2", "BasicFile2")]
         public ParameterResolverValue PostedFileSize(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("PostedFileSize requires single argument");
             var pf = args[0].Value as IPostedFile;
