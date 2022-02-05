@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 {
     public class Error
     {
+        private const string LIBRARYNAME = "DefaultLibrary";
         private string _Message = null;
         private int _Code = 0;
         public Error(string message = null)
@@ -31,12 +33,16 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Exported functions
+
+        [Function(nameof(IsError), "", LIBRARYNAME)]
         public static ParameterResolverValue IsError<HostInterface>(HostInterface ctx, ParameterResolverValue[] args) where HostInterface: class
         {
             if (args.Length != 1) throw new ArgumentException("IsError requires an argument");
             if (args[0].Value is Error) return new ParameterResolverValue(true);
             return new ParameterResolverValue(false);
         }
+
+        [Function(nameof(GenError), "", LIBRARYNAME)]
         public static ParameterResolverValue GenError<HostInterface>(HostInterface ctx, ParameterResolverValue[] args) where HostInterface : class
         {
             if (args.Length < 1) throw new ArgumentException("Error requires an argument or two");
@@ -56,6 +62,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(new Error(code, message));
         }
+
+        [Function(nameof(ErrorText), "", LIBRARYNAME)]
         public static ParameterResolverValue ErrorText<HostInterface>(HostInterface ctx, ParameterResolverValue[] args) where HostInterface : class
         {
             if (args.Length != 1) throw new ArgumentException("ErrorText requires one agument");
@@ -71,6 +79,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 throw new ArgumentException("ErrorText requires argument containing an error. Use IsError to determine this before calling ErrorText.");
             }
         }
+
+        [Function(nameof(ErrorCode), "", LIBRARYNAME)]
         public static ParameterResolverValue ErrorCode<HostInterface>(HostInterface ctx, ParameterResolverValue[] args) where HostInterface : class {
             if (args.Length != 1) throw new ArgumentException("ErrorCode requires one agument");
             if (args[0].Value is Error err) {

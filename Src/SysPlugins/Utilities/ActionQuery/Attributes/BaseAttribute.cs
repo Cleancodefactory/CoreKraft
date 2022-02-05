@@ -6,27 +6,20 @@ using System.Threading.Tasks;
 
 namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
 {
-    public class BaseAttribute: Attribute
+    public class BaseAttribute : Attribute
     {
-        public enum ParameterType
+        [Flags]
+        public enum TypeEnum
         {
-            Int,
-            Double,
-            Bool,
-            String,
-            Object,
-            Null
+            Int = 0x010,
+            Double = 0x020,
+            Bool = 0x040,
+            String = 0x080,
+            Json = 0x010,
+            Dict = 0x020,
+            List = 0x040,
+            Null = 0x080,
+            Object = 0x100
         }
-
-        public enum ResultType
-        {
-            Int,
-            Double,
-            Bool,
-            String,
-            Json,
-            Dict
-        }
-
     }
 }

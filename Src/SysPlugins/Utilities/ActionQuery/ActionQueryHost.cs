@@ -96,7 +96,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             for (int i= 0;i < _Libraries.Count; i++)
             {
-                var p = _Libraries[i].GetProc(name);
+                HostedProc<HostInterface> p = _Libraries[i].GetProc(name);
                 if (p != null) return p;
             }
             return null;

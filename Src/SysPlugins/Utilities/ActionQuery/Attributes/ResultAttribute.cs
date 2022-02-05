@@ -6,14 +6,14 @@ namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class ResultAttribute : BaseAttribute
     {
-        public ResultAttribute(string documentation, ResultType resultType)
+        public ResultAttribute(string documentation, TypeEnum typeEnum)
         {
             Documentation = documentation;
-            ResultType = resultType;
+            TypeEnum = typeEnum;
         }
 
         public string Documentation { get; private set; }
 
-        public new ResultType ResultType { get; private set; }
+        public new TypeEnum TypeEnum { get; private set; }
     }
 }

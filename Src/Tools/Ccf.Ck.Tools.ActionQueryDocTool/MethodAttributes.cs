@@ -9,6 +9,7 @@ namespace Ccf.Ck.Tools.ActionQueryDocTool
 {
     internal class MethodAttributes
     {
+        private const string INDENTATION = "  ";
         internal FunctionAttribute FunctionAttribute { get; set; }
         internal List<ParameterAttribute> ParameterAttributes { get; set; }
         internal List<ParameterPatternAttribute> ParameterPatternAttributes { get; set; }
@@ -17,7 +18,7 @@ namespace Ccf.Ck.Tools.ActionQueryDocTool
         internal string CompileDocumentation()
         {
             StringBuilder result = new StringBuilder(1000);
-            result.AppendLine(FunctionAttribute.Documentation + "(" + FunctionAttribute.Library + ")");
+            result.AppendLine(FunctionAttribute.Documentation + " (" + FunctionAttribute.Library + ")");
             return result.ToString();
         }
 
@@ -30,8 +31,8 @@ namespace Ccf.Ck.Tools.ActionQueryDocTool
                 foreach (ParameterAttribute parameter in ParameterAttributes)
                 {
                     result.AppendLine("Parameter: " + parameter.Name);
-                    result.AppendLine("  Desc: " + parameter.Documentation);
-                    result.AppendLine("  Type: " + parameter.ParamType.ToString());
+                    result.AppendLine(INDENTATION + "Desc: " + parameter.Documentation);
+                    result.AppendLine(INDENTATION + "Type: " + parameter.ParamType.ToString());
                 }
             }
 
@@ -41,15 +42,11 @@ namespace Ccf.Ck.Tools.ActionQueryDocTool
                 foreach (ParameterPatternAttribute parameterPattern in ParameterPatternAttributes)
                 {
                     result.AppendLine("Parameter: " + parameterPattern.Name);
-                    result.AppendLine("  Desc: " + parameterPattern.Documentation);
-                    result.AppendLine("  First-Type: " + parameterPattern.FirstType.ToString());
-                    if (parameterPattern.SecondType != BaseAttribute.ParameterType.Null)
+                    result.AppendLine(INDENTATION + "Desc: " + parameterPattern.Documentation);
+                    result.AppendLine(INDENTATION + "First-Type: " + parameterPattern.FirstType.ToString());
+                    if (parameterPattern.SecondType != BaseAttribute.TypeEnum.Null)
                     {
-                        result.AppendLine("  Second-Type: " + parameterPattern.SecondType.ToString());
-                    }
-                    if (parameterPattern.ThirdType != BaseAttribute.ParameterType.Null)
-                    {
-                        result.AppendLine("  Third-Type: " + parameterPattern.ThirdType.ToString());
+                        result.AppendLine(INDENTATION + "Second-Type: " + parameterPattern.SecondType.ToString());
                     }
                 }
             }
@@ -57,7 +54,7 @@ namespace Ccf.Ck.Tools.ActionQueryDocTool
             if (ResultAttribute != null)
             {
                 result.AppendLine("Returns: " + ResultAttribute.Documentation);
-                result.AppendLine("Type: " + ResultAttribute.ResultType.ToString());
+                result.AppendLine(INDENTATION + "Type: " + ResultAttribute.TypeEnum.ToString());
             }
 
             return result.ToString();
