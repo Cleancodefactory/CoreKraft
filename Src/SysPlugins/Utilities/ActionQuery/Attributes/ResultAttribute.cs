@@ -6,7 +6,7 @@ namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class ResultAttribute : BaseAttribute
     {
-        public ResultAttribute(string documentation, TypeEnum typeEnum)
+        public ResultAttribute(string documentation, TypeFlags typeEnum)
         {
             Documentation = documentation;
             TypeEnum = typeEnum;
@@ -14,6 +14,6 @@ namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
 
         public string Documentation { get; private set; }
 
-        public new TypeEnum TypeEnum { get; private set; }
+        public new TypeFlags TypeEnum { get; private set; }
     }
 }

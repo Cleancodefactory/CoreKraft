@@ -11,12 +11,13 @@ using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.Processing.Web.ResponseBuilder;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
+using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
+    [Library("default", LibraryContextFlags.Node)]
     public class DefaultLibraryNodePlugin<HostInterface>: DefaultLibraryBase<HostInterface> where HostInterface: class
     {
-        private const string LIBRARYNAME = "DefaultLibraryNode";
         public DefaultLibraryNodePlugin()
         {
 

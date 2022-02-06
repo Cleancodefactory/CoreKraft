@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
 {
@@ -20,11 +21,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
     /// TODO: We need to be able to dispose some of the artifacts here. It should be possible to live without it, but it will take care for the memory better
     /// </summary>
     /// <typeparam name="HostInterface"></typeparam>
+    [Library("basicimage", LibraryContextFlags.MainNode)]
     public class BasicImageLib<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
         private object _LockObject = new Object();
         private static FontCollection _FontCollection;
-        private const string LIBRARYNAME = "BasicImageLib";
 
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
@@ -91,7 +92,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Function(nameof(CreateImage), "", LIBRARYNAME)]
+        [Function(nameof(CreateImage), "")]
         public ParameterResolverValue CreateImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("Image - not enough arguments.");
@@ -117,7 +118,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(DisposeImage), "", LIBRARYNAME)]
+        [Function(nameof(DisposeImage), "")]
         public ParameterResolverValue DisposeImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             int x;
@@ -142,7 +143,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(ResizeImage), "", LIBRARYNAME)]
+        [Function(nameof(ResizeImage), "")]
         public ParameterResolverValue ResizeImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 3) throw new ArgumentException("ResizeImage requires at least 3 arguments");
@@ -171,7 +172,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(ThumbImage), "", LIBRARYNAME)]
+        [Function(nameof(ThumbImage), "")]
         public ParameterResolverValue ThumbImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 2) throw new ArgumentException("ThumbImage requires 2 arguments");
@@ -201,7 +202,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(WaterMarkImage), "", LIBRARYNAME)]
+        [Function(nameof(WaterMarkImage), "")]
         public ParameterResolverValue WaterMarkImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 5) throw new ArgumentException("WaterMarkImage requires 5 arguments");
@@ -221,7 +222,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
 
         }
 
-        [Function(nameof(GetFont), "", LIBRARYNAME)]
+        [Function(nameof(GetFont), "")]
         public ParameterResolverValue GetFont(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 2) throw new ArgumentException("GetFont requires 3 arguments");
@@ -324,7 +325,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return processingContext.DrawText(drawingOptions, text, scaledFont, brush, pen, center);
         }
 
-        [Function(nameof(SaveImage), "", LIBRARYNAME)]
+        [Function(nameof(SaveImage), "")]
         public ParameterResolverValue SaveImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 2) throw new ArgumentException("SaveImage requires at least 2 arguments image, savepath");
@@ -339,7 +340,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(LoadImage), "", LIBRARYNAME)]
+        [Function(nameof(LoadImage), "")]
         public ParameterResolverValue LoadImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("LoadImage requires 1 argument");
@@ -354,7 +355,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(image);
         }
 
-        [Function(nameof(ImageHeight), "", LIBRARYNAME)]
+        [Function(nameof(ImageHeight), "")]
         public ParameterResolverValue ImageHeight(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ImageHeight requires one argument - the image");
@@ -366,7 +367,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(ImageWidth), "", LIBRARYNAME)]
+        [Function(nameof(ImageWidth), "")]
         public ParameterResolverValue ImageWidth(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ImageWidth requires one argument - the image");
@@ -378,7 +379,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(IsImage), "", LIBRARYNAME)]
+        [Function(nameof(IsImage), "")]
         public ParameterResolverValue IsImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("IsImage requires one argument - the image");
@@ -451,21 +452,21 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(_PostedFileFromImage(image, type, name));
         }
 
-        [Function(nameof(JpegFromImage), "", LIBRARYNAME)]
+        [Function(nameof(JpegFromImage), "")]
         public ParameterResolverValue JpegFromImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("JpegFromImage has too few arguments");
             return __PostedFileFromImage(args, "jpeg");
         }
 
-        [Function(nameof(GifFromImage), "", LIBRARYNAME)]
+        [Function(nameof(GifFromImage), "")]
         public ParameterResolverValue GifFromImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("GifFromImage has too few arguments");
             return __PostedFileFromImage(args, "gif");
         }
 
-        [Function(nameof(PngFromImage), "", LIBRARYNAME)]
+        [Function(nameof(PngFromImage), "")]
         public ParameterResolverValue PngFromImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("GifFromImage has too few arguments");

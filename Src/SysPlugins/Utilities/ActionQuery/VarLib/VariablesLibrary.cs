@@ -9,7 +9,6 @@ namespace Ccf.Ck.SysPlugins.Utilities
 {
     public class VariablesLibrary<HostInteface> : IActionQueryLibrary<HostInteface> where HostInteface : class
     {
-        private const string LIBRARYNAME = "VariablesLibrary";
         private Dictionary<string, ParameterResolverValue> _Variables = new Dictionary<string, ParameterResolverValue>();
 
         public ParameterResolverValue SetVar(string name, ParameterResolverValue value) {
@@ -21,7 +20,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(Set), "", LIBRARYNAME)]
+        
         public ParameterResolverValue Set(HostInteface ctx, ParameterResolverValue[] args)
         {
             if (args.Length % 2 != 0)
@@ -47,7 +46,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return lastvalue;
         }
 
-        [Function(nameof(Undefine), "", LIBRARYNAME)]
+        
         public ParameterResolverValue Undefine(HostInteface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1)
@@ -84,7 +83,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(Get), "", LIBRARYNAME)]
+        
         public ParameterResolverValue Get(HostInteface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1)
@@ -95,7 +94,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return GetVar(name);
         }
 
-        [Function(nameof(Inc), "", LIBRARYNAME)]
+        
         public ParameterResolverValue Inc(HostInteface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1)
@@ -124,7 +123,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(Dec), "", LIBRARYNAME)]
+        
         public ParameterResolverValue Dec(HostInteface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1)

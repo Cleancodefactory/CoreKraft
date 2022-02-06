@@ -14,7 +14,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 {
     public class DefaultLibraryBase<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
-        private const string LIBRARYNAME = "DefaultLibrary";
+
         #region IActionQueryLibrary
         public virtual HostedProc<HostInterface> GetProc(string name)
         {
@@ -99,21 +99,21 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Logical
 
-        [Function(nameof(Or), "", LIBRARYNAME)]
+        [Function(nameof(Or), "")]
         public ParameterResolverValue Or(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length == 0) return new ParameterResolverValue(false);
             return new ParameterResolverValue(args.Any(a => ActionQueryHostBase.IsTruthyOrFalsy(a)));
         }
 
-        [Function(nameof(And), "", LIBRARYNAME)]
+        [Function(nameof(And), "")]
         public ParameterResolverValue And(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length == 0) return new ParameterResolverValue(false);
             return new ParameterResolverValue(args.All(a => ActionQueryHostBase.IsTruthyOrFalsy(a)));
         }
 
-        [Function(nameof(Not), "", LIBRARYNAME)]
+        [Function(nameof(Not), "")]
         public ParameterResolverValue Not(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
@@ -127,7 +127,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(IsNull), "", LIBRARYNAME)]
+        [Function(nameof(IsNull), "")]
         public ParameterResolverValue IsNull(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
@@ -141,7 +141,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(NotNull), "", LIBRARYNAME)]
+        [Function(nameof(NotNull), "")]
         public ParameterResolverValue NotNull(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
@@ -158,7 +158,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Arithmetic
 
-        [Function(nameof(Random), "", LIBRARYNAME)]
+        [Function(nameof(Random), "")]
         public ParameterResolverValue Random(HostInterface ctx, ParameterResolverValue[] args)
         {
             int min = 0;
@@ -196,7 +196,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(random.Next());
         }
 
-        [Function(nameof(Add), "", LIBRARYNAME)]
+        [Function(nameof(Add), "")]
         public ParameterResolverValue Add(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Any(a => a.Value is double || a.Value is float)) // Double result
@@ -213,7 +213,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(Neg), "", LIBRARYNAME)]
+        [Function(nameof(Neg), "")]
         public ParameterResolverValue Neg(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("Neg needs single numeric argument");
@@ -233,7 +233,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(TryAdd), "", LIBRARYNAME)]
+        [Function(nameof(TryAdd), "")]
         public ParameterResolverValue TryAdd(HostInterface ctx, ParameterResolverValue[] args)
         {
             try
@@ -255,7 +255,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Function(nameof(ConsumeOne), "", LIBRARYNAME)]
+        [Function(nameof(ConsumeOne), "")]
         public ParameterResolverValue ConsumeOne(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ConsumeOne takes one argument - a collection ");
@@ -279,7 +279,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(List), "", LIBRARYNAME)]
+        [Function(nameof(List), "")]
         public ParameterResolverValue List(HostInterface ctx, ParameterResolverValue[] args)
         {
             var list = new List<ParameterResolverValue>(); // The new list
@@ -301,7 +301,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(list);
         }
 
-        [Function(nameof(ValueList), "", LIBRARYNAME)]
+        [Function(nameof(ValueList), "")]
         public ParameterResolverValue ValueList(HostInterface ctx, ParameterResolverValue[] args)
         {
             var list = new ValueList<ParameterResolverValue>(); // The new list
@@ -323,14 +323,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(list);
         }
 
-        [Function(nameof(IsList), "", LIBRARYNAME)]
+        [Function(nameof(IsList), "")]
         public ParameterResolverValue IsList(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("IsList requires an argument");
             return new ParameterResolverValue(args[0].Value is List<ParameterResolverValue>);
         }
 
-        [Function(nameof(ListAdd), "", LIBRARYNAME)]
+        [Function(nameof(ListAdd), "")]
         public ParameterResolverValue ListAdd(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("ListAdd requires some arguments");
@@ -349,7 +349,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(list);
         }
 
-        [Function(nameof(ListRemove), "", LIBRARYNAME)]
+        [Function(nameof(ListRemove), "")]
         public ParameterResolverValue ListRemove(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("ListRemove requires some arguments");
@@ -376,7 +376,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(list);
         }
 
-        [Function(nameof(ListInsert), "", LIBRARYNAME)]
+        [Function(nameof(ListInsert), "")]
         public ParameterResolverValue ListInsert(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 3) throw new ArgumentException("ListInsert requires 3 arguments");
@@ -388,7 +388,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(list);
         }
 
-        [Function(nameof(ListGet), "", LIBRARYNAME)]
+        [Function(nameof(ListGet), "")]
         public ParameterResolverValue ListGet(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("ListGet requires 2 arguments");
@@ -406,7 +406,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(ListSet), "", LIBRARYNAME)]
+        [Function(nameof(ListSet), "")]
         public ParameterResolverValue ListSet(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 3) throw new ArgumentException("ListSet requires 3 arguments");
@@ -425,7 +425,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(ListClear), "", LIBRARYNAME)]
+        [Function(nameof(ListClear), "")]
         public ParameterResolverValue ListClear(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ListClear requires 1 argument");
@@ -463,13 +463,13 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(arg);
         }
 
-        [Function(nameof(AsList), "", LIBRARYNAME)]
+        [Function(nameof(AsList), "")]
         public ParameterResolverValue AsList(HostInterface ctx, ParameterResolverValue[] args)
         {
             return _AsList<List<ParameterResolverValue>>(ctx, args);
         }
 
-        [Function(nameof(AsValueList), "", LIBRARYNAME)]
+        [Function(nameof(AsValueList), "")]
         public ParameterResolverValue AsValueList(HostInterface ctx, ParameterResolverValue[] args)
         {
             return _AsList<ValueList<ParameterResolverValue>>(ctx, args);
@@ -477,7 +477,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Dictionary (Dict)
-        [Function(nameof(Dict), "", LIBRARYNAME)]
+        [Function(nameof(Dict), "")]
         public ParameterResolverValue Dict(HostInterface ctx, ParameterResolverValue[] args)
         {
             var dict = new Dictionary<string, ParameterResolverValue>(); // The new dictionary
@@ -494,14 +494,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
 
-        [Function(nameof(IsDict), "", LIBRARYNAME)]
+        [Function(nameof(IsDict), "")]
         public ParameterResolverValue IsDict(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("IsDict requires an argument.");
             return new ParameterResolverValue(args[0].Value is Dictionary<string, ParameterResolverValue>);
         }
 
-        [Function(nameof(DictSet), "", LIBRARYNAME)]
+        [Function(nameof(DictSet), "")]
         public ParameterResolverValue DictSet(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length % 2 == 0) throw new ArgumentException("DictSet requires odd number of  arguments");
@@ -518,7 +518,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
 
-        [Function(nameof(DictGet), "", LIBRARYNAME)]
+        [Function(nameof(DictGet), "")]
         public ParameterResolverValue DictGet(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("DictGet requires two arguments");
@@ -530,7 +530,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return dict[key];
         }
 
-        [Function(nameof(DictClear), "", LIBRARYNAME)]
+        [Function(nameof(DictClear), "")]
         public ParameterResolverValue DictClear(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("DictClear requires one argument");
@@ -540,7 +540,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
 
-        [Function(nameof(DictRemove), "", LIBRARYNAME)]
+        [Function(nameof(DictRemove), "")]
         public ParameterResolverValue DictRemove(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("DictRemove requires at least one argument");
@@ -555,7 +555,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
 
-        [Function(nameof(DictRemoveExcept), "", LIBRARYNAME)]
+        [Function(nameof(DictRemoveExcept), "")]
         public ParameterResolverValue DictRemoveExcept(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("DictRemoveExcept requires at least one argument");
@@ -573,7 +573,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
 
-        [Function(nameof(AsDict), "", LIBRARYNAME)]
+        [Function(nameof(AsDict), "")]
         public ParameterResolverValue AsDict(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("AsDict requires at least one argument");
@@ -620,7 +620,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
 
-        [Function(nameof(IsDictCompatible), "", LIBRARYNAME)]
+        [Function(nameof(IsDictCompatible), "")]
         public ParameterResolverValue IsDictCompatible(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("IsDictCompatible requires at least one argument");
@@ -634,7 +634,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Navigation through Dict/List structures
 
-        [Function(nameof(NavGet), "", LIBRARYNAME)]
+        [Function(nameof(NavGet), "")]
         public ParameterResolverValue NavGet(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 2) throw new ArgumentException("NavGetGet requires two or more arguments");
@@ -687,7 +687,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Comparisons
 
-        [Function(nameof(Equal), "", LIBRARYNAME)]
+        [Function(nameof(Equal), "")]
         public ParameterResolverValue Equal(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Equal needs two arguments");
@@ -711,7 +711,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(Greater), "", LIBRARYNAME)]
+        [Function(nameof(Greater), "")]
         public ParameterResolverValue Greater(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Greater needs two arguments");
@@ -735,7 +735,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(Lower), "", LIBRARYNAME)]
+        [Function(nameof(Lower), "")]
         public ParameterResolverValue Lower(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Lower needs two arguments");
@@ -764,13 +764,13 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Strings
 
-        [Function(nameof(Concat), "", LIBRARYNAME)]
+        [Function(nameof(Concat), "")]
         public ParameterResolverValue Concat(HostInterface ctx, ParameterResolverValue[] args)
         {
             return new ParameterResolverValue(String.Concat(args.Select(a => a.Value != null ? a.Value.ToString() : "")));
         }
 
-        [Function(nameof(IsEmpty), "", LIBRARYNAME)]
+        [Function(nameof(IsEmpty), "")]
         public ParameterResolverValue IsEmpty(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("IsEmpty requires single argument.");
@@ -778,7 +778,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(string.IsNullOrWhiteSpace(val));
         }
 
-        [Function(nameof(Slice), "", LIBRARYNAME)]
+        [Function(nameof(Slice), "")]
         public ParameterResolverValue Slice(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length >= 2)
@@ -805,7 +805,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(Length), "", LIBRARYNAME)]
+        [Function(nameof(Length), "")]
         public ParameterResolverValue Length(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("Length accepts exactly one argument.");
@@ -820,7 +820,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(Replace), "", LIBRARYNAME)]
+        [Function(nameof(Replace), "")]
         public ParameterResolverValue Replace(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 3) throw new ArgumentException("Replace accepts exactly 3  argument.");
@@ -830,7 +830,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(str.Replace(patt, rep));
         }
 
-        [Function(nameof(RegexReplace), "", LIBRARYNAME)]
+        [Function(nameof(RegexReplace), "")]
         public ParameterResolverValue RegexReplace(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 3) throw new ArgumentException("RegexReplace accepts exactly 3  argument.");
@@ -849,7 +849,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         }
 
-        [Function(nameof(Split), "", LIBRARYNAME)]
+        [Function(nameof(Split), "")]
         public ParameterResolverValue Split(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("Split requires at least 1 argument");
@@ -873,7 +873,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(Trim), "", LIBRARYNAME)]
+        [Function(nameof(Trim), "")]
         public ParameterResolverValue Trim(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("Trim requires one parameter.");
@@ -881,7 +881,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(str.Trim());
         }
 
-        [Function(nameof(EncodeBase64), "", LIBRARYNAME)]
+        [Function(nameof(EncodeBase64), "")]
         public ParameterResolverValue EncodeBase64(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("EncodeBase64 requires one parameter.");
@@ -891,7 +891,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(encodedText);
         }
 
-        [Function(nameof(DecodeBase64), "", LIBRARYNAME)]
+        [Function(nameof(DecodeBase64), "")]
         public ParameterResolverValue DecodeBase64(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("DecodeBase64 requires one parameter.");
@@ -901,7 +901,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(text);
         }
 
-        [Function(nameof(MD5), "", LIBRARYNAME)]
+        [Function(nameof(MD5), "")]
         public ParameterResolverValue MD5(HostInterface ctx, ParameterResolverValue[] args)
         {
             string format = "x2";
@@ -925,7 +925,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Typing
 
-        [Function(nameof(Cast), "", LIBRARYNAME)]
+        [Function(nameof(Cast), "")]
         public ParameterResolverValue Cast(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 2) throw new ArgumentException("Cast requires two arguments.");
@@ -948,7 +948,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(TypeOf), "", LIBRARYNAME)]
+        [Function(nameof(TypeOf), "")]
         public ParameterResolverValue TypeOf(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("TypeOf requires one argument.");
@@ -975,7 +975,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return false;
         }
 
-        [Function(nameof(IsNumeric), "", LIBRARYNAME)]
+        [Function(nameof(IsNumeric), "")]
         public ParameterResolverValue IsNumeric(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("IsNumeric requires one argument.");
@@ -988,7 +988,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Settings
 
-        [Function(nameof(GSetting), "", LIBRARYNAME)]
+        [Function(nameof(GSetting), "")]
         public ParameterResolverValue GSetting(HostInterface _ctx, ParameterResolverValue[] args)
         {
             KraftGlobalConfigurationSettings kgcf = null;
@@ -1042,7 +1042,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #endregion
 
-        [Function(nameof(Throw), "", LIBRARYNAME)]
+        [Function(nameof(Throw), "")]
         public ParameterResolverValue Throw(HostInterface ctx, ParameterResolverValue[] args)
         {
             string extext = null;
@@ -1060,7 +1060,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             throw new Exception(extext);
         }
 
-        [Function(nameof(Debug), "", LIBRARYNAME)]
+        [Function(nameof(Debug), "")]
         public ParameterResolverValue Debug(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length > 0)
@@ -1187,14 +1187,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Conversions
-        [Function(nameof(ToNodesetData), "", LIBRARYNAME)]
+        [Function(nameof(ToNodesetData), "")]
         public ParameterResolverValue ToNodesetData(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ToNodesetData takes one argument");
             return new ParameterResolverValue(ConvertToGenericData(args[0].Value));
         }
 
-        [Function(nameof(ToGeneralData), "", LIBRARYNAME)]
+        [Function(nameof(ToGeneralData), "")]
         public ParameterResolverValue ToGeneralData(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ToGeneralData takes one argument");

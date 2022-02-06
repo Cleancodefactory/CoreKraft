@@ -5,7 +5,7 @@ namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class ParameterAttribute : BaseAttribute
     {
-        public ParameterAttribute(int order, string name, string documentation, TypeEnum paramType = TypeEnum.String)
+        public ParameterAttribute(int order, string name, string documentation, TypeFlags paramType = TypeFlags.String)
         {
             Order = order;
             Name = name;
@@ -19,6 +19,6 @@ namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
 
         public string Documentation { get; private set; }
 
-        public TypeEnum ParamType { get; private set; }
+        public TypeFlags ParamType { get; private set; }
     }
 }

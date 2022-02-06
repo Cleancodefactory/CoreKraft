@@ -44,7 +44,7 @@ namespace Ccf.Ck.Tools.ActionQueryDocTool
                     result.AppendLine("Parameter: " + parameterPattern.Name);
                     result.AppendLine(INDENTATION + "Desc: " + parameterPattern.Documentation);
                     result.AppendLine(INDENTATION + "First-Type: " + parameterPattern.FirstType.ToString());
-                    if (parameterPattern.SecondType != BaseAttribute.TypeEnum.Null)
+                    if (parameterPattern.SecondType != BaseAttribute.TypeFlags.Null)
                     {
                         result.AppendLine(INDENTATION + "Second-Type: " + parameterPattern.SecondType.ToString());
                     }

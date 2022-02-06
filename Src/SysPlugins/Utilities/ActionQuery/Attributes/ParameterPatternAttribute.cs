@@ -5,7 +5,7 @@ namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class ParameterPatternAttribute : BaseAttribute
     {
-        public ParameterPatternAttribute(int order, string name, string documentation, TypeEnum firstType, TypeEnum secondType = TypeEnum.Null)
+        public ParameterPatternAttribute(int order, string name, string documentation, TypeFlags firstType, TypeFlags secondType = TypeFlags.Null)
         {
             Order = order;
             Name = name;
@@ -20,7 +20,7 @@ namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
 
         public string Documentation { get; private set; }
 
-        public TypeEnum FirstType { get; private set; }
-        public TypeEnum SecondType { get; private set; }
+        public TypeFlags FirstType { get; private set; }
+        public TypeFlags SecondType { get; private set; }
     }
 }

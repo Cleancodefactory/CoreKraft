@@ -11,13 +11,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
 {
+    [Library("files", LibraryContextFlags.MainNode)]
     public class BasicFiles<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class {
 
         private object _LockObject = new Object();
-        private const string LIBRARYNAME = "BasicFiles";
 
         public BasicFiles() {
             //_disposables.Add(http);
@@ -38,7 +39,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 case nameof(PostedFile): return this.PostedFile;
                 case nameof(FileResponse): return FileResponse;
                 case nameof(FileExists): return FileExists;
-                case nameof(CalcSpreadName): return CalcSpreadName;//TODO Check if correct Robert
+                // case nameof(CalcSpreadName): return CalcSpreadName;//TODO Under consideration
             }
             return null;
         }
@@ -61,13 +62,13 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         #endregion
 
         #region Functions
-        [Function(nameof(IsPostedFile), "", LIBRARYNAME)]
+        [Function(nameof(IsPostedFile), "")]
         public ParameterResolverValue IsPostedFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("IsFile accepts single argument.");
             return new ParameterResolverValue(args[0].Value is IPostedFile);
         }
 
-        [Function(nameof(PostedFileSize), "", LIBRARYNAME)]
+        [Function(nameof(PostedFileSize), "")]
         public ParameterResolverValue PostedFileSize(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("PostedFileSize requires single argument");
             var pf = args[0].Value as IPostedFile;
@@ -75,7 +76,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new ParameterResolverValue((double)pf.Length);
         }
 
-        [Function(nameof(PostedFileName), "", LIBRARYNAME)]
+        [Function(nameof(PostedFileName), "")]
         public ParameterResolverValue PostedFileName(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("PostedFileSize requires single argument");
             var pf = args[0].Value as IPostedFile;
@@ -83,7 +84,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new ParameterResolverValue(pf.FileName);
         }
 
-        [Function(nameof(PostedFileType), "", LIBRARYNAME)]
+        [Function(nameof(PostedFileType), "")]
         public ParameterResolverValue PostedFileType(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("PostedFileSize requires single argument");
             var pf = args[0].Value as IPostedFile;
@@ -91,7 +92,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new ParameterResolverValue(pf.ContentType);
         }
 
-        [Function(nameof(CombinePaths), "", LIBRARYNAME)]
+        [Function(nameof(CombinePaths), "")]
         public ParameterResolverValue CombinePaths(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("CombinePaths accepts two arguments.");
             var path = args[0].Value as string;
@@ -106,7 +107,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         /// <param name="ctx"></param>
         /// <param name="args">(IPostedFile pf, string savepath)</param>
         /// <returns></returns>
-        [Function(nameof(SaveFile), "", LIBRARYNAME)]
+        [Function(nameof(SaveFile), "")]
         public ParameterResolverValue SaveFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("Save file takes two arguments: file, save_path");
             IPostedFile file = args[0].Value as IPostedFile;
@@ -125,7 +126,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new ParameterResolverValue(true);
         }
 
-        [Function(nameof(DeleteFile), "", LIBRARYNAME)]
+        [Function(nameof(DeleteFile), "")]
         public ParameterResolverValue DeleteFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("DeleteFile takes single argument: filepath");
             string savepath = args[0].Value as string;
@@ -143,7 +144,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new ParameterResolverValue(true);
         }
 
-        [Function(nameof(PrependFileName), "", LIBRARYNAME)]
+        [Function(nameof(PrependFileName), "")]
         public ParameterResolverValue PrependFileName(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("PrependFileName requires two arguments (prefix, filename)");
             if (args[0].Value == null) throw new ArgumentException("PrependFileName prefix argument is null");
@@ -155,7 +156,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new ParameterResolverValue(name);
         }
 
-        [Function(nameof(CreateDirectory), "", LIBRARYNAME)]
+        [Function(nameof(CreateDirectory), "")]
         public ParameterResolverValue CreateDirectory(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("CreateDirectory requires single parameter");
             var path = args[0].Value as string;
@@ -166,7 +167,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new ParameterResolverValue(path);
         }
 
-        [Function(nameof(CalcSpreadName), "", LIBRARYNAME)]
+        // TODO Consider the need of this
         public ParameterResolverValue CalcSpreadName(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 4) throw new ArgumentException("CalcSpreadName requires 4 arguments (sring basedir, int spread, long id, postedfile)");
             string basedir;
@@ -202,7 +203,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         /// <param name="ctx"></param>
         /// <param name="args">(sring basedir, int spread, long id, IPostedFile file)</param>
         /// <returns></returns>
-        [Function(nameof(SaveFileToSpread), "", LIBRARYNAME)]
+        [Function(nameof(SaveFileToSpread), "")]
         public ParameterResolverValue SaveFileToSpread(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 4) throw new ArgumentException("SaveFileToSpread requires 4 arguments (sring basedir, int spread, long id, string filename)");
             string basedir;
@@ -246,7 +247,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         /// <param name="ctx"></param>
         /// <param name="args">(string filepath, string contentType)</param>
         /// <returns></returns>
-        [Function(nameof(PostedFile), "", LIBRARYNAME)]
+        [Function(nameof(PostedFile), "")]
         public ParameterResolverValue PostedFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("PostedFile accepts 1 or 2 arguments (filepath[, contentType])");
             var filepath = args[0].Value as string;
@@ -284,7 +285,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             
         }
 
-        [Function(nameof(FileResponse), "", LIBRARYNAME)]
+        [Function(nameof(FileResponse), "")]
         public ParameterResolverValue FileResponse(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("FileResponse accepts 1 argument (PostedFile)");
             var pf = args[0].Value as IPostedFile;
@@ -299,7 +300,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new ParameterResolverValue(pf);
         }
 
-        [Function(nameof(FileExists), "", LIBRARYNAME)]
+        [Function(nameof(FileExists), "")]
         public ParameterResolverValue FileExists(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("FileExists requies one argument - the path to the file");
             var path = Convert.ToString(args[0].Value);

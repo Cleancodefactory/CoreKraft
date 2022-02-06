@@ -10,12 +10,14 @@ using System.Linq;
 using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
+using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 {
+    [Library("inteernalcalls", LibraryContextFlags.MainNode)]
     public class DirectCallLib<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
-        private const string LIBRARYNAME = "DirectCallLib";
+        
         private object _LockObject = new Object();
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
@@ -152,12 +154,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Function(nameof(CallRead), "", LIBRARYNAME)]
+        [Function(nameof(CallRead), "")]
         public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args);
         }
 
-        [Function(nameof(CallWrite), "", LIBRARYNAME)]
+        [Function(nameof(CallWrite), "")]
         public ParameterResolverValue CallWrite(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(true, ctx, args);
         }

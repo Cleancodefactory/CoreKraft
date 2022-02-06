@@ -20,11 +20,11 @@ using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 {
+    [Library("basicweb",LibraryContextFlags.MainNode)]
     public class WebLibrary<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
         private object _LockObject = new Object();
         private HttpClient http = null;
-        private const string LIBRARYNAME = "WebLibrary";
 
         public WebLibrary() {
             http = new HttpClient();
@@ -74,9 +74,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 
 
         #region Functions
-        [Function(nameof(BuildQueryString), "Converts key/value pair of parameters to query string", LIBRARYNAME)]
-        [ParameterPattern(1, "dict", "Contains the query parameters as key/value pairs", TypeEnum.String, TypeEnum.Object)]
-        [Result("Returns the url encoded string", TypeEnum.String| TypeEnum.Bool)]
+        [Function(nameof(BuildQueryString), "Converts key/value pair of parameters to query string")]
+        [ParameterPattern(1, "dict", "Contains the query parameters as key/value pairs", TypeFlags.String, TypeFlags.Object)]
+        [Result("Returns the url encoded string", TypeFlags.String| TypeFlags.Bool)]
         public ParameterResolverValue BuildQueryString(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("Wrong number of arguments for BuildQueyString");
             
@@ -91,9 +91,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
         }
 
-        [Function(nameof(UnbuildQueryString), "Converts a query string to dictionary", LIBRARYNAME)]
-        [Parameter(1, "querystring", "Contains the query parameters as query string", TypeEnum.String)]
-        [Result("Returns a dictionary populated from the query string", TypeEnum.Dict)]
+        [Function(nameof(UnbuildQueryString), "Converts a query string to dictionary")]
+        [Parameter(1, "querystring", "Contains the query parameters as query string", TypeFlags.String)]
+        [Result("Returns a dictionary populated from the query string", TypeFlags.Dict)]
         public ParameterResolverValue UnbuildQueryString(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("UnbuildQueryString requires exactly one argument.");
             string s;
@@ -126,10 +126,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Function(nameof(WGetJson), "Makes get request and returns the result as json ", LIBRARYNAME)]
-        [Parameter(1, "url", "Fully qualified url", TypeEnum.String)]
-        [ParameterPattern(2, "dict", "Contains the query parameters as key/value pairs", TypeEnum.String, TypeEnum.Object )]
-        [Result("Returns parsed json as dictionary from the http call", TypeEnum.Dict)]
+        [Function(nameof(WGetJson), "Makes get request and returns the result as json ")]
+        [Parameter(1, "url", "Fully qualified url", TypeFlags.String)]
+        [ParameterPattern(2, "dict", "Contains the query parameters as key/value pairs", TypeFlags.String, TypeFlags.Object )]
+        [Result("Returns parsed json as dictionary from the http call", TypeFlags.Dict)]
         public ParameterResolverValue WGetJson(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("Not enough arguments to construct request");
             var url = Convert.ToString(args[0].Value);
@@ -167,10 +167,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
         }
 
-        [Function(nameof(WGetString), "Makes get request and returns the result as string ", LIBRARYNAME)]
-        [Parameter(1, "url", "Fully qualified url", TypeEnum.String)]
-        [ParameterPattern(2, "dict", "Contains the query parameters as key/value pairs", TypeEnum.String, TypeEnum.Object)]
-        [Result("Returns the string result from the http call", TypeEnum.String)]
+        [Function(nameof(WGetString), "Makes get request and returns the result as string ")]
+        [Parameter(1, "url", "Fully qualified url", TypeFlags.String)]
+        [ParameterPattern(2, "dict", "Contains the query parameters as key/value pairs", TypeFlags.String, TypeFlags.Object)]
+        [Result("Returns the string result from the http call", TypeFlags.String)]
         public ParameterResolverValue WGetString(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("Not enough arguments to construct request");
             var url = Convert.ToString(args[0].Value);
@@ -200,10 +200,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
         }
 
-        [Function(nameof(WPostJson), "Makes post json request and returns the result as dictionary", LIBRARYNAME)]
-        [Parameter(1, "url", "Fully qualified url", TypeEnum.String)]
-        [ParameterPattern(2, "dict", "Contains the post parameters as key/value pairs", TypeEnum.String, TypeEnum.Object)]
-        [Result("Returns the result as dictionary from the http call", TypeEnum.Dict)]
+        [Function(nameof(WPostJson), "Makes post json request and returns the result as dictionary")]
+        [Parameter(1, "url", "Fully qualified url", TypeFlags.String)]
+        [ParameterPattern(2, "dict", "Contains the post parameters as key/value pairs", TypeFlags.String, TypeFlags.Object)]
+        [Result("Returns the result as dictionary from the http call", TypeFlags.Dict)]
         public ParameterResolverValue WPostJson(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("Not enough arguments to construct request");
             var url = Convert.ToString(args[0].Value);
