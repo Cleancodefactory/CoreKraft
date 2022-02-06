@@ -2,7 +2,7 @@
   "profiles": {
     "Ccf.Ck.Tools.ActionQueryDocTool": {
       "commandName": "Project",
-      "commandLineArgs": "D:\\_Development\\Ccf\\CcfRepositories\\Kraft-Tools\\VsCodeExtensions\\ActionQueryLanguageSupport\\src\\syntaxes\\actionquery.json"
+      "commandLineArgs": "D:\\_Development\\Ccf\\CcfRepositories\\Kraft-Tools\\VsCodeExtensions\\ActionQueryLanguageSupport\\src\\syntaxes\\actionquery-main.json D:\\_Development\\Ccf\\CcfRepositories\\Kraft-Tools\\VsCodeExtensions\\ActionQueryLanguageSupport\\src\\syntaxes\\actionquery-node.json"
     }
   }
 }

@@ -15,14 +15,14 @@ namespace Ccf.Ck.Tools.ActionQueryDocTool
         internal List<ParameterPatternAttribute> ParameterPatternAttributes { get; set; }
         internal ResultAttribute ResultAttribute { get; set; }
 
-        internal string CompileDocumentation()
+        internal string CompileDocumentation(string libName)
         {
             StringBuilder result = new StringBuilder(1000);
-            result.AppendLine(FunctionAttribute.Documentation + " (" + FunctionAttribute.Library + ")");
+            result.AppendLine(FunctionAttribute.Documentation + " (" + libName + ")");
             return result.ToString();
         }
 
-        internal object CompileDetail()
+        internal object CompileDetail(string libName)
         {
             StringBuilder result = new StringBuilder(1000);
             if (ParameterAttributes != null)
