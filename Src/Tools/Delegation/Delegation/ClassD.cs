@@ -6,22 +6,23 @@ using System.Threading.Tasks;
 
 namespace Delegation
 {
-    public delegate void DelegateStringA(ClassA _this, string arg);
-    public class ClassA: ClassBase
+    public delegate void DelegateStringD(ClassD _this, string arg);
+    public class ClassD: ClassBase
     {
-        private static Dictionary<string, DelegateStringA> _cache = new Dictionary<string, DelegateStringA>();
-        static ClassA()
+        private static Dictionary<string, DelegateStringD> _cache = new Dictionary<string, DelegateStringD>();
+        static ClassD()
         {
-            var t = typeof(ClassA);
+            var t = typeof(ClassD);
             var mi1 = t.GetMethod("M1");
-            _cache.Add("M1", mi1.CreateDelegate<DelegateStringA>(null));
+            _cache.Add("M1", mi1.CreateDelegate<DelegateStringD>(null));
             mi1 = t.GetMethod("M2");
-            _cache.Add("M2", mi1.CreateDelegate<DelegateStringA>(null));
+            _cache.Add("M2", mi1.CreateDelegate<DelegateStringD>(null));
             mi1 = t.GetMethod("M3");
-            _cache.Add("M3", mi1.CreateDelegate<DelegateStringA>(null));
+            _cache.Add("M3", mi1.CreateDelegate<DelegateStringD>(null));
             mi1 = t.GetMethod("M4");
-            _cache.Add("M4", mi1.CreateDelegate<DelegateStringA>(null));
+            _cache.Add("M4", mi1.CreateDelegate<DelegateStringD>(null));
         }
+
         public DelegateStringSimple GetProc(string name) => name switch
         {
             nameof(M1) => M1,
@@ -30,13 +31,16 @@ namespace Delegation
             nameof(M4) => M4,
             _ => null,
         };
-        public DelegateStringA GetProc2(string methodName) {
+
+        public DelegateStringD GetProc2(string methodName)
+        {
             if (_cache.ContainsKey(methodName))
             {
                 return _cache[methodName];
             }
             return null;
         }
+
         public void M1(string argument)
         {
 
