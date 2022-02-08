@@ -1,1 +1,0 @@
-Only to keep the file structure in Git

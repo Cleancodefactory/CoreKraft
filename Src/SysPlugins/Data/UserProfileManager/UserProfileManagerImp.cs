@@ -17,7 +17,10 @@ using System.Security.Claims;
 namespace Ccf.Ck.SysPlugins.Data.UserProfileManager
 {
     public class UserProfileManagerImp : DataLoaderClassicBase<UserProfileManagerContext>
-    {       
+    {
+        //This feature should be in sync with the Authorization server (OpenIdDictStartup.cs)
+        //options.SetAccessTokenLifetime(TimeSpan.FromMinutes(60));
+        private const int ACCESSTOKENLIFETIMEINSECONDS = 3600;
         protected override List<Dictionary<string, object>> Read(IDataLoaderReadContext execContext)
         {
             List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
@@ -32,16 +35,19 @@ namespace Ccf.Ck.SysPlugins.Data.UserProfileManager
                     Dictionary<string, object> resultAuth = new Dictionary<string, object>();
                     resultAuth.Add("key", $"{authority}/api/avatar");
                     resultAuth.Add("token", accessToken);
+                    resultAuth.Add("timeoutinseconds", ACCESSTOKENLIFETIMEINSECONDS);
                     resultAuth.Add("servicename", "avatarimage");
                     result.Add(resultAuth);
                     resultAuth = new Dictionary<string, object>();
                     resultAuth.Add("key", $"{authority}");
                     resultAuth.Add("token", accessToken);
+                    resultAuth.Add("timeoutinseconds", ACCESSTOKENLIFETIMEINSECONDS);
                     resultAuth.Add("servicename", "authorizationserver");
                     result.Add(resultAuth);
                     resultAuth = new Dictionary<string, object>();
                     resultAuth.Add("key", $"{authority}/api/user");
                     resultAuth.Add("token", accessToken);
+                    resultAuth.Add("timeoutinseconds", ACCESSTOKENLIFETIMEINSECONDS);
                     resultAuth.Add("servicename", "user");
                     result.Add(resultAuth);
                 }
