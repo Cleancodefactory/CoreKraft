@@ -92,12 +92,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return base.GetProc(name);
         }
 
+        [Function(nameof(BailOut), "")]
         public ParameterResolverValue BailOut(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is INodePluginContext rctx) {
                 rctx.BailOut();
             }
             return new ParameterResolverValue(null);
         }
+
+        [Function(nameof(OverrideResponseData), "")]
         public ParameterResolverValue OverrideResponseData(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("OverrideResponseData requires exactly 1 argument");
             if (ctx is IDataLoaderContext ctx1) {
@@ -107,6 +110,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return args[0];
         }
+
+        [Function(nameof(ForceJSONResponse), "")]
         public ParameterResolverValue ForceJSONResponse(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is IDataLoaderContext ctx1) {
                 ctx1.ProcessingContext.ReturnModel.ResponseBuilder = new JsonResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx1.ProcessingContext }));
@@ -115,6 +120,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(null);
         }
+
+        [Function(nameof(ForceTextResponse), "")]
         public ParameterResolverValue ForceTextResponse(HostInterface ctx, ParameterResolverValue[] args) {
             string contentType = null;
             if (args.Length > 0) {
@@ -130,6 +137,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region
 
+        [Function(nameof(AddResult), "")]
         public ParameterResolverValue AddResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginReadContext rctx)
@@ -163,6 +171,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 throw new InvalidOperationException("AddResult can be used only in Read actions");
             }
         }
+
+        [Function(nameof(HasResults), "")]
         public ParameterResolverValue HasResults(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginReadContext rctx)
@@ -175,6 +185,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
+        [Function(nameof(ModifyResult), "")]
         public ParameterResolverValue ModifyResult(HostInterface ctx, ParameterResolverValue[] args) {
             Dictionary<string, object> result = null;
             if (ctx is INodePluginReadContext rctx) {
@@ -221,6 +232,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
+        [Function(nameof(SetResult), "")]
         public ParameterResolverValue SetResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;
@@ -267,6 +279,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
+        [Function(nameof(ClearResultExcept), "")]
         public ParameterResolverValue ClearResultExcept(HostInterface ctx, ParameterResolverValue[] args) {
             Dictionary<string, object> result = null;
             if (ctx is INodePluginReadContext rctx) {
@@ -324,12 +337,16 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return result;
         }
+
+        [Function(nameof(GetStatePropertyName), "")]
         public ParameterResolverValue GetStatePropertyName(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is INodePluginContext dtx) {
                 return new ParameterResolverValue(dtx.DataState.StatePropertyName);
             }
             return new ParameterResolverValue(null);
         }
+
+        [Function(nameof(ResetResultState), "")]
         public ParameterResolverValue ResetResultState(HostInterface ctx, ParameterResolverValue[] args)
         {
             var result = _GetResult(ctx);
@@ -339,6 +356,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(null);
         }
+
+        [Function(nameof(SetResultDeleted), "")]
         public ParameterResolverValue SetResultDeleted(HostInterface ctx, ParameterResolverValue[] args)
         {
             var result = _GetResult(ctx);
@@ -348,6 +367,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(null);
         }
+
+        [Function(nameof(SetResultNew), "")]
         public ParameterResolverValue SetResultNew(HostInterface ctx, ParameterResolverValue[] args)
         {
             var result = _GetResult(ctx);
@@ -357,6 +378,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(null);
         }
+
+        [Function(nameof(SetResultUpdated), "")]
         public ParameterResolverValue SetResultUpdated(HostInterface ctx, ParameterResolverValue[] args)
         {
             var result = _GetResult(ctx);
@@ -373,6 +396,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
+        [Function(nameof(ResultsCount), "")]
         public ParameterResolverValue ResultsCount(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is INodePluginReadContext rctx) {
                 return new ParameterResolverValue(rctx.Results.Count);
@@ -389,6 +413,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
+        [Function(nameof(GetResult), "")]
         public ParameterResolverValue GetResult(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is INodePluginReadContext rctx) {
                 int index = -1;
@@ -407,6 +432,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
         }
+
+        [Function(nameof(RemoveResult), "")]
         public ParameterResolverValue RemoveResult(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is INodePluginReadContext rctx) {
                 if (args.Length < 1) throw new ArgumentException("RemoveResult in read actions requires an argument - the index of the result to return.");
@@ -430,6 +457,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
+        [Function(nameof(GetAllResults), "")]
         public ParameterResolverValue GetAllResults(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is INodePluginReadContext rctx) {
                 return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results);
@@ -449,6 +477,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="_ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
+        [Function(nameof(ModulePath), "")]
         public ParameterResolverValue ModulePath(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
@@ -488,27 +517,36 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
+        [Function(nameof(ModuleName), "")]
         public ParameterResolverValue ModuleName(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
             return new ParameterResolverValue(ctx.ProcessingContext.InputModel.Module);
         }
+
+        [Function(nameof(NodePath), "")]
         public ParameterResolverValue NodePath(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
             return new ParameterResolverValue(ctx.ProcessingContext.InputModel.Nodepath);
             
         }
+
+        [Function(nameof(NodeKey), "")]
         public ParameterResolverValue NodeKey(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
             return new ParameterResolverValue(ctx.NodeKey);
         }
+
+        [Function(nameof(Action), "")]
         public ParameterResolverValue Action(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
             return new ParameterResolverValue(ctx.Action);
         }
+
+        [Function(nameof(Operation), "")]
         public ParameterResolverValue Operation(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
@@ -517,6 +555,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Settings
+
+        [Function(nameof(CSetting), "")]
         public ParameterResolverValue CSetting(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
@@ -542,6 +582,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 return new ParameterResolverValue(null);
             }
         }
+
+        [Function(nameof(CSettingLoader), "")]
         public ParameterResolverValue CSettingLoader(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
