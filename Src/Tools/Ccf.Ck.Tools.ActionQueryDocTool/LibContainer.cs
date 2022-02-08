@@ -11,6 +11,7 @@ namespace Ccf.Ck.Tools.ActionQueryDocTool
         public LibContainer(string libName)
         {
             MethodAttributes = new List<MethodAttributes>();
+            LibName = libName;
         }
         public List<MethodAttributes> MethodAttributes { get; set; }
         public string LibName { get; private set; }
