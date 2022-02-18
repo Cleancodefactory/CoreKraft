@@ -37,9 +37,9 @@ namespace Ccf.Ck.Web.Middleware
             return requestDelegate;
         }
 
-        internal static Func<Ccf.Ck.Models.DirectCall.InputModel, Task<Ccf.Ck.Models.DirectCall.ReturnModel>> ExecutionDelegateDirect(IApplicationBuilder builder, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
+        internal static Func<Ccf.Ck.Models.DirectCall.InputModel, Ccf.Ck.Models.DirectCall.ReturnModel> ExecutionDelegateDirect(IApplicationBuilder builder, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
-            Func<Ccf.Ck.Models.DirectCall.InputModel, Task<Ccf.Ck.Models.DirectCall.ReturnModel>> directDelegate = (inputModel) =>
+            Func<Ccf.Ck.Models.DirectCall.InputModel, Ccf.Ck.Models.DirectCall.ReturnModel> directDelegate = (inputModel) =>
             {
                 TransactionScopeContext transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
                 INodeSetService nodesSetService = builder.ApplicationServices.GetService<INodeSetService>();
@@ -56,9 +56,9 @@ namespace Ccf.Ck.Web.Middleware
                         BinaryData = processingContext.ReturnModel.BinaryData,
                         IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful
                     };
-                    return Task.FromResult(returnModel);
+                    return returnModel;
                 }
-                return Task.FromResult(returnModel);
+                return returnModel;
             };
             return directDelegate;
         }

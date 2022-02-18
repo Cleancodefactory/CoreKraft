@@ -585,7 +585,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
 
             using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
             client.Timeout = new TimeSpan(0, 0, 10);
-            using HttpResponseMessage response = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, new System.Threading.CancellationToken()).Result;
+            using HttpResponseMessage response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, new System.Threading.CancellationToken());
             if (response.IsSuccessStatusCode)
             {
                 JsonSerializer js = new JsonSerializer();

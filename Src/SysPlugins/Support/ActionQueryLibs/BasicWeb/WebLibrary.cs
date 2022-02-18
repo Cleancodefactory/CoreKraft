@@ -24,15 +24,15 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
     public class WebLibrary<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
         private object _LockObject = new Object();
-        private HttpClient http = null;
-        private HttpClientHandler _handler = null;
+        private HttpClient _Http = null;
+        private HttpClientHandler _Handler = null;
 
         public WebLibrary() {
             var handler = new HttpClientHandler();
-            _handler = handler;
+            _Handler = handler;
             handler.UseProxy = false; 
-            http = new HttpClient(handler, true);
-            _disposables.Add(http);
+            _Http = new HttpClient(handler, true);
+            _disposables.Add(_Http);
         }
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
@@ -150,7 +150,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
             var accpets = new MediaTypeWithQualityHeaderValue("application/json");
             msg.Headers.Accept.Add(accpets);
-            using var respose = http.SendAsync(msg).Result;
+            using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
                 var mt = respose.Content.Headers.ContentType?.MediaType;
                 if (mt != null && reJSONMedia.IsMatch(mt)) {
@@ -191,7 +191,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
             var accpets = new MediaTypeWithQualityHeaderValue("application/octet-stream");
             msg.Headers.Accept.Add(accpets);
-            using var respose = http.SendAsync(msg).Result;
+            using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
                 try {
                     var rstring = respose.Content.ReadAsStringAsync().Result;
@@ -233,7 +233,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             if (sc != null) msg.Content = sc;
             var accpets = new MediaTypeWithQualityHeaderValue("application/json");
             msg.Headers.Accept.Add(accpets);
-            using var respose = http.SendAsync(msg).Result;
+            using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
                 var mt = respose.Content.Headers.ContentType?.MediaType;
                 if (mt != null && reJSONMedia.IsMatch(mt)) {
