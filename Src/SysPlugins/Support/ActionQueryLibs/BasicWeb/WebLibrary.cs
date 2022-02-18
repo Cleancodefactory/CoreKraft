@@ -25,9 +25,13 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
     {
         private object _LockObject = new Object();
         private HttpClient http = null;
+        private HttpClientHandler _handler = null;
 
         public WebLibrary() {
-            http = new HttpClient();
+            var handler = new HttpClientHandler();
+            _handler = handler;
+            handler.UseProxy = false; 
+            http = new HttpClient(handler, true);
             _disposables.Add(http);
         }
         #region IActionQueryLibrary
