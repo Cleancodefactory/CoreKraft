@@ -58,6 +58,7 @@
       - Version 5.0.4: Register service worker
       - Version 5.0.5: Don't cache service worker, respect language preferences in appsettings
       - Version 5.0.6: Fix an error with ProgressiveWebApps
+      - Version 5.0.7: Restructure DirectCall's execution to be synchronous
     </PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
