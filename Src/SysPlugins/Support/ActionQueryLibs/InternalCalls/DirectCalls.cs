@@ -154,12 +154,20 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Function(nameof(CallRead), "")]
+        [Function(nameof(CallRead), "Executes read action on the node in the nodeset specified by the address and returns the result")]
+        [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
+        [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
+        [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
         public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args);
         }
 
-        [Function(nameof(CallWrite), "")]
+        [Function(nameof(CallWrite), "Executes write action on the node in the nodeset specified by the address and returns the result. Make sure you set the state of the data (or parts of it) to insert, update or delete.")]
+        [Parameter(0,"address","Address in the form module/nodeset[/node.path]",TypeFlags.String)]
+        [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
+        [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Result("Result from the node converted to script usable List or Dict depending on what the node returns",TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
         public ParameterResolverValue CallWrite(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(true, ctx, args);
         }

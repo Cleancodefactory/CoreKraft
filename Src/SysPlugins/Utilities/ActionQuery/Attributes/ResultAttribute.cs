@@ -14,6 +14,6 @@ namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
 
         public string Documentation { get; private set; }
 
-        public new TypeFlags TypeEnum { get; private set; }
+        public TypeFlags TypeEnum { get; private set; }
     }
 }

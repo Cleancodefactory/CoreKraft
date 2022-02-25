@@ -11,17 +11,20 @@ namespace Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes
         [Flags]
         public enum TypeFlags
         {
-            Varying = 0x000,
-            Int     = 0x001,
-            Double  = 0x002,
-            Bool    = 0x004,
-            String  = 0x008,
-            Json    = 0x010,
-            Dict    = 0x020,
-            List    = 0x040,
-            Null    = 0x080,
-            Object  = 0x100,
-            Error   = 0x200
+            Varying     = 0x000,
+            Int         = 0x001,
+            Double      = 0x002,
+            Bool        = 0x004,
+            String      = 0x008,
+            Json        = 0x010,
+            Dict        = 0x020,
+            List        = 0x040,
+            Null        = 0x080,
+            Object      = 0x100,
+            Error       = 0x200,
+            PostedFile  = 0x400,
+            
+            Optional    = 0x10000000
         }
 
         /// <summary>
