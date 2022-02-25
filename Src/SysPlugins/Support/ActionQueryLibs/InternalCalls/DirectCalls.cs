@@ -130,7 +130,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                     }
                 }
             }
-            ret = DirectCallService.Instance.Call(inp).Result;
+            ret = DirectCallService.Instance.Call(inp);
             if (ret.IsSuccessful) {
                 if (ret.BinaryData is IPostedFile pf) {
                     return new ParameterResolverValue(pf);

@@ -7,14 +7,14 @@ namespace Ccf.Ck.Models.DirectCall
 {
     public class DirectCallService
     {
-        private Func<InputModel, Task<ReturnModel>> _CallImp;
+        private Func<InputModel, ReturnModel> _CallImp;
         public static DirectCallService Instance { get; private set; }
 
         static DirectCallService()
         {
             Instance = new DirectCallService();
         }
-        public Func<InputModel, Task<ReturnModel>> Call
+        public Func<InputModel, ReturnModel> Call
         {
             get
             {

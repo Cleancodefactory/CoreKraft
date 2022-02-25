@@ -86,7 +86,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers {
             }
             DataStateUtility.Instance.SetUpdated(inpModel.Data);
             
-            var retModel = DirectCallService.Instance.Call(inpModel).Result;
+            var retModel = DirectCallService.Instance.Call(inpModel);
             //var retModel = new ReturnModel() { IsSuccessful = true }; // For testing only
             ViewData["returnModel"] = retModel;
             return View(_KraftGlobalConfigurationSettings);

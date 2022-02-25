@@ -276,18 +276,19 @@ namespace Ccf.Ck.Web.Middleware
                             },
                             OnTokenValidated = context =>
                             {
-                                if (context.ProtocolMessage.Parameters.ContainsKey("returnurl"))//This is coming from the authorization server
+                                string returnurl = _KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RedirectAfterLogin;
+                                if (!string.IsNullOrEmpty(returnurl))
                                 {
-                                    string returnurl = context.ProtocolMessage.Parameters["returnurl"];
                                     context.Properties.RedirectUri = returnurl;
-                                    if (!string.IsNullOrEmpty(returnurl))
-                                    {
-                                        context.HttpContext.Session.SetString("returnurl", returnurl);
-                                    }
                                 }
-                                else if (!string.IsNullOrEmpty(_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RedirectAfterLogin))
+                                else if (context.ProtocolMessage.Parameters.ContainsKey("returnurl"))//This is coming from the authorization server
                                 {
-                                    context.Properties.RedirectUri = _KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RedirectAfterLogin;
+                                    returnurl = context.ProtocolMessage.Parameters["returnurl"];
+                                    context.Properties.RedirectUri = returnurl;
+                                }
+                                if (!string.IsNullOrEmpty(returnurl))
+                                {
+                                    context.HttpContext.Session.SetString("returnurl", returnurl);
                                 }
 
                                 return Task.CompletedTask;
@@ -389,7 +390,8 @@ namespace Ccf.Ck.Web.Middleware
                     FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "wwwroot")),
                     ServeUnknownFileTypes = true,
                     RequestPath = new PathString(string.Empty),
-                    OnPrepareResponse = ctx => {
+                    OnPrepareResponse = ctx =>
+                    {
                         if (_KraftGlobalConfigurationSettings.GeneralSettings.ProgressiveWebApp != null)
                         {
                             if (!string.IsNullOrEmpty(_KraftGlobalConfigurationSettings.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl))

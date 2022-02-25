@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Web.Middleware
@@ -37,28 +38,42 @@ namespace Ccf.Ck.Web.Middleware
             return requestDelegate;
         }
 
-        internal static Func<Ccf.Ck.Models.DirectCall.InputModel, Task<Ccf.Ck.Models.DirectCall.ReturnModel>> ExecutionDelegateDirect(IApplicationBuilder builder, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
+        internal static Func<Ccf.Ck.Models.DirectCall.InputModel, Ccf.Ck.Models.DirectCall.ReturnModel> ExecutionDelegateDirect(IApplicationBuilder builder, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
-            Func<Ccf.Ck.Models.DirectCall.InputModel, Task<Ccf.Ck.Models.DirectCall.ReturnModel>> directDelegate = (inputModel) =>
+            Func<Ccf.Ck.Models.DirectCall.InputModel, Ccf.Ck.Models.DirectCall.ReturnModel> directDelegate = (inputModel) =>
             {
-                TransactionScopeContext transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
-                INodeSetService nodesSetService = builder.ApplicationServices.GetService<INodeSetService>();
-                KraftModuleCollection kraftModuleCollection = builder.ApplicationServices.GetService<KraftModuleCollection>();
-                ReturnModel returnModel = null;
-                DirectCallHandler dcHandler = new DirectCallHandler(inputModel, kraftModuleCollection, nodesSetService, kraftGlobalConfigurationSettings);
-                IProcessingContextCollection processingContextCollection = dcHandler.GenerateProcessingContexts(null);
-                foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
+                return Task.Run(() =>
                 {
-                    dcHandler.Execute(processingContext, transactionScope);
-                    returnModel = new Models.DirectCall.ReturnModel
+                    TransactionScopeContext transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
+                    INodeSetService nodesSetService = builder.ApplicationServices.GetService<INodeSetService>();
+                    KraftModuleCollection kraftModuleCollection = builder.ApplicationServices.GetService<KraftModuleCollection>();
+                    ReturnModel returnModel = null;
+                    DirectCallHandler dcHandler = new DirectCallHandler(inputModel, kraftModuleCollection, nodesSetService, kraftGlobalConfigurationSettings);
+                    IProcessingContextCollection processingContextCollection = dcHandler.GenerateProcessingContexts(null);
+                    Stopwatch stopWatch = null;
+                    if (kraftGlobalConfigurationSettings.EnvironmentSettings.IsDevelopment())
                     {
-                        Data = processingContext.ReturnModel.Data,
-                        BinaryData = processingContext.ReturnModel.BinaryData,
-                        IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful
-                    };
-                    return Task.FromResult(returnModel);
-                }
-                return Task.FromResult(returnModel);
+                        stopWatch = new Stopwatch();
+                        stopWatch.Start();
+                    }
+                    foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
+                    {
+                        dcHandler.Execute(processingContext, transactionScope);
+                        returnModel = new Models.DirectCall.ReturnModel
+                        {
+                            Data = processingContext.ReturnModel.Data,
+                            BinaryData = processingContext.ReturnModel.BinaryData,
+                            IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful
+                        };
+                        if (stopWatch != null)
+                        {
+                            stopWatch.Stop();
+                            Console.WriteLine($"Directcall {processingContext.InputModel.Module}:{processingContext.InputModel.NodeSet}:{processingContext.InputModel.Nodepath} executed in {stopWatch.ElapsedMilliseconds} milliseconds");
+                        }
+                        return returnModel;
+                    }
+                    return returnModel;
+                }).Result;
             };
             return directDelegate;
         }
