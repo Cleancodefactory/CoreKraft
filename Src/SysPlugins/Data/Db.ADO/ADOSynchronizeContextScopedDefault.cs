@@ -134,7 +134,9 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     }
                 }*/
 
+                // TODO Here it times out - before the connection string
                 _DbConnection = KraftProfiler.Current.ProfiledDbConnection(new XConnection());
+                
                 _DbConnection.ConnectionString = connectionString;
             }
             if (_DbConnection.State != ConnectionState.Open) {
