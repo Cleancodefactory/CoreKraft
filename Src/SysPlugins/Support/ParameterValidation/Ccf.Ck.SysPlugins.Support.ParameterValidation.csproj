@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.ResolverExpression" Version="1.0.0" />
+    <PackageReference Include="Ccf.Ck.Libs.ResolverExpression" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
