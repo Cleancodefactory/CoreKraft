@@ -447,6 +447,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 return new ParameterResolverValue("", EResolverValueType.ContentType);
             }
         }
+        /// <summary>
+        /// CastAs(type, value)
+        /// Casts the input value to the specified type. The available types are: uint, double, string, null and int.
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public ParameterResolverValue CastAs(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {
             string stype = args[0].Value as string;

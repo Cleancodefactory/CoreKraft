@@ -16,8 +16,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
     public class ADOSynchronizeContextScopedDefault<XConnection> : IPluginsSynchronizeContextScoped, IADOTransactionScope, IContextualBasketConsumer
         where XConnection: DbConnection, new() {
 
-        private DbConnection _DbConnection;
-        private DbTransaction _DbTransaction;
+        protected DbConnection _DbConnection;
+        protected DbTransaction _DbTransaction;
         //private static Regex _DynamicParameterRegEx = new Regex(@"%(?<OnlyParameter>.+?)%", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex _DynamicParameterRegEx = new Regex(@"%(\w+?)%", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -81,7 +81,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         public virtual DbTransaction CurrentTransaction => _DbTransaction;
         #endregion
 
-        internal DbConnection GetConnection() {
+        internal virtual DbConnection GetConnection() {
             if (_DbConnection == null) {
                 //Create connection
                 string moduleRoot = System.IO.Path.Combine(KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(ProcessingContext.InputModel.Module), ProcessingContext.InputModel.Module);
