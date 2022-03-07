@@ -48,6 +48,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return ForceJSONResponse;
                 case nameof(ForceTextResponse):
                     return ForceTextResponse;
+                case nameof(DictFromParameters):
+                    return DictFromParameters;
 
                 case nameof(AddResult):
                     return AddResult;
@@ -131,6 +133,41 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 ctx2.ProcessingContext.ReturnModel.ResponseBuilder = new TextResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx2.ProcessingContext }), contentType);
             }
             return new ParameterResolverValue(contentType);
+        }
+
+
+        [Function(nameof(DictFromParameters), "")]
+        [Parameter(0,"parameternames", "comma separated list of parameters to fetch",TypeFlags.String)]
+        public ParameterResolverValue DictFromParameters(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length == 1)
+            {
+                var dict = new Dictionary<string, ParameterResolverValue>(); // The new dictionary
+                var plist = args[0].Value as string;
+                var dlctx = ctx as IDataLoaderContext;
+                if (dlctx == null) throw new Exception("The context is invalid. IDataLoaderContext expected.");
+                
+                if (string.IsNullOrWhiteSpace(plist))
+                {
+                    return new ParameterResolverValue(dict);
+                }
+                string[] slist = plist.Split(',');
+                if (slist == null || slist.Length == 0)
+                {
+                    return new ParameterResolverValue(dict);
+                }
+                foreach (string _paramName in slist)
+                {
+                    var paramName = _paramName.Trim();
+                    dict[paramName] = dlctx.Evaluate(paramName);
+                }
+                return new ParameterResolverValue(dict);
+            } 
+            else
+            {
+                throw new ArgumentException("DictFromParameters accpets only one argument.");
+            }
+            
         }
 
         #region results
