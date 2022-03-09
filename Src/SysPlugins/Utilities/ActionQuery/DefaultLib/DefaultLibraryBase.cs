@@ -9,6 +9,7 @@ using Ccf.Ck.Models.Settings;
 using System.Collections;
 using System.Text.RegularExpressions;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
+using Newtonsoft.Json;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -75,6 +76,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(IsDictCompatible) => IsDictCompatible,
                 nameof(ToNodesetData) => ToNodesetData,
                 nameof(ToGeneralData) => ToGeneralData,
+                nameof(DictToJson) => DictToJson,
+                nameof(JsonToDict) => JsonToDict,
                 // Nav
                 nameof(NavGet) => NavGet,
                 // Errors
@@ -1073,6 +1076,32 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         #region Additional helpers for internal use
+        [Function("DictToJson","Converts a Dict to JSON string, the dict can contain lists and other dictionaries")]
+        public static ParameterResolverValue DictToJson(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("DictToJson requires a single Dict argument");
+            Dictionary<string, ParameterResolverValue> dict = args[0].Value as Dictionary<string, ParameterResolverValue>;
+            if (dict == null) throw new ArgumentException("DictToJson requires a Dict argument, but received something else");
+            var gendata = ConvertToGeneralData(dict);
+            return new ParameterResolverValue(JsonConvert.SerializeObject(gendata));
+        }
+        [Function("JsontoDict", "Converts a JSON string to Dict, if not possible returns null")]
+        public static ParameterResolverValue JsonToDict(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("JsonToDict requires a single string argument");
+            var str = args[0].Value as string;
+            if (string.IsNullOrWhiteSpace(str)) throw new ArgumentException("JsonToDict requires a string argument, but received empty string or null or another type");
+            var dict  = JsonConvert.DeserializeObject<Dictionary<string, object>>(str);
+            if (dict is Dictionary<string,object> odict)
+            {
+                return ConvertFromGenericData(odict);
+            } else
+            {
+                return new ParameterResolverValue(null);
+            }
+            
+            
+        }
         /// <summary>
         /// This method converts generic nodeset data to internally usable data (by the AC script). However it is
         /// a bit more tollerant than it should be. For instance it will pack lists not containing dictionaries as ValueList.
