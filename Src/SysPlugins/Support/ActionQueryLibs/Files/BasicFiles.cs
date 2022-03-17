@@ -108,6 +108,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         /// <param name="args">(IPostedFile pf, string savepath)</param>
         /// <returns></returns>
         [Function(nameof(SaveFile), "")]
+        [Parameter(0,"postedfile", "The PostedFile object to save to a physical file in the FS", TypeFlags.PostedFile)]
+        [Parameter(1, "savepath", "Fully qualified path of the file to save.", TypeFlags.String)]
         public ParameterResolverValue SaveFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("Save file takes two arguments: file, save_path");
             IPostedFile file = args[0].Value as IPostedFile;

@@ -18,6 +18,7 @@ using Ccf.Ck.Utilities.Json;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 using Ccf.Ck.Libs.Logging;
+using System.IO;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 {
@@ -44,6 +45,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                     return WGetJson;
                 case nameof(WGetString):
                     return WGetString;
+                case nameof(WGetFile):
+                    return WGetFile;
                 case nameof(WPostJson):
                     return WPostJson;
                 case nameof(BuildQueryString):
@@ -124,6 +127,77 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             return new ParameterResolverValue(dic);
         }
 
+        /// <summary>
+        /// WGetJson(url, Dict of queryparams): dict
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        [Function(nameof(WGetFile), "Makes get request and returns the result as json ")]
+        [Parameter(0, "url", "Fully qualified url", TypeFlags.String)]
+        [Parameter(1, "name", "Contains an optional name (and filename) for the PostedFile object", TypeFlags.String| TypeFlags.Null)]
+        [Parameter(2, "dict", "Contains the optional query parameters as Dict", TypeFlags.Dict | TypeFlags.Null)]
+        [Parameter(3, "acceptedtypes", "Contains the optional list of accepted content types as List of string values", TypeFlags.List | TypeFlags.Null)]
+        [Result("Returns the fetched content as PostedFile or Error", TypeFlags.PostedFile | TypeFlags.Error)]
+        public ParameterResolverValue WGetFile(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 1) throw new ArgumentException("Not enough arguments to construct request");
+            var url = Convert.ToString(args[0].Value);
+            UriBuilder uri = new UriBuilder(url);
+            string name = null;
+            if (args.Length > 1)
+            {
+                name = Convert.ToString(args[1].Value);
+            }
+            if (args.Length > 2)
+            {
+                if (args[2].Value is Dictionary<string, ParameterResolverValue> pdict)
+                {
+                    var query = HttpUtility.ParseQueryString(string.Empty);
+                    foreach (var kv in pdict)
+                    {
+                        query[kv.Key] = Convert.ToString(kv.Value.Value);
+                    }
+                    uri.Query = query.ToString();
+                }
+            }
+            HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
+            string str;
+            if (args.Length > 3)
+            {
+                if (args[3].Value is List<ParameterResolverValue> acceptTypes)
+                {
+                    for (int i = 0; i < acceptTypes.Count;i++)
+                    {
+                        str = Convert.ToString(acceptTypes[i].Value);
+                        if (!string.IsNullOrWhiteSpace(str))
+                        {
+                            msg.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(str));
+                        }
+                    }
+                    
+                }
+            }
+
+            //var accpets = new MediaTypeWithQualityHeaderValue("application/json");
+            //msg.Headers.Accept.Add(accpets);
+
+            using var respose = _Http.SendAsync(msg).Result;
+            if (respose.StatusCode == HttpStatusCode.OK)
+            {
+                string mt = respose.Content.Headers.ContentType?.MediaType;
+                string filename = respose.Content.Headers.ContentDisposition?.FileName;
+                if (string.IsNullOrWhiteSpace(filename)) filename = null;
+                var strm = respose.Content.ReadAsStreamAsync().Result;
+                PostedFile pf = new PostedFile(mt != null ? mt : "application/octets-stream", strm.Length, name, filename, s => s as Stream, strm);
+                return new ParameterResolverValue(pf);
+            }
+            else
+            {
+                return Error.Create($"HTTP error: {Convert.ToInt32(respose.StatusCode)}");
+            }
+        }
+
         private Regex reJSONMedia = new Regex("^.+/json.*$");
         /// <summary>
         /// WGetJson(url, Dict of queryparams): dict
@@ -133,7 +207,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         /// <returns></returns>
         [Function(nameof(WGetJson), "Makes get request and returns the result as json ")]
         [Parameter(1, "url", "Fully qualified url", TypeFlags.String)]
-        [ParameterPattern(2, "dict", "Contains the query parameters as key/value pairs", TypeFlags.String, TypeFlags.Object )]
+        [Parameter(2, "dict", "Contains the query parameters as Dict", TypeFlags.Dict | TypeFlags.Null)]
         [Result("Returns parsed json as dictionary from the http call", TypeFlags.Dict)]
         public ParameterResolverValue WGetJson(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("Not enough arguments to construct request");
@@ -174,7 +248,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 
         [Function(nameof(WGetString), "Makes get request and returns the result as string ")]
         [Parameter(1, "url", "Fully qualified url", TypeFlags.String)]
-        [ParameterPattern(2, "dict", "Contains the query parameters as key/value pairs", TypeFlags.String, TypeFlags.Object)]
+        [Parameter(2, "dict", "Contains the query parameters as a Dict", TypeFlags.Dict | TypeFlags.Null)]
         [Result("Returns the string result from the http call", TypeFlags.String)]
         public ParameterResolverValue WGetString(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("Not enough arguments to construct request");
@@ -207,7 +281,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 
         [Function(nameof(WPostJson), "Makes post json request and returns the result as dictionary")]
         [Parameter(1, "url", "Fully qualified url", TypeFlags.String)]
-        [ParameterPattern(2, "dict", "Contains the post parameters as key/value pairs", TypeFlags.String, TypeFlags.Object)]
+        [Parameter(2, "data", "Contains the post parameters as a Dict", TypeFlags.Dict | TypeFlags.Null)]
+        [Parameter(3, "qry", "Contains optional query string parameters as a Dict", TypeFlags.Dict | TypeFlags.Null)]
         [Result("Returns the result as dictionary from the http call", TypeFlags.Dict)]
         public ParameterResolverValue WPostJson(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("Not enough arguments to construct request");
