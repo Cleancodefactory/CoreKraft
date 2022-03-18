@@ -62,7 +62,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         #endregion
 
         #region Functions
-        [Function(nameof(IsPostedFile), "")]
+        [Function(nameof(IsPostedFile), "Check if the argument is a PostedFile object")]
+        [Parameter(0,"postedfile", "a value to check",TypeFlags.Varying)]
+        [Result("true if the argument is a PostedFile and false otherwise", TypeFlags.Bool)]
         public ParameterResolverValue IsPostedFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("IsFile accepts single argument.");
             return new ParameterResolverValue(args[0].Value is IPostedFile);

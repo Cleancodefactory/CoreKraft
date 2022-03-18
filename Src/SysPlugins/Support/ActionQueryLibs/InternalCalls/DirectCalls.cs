@@ -14,7 +14,7 @@ using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 {
-    [Library("inteernalcalls", LibraryContextFlags.MainNode)]
+    [Library("internalcalls", LibraryContextFlags.MainNode)]
     public class DirectCallLib<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
         
