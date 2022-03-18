@@ -187,8 +187,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             {
                 string mt = respose.Content.Headers.ContentType?.MediaType;
                 string filename = respose.Content.Headers.ContentDisposition?.FileName;
-                if (string.IsNullOrWhiteSpace(filename)) filename = null;
-                var strm = respose.Content.ReadAsStreamAsync().Result;
+                if (string.IsNullOrWhiteSpace(filename)) filename = name;
+                Stream strm = new MemoryStream();
+                respose.Content.ReadAsStreamAsync().Result.CopyTo(strm);
+                strm.Position = 0;
                 PostedFile pf = new PostedFile(mt != null ? mt : "application/octets-stream", strm.Length, name, filename, s => s as Stream, strm);
                 return new ParameterResolverValue(pf);
             }
