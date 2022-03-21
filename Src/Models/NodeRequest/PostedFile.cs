@@ -16,6 +16,7 @@ namespace Ccf.Ck.Models.NodeRequest
             Name = name ?? ipf.Name;
             FileName = fileName ?? ipf.FileName;
             _FileSource = ipf;
+            // TODO using
             _OpenFileStream = pf => ((IPostedFile)pf).OpenReadStream();
             MetaInfo = new Dictionary<string, object>();
 

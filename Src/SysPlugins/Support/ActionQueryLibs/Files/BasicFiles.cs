@@ -35,6 +35,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 case nameof(SaveFile): return SaveFile;
                 case nameof(PrependFileName): return PrependFileName;
                 case nameof(CreateDirectory): return CreateDirectory;
+                case nameof(ForkFile): return ForkFile;
                 case nameof(SaveFileToSpread): return SaveFileToSpread;
                 case nameof(PostedFile): return this.PostedFile;
                 case nameof(FileResponse): return FileResponse;
@@ -245,6 +246,28 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new ParameterResolverValue(filespreaddir);
         }
 
+        [Function(nameof(ForkFile),"Clones the posted file into two PostedFiles in a List, the original is disposed")]
+        [Parameter(0, "postedfile", "Posteed file to fork", TypeFlags.PostedFile)]
+        [Result("List with two forged Posteed files (as memory streams)", TypeFlags.List)]
+        public ParameterResolverValue ForkFile(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("CloneFile accepts 1 argument (PostedFile to clone)");
+            if (args[0].Value is IPostedFile pf) {
+                using var strm = pf.OpenReadStream();
+                List<ParameterResolverValue> list = new List<ParameterResolverValue>();
+                var mstrm1 = new MemoryStream();
+                strm.CopyTo(mstrm1);
+                mstrm1.Position = 0;
+                var mstrm2 = new MemoryStream();
+                mstrm1.CopyTo(mstrm2);
+                mstrm1.Position = mstrm2.Position = 0;
+                list.Add(new ParameterResolverValue(new PostedFile(pf.ContentType, mstrm1.Length, pf.Name, pf.FileName, m => m as Stream, mstrm1)));
+                list.Add(new ParameterResolverValue(new PostedFile(pf.ContentType, mstrm2.Length, pf.Name, pf.FileName, m => m as Stream, mstrm2)));
+                return new ParameterResolverValue(list);
+            } else {
+                throw new ArgumentException("PostedFile expected!");
+            }
+        }
+
         /// <summary>
         /// Creates a PostedFile from a disk file.
         /// </summary>
@@ -252,6 +275,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         /// <param name="args">(string filepath, string contentType)</param>
         /// <returns></returns>
         [Function(nameof(PostedFile), "")]
+        [Parameter(0,"filepath", "File to encompass",TypeFlags.String)]
+        [Parameter(1, "contentType", "Assumed content type, if omitted attempt to deduce it will be made.", TypeFlags.String | TypeFlags.Optional)]
+        [Result("The created PostedFile object", TypeFlags.PostedFile)]
         public ParameterResolverValue PostedFile(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("PostedFile accepts 1 or 2 arguments (filepath[, contentType])");
             var filepath = args[0].Value as string;
@@ -285,8 +311,6 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 return new ParameterResolverValue(pf);
             }
             //throw new ArgumentException("PostedFile - filepath is empty or null");
-            
-            
         }
 
         [Function(nameof(FileResponse), "")]
