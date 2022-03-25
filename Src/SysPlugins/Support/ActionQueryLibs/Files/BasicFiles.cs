@@ -40,6 +40,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 case nameof(PrependFileName): return PrependFileName;
                 case nameof(CreateDirectory): return CreateDirectory;
                 case nameof(ForkFile): return ForkFile;
+                case nameof(FileMD5): return FileMD5;
                 case nameof(SaveFileToSpread): return SaveFileToSpread;
                 case nameof(PostedFile): return this.PostedFile;
                 case nameof(FileResponse): return FileResponse;
