@@ -306,25 +306,21 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             {
                 using var strm = pf.OpenReadStream();
                 List<ParameterResolverValue> list = new List<ParameterResolverValue>(partsCount);
-                MemoryStream memoryStream = null;
+
                 MemoryStream memoryStreamTemp = new MemoryStream();
+                strm.CopyTo(memoryStreamTemp);
+
                 for (int i = 0; i < partsCount; i++)
                 {
-                    memoryStream = new MemoryStream();
-                    
-                    if (i == 0)
-                    {
-                        strm.CopyTo(memoryStream);
-                        memoryStreamTemp = memoryStream;
-                    }
-                    else
-                    {
-                        memoryStreamTemp.Position = 0;
-                        memoryStreamTemp.CopyTo(memoryStream);
-                    }
+                    MemoryStream memoryStream = new MemoryStream();
+
+                    memoryStreamTemp.Position = 0;
+                    memoryStreamTemp.CopyTo(memoryStream);
+                    memoryStream.Position = 0;
+
                     list.Add(new ParameterResolverValue(new PostedFile(pf.ContentType, memoryStream.Length, pf.Name, pf.FileName, m => m as Stream, memoryStream)));
                 }
-                
+
                 return new ParameterResolverValue(list);
             }
             else
