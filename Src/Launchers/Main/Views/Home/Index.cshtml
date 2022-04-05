@@ -7,7 +7,16 @@
 
 @model KraftGlobalConfigurationSettings
 
-@{ ViewData["Title"] = Model.GeneralSettings.DefaultStartModule; }
+@{
+    if (string.IsNullOrEmpty(Model.GeneralSettings.PageTitle))
+    {
+        ViewData["Title"] = Model.GeneralSettings.DefaultStartModule;
+    }
+    else
+    {
+        ViewData["Title"] = Model.GeneralSettings.PageTitle;
+    }
+}
 
 @{
     Layout = null;
