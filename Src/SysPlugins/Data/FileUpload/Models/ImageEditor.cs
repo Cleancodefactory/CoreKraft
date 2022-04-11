@@ -12,14 +12,14 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload.Models
     {
         private readonly IPostedFile _Postedfile;
 
-        private Image<Rgba32> _Image;
+        private Image _Image;
         private bool _IsDisposed = false;
 
         public ImageEditor(IPostedFile postedFile)
         {
             _Postedfile = postedFile ?? throw new ArgumentNullException($"{nameof(IPostedFile)} cannot be null.");
 
-            _Image = Image.Load(postedFile.OpenReadStream()) as Image<Rgba32>;
+            _Image = Image.Load(postedFile.OpenReadStream());
             _Image.Mutate(i => i.AutoOrient());
         }
 
