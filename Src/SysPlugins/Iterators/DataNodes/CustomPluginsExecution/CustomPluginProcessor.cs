@@ -7,19 +7,19 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes.CustomPluginsExecution
 {
     public class CustomPluginProcessor : ICustomPluginProcessor
     {
-        public void Execute(IEnumerable<CustomPlugin> customPlugins, INodePluginContext p, Func<bool> bailOut)
+        public void Execute(IEnumerable<CustomPlugin> customPlugins, INodePluginContext ctx, Func<bool> bailOut)
         {
             foreach (CustomPlugin customPlugin in customPlugins)
             {
                 // localResult = null;
                 if (customPlugin != null)
                 {
-                    INodePlugin plugin = p.CustomPluginAccessor.LoadPlugin(customPlugin.CustomPluginName);
+                    INodePlugin plugin = ctx.CustomPluginAccessor.LoadPlugin(customPlugin.CustomPluginName);
                     // Here the customplugin's context is attached
                     // the dataloader's context is attached in the iterator
-                    p.CustomPlugin = customPlugin;
-                    p.OwnContextScoped = p.CustomPluginAccessor.GetPluginsSynchronizeContextScoped(customPlugin.CustomPluginName, plugin).Result;
-                    plugin?.Execute(p);
+                    ctx.CustomPlugin = customPlugin;
+                    ctx.OwnContextScoped = ctx.CustomPluginAccessor.GetPluginsSynchronizeContextScoped(customPlugin.CustomPluginName, plugin).Result;
+                    plugin?.Execute(ctx);
                     if (bailOut()) return;
                 }
             }
