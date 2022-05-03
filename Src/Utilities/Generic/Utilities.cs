@@ -100,7 +100,7 @@ namespace Ccf.Ck.Utilities.Generic
                     {
                         foreach (DirectoryInfo directory in dirInfo.GetDirectories())
                         {
-                            return HasWritePermissionOnDir(directory, recursive);
+                            hasWritePermissions = HasWritePermissionOnDir(directory, recursive);
                         }
                     }
                     hasWritePermissions = true;

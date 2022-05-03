@@ -101,7 +101,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     IPluginsSynchronizeContextScoped contextScoped = null;
                     if (!string.IsNullOrEmpty(node.DataPluginName))
                     {
-                        dataPlugin = dataIteratorContext?.DataLoaderPluginAccessor.LoadPlugin(node.DataPluginName);
+                        dataPlugin = dataIteratorContext.DataLoaderPluginAccessor.LoadPlugin(node.DataPluginName);
                         // 2. Update the Node execution context with the actual data for the current loop.
                         //Dictionary<string, object> parentResult = null;
                         contextScoped = dataIteratorContext.DataLoaderPluginAccessor.GetPluginsSynchronizeContextScoped(node.DataPluginName, dataPlugin).Result;
@@ -136,27 +136,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     }
                     #endregion
 
-                    #region (DEPRECATED CODE) Execute BeforeSQL plugins 
-                    //pluginExecuteParameters = new CustomPluginExecuteParameters
-                    //{
-                    //    Phase = "BEFORE_SQL",
-                    //    Row = row,
-                    //    Results = null,
-                    //    Parents = dataIteratorContext.Datastack,
-                    //    Path = node.NodeKey, // TODO: This must be the full path to this node.
-                    //    Action = OPERATION_READ,
-                    //    NodeKey = node.NodeKey,
-                    //    NodeParameters = parametersContext.PublicContext
-
-                    //};
-                    //pluginExecuteParameters.SqlStatement = GetSqlStatement(node, ACTION_SELECT);
-                    //ICustomPluginContext customPluginContext
-                    //    = new CustomPluginContext(null, dataIteratorContext.ProcessingContext, contextScoped, node, dataIteratorContext.PluginServiceManager, dataIteratorContext.CustomService);
-                    //ICustomPluginProcessor plugins = new CustomPluginProcessor(customPluginContext);
-
-                    //customPluginsResults = plugins?.ExecuteAsync(node.BeforeDataExecutionPlugins, pluginExecuteParameters).Result;
-                    #endregion
-
                     // 4. Data loader execution
                     // 4.1. Execute it (we alreade got the plugin in the beginning - see 1.)
                     // 4.1.1. Update context
@@ -168,91 +147,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                         if (_bailOut()) return null;
                     }
                     // The data  loader plugins are responsible to put their results into the REsults collection in the execution context
-
-                    #region DEPRECATED CODE - see above
-                    // 4.2. Analyze the result and put it in the official results
-                    //if (nodeResult != null && nodeResult is IDictionary) // In order to count as element (record - single record)
-                    //{
-                    //    results = new List<Dictionary<string, object>>() { ReDictionary(nodeResult) };
-                    //}
-                    //else if (nodeResult != null && nodeResult is IEnumerable)
-                    //{
-                    //    // Anything enumerable that is not a dictionary itself we treat as a list/set of results
-                    //    //  which shuld be each a IDictionary at least - in order to represent an item.
-                    //    results = new List<Dictionary<string, object>>();
-                    //    foreach (object el in (nodeResult as IEnumerable))
-                    //    {
-                    //        if (el is IDictionary)
-                    //        {
-                    //            // TODO: What if some of the elements is null? Is it a failure or just an empty entry?
-                    //            results.Add(ReDictionary(el));
-                    //        }
-                    //        else
-                    //        {
-                    //            throw new Exception("The returned result set cotains non-dictionary elements.");
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    throw new ArgumentException($"The return result from a dataplugin has to be either IDictionary<string, object> or List<Dictionary<string, object>> (additional info: node - {node.DataPluginName}");
-                    //}
-                    #endregion
-
-                    #region DEPRECATED CODE - As with the data loaders the plugins should put their results in the Results themselves
-                    // 4.3. Combine the data loader results with those from the custom plugins (if any)
-                    // TODO: Probably we should prepend this???
-                    // TODO: Use more relaxed type requirements for the results of the plugin (may be?).
-                    //if (customPluginsResults != null && customPluginsResults is IEnumerable<Dictionary<string, object>>)
-                    //{
-                    //    if (results == null)
-                    //    {
-                    //        results = new List<Dictionary<string, object>>();
-                    //    }
-                    //    results.AddRange(customPluginsResults as IEnumerable<Dictionary<string, object>>);
-                    //}
-                    #endregion
-
-                    #region DEPRECATED CODE DataLoaderImp 
-
-                    //object nodeResult = dataPlugin?
-                    //    .ExecuteAsync(execContextManager.Context)
-                    //    .Result;
-                    //// Strict type checking is dangerous - when I saw it first this received REadOnlyDictionary which is not equal to Dictionary.
-                    //// if (nodeResult?.GetType() == typeof(Dictionary<string, object>))
-                    //if (nodeResult != null && nodeResult is IDictionary) // In order to count as element (record - single record)
-                    //{
-                    //    results = new List<Dictionary<string, object>>() { ReDictionary(nodeResult) };
-                    //    ////results.Add((nodeResult as IDictionary))
-                    //    // results.Add(nodeResult as Dictionary<string, object>);
-                    //}
-                    //// else if (nodeResult?.GetType() == typeof(List<Dictionary<string, object>>))
-                    //else if (nodeResult != null && nodeResult is IEnumerable)
-                    //{
-                    //    results = new List<Dictionary<string, object>>();
-                    //    foreach (object el in (nodeResult as IEnumerable))
-                    //    {
-                    //        if (el is IDictionary)
-                    //        {
-                    //            // What if some of the elements is null? Is it a failure or just an empty entry?
-                    //            results.Add(ReDictionary(el));
-                    //        }
-                    //        else
-                    //        {
-                    //            throw new Exception("The returned result set cotains non-dictionary elements.");
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    throw new ArgumentException($"The return result from a dataplugin has to be either IDictionary<string, object> or List<Dictionary<string, object>> (additional info: node - {node.DataPluginName}");
-                    //}
-                    //// Probably we should prepend this.
-                    //// TODO: Use more relaxed type requirements for the results of the plugin (may be?).
-                    //if (customPluginsResults != null && customPluginsResults is IEnumerable<Dictionary<string, object>>)
-                    //    results.AddRange(customPluginsResults as IEnumerable<Dictionary<string, object>>);
-                    #endregion
-
                     // We have to discuss this - once comitted there is no going back, so we have to be sure this is the best behavior!
                     // 5. Execute custom plugins after SQL
                     // Update context (TODO: are there any more updates neccessary?)
@@ -265,18 +159,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                         plugins?.Execute(node.Read.AfterNodeActionPlugins, execContextManager.CustomPluginProxy, _bailOut);
                         if (_bailOut()) return null;
                     }
-
-                    #region DEPRECATED CODE - see above
-                    // 5.2. Accomodate the custom plugin results into the results
-                    //if (customPluginsResults != null && customPluginsResults is IEnumerable<Dictionary<string, object>>)
-                    //{
-                    //    if (results == null)
-                    //    {
-                    //        results = new List<Dictionary<string, object>>();
-                    //    }
-                    //    results.AddRange(customPluginsResults as IEnumerable<Dictionary<string, object>>);
-                    //}
-                    #endregion
 
                     #region AfterSQL Plugins (Deprecated code)
                     //pluginExecuteParameters = new CustomPluginExecuteParameters
@@ -325,14 +207,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                         if (_bailOut()) return null;
                     }
                     // 7.2. Accomodate the custom plugin results into the results
-                    #region DEPRECATED CODE
-                    //if (customPluginsResults != null && customPluginsResults is IEnumerable<Dictionary<string, object>>)
-                    //{
-                    //    if (results == null) results = new List<Dictionary<string, object>>();
-                    //    results.AddRange(customPluginsResults as IEnumerable<Dictionary<string, object>>);
-                    //}
-                    #endregion
-
                     #region AfterChildren Plugins (Deprecated code)
                     //pluginExecuteParameters = new CustomPluginExecuteParameters
                     //{
@@ -390,30 +264,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             return dict;
         }
 
-        #region Deprecated code
-        //private void IterateChildren(Node node, IEnumerable<Dictionary<string, object>> parentResult, DataIteratorContext dataIteratorContext)
-        //{
-        //    foreach (Node childNode in node.Children.OrderBy(n => n.ExecutionOrder))
-        //    {
-        //        ExecuteReadNode(childNode, parentResult, dataIteratorContext);
-        //    }
-        //}
-        #endregion
         #endregion
 
         #region Write Operation
-        #region Deprecated code
-        //private object BeginWriteOperation(DataIteratorContext dataIteratorContext)
-        //{
-        //    object newdata = dataIteratorContext.ProcessingContext.InputModel.Data;
-        //    object postData = dataIteratorContext.ProcessingContext.InputModel.Data;
-        //    string startNodePath = dataIteratorContext.LoaderContext.StartNode.NodeKey.Trim();
-        //    Node startNode = dataIteratorContext.LoaderContext.StartNode;
-
-        //    newdata = ExecuteWriteNode(startNode, postData, startNodePath, dataIteratorContext);
-        //    return newdata;
-        //}
-        #endregion
 
         private void BeginWriteOperation(DataIteratorContext dataIteratorContext)
         {
@@ -439,45 +292,15 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             // TODO: ?? execContextManager.Data = dataNode;
             #endregion
 
-            #region Deprecated code
-            //CustomPluginExecuteParameters pluginExecuteParameters;
-
-            //ParameterResolverContext parametersContext = new ParameterResolverContext(node)
-            //{
-            //    ExternalService = dataIteratorContext.ExternalService,
-            //    CustomService = dataIteratorContext.CustomService,
-            //    PluginServiceManager = dataIteratorContext.PluginServiceManager,
-            //    LoaderContext = dataIteratorContext.LoaderContext,
-            //    ProcessingContext = dataIteratorContext.ProcessingContext,
-            //    Datastack = dataIteratorContext.Datastack,
-            //    OverrideAction = dataIteratorContext.OverrideAction
-            //};
-
-            //NodeExecutionContext.Manager execContextManager = new NodeExecutionContext.Manager(
-            //    loaderContext: dataIteratorContext.LoaderContext,
-            //    parentResult: null, // Determined only while iterating - the parent result of the individual iteration
-            //    pluginServiceManager: dataIteratorContext.PluginServiceManager,
-            //    contextScoped: null, // One is obtained for each iteration
-            //    currentNode: node,
-            //    processingContext: dataIteratorContext.ProcessingContext,
-            //    customService: dataIteratorContext.CustomService
-            //);
-
-            //object injectResults;
-            #endregion
-
             // 1. Extract the data from more generic forms to list<dictionary> form
             currentNode = ReCodeDataNode(dataNode);
-            #region Deprecated code
-            //ExtractDataNode(dataNode, ref currentNode, ref result);
-            #endregion
 
             // 1.1. Load the data loader plugin
             IDataLoaderPlugin dataPlugin = null;
             IPluginsSynchronizeContextScoped contextScoped = null;
             if (!string.IsNullOrEmpty(node.DataPluginName))
             {
-                dataPlugin = dataIteratorContext?.DataLoaderPluginAccessor.LoadPlugin(node.DataPluginName);
+                dataPlugin = dataIteratorContext.DataLoaderPluginAccessor.LoadPlugin(node.DataPluginName);
 
                 //Dictionary<string, object> parentResult = null;
                 contextScoped = dataIteratorContext.DataLoaderPluginAccessor.GetPluginsSynchronizeContextScoped(node.DataPluginName, dataPlugin).Result;
@@ -533,26 +356,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     plugins?.Execute(node.Write.BeforeNodeActionPlugins, execContextManager.CustomPluginProxy, _bailOut);
                     if (_bailOut()) return null;
                 }
-                #region DEPRECATED CODE Execute BeforeSQL plugins
-                //pluginExecuteParameters = new CustomPluginExecuteParameters
-                //{
-                //    Phase = "BEFORE_SQL",
-                //    Row = row,
-                //    Results = null,
-                //    Parents = dataIteratorContext.Datastack,
-                //    Path = node.NodeKey,
-                //    NodeParameters = parametersContext.PublicContext,
-                //    Action = OPERATION_WRITE,
-                //    NodeKey = node.NodeKey
-                //};
-                //pluginExecuteParameters.SqlStatement = GetSqlStatement(node, action);
-                //ICustomPluginContext customPluginContext
-                //    = new CustomPluginContext(null, dataIteratorContext.ProcessingContext, contextScoped, node, dataIteratorContext.PluginServiceManager, dataIteratorContext.CustomService);
-                //ICustomPluginProcessor plugins = new CustomPluginProcessor();
-
-                //customPluginsResults = plugins?.ExecuteAsync(node.BeforeDataExecutionPlugins, pluginExecuteParameters).Result;
-
-                #endregion
 
                 // 6. Execute children now if the operation is delete
                 // Should we remove these?
@@ -561,7 +364,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 {
                     if (node.Children != null && node.Children.Count > 0)
                     {
-
                         using (var stackframe = dataIteratorContext.Datastack.Scope(row))
                         {
                             dataIteratorContext.OverrideAction.Push(OPERATION_DELETE);

@@ -35,7 +35,7 @@ namespace Ccf.Ck.SysPlugins.Views.Html
 
                     PhysicalFileProvider fileProvider = new PhysicalFileProvider(directoryPath);
                     cachedView = File.ReadAllText(Path.Combine(directoryPath, view.Settings.Path));
-                    if (processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization)
+                    if (cachingService != null && processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization)
                     {
                         cachingService.Insert(cacheKey, cachedView, fileProvider.Watch(view.Settings.Path));
                     }

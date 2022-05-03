@@ -127,7 +127,6 @@ namespace Ccf.Ck.Launchers.Main
                 _RazorAssemblyLoadContext.Unload();
                 _RazorAssemblyLoadContext = null;
                 _ApplicationPartManager = null;
-                GC.Collect();
                 GC.WaitForPendingFinalizers();
             }
             _ApplicationPartManager = apm;

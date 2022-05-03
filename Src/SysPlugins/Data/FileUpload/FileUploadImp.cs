@@ -468,7 +468,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload
 
                 if (double.TryParse(valueAsString, out double value))
                 {
-                    if (result <= 0D)
+                    if (value <= 0D)
                     {
                         throw new Exception("Preview size cannot be less or equal to zero.");
                     }

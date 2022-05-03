@@ -169,10 +169,10 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses
             return false;
         }
 
-        public ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver(string alias)
+        public ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver(string name)
         {
-            var r =  GetResolverEx(alias);
-            if (r == null) throw new Exception($"Cannot find the resolver with alias: {alias}");
+            var r =  GetResolverEx(name);
+            if (r == null) throw new Exception($"Cannot find the resolver with alias: {name}");
             return r;
         }
         public ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolverEx(string alias, string name = null, int numargs = 0)

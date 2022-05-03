@@ -10,6 +10,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -166,7 +167,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             int min = 1;
             int max = 100;
-            var random = new Random();
+
             if (args.Length > 0)
             {
                 if (args[0].Value is int n)
@@ -194,7 +195,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 }
             }
 
-            return new ParameterResolverValue(random.Next(min, max));
+            return new ParameterResolverValue(RandomNumberGenerator.GetInt32(min, max));
         }
 
         [Function(nameof(Add), "")]

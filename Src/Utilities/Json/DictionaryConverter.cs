@@ -97,14 +97,13 @@ namespace Ccf.Ck.Utilities.Json
                 switch (reader.TokenType)
                 {
                     case JsonToken.Comment:
-                        break;
-                    default:
-                        var v = ReadValue(reader);
-
-                        list.Add(v);
-                        break;
+                        break;                    
                     case JsonToken.EndArray:
                         return list;
+                    default:
+                        var v = ReadValue(reader);
+                        list.Add(v);
+                        break;
                 }
             }
 

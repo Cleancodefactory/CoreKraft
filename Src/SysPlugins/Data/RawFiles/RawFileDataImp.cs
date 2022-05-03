@@ -47,12 +47,12 @@ namespace Ccf.Ck.SysPlugins.Data.RawFiles
 
             KraftGlobalConfigurationSettings kraftSettings =
                 execContext.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
-
+             
             string modulePath = string.Empty;
 
             execContext.DataLoaderContextScoped.CustomSettings.TryGetValue("Path", out modulePath);
 
-            if (kraftSettings != default(KraftGlobalConfigurationSettings) || modulePath.Length == 0)
+            if (kraftSettings != null)
             {
                 string path = Path.Combine(
                     kraftSettings.GeneralSettings.ModulesRootFolder(execContext.ProcessingContext.InputModel.Module),
@@ -172,11 +172,6 @@ namespace Ccf.Ck.SysPlugins.Data.RawFiles
                 }
             };
         }
-
-        //public async Task<IPluginsSynchronizeContextScoped> GetSynchronizeContextScopedAsync()
-        //{
-        //    return await Task.FromResult<IPluginsSynchronizeContextScoped>(new FileDataSynchronizeContextScopedImp());
-        //}
 
         private ILogger GetLogger(IPluginServiceManager pluginServiceManager)
         {

@@ -70,7 +70,6 @@ namespace Ccf.Ck.Web.Middleware
                             stopWatch.Stop();
                             Console.WriteLine($"Directcall {processingContext.InputModel.Module}:{processingContext.InputModel.NodeSet}:{processingContext.InputModel.Nodepath} executed in {stopWatch.ElapsedMilliseconds} milliseconds");
                         }
-                        return returnModel;
                     }
                     return returnModel;
                 }).Result;

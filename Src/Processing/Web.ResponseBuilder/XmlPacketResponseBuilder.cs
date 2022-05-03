@@ -96,7 +96,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 {
                     packet.Add(new XElement("lookups", new XCData(JsonConvert.SerializeObject(processingContext.ReturnModel.LookupData))));
                 }
-                break;//TODO Robert when the client configuration understands multiple contexts
+                //TODO Robert when the client configuration understands multiple contexts
             }
 
             context.Response.WriteAsync(doc.ToString()).Wait();

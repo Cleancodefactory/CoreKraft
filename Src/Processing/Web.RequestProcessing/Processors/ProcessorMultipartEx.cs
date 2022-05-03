@@ -286,7 +286,7 @@ namespace Ccf.Ck.Processing.Web.Request
                             list.Add(value);
                         }
                     } else {
-                        new ProcessorException<ProcessorMultipartEx>($"Mixup, last part {part} is not an array (list)");
+                        throw new ProcessorException<ProcessorMultipartEx>($"Mixup, last part {part} is not an array (list)");
                     }
                 } else {
                     throw new ProcessorException<ProcessorMultipartEx>("Mixup, last part cannot be parsed as int");
