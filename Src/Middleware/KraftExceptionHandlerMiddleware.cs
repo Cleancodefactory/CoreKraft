@@ -19,7 +19,7 @@ namespace Ccf.Ck.Web.Middleware
         public static Action<IApplicationBuilder> HandleErrorAction { get; private set; } = new Action<IApplicationBuilder>(HandleError);
         public const string EXCEPTIONSONCONFIGURE = "Configure";
         public const string EXCEPTIONSONCONFIGURESERVICES = "ConfigureServices";
-        public static Dictionary<string, List<Exception>> Exceptions;
+        public static readonly Dictionary<string, List<Exception>> Exceptions;
 
         readonly RequestDelegate _Next;
         readonly ExceptionHandlerOptions _Options;

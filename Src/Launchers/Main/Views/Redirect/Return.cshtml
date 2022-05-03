@@ -9,7 +9,9 @@
 
 @model KraftGlobalConfigurationSettings
 
-@{ ViewData["Title"] = "Returning"; /*Model.GeneralSettings.DefaultStartModule;*/ }
+@{
+    ViewData["Title"] = "Returning"; /*Model.GeneralSettings.DefaultStartModule;*/
+}
 
 @{
     Layout = null;
@@ -17,7 +19,7 @@
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta name="viewport" content="initial-scale=1.0, width=device-width">
 
@@ -44,14 +46,14 @@
         @{
             var data = JsonSerializer.Serialize(returnModel);
             <text>
-            var data = @Html.Raw(data);
-            if (window.opener != null) {
-                window.opener.focus();
-                window.opener.postMessage(data, '@hostingUrl');
-            }
-            else {
-                alert("Parentless window and no payment possible");
-            }
+                var data = @Html.Raw(data);
+                if (window.opener != null) {
+                    window.opener.focus();
+                    window.opener.postMessage(data, '@hostingUrl');
+                }
+                else {
+                    alert("Parentless window and no payment possible");
+                }
             </text>
         }
     </script>

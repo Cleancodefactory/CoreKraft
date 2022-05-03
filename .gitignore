@@ -504,3 +504,4 @@ build/
 **/Modules/_PluginsReferences/
 **/DataProtection
 
+**/.sonarqube

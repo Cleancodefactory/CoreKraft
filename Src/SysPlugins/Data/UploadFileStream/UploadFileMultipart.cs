@@ -20,9 +20,7 @@ namespace Ccf.Ck.SysPlugins.Data.UploadFileStream
         {
             // Used to accumulate all the form url encoded key value pairs in the request.
             KeyValueAccumulator formAccumulator = new KeyValueAccumulator();
-            string targetFilePath = null;
-
-            string s = request.ContentType;
+            
             string boundary = MultipartRequestHelper.GetBoundary(MediaTypeHeaderValue.Parse(request.ContentType), _DefaultFormOptions.MultipartBoundaryLengthLimit);
             MultipartReader reader = new MultipartReader(boundary, request.Body);
 
@@ -36,7 +34,7 @@ namespace Ccf.Ck.SysPlugins.Data.UploadFileStream
                 {
                     if (MultipartRequestHelper.HasFileContentDisposition(contentDisposition))
                     {
-                        targetFilePath = Path.GetTempFileName();
+                        string targetFilePath = Path.GetRandomFileName();
                         using (var targetStream = System.IO.File.Create(targetFilePath))
                         {
                             await section.Body.CopyToAsync(targetStream);

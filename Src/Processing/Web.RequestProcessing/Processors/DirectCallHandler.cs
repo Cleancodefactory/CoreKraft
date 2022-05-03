@@ -98,7 +98,7 @@ namespace Ccf.Ck.Processing.Web.Request
                 sb.Append($"Requested nodeset: {processingContext.InputModel.NodeSet} doesn't exist or not loaded.");
                 isError = true;
             }
-            if (loadedNodeSet.StartNode == null)//Handle errors better and show when a node is addressed but missing.
+            if (loadedNodeSet?.StartNode == null)//Handle errors better and show when a node is addressed but missing.
             {
                 sb.Append($"Node: {processingContext.InputModel.Nodepath} from module: {processingContext.InputModel.Module}, nodeset: {processingContext.InputModel.NodeSet} is missing!");
                 isError = true;

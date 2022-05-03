@@ -164,7 +164,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(Random), "")]
         public ParameterResolverValue Random(HostInterface ctx, ParameterResolverValue[] args)
         {
-            int min = 0;
+            int min = 1;
+            int max = 100;
             var random = new Random();
             if (args.Length > 0)
             {
@@ -180,23 +181,20 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 {
                     if (args[1].Value is int maxi)
                     {
-                        return new ParameterResolverValue(random.Next(min, maxi));
+                        max = maxi;
                     }
                     else if (args[1].Value is long maxl)
                     {
-                        return new ParameterResolverValue(random.Next(min, (int)maxl));
+                        max = (int)maxl;
                     }
-                    else
+                    if (min >= max)
                     {
-                        return new ParameterResolverValue(random.Next(min)); // min is max
+                        throw new ArgumentException("Min value is greater or equals than Max value.");
                     }
-                }
-                else
-                {
-                    return new ParameterResolverValue(random.Next(min)); // min is max
                 }
             }
-            return new ParameterResolverValue(random.Next());
+
+            return new ParameterResolverValue(random.Next(min, max));
         }
 
         [Function(nameof(Add), "")]

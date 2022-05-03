@@ -5,8 +5,8 @@
 
 BKI_ExampleMenu.Inherit(GenericViewBaseEx, "BKI_ExampleMenu");
 
-BKI_ExampleMenu.prototype.OnDataContextChanged = function () {
-};
+//BKI_ExampleMenu.prototype.OnDataContextChanged = function () {
+//};
 
 BKI_ExampleMenu.prototype.onTemplateSelect = function (sender) {
     var item = sender.get_item().example;

@@ -17,7 +17,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
             RequestDelegate requestDelegate = async httpContext =>
             {
                 httpContext.Request.RouteValues.TryGetValue("p", out object val);
-                ISecurityModel securityModel = null;
+                ISecurityModel securityModel = new SecurityModelMock(kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
                 const string contentType = "text/html; charset=UTF-8";
                 int statusCode = 200;
                 string message = string.Empty;
@@ -26,10 +26,6 @@ namespace Ccf.Ck.Web.Middleware.Tools
                     if (kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
                     {
                         securityModel = new SecurityModel(httpContext);
-                    }
-                    else
-                    {
-                        securityModel = new SecurityModelMock(kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
                     }
                 }
                 switch (val)

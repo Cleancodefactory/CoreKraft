@@ -588,7 +588,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", our_token);
 
             // Why global?
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;
 
             using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
             client.Timeout = new TimeSpan(0, 0, 10);

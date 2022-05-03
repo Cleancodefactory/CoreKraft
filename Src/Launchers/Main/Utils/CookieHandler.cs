@@ -17,7 +17,7 @@ namespace Ccf.Ck.Launchers.Main.Utils
             response.Cookies.Append(
             CookieRequestCultureProvider.DefaultCookieName,
             CookieRequestCultureProvider.MakeCookieValue(requestCulture),
-            new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1), Secure = true, IsEssential = true, SameSite=SameSiteMode.Strict });
+            new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1), Secure = true, IsEssential = true, SameSite = SameSiteMode.Strict, HttpOnly = true });
             return requestCulture;
         }
 
@@ -26,6 +26,7 @@ namespace Ccf.Ck.Launchers.Main.Utils
             var cookies = response.Cookies;
             response.Cookies.Delete(cookieName, new CookieOptions()
             {
+                HttpOnly = true,
                 Secure = true,
             });
         }

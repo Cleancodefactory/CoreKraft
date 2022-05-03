@@ -1,6 +1,7 @@
 ﻿using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Settings.Modules;
 using Ccf.Ck.SysPlugins.Interfaces;
+using System;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Processing.Execution
@@ -28,11 +29,12 @@ namespace Ccf.Ck.Processing.Execution
 
         private ELoaderType GetLoaderType()
         {
-            if (this is IPluginAccessor<INodePlugin>)
+            Type pluginType = typeof(T);
+            if (typeof(INodePlugin).IsAssignableFrom(pluginType))
             {
                 return ELoaderType.CustomPlugin;
             }
-            if (this is IPluginAccessor<IDataLoaderPlugin>)
+            if (typeof(IDataLoaderPlugin).IsAssignableFrom(pluginType))
             {
                 return ELoaderType.DataLoader;
             }

@@ -23,7 +23,7 @@
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     @{
         if (Model.GeneralSettings.MetaTags != null && Model.GeneralSettings.MetaTags.Count > 0)
@@ -57,40 +57,41 @@
         var bindKraftConfiguration = Html.Raw(Model.GeneralSettings.BindKraftConfiguration);
         int isDevelopment = Model.EnvironmentSettings.IsDevelopment() ? 1 : 0;
     }
-<script type="text/javascript">
+    <script type="text/javascript">
         //global base path
         g_ApplicationBasePath = "@Url.Content("~/")";
         g_ApplicationCulture = "@Thread.CurrentThread.CurrentCulture.IetfLanguageTag";
         g_BindKraftConfiguration = @bindKraftConfiguration;
         g_BindKraftConfiguration.IsDevelopment = @(isDevelopment);
         g_BindKraftConfiguration.ParseTimeErrorHandler = null;
-        @{ if (isDevelopment == 0)
+        @{
+            if (isDevelopment == 0)
             {
                 <text>
-                    var errorShown = false;
-                    g_BindKraftConfiguration.ParseTimeErrorHandler = function(message, source, lineno, colno, error) {
-                        if (errorShown) return false;
-                        errorShown = true;
-                        window.location = g_ApplicationBasePath + "home/unsupported";
-                        return false;
-                    };
+                                    var errorShown = false;
+                                    g_BindKraftConfiguration.ParseTimeErrorHandler = function(message, source, lineno, colno, error) {
+                                        if (errorShown) return false;
+                                        errorShown = true;
+                                        window.location = g_ApplicationBasePath + "home/unsupported";
+                                        return false;
+                                    };
 
-                    window.onerror = g_BindKraftConfiguration.ParseTimeErrorHandler;
+                                    window.onerror = g_BindKraftConfiguration.ParseTimeErrorHandler;
                 </text>
                 if (Model.GeneralSettings.ProgressiveWebApp != null && !string.IsNullOrEmpty(Model.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl))
                 {
                     // PWA - SW
                     <text>
-                        if ('serviceWorker' in navigator) {
-                            navigator.serviceWorker
-                            .register('@Model.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl')
-                            .then(_ => console.log("SW: CoreKraft service worker is registered"));
-                        }
+                                                if ('serviceWorker' in navigator) {
+                                                    navigator.serviceWorker
+                                                    .register('@Model.GeneralSettings.ProgressiveWebApp.ServiceWorkerUrl')
+                                                    .then(_ => console.log("SW: CoreKraft service worker is registered"));
+                                                }
                     </text>
                 }
             }
         }
-</script>
+    </script>
     @{
         ToolSettings tool = KraftToolsRouteBuilder.GetTool(Model, "profiler");
         if (tool != null && tool.Enabled)//Profiler enabled enabled from configuration

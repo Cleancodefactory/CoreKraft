@@ -16,23 +16,23 @@ BKI_MenuItem.ImplementProperty("name", new InitializeStringParameter("The captio
 BKI_MenuItem.ImplementProperty("svgpath", new InitializeStringParameter("The path of the item's svg.", null));
 BKI_MenuItem.ImplementActiveProperty("children", new InitializeParameter("Children information(caption, click window, ...etc.).", null), null, null, "changeTemplate");
 
-BKI_MenuItem.prototype.OnDataContextChanged = function () {
-};
+// BKI_MenuItem.prototype.OnDataContextChanged = function () {
+// };
 
 BKI_MenuItem.prototype.rawImagePathConverter = {
     ToTarget: function ToTarget(v) {
         var service = this.findService("BindKraftIntroApp");
         return service.resourceUrl("$images", v);
     },
-    FromTarget: function FromTarget() { } // do nothing
+    // FromTarget: function FromTarget() { } // do nothing
 };
 
 BKI_MenuItem.prototype.init = function () {
     $$(this.root).first().empty().append(this.get_template());
 };
 
-BKI_MenuItem.prototype.finalinit = function () {
-};
+// BKI_MenuItem.prototype.finalinit = function () {
+// };
 
 BKI_MenuItem.prototype.changeTemplate = function () {
     //Please refactor that at some point

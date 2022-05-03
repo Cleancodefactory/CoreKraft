@@ -222,17 +222,20 @@ namespace Ccf.Ck.Web.Middleware
                             {
                                 //Has returnurl already in user's session
                                 //Method: static void KraftResult(HttpContext httpContext, HttpStatusCode statusCode, string error = null)
-                                string returnUrl = context?.Properties?.RedirectUri;
-                                if (string.IsNullOrEmpty(returnUrl))
+                                if (context != null)
                                 {
-                                    if (context.Request.Query.ContainsKey("returnurl"))//Is passed as parameter in the url
+                                    string returnUrl = context?.Properties?.RedirectUri;
+                                    if (string.IsNullOrEmpty(returnUrl))
                                     {
-                                        returnUrl = context.Request.Query["returnurl"];
+                                        if (context.Request.Query.ContainsKey("returnurl"))//Is passed as parameter in the url
+                                        {
+                                            returnUrl = context.Request.Query["returnurl"];
+                                        }
                                     }
-                                }
-                                if (!string.IsNullOrEmpty(returnUrl))
-                                {
-                                    context.ProtocolMessage.SetParameter("returnurl", returnUrl);
+                                    if (!string.IsNullOrEmpty(returnUrl))
+                                    {
+                                        context.ProtocolMessage.SetParameter("returnurl", returnUrl);
+                                    }
                                 }
                                 return Task.CompletedTask;
                             },

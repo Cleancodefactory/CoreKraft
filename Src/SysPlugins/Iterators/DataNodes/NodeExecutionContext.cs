@@ -256,6 +256,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 Dictionary<string, Parameter> collectedParametersDictionary = new Dictionary<string, Parameter>(10);
                 //1. check the root for parameters
                 collectedParametersDictionary = currentNode.NodeSet.Root.Parameters?.ToDictionary(p => p.Name);
+                if (collectedParametersDictionary == null)
+                {
+                    collectedParametersDictionary = new Dictionary<string, Parameter>(10);
+                }
                 //2. check the current node for parameters
                 foreach (Parameter parameter in currentNode.Parameters ?? new List<Parameter>())
                 {

@@ -22,7 +22,7 @@ namespace Ccf.Ck.Launchers.Main.ActionFilters
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
-
+            // Do nothing because it is a part of the interface.
         }
 
         public void OnActionExecuting(ActionExecutingContext context)

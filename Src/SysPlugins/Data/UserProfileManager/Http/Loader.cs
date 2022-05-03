@@ -15,8 +15,8 @@ namespace Ccf.Ck.SysPlugins.Data.UserProfileManager.Http
         {
             using (HttpClient client = new HttpClient(new HttpClientHandler()))
             {
-                //specify to use TLS 1.2 as default connection
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+                //specify to use TLS 1.3 as default connection
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;
                 client.DefaultRequestHeaders.Authorization = authHeader;
                 using (HttpRequestMessage request = new HttpRequestMessage(method, url))
                 {

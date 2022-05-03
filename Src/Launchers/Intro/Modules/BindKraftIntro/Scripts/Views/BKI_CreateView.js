@@ -28,7 +28,7 @@ BKI_CreateView.prototype.onDeleteSource = function (e, dc, b) {
     var example = this.get_data();
     var index = -1;
     for (var i = 0; i < example.Sources.Entries.length; i++) {
-        entry = example.Sources.Entries[i]
+        var entry = example.Sources.Entries[i];
         if (entry.Content == dc.Content && entry.Type == dc.Type && entry.EntryName == dc.EntryName) {
             index = i;
             break;
