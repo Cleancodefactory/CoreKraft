@@ -16,12 +16,12 @@ namespace Ccf.Ck.NodePlugins.Scripter {
         private const string PLUGIN_INTERNAL_NAME = "NodeScripterImp";
 
         #region NodePluginBase
-        protected override void ExecuteRead(INodePluginReadContext execContext) {
-            ExecuteQuery(execContext);
+        protected override void ExecuteRead(INodePluginReadContext pr) {
+            ExecuteQuery(pr);
         }
 
-        protected override void ExecuteWrite(INodePluginWriteContext execContext) {
-            ExecuteQuery(execContext);
+        protected override void ExecuteWrite(INodePluginWriteContext pw) {
+            ExecuteQuery(pw);
         }
 
         protected virtual void ExecuteQuery<Context>(Context execContext) where Context : class, INodePluginContext {

@@ -9,7 +9,7 @@ namespace Ccf.Ck.Models.KraftModule
     public class KraftModuleCollection
     {
         private readonly DependencyInjectionContainer _DependencyInjectionContainer;
-        private readonly ILogger _Logger;
+        //private readonly ILogger _Logger;
 
         private IDictionary<string, KraftModule> _KraftModulesCollection;
         public KraftGlobalConfigurationSettings KraftGlobalConfigurationSettings { get; private set; }
@@ -19,7 +19,7 @@ namespace Ccf.Ck.Models.KraftModule
             _KraftModulesCollection = new Dictionary<string, KraftModule>();
             KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
             _DependencyInjectionContainer = dependencyInjectionContainer;
-            _Logger = logger;
+            //_Logger = logger;
         }
 
         public virtual KraftModule RegisterModule(string directoryName, string moduleName, KraftDependableModule kraftDependableModule, ICachingService cachingService)

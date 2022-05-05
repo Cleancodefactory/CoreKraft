@@ -12,28 +12,28 @@ namespace Ccf.Ck.NodePlugins.BindKraftIntro
 {
     public class BindKraftIntroMainImp : NodePluginBase<BindKraftIntroContext>
     {
-        protected override void ExecuteRead(INodePluginReadContext pluginReadContext)
+        protected override void ExecuteRead(INodePluginReadContext pr)
         {
             Dictionary<string, object> result = new Dictionary<string, object>();
-            var roleList = pluginReadContext.ProcessingContext.InputModel.SecurityModel.Roles;
+            var roleList = pr.ProcessingContext.InputModel.SecurityModel.Roles;
 
-            string operationName = pluginReadContext.Evaluate("operation").Value?.ToString()?.Replace("'", string.Empty).ToLower() ?? string.Empty;
-            IIntroContentProvider contentProvider = GetContentProvider(pluginReadContext);
+            string operationName = pr.Evaluate("operation").Value?.ToString()?.Replace("'", string.Empty).ToLower() ?? string.Empty;
+            IIntroContentProvider contentProvider = GetContentProvider(pr);
             switch (operationName)
             {
                 case "nav":
                     {
-                        result.Add("intro", contentProvider.LoadMenu(pluginReadContext));
+                        result.Add("intro", contentProvider.LoadMenu(pr));
                         break;
                     }
                 case "view":
                     {
-                        result.Add("intro", contentProvider.LoadIntroItem(pluginReadContext));
+                        result.Add("intro", contentProvider.LoadIntroItem(pr));
                         break;
                     }
                 case "admin":
                     {
-                        result.Add("intro", contentProvider.LoadDeletedIntroItem(pluginReadContext));
+                        result.Add("intro", contentProvider.LoadDeletedIntroItem(pr));
                         break;
                     }
                 default:
@@ -42,7 +42,7 @@ namespace Ccf.Ck.NodePlugins.BindKraftIntro
                     }
             }
 
-            pluginReadContext.Results.Add(result);
+            pr.Results.Add(result);
         }
 
         private IIntroContentProvider GetContentProvider(INodePluginContext pluginContext)

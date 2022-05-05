@@ -10,14 +10,15 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload.Models
 {
     internal class ImageEditor : IImageEditor
     {
-        private readonly IPostedFile _Postedfile;
-
         private Image _Image;
         private bool _IsDisposed = false;
 
         public ImageEditor(IPostedFile postedFile)
         {
-            _Postedfile = postedFile ?? throw new ArgumentNullException($"{nameof(IPostedFile)} cannot be null.");
+            if (postedFile == null)
+            {
+                throw new ArgumentNullException($"{nameof(IPostedFile)} cannot be null.");
+            }
 
             _Image = Image.Load(postedFile.OpenReadStream());
             _Image.Mutate(i => i.AutoOrient());

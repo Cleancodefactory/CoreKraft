@@ -19,18 +19,18 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         #region IDataIteratorPlugin Members
         public async Task<IProcessingContext> ExecuteAsync(
-            LoadedNodeSet loadedNodeSet,
+            LoadedNodeSet loaderContext,
             IProcessingContext processingContext,
             IPluginServiceManager pluginServiceManager,
-            IPluginAccessor<IDataLoaderPlugin> externalService,
-            IPluginAccessor<INodePlugin> customService
+            IPluginAccessor<IDataLoaderPlugin> dataLoaderAccessor,
+            IPluginAccessor<INodePlugin> customPluginAccessor = null
             )
         {
-            _dataIteratorContext.LoadedNodeSet = loadedNodeSet;
+            _dataIteratorContext.LoadedNodeSet = loaderContext;
             _dataIteratorContext.ProcessingContext = processingContext;
             _dataIteratorContext.PluginServiceManager = pluginServiceManager;
-            _dataIteratorContext.DataLoaderPluginAccessor = externalService;
-            _dataIteratorContext.CustomPluginAccessor = customService;
+            _dataIteratorContext.DataLoaderPluginAccessor = dataLoaderAccessor;
+            _dataIteratorContext.CustomPluginAccessor = customPluginAccessor;
             _dataIteratorContext.CheckNulls();
 
             // dataIteratorContext already has a reference to processingContext.ReturrnModel.Data, 
