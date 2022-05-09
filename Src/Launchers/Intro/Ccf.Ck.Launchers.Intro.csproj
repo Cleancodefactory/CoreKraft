@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="5.0.2" />
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="5.0.3" />
     <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="5.0.1" />
     <PackageReference Include="Ccf.Ck.Module.BindKraft" Version="0.0.1" />
     <PackageReference Include="Ccf.Ck.Module.BindKraftStyles" Version="0.0.1" />

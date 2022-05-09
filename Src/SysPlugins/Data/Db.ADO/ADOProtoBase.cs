@@ -186,8 +186,13 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             {
                 if (!string.IsNullOrEmpty(sqlQuery))
                 {
-                    string parametersAsString = string.Join(Environment.NewLine, parameters);
-                    KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {Environment.NewLine}{parametersAsString}{Environment.NewLine}{sqlQuery}", ex, execContext);
+                    StringBuilder sb = new StringBuilder();
+                    foreach (string param in parameters)
+                    {
+                        sb.AppendLine($"Parameter: {param} -- Value: {execContext.Evaluate(param)}");
+                    }
+
+                    KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
                 }
                 throw;
             }
@@ -299,8 +304,13 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             {
                 if (!string.IsNullOrEmpty(sqlQuery))
                 {
-                    string parametersAsString = string.Join(Environment.NewLine, parameters);
-                    KraftLogger.LogError($"Write(IDataLoaderWriteContext execContext) >> SQL: {Environment.NewLine}{parametersAsString}{Environment.NewLine}{sqlQuery}", ex, execContext);
+                    StringBuilder sb = new StringBuilder();
+                    foreach (string param in parameters)
+                    {
+                        sb.AppendLine($"Parameter: {param} -- Value: {execContext.Evaluate(param)}");
+                    }
+
+                    KraftLogger.LogError($"Write(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
                 }
                 throw;
             }

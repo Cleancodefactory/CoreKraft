@@ -150,12 +150,13 @@ namespace Ccf.Ck.Processing.Execution
             }
             catch (Exception ex)
             {
-
+                //TODO if in mode trace pipeline, collect all the nodes with params and values which were called and where exception occurred.
                 processingContext.ReturnModel.Status.IsSuccessful = false;
                 processingContext.ReturnModel.Status.StatusResults.Add(new StatusResult { StatusResultType = EStatusResult.StatusResultError, Message = ex.Message });
                 _TransactionScope.RollbackTransactions();
 
                 StringBuilder errMsg = new StringBuilder(1000);
+                errMsg.AppendLine($"Module: {processingContext.InputModel.Module}");
                 errMsg.AppendLine($"Nodeset: {loaderContextDefinition.NodeSet.Name}");
                 errMsg.AppendLine($"Startnodekey: {loaderContextDefinition.StartNode.NodeKey}");
                 errMsg.AppendLine($"Parameters: {string.Join(",", loaderContextDefinition.StartNode.Parameters)}");
