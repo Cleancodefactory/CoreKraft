@@ -189,7 +189,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     StringBuilder sb = new StringBuilder();
                     foreach (string param in parameters)
                     {
-                        sb.AppendLine($"Parameter: {param} -- Value: {execContext.Evaluate(param)}");
+                        sb.AppendLine(param);
                     }
 
                     KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
@@ -307,7 +307,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     StringBuilder sb = new StringBuilder();
                     foreach (string param in parameters)
                     {
-                        sb.AppendLine($"Parameter: {param} -- Value: {execContext.Evaluate(param)}");
+                        sb.AppendLine(param);
                     }
 
                     KraftLogger.LogError($"Write(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);

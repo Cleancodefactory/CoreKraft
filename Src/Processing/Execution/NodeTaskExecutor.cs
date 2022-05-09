@@ -49,7 +49,7 @@ namespace Ccf.Ck.Processing.Execution
                     {
                         IDataIteratorPlugin dataIteratorPlugin = Utilities.GetPlugin<IDataIteratorPlugin>(_KraftModuleConfigurationSettings.NodeSetSettings.SourceLoaderMapping.NodesDataIterator.NodesDataIteratorConf.Name, _TransactionScope.DependencyInjectionContainer, _KraftModuleConfigurationSettings, ELoaderType.DataLoader, true);
                         GenericUtilities.CheckNullOrEmpty(dataIteratorPlugin, true);
-                        IProcessingContext r = dataIteratorPlugin.ExecuteAsync(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, dataLoaderAccessor, pluginAccessor).Result;
+                        _ = dataIteratorPlugin.ExecuteAsync(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, dataLoaderAccessor, pluginAccessor).Result;
                     }
                 }
             }
@@ -100,7 +100,7 @@ namespace Ccf.Ck.Processing.Execution
                 GenericUtilities.CheckNullOrEmpty(systemPlugin, true);
                 IPluginsSynchronizeContextScoped synchronizeContextScoped = _TransactionScope.GetSynchronizeContextScopedAsync(view.SystemPluginName, ELoaderType.ViewLoader, _KraftModuleConfigurationSettings, systemPlugin).Result;
                 GenericUtilities.CheckNullOrEmpty(synchronizeContextScoped, true);
-                IProcessingContext r = systemPlugin.ExecuteAsync(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, synchronizeContextScoped, view).Result;
+                _ = systemPlugin.ExecuteAsync(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, synchronizeContextScoped, view).Result;
             }
         }
 

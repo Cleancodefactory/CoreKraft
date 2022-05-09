@@ -19,7 +19,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
     public class BasicFiles<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
 
-        private object _LockObject = new Object();
+        private readonly object _LockObject = new Object();
 
         public BasicFiles()
         {
@@ -55,7 +55,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             return new SymbolSet("Basic File library (no symbols)", null);
         }
 
-        private List<object> _disposables = new List<object>();
+        private readonly List<object> _disposables = new List<object>();
         public void ClearDisposables()
         {
             lock (_LockObject)
@@ -86,7 +86,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         public ParameterResolverValue PostedFileSize(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("PostedFileSize requires single argument");
-            var pf = args[0].Value as IPostedFile;
+            IPostedFile pf = args[0].Value as IPostedFile;
             if (pf == null) throw new ArgumentException("PostedFileSize argument is not a posted file");
             return new ParameterResolverValue((double)pf.Length);
         }
@@ -228,7 +228,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 Directory.CreateDirectory(filedir);
             }
             string filespreaddir = Path.Combine(subdir, $"{id}-{file.FileName}");
-            string filefullpath = Path.Combine(basedir, filespreaddir);
+            _ = Path.Combine(basedir, filespreaddir);
 
             return new ParameterResolverValue(filespreaddir);
         }
@@ -381,7 +381,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
 
             if (string.IsNullOrWhiteSpace(filepath))
             {
-                var posted = args[0].Value as IPostedFile;
+                IPostedFile posted = args[0].Value as IPostedFile;
                 if (posted != null)
                 {
                     string name = null, fileName = null;
@@ -441,7 +441,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
 
 
         #region Internal helpers
-        private IPluginsSynchronizeContextScoped Scope(HostInterface ctx)
+        private static IPluginsSynchronizeContextScoped Scope(HostInterface ctx)
         {
             if (ctx is IDataLoaderContext ldrctx)
             {

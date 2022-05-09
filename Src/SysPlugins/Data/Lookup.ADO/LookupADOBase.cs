@@ -30,8 +30,6 @@ namespace Ccf.Ck.SysPlugins.Lookups.ADO
             INode currentNode)
         {
             Dictionary<string, object> returnResult = new Dictionary<string, object>();
-            List<Dictionary<string, object>> results = null;
-            Dictionary<string, object> currentResult = null;
 
             // This shouldn't happen to a dog! but I needed a hack for basket consumer.
             LookupLoaderContext.Instance.PluginServiceManager = pluginServiceManager;
@@ -42,7 +40,7 @@ namespace Ccf.Ck.SysPlugins.Lookups.ADO
             Lookup lookup = (Lookup)currentNode;
             if (lookup.HasStatement())
             {
-                results = new List<Dictionary<string, object>>();                
+                List<Dictionary<string, object>> results = new List<Dictionary<string, object>>();
 
                 IADOTransactionScope scopedContext = contextScoped as IADOTransactionScope;
                 // Check it is valid
@@ -62,7 +60,7 @@ namespace Ccf.Ck.SysPlugins.Lookups.ADO
                         {
                             while (reader.Read())
                             {
-                                currentResult = new Dictionary<string, object>(reader.FieldCount);
+                                Dictionary<string, object> currentResult = new Dictionary<string, object>(reader.FieldCount);
                                 currentResult = new Dictionary<string, object>(reader.FieldCount);
                                 for (int i = 0; i < reader.FieldCount; i++)
                                 {

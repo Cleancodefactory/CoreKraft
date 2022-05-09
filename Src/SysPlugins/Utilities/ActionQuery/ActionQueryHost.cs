@@ -65,7 +65,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
 
         #region Own callbacks
-        private Dictionary<string, HostedProc<HostInterface>> _Callbacks = new Dictionary<string, HostedProc<HostInterface>>();
+        private readonly Dictionary<string, HostedProc<HostInterface>> _Callbacks = new Dictionary<string, HostedProc<HostInterface>>();
         public ActionQueryHost<HostInterface> Add(string name, HostedProc<HostInterface> proc)
         {
             if (proc == null)
@@ -90,7 +90,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         #region Library support
-        private List<IActionQueryLibrary<HostInterface>> _Libraries = new List<IActionQueryLibrary<HostInterface>>();
+        private readonly List<IActionQueryLibrary<HostInterface>> _Libraries = new List<IActionQueryLibrary<HostInterface>>();
 
         protected HostedProc<HostInterface> GetLibraryProc(string name)
         {

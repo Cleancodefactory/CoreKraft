@@ -97,7 +97,7 @@ namespace Ccf.Ck.Web.Middleware
 
         public class FromValuesListConstraint : IRouteConstraint
         {
-            private List<string> _Values;
+            private readonly List<string> _Values;
 
             public FromValuesListConstraint(params string[] values)
             {
