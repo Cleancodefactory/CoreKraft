@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>Ccf.Ck.Utilities.Generic</AssemblyName>
     <RootNamespace>Ccf.Ck.Utilities.Generic</RootNamespace>
   </PropertyGroup>
@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="5.0.3" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="5.0.0" />
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="6.0.0" />
   </ItemGroup>
 
 </Project>

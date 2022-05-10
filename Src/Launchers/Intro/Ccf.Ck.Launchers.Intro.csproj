@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="5.0.3" />
-    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="5.0.1" />
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="6.0.0" />
+    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="6.0.6" />
     <PackageReference Include="Ccf.Ck.Module.BindKraft" Version="0.0.1" />
     <PackageReference Include="Ccf.Ck.Module.BindKraftStyles" Version="0.0.1" />
     <PackageReference Include="Ccf.Ck.Module.PlatformUtility" Version="0.0.1" />

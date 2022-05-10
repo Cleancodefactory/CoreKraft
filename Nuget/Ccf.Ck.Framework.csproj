@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <!-- Nuget specific tags -->
@@ -12,54 +12,55 @@
     <RepositoryUrl>https://github.com/cleancodefactory/corekraft</RepositoryUrl>
     <PackageTags>CoreKraft micro-services architecture pipeline for request execution</PackageTags>
     <PackageReleaseNotes>
-      Contains the execution middleware of the CoreKraft framework
-      - Version 1.0.0: Initial publish with profound execution capabilities (read and write data from/into different sources: DB, Files, another Http-service)
-      - Version 1.0.1: Extend the Kraft(-Scripts/-Styles) methods with a default moduleDepStartFile. Allows us to bundle from different starting points.
-      - Version 1.0.2: When bootstrapping a module read resources from Module.dep and additionally moduleDepStartFile if available.
-      - Version 1.0.3: Introduce the concept that the modules reside in multiple folders.
-      - Version 1.0.4: Improve logging during modules loading.
-      - Version 1.0.5: Fix the ModulesWatchers' implementation related to the multiple roots (modules).
-      - Version 1.0.10: Fix error when the collection of signals is empty.
-      - Version 1.0.11: Extending ActionBase with Dictionary[string, object] Json (property)
-      - Version 1.0.12: Moving the Json property from Select to the ActionBase
-      - Version 1.0.13: Update the user manager supporting bearer tokens
-      - Version 1.0.14: Introduce external (e.g. MVC/SignalR/other middlewares) to CoreKraft calls and consume their results
-      - Version 1.0.15: Fix: Bug to execute the data channel
-      - Version 1.0.16: Extend config section SignalR with new Settings section
-      - Version 1.0.17: Extend external calls (v. 1.0.14) to return Task
-      - Version 1.0.18: Update to TargetFramework netcoreapp3.1
-      - Version 1.0.19: Update referenced nuget-packages and add transformation for cleaning up js-files (and add 'use strict';)
-      - Version 1.0.20: Include new configuration settings for MVC-assemblies, routing to them and their dynamic loading
-      - Version 1.0.21: Simplify loading, execution and routing for satellite razor assemblies
-      - Version 1.0.22: Adding SupportedLanguages
-      - Version 1.0.23: Fix bug with query action not properly checked for null
-      - Version 1.0.24: Fix bug with catch all in launcher
-      - Version 1.0.25: Add REMOTE_ADDR to the server variables
-      - Version 1.0.26: Update Ccf.Ck.Libs.Logging to version 1.0.15
-      - Version 1.0.27: Update Ccf.Ck.Libs.Logging to version 1.0.17
-      - Version 1.0.28: Update Ccf.Ck.Libs.Logging to version 1.0.18
-      - Version 1.0.29: Update Ccf.Ck.Libs.Logging to version 1.0.19
-      - Version 1.0.30: Reference only libs in the project during the nuget creation
-      - Version 1.0.31: Update Ccf.Ck.Libs.Logging to version 1.0.20
-      - Version 1.0.32: Introduce Email-Settings model
-      - Version 1.0.33: Reference Email-Settings model
-      - Version 1.0.34: Reference Ccf.Ck.Razor.TagHelpers
-      - Version 1.0.35: Reference to Ccf.Ck.Razor.TagHelpersCcf.Ck.Razor.TagHelpers updated to 1.0.4
-      - Version 1.0.36: Add support for RedirectAfterLogin in the Authorization section
-      - Version 1.0.37: Extend the file watchers to restart the application when changes (for faster development)
-      - Version 1.0.38: Fixed bug with IHost not showing starting process in the console
-      - Version 1.0.39: Update referenced project: Ccf.Ck.NodePlugins.Base for nuget
-      - Version 1.0.40: Support for Optional Dependencies; ActionQuery host implemented: 2 plugins (Scripter and ManagedFileUpload) are supporting it natively; 2 optional libs were added (for images and files)
-      - Version 1.0.41: Bug fixing in Scripter plugin
-      - Version 5.0.0: Migrate to net5.0
-      - Version 5.0.1: Introduce meta tags for screen orientation and scaling
-      - Version 5.0.2: Introduce NodeScripter engine which allows execution of custom scripts as part of the NodeSet-Execution
-      - Version 5.0.3: Moving ServiceWorker Registration to the landing pages
-      - Version 5.0.4: Register service worker
-      - Version 5.0.5: Don't cache service worker, respect language preferences in appsettings
-      - Version 5.0.6: Fix an error with ProgressiveWebApps
-      - Version 5.0.7: Restructure DirectCall's execution to be synchronous
-    </PackageReleaseNotes>
+		Contains the execution middleware of the CoreKraft framework
+		- Version 1.0.0: Initial publish with profound execution capabilities (read and write data from/into different sources: DB, Files, another Http-service)
+		- Version 1.0.1: Extend the Kraft(-Scripts/-Styles) methods with a default moduleDepStartFile. Allows us to bundle from different starting points.
+		- Version 1.0.2: When bootstrapping a module read resources from Module.dep and additionally moduleDepStartFile if available.
+		- Version 1.0.3: Introduce the concept that the modules reside in multiple folders.
+		- Version 1.0.4: Improve logging during modules loading.
+		- Version 1.0.5: Fix the ModulesWatchers' implementation related to the multiple roots (modules).
+		- Version 1.0.10: Fix error when the collection of signals is empty.
+		- Version 1.0.11: Extending ActionBase with Dictionary[string, object] Json (property)
+		- Version 1.0.12: Moving the Json property from Select to the ActionBase
+		- Version 1.0.13: Update the user manager supporting bearer tokens
+		- Version 1.0.14: Introduce external (e.g. MVC/SignalR/other middlewares) to CoreKraft calls and consume their results
+		- Version 1.0.15: Fix: Bug to execute the data channel
+		- Version 1.0.16: Extend config section SignalR with new Settings section
+		- Version 1.0.17: Extend external calls (v. 1.0.14) to return Task
+		- Version 1.0.18: Update to TargetFramework netcoreapp3.1
+		- Version 1.0.19: Update referenced nuget-packages and add transformation for cleaning up js-files (and add 'use strict';)
+		- Version 1.0.20: Include new configuration settings for MVC-assemblies, routing to them and their dynamic loading
+		- Version 1.0.21: Simplify loading, execution and routing for satellite razor assemblies
+		- Version 1.0.22: Adding SupportedLanguages
+		- Version 1.0.23: Fix bug with query action not properly checked for null
+		- Version 1.0.24: Fix bug with catch all in launcher
+		- Version 1.0.25: Add REMOTE_ADDR to the server variables
+		- Version 1.0.26: Update Ccf.Ck.Libs.Logging to version 1.0.15
+		- Version 1.0.27: Update Ccf.Ck.Libs.Logging to version 1.0.17
+		- Version 1.0.28: Update Ccf.Ck.Libs.Logging to version 1.0.18
+		- Version 1.0.29: Update Ccf.Ck.Libs.Logging to version 1.0.19
+		- Version 1.0.30: Reference only libs in the project during the nuget creation
+		- Version 1.0.31: Update Ccf.Ck.Libs.Logging to version 1.0.20
+		- Version 1.0.32: Introduce Email-Settings model
+		- Version 1.0.33: Reference Email-Settings model
+		- Version 1.0.34: Reference Ccf.Ck.Razor.TagHelpers
+		- Version 1.0.35: Reference to Ccf.Ck.Razor.TagHelpersCcf.Ck.Razor.TagHelpers updated to 1.0.4
+		- Version 1.0.36: Add support for RedirectAfterLogin in the Authorization section
+		- Version 1.0.37: Extend the file watchers to restart the application when changes (for faster development)
+		- Version 1.0.38: Fixed bug with IHost not showing starting process in the console
+		- Version 1.0.39: Update referenced project: Ccf.Ck.NodePlugins.Base for nuget
+		- Version 1.0.40: Support for Optional Dependencies; ActionQuery host implemented: 2 plugins (Scripter and ManagedFileUpload) are supporting it natively; 2 optional libs were added (for images and files)
+		- Version 1.0.41: Bug fixing in Scripter plugin
+		- Version 5.0.0: Migrate to net5.0
+		- Version 5.0.1: Introduce meta tags for screen orientation and scaling
+		- Version 5.0.2: Introduce NodeScripter engine which allows execution of custom scripts as part of the NodeSet-Execution
+		- Version 5.0.3: Moving ServiceWorker Registration to the landing pages
+		- Version 5.0.4: Register service worker
+		- Version 5.0.5: Don't cache service worker, respect language preferences in appsettings
+		- Version 5.0.6: Fix an error with ProgressiveWebApps
+		- Version 5.0.7: Restructure DirectCall's execution to be synchronous
+		- Version 6.0.0: Updated to .NET 6.0
+	</PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
   

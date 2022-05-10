@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="SixLabors.Fonts" Version="1.0.0-beta15" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta13" />
     <PackageReference Include="System.Reflection.MetadataLoadContext" Version="6.0.0" />
   </ItemGroup>
