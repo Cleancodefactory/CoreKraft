@@ -156,10 +156,10 @@ namespace Ccf.Ck.Processing.Execution
                 _TransactionScope.RollbackTransactions();
 
                 StringBuilder errMsg = new StringBuilder(1000);
+                errMsg.AppendLine();
                 errMsg.AppendLine($"Module: {processingContext.InputModel.Module}");
                 errMsg.AppendLine($"Nodeset: {loaderContextDefinition.NodeSet.Name}");
                 errMsg.AppendLine($"Startnodekey: {loaderContextDefinition.StartNode.NodeKey}");
-                errMsg.AppendLine($"Parameters: {string.Join(",", loaderContextDefinition.StartNode.Parameters)}");
                 if (loaderContextDefinition.StartNode.CollectedReadParameters != null)
                 {
                     errMsg.AppendLine($"CollectedReadParameters: {string.Join(",", loaderContextDefinition.StartNode.CollectedReadParameters.Select(p => p.Name))}");
