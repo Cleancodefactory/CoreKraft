@@ -184,6 +184,10 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             }
             catch (Exception ex)
             {
+                if (Action(execContext) == null)
+                {
+                    throw new Exception($"Missing action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module})");
+                }
                 if (!string.IsNullOrEmpty(sqlQuery))
                 {
                     StringBuilder sb = new StringBuilder();
