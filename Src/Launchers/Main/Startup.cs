@@ -147,8 +147,11 @@ namespace Ccf.Ck.Launchers.Main
                         //Assembly assemblyCode = Assembly.LoadFile(assemblyFile.FullName);
                         Assembly assemblyCode = _RazorAssemblyLoadContext.LoadFromAssemblyPath(assemblyFile.FullName);
                         apm.ApplicationParts.Add(new AssemblyPart(assemblyCode));
+                        // https://docs.microsoft.com/en-us/dotnet/core/compatibility/aspnet-core/6.0/razor-compiler-doesnt-produce-views-assembly
+                        apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assemblyCode));
                     }
                 }
+                // TODO Remove when all applications are migrated to .NET 6.0
                 foreach (string viewAssembly in _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.AssemblyNamesView)
                 {
                     assemblyFile = new FileInfo(Path.Combine(rootPath, viewAssembly));
