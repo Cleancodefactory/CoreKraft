@@ -3,8 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "https://localhost:5001/",
-      "ASPNETCORE_preventHostingStartup": "True",
+      "applicationUrl": "https://localhost:4200/",
       "sslPort": 0
     }
   },
@@ -13,18 +12,21 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "\"Development\".",
-        "ASPNETCORE_preventHostingStartup": "True"
-      }
+        "ASPNETCORE_preventHostingStartup": "True",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "nativeDebugging": true
     },
     "CoreKraft.Launchers.Intro": {
       "commandName": "Project",
+      "hotReloadProfile": "aspnetcore",
       "launchBrowser": true,
+      "commandLineArgs": "../Intro",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_preventHostingStartup": "True"
+        "ASPNETCORE_preventHostingStartup": "True",
+        "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:5001"
+      "applicationUrl": "https://localhost:4200"
     }
   }
 }
