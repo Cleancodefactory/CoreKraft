@@ -43,18 +43,18 @@ The explanation will be for production, but you can use the profiler the same wa
 
   a) "profiler/results-index"
     You will see the last 100 requests cached on the server. By clicking on the links you will drill down into more details.
-    ![Profile Production Results Index](../../../Images/ProfileProduction_Results-Index.png)
+    ![Profile Production Results Index](Documentation/Images/ProfileProduction_Results-Index.png)
     When you click on the link in the Name column you will drill down into the profiling details. The profiler collects additional info about the DBConnection object and stores it to the above mentioned C# objects. That means that your SQL queries are profiled and even duplicate execution is shown.
     By clicking back you will see the list again. The list is refreshed automatically with a minor delay, so no refresh needed.
 
   b) "profiler/results-list"
     This output can be used when you want to have the request timings in a concise list.
-    ![Profile Production Results List](../../../Images/ProfileProduction_Results-List.png)
+    ![Profile Production Results List](Documentation/Images/ProfileProduction_Results-List.png)
 
   c) "profiler/results"
     This Url will return only the latest request's details.
-    ![Profile Production Results](../../../Images/ProfileProduction_Results.png)
+    ![Profile Production Results](Documentation/Images/ProfileProduction_Results.png)
 
-[Back to README](../../../README.md)
+[Back to README](/README.md)
 
 
