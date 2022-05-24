@@ -5,7 +5,7 @@
 }
 -->
 # How modules are loaded from multiple sources #
-For introduction about CoreKraft modules please visit: [Modules](Documentation/02.Learn_CoreKraft/03.Modules/modules.md)
+For introduction about CoreKraft modules please visit: [Modules](/Documentation/02.Learn_CoreKraft/03.Modules/modules.md)
 
 CoreKraft can load its modules from multiple sources. This is configured in the appsettings.[Development/Production].json
 ```json
@@ -30,7 +30,7 @@ From version 5.0 of the framework the loading process is as following:
 ## Replacements and reserved words in the paths
 You have noticed "@contentroot@" special word. During booting it will be replaced with the actual content root value. This is handy to not hard-code the absolute paths and reduce friction during deployment.
 In the above example "%KRAFTCLIENTTOOLS%" will be replaced with environment variable's value with the same name.
-![Environment variables](../../Images/Environment_Variables.png)
+![Environment variables](/Documentation/Images/Environment_Variables.png)
 
 ## Dependencies and Optional Dependencies
  The dependencies of the module are read from Dependency.json file. (Example of Dependency.json file below)
