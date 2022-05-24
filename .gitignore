@@ -505,3 +505,4 @@ build/
 **/DataProtection
 
 **/.sonarqube
+**/.VSCodeCounter
