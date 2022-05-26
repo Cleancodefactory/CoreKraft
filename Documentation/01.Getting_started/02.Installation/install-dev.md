@@ -6,6 +6,8 @@ That is why one needs to install CoreKraft and at least one project in order to 
 
 We will note project specific settings or actions further in the document.
 
+The projects are not discussed in depth here, but the next step after installing CoreKraft and making sure everything works are the projects. See [CoreKraft project](install-projects.md)
+
 ## Prerequisites
 
 Before dealing with CoreKraft download and install NET 6 from [Microsoft](https://dotnet.microsoft.com/)
@@ -36,7 +38,7 @@ sass version should be 1.50 or above for the ThemeStyles module sass based theme
 
     .\CssCompile.bat 
     
-    in the root directory of the project (see further below)
+    in the root directory of the project.
 
 
 ## Building the CoreKraft
