@@ -11,7 +11,7 @@ namespace Ccf.Ck.NodePlugins.Base
         public NodePluginClassicBase() { }
         public override void Execute(INodePluginContext p)
         {
-            object results = null;
+            object results;
             if (p.Action == ACTION_READ) {
                 var readctx = p as INodePluginReadContext;
                 results = Read(readctx);
