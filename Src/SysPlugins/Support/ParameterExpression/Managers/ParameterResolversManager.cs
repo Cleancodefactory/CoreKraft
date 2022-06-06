@@ -67,6 +67,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "NewGuid",
+                                     Arguments = 0,
+                                     Name = "NewGuid"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "GetUserId",
                                      Arguments = 0,
                                      Name = "GetUserId"

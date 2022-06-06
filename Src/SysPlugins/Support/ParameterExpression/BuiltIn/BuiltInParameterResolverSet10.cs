@@ -50,7 +50,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         
         #endregion
 
-        #region Constnts for type names
+        #region Constants for type names
         const string T_INT = "int";
         const string T_UINT = "uint";
         const string T_DBL = "double";
@@ -194,6 +194,11 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         {
             KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
             return new ParameterResolverValue(settings.GeneralSettings.HostingUrl);
+        }
+
+        public ParameterResolverValue NewGuid(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            return new ParameterResolverValue(Guid.NewGuid().ToString());
         }
 
         public ParameterResolverValue GetUserId(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
