@@ -14,82 +14,177 @@ namespace Ccf.Ck.Web.Middleware
     {
         public const int TIMEOUT_SECONDS = 120;
         public const int RESULT_PRESERVE_SECONDS = 3600;
+        public const int SCHEDULE_TIMEOUT_SECONDS = 84000;
+        public const int WORKER_THREADS = 2;
 
 
-        private Queue<InputModel> _Tasks = new Queue<InputModel>();
-        private long _id = 0;
-        private Dictionary<long, TaskHolder> _Results = new Dictionary<long, TaskHolder>();
+        /// <summary>
+        /// Contains all the tasks which are not yet executed
+        /// </summary>
+        private Queue<QueuedTask> _Waiting = new Queue<QueuedTask>();
+        /// <summary>
+        /// Despite its name contains the running and finished tasks
+        /// </summary>
+        private Dictionary<Guid, TaskHolder> _Finished = new Dictionary<Guid, TaskHolder>();
+
         private AutoResetEvent _ThreadSignal = new AutoResetEvent(true);
-        private Thread _WorkerThread;
+
+        private Thread _SchedulerThread;
+        
         private bool _Continue = true;
         private IServiceScopeFactory _ScopeFactory;
-        public IndirectCallService(IServiceScopeFactory scopeFactory)
-        {
+
+        #region Construction
+        public IndirectCallService(IServiceScopeFactory scopeFactory) {
             _ScopeFactory = scopeFactory;
-            _WorkerThread = new Thread(new ThreadStart(this.Worker));
-            //_Timers = new List<Timer>();
+            _SchedulerThread = new Thread(new ThreadStart(this.Scheduler));
+            
+            
         }
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            _WorkerThread.Start();
+
+        #endregion Construction
+
+        #region Scheduler
+        public Task StartAsync(CancellationToken cancellationToken) {
+            _SchedulerThread.Start();
             return Task.FromResult(0);
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
+        public Task StopAsync(CancellationToken cancellationToken) {
             _Continue = false;
             _ThreadSignal.Set();
-            _WorkerThread.Join();
+            _SchedulerThread.Join();
             return Task.FromResult(0);
         }
-        private void Worker()
-        {
-            while (_Continue)
-            {
-                InputModel input = null;
-                lock (_Tasks)
-                {
-                    if (!_Tasks.TryDequeue(out input))
+        private void Scheduler() {
+            while (_Continue) {
+                QueuedTask waiting = null;
+                lock (_Waiting) {
+                    if (!_Waiting.TryDequeue(out waiting))
                     {
-                        input = null;
+                        waiting = null;
                     };
                 }
-                if (input != null)
-                {
-                    long id = Interlocked.Increment(ref _id);
-                    var result = new TaskHolder(null, id, DateTime.Now, null);
-                    lock(_Results)
-                    {
-                        _Results.Add(id, result);
+                if (waiting != null) {
+                    // Discard timeouted tasks
+                    if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.scheduleTimeout)) {
+                        // Move this to finished
+                        waiting.task.status = Status.Discarded;
+                        lock(_Finished) {
+                            _Finished.Add(waiting.task.guid, waiting.task);
+                        }
+                        continue;
                     }
-                    var returnModel = DirectCallService.Instance.Call(input);
+                    var result = waiting.task;
+                    result.started = DateTime.Now;
+                    result.status = Status.Running;
+                    lock(_Finished)
+                    {
+                        _Finished.Add(result.guid, result);
+                    }
+                    // We depend on the DirectCall to indicate the success in the ReturnModel
+                    var returnModel = DirectCallService.Instance.Call(result.input);
                     result.result = returnModel;
                     result.finished = DateTime.Now;
+                    result.status = Status.Finished;
                     continue; // Check for more tasks before waiting
                 }
                 _ThreadSignal.WaitOne(TimeSpan.FromSeconds(TIMEOUT_SECONDS));
                 // Clean up old results
-                lock(_Results) {
-                    List<long> _toclean = new List<long>(_Results.Count / 2);
-                    foreach (var kv in _Results)
-                    {
-                        if (kv.Value.finished.HasValue && (DateTime.Now - kv.Value.finished) > TimeSpan.FromSeconds(RESULT_PRESERVE_SECONDS))
-                        {
-                            _toclean.Add(kv.Key);
-                        }
+                CleanUpResults();
+            }
+        }
+        private void CleanUpResults() {
+            lock (_Finished) {
+                List<Guid> _toclean = new List<Guid>(_Finished.Count / 2);
+                foreach (var kv in _Finished) {
+                    var tsk = kv.Value;
+                    if (tsk.finished.HasValue &&
+                        tsk.status == Status.Finished && 
+                        (DateTime.Now - tsk.finished) > TimeSpan.FromSeconds(RESULT_PRESERVE_SECONDS)) {
+                        _toclean.Add(kv.Key);
                     }
-                    _toclean.ForEach(k => _Results.Remove(k));
                 }
+                _toclean.ForEach(k => _Finished.Remove(k));
             }
         }
 
-        private record TaskHolder(ReturnModel result,long id,DateTime started,DateTime? finished)
-        {
-            public ReturnModel result { get; set; } = result;
-            public DateTime? finished { get; set; } = finished;
 
-        };
+        #endregion Scheduler
+
         
+
+        #region Types
+
+        private record TaskHolder(
+            Guid guid, 
+            InputModel input, 
+            ReturnModel result, 
+            Status status,
+            DateTime? started, 
+            DateTime? finished) {
+
+            public Status status { get; set; } = status;
+            public ReturnModel result { get; set; } = result;
+            public DateTime? started { get; set; } = started;
+            public DateTime? finished { get; set; } = finished;
+        }
+
+        private record QueuedTask(TaskHolder task, DateTime queued, int scheduleTimeout = SCHEDULE_TIMEOUT_SECONDS);
+
+        public enum Status
+        {
+            Unavailable         = 0x0000,
+            Queued              = 0x0001,
+            Running             = 0x0002,
+            Finished            = 0x0003,
+            Discarded           = 0x0004    // The task was not executed, most likely because of a scheduling timeout
+        }
+
+        #endregion Types
+
+        #region Public access
+
+        public Guid Call(InputModel input, int timeout = SCHEDULE_TIMEOUT_SECONDS)
+        {
+            var tsk = new TaskHolder(Guid.NewGuid(), input, null, Status.Queued, null, null);
+            var waiting = new QueuedTask(tsk,DateTime.Now,timeout);
+            lock(_Waiting)
+            {
+                _Waiting.Enqueue(waiting);
+            }
+            return waiting.task.guid;
+        }
+        public Status CallStatus(Guid guid)
+        {
+            TaskHolder task = null;
+            lock(_Finished)
+            {
+                if (_Finished.TryGetValue(guid, out task)) {
+                    return task.status;
+                } else {
+                    lock (_Waiting) {
+                        if (_Waiting.Any(t => t.task.guid == guid)) {
+                            return Status.Queued;
+                        } else {
+                            return Status.Unavailable;
+                        }
+                    }
+                }
+            }
+        }
+        public ReturnModel GetResult(Guid guid) {
+            TaskHolder task = null;
+            lock (_Finished) {
+                if (_Finished.TryGetValue(guid, out task)) {
+                    return task.result;
+                }
+            }
+            return null;
+        }
+
+        #endregion
+
     }
 
 
