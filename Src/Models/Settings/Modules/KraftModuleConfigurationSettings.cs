@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.Models.Settings.Modules
 {
@@ -81,30 +82,38 @@ namespace Ccf.Ck.Models.Settings.Modules
 
         private void LoadPropertiesInContainer(LoaderProperties loaderProperty, string moduleName, string configFile)
         {
-            string cacheKeyImplementation = moduleName + loaderProperty.ImplementationAsString;
-            string cacheKeyInterface = moduleName + loaderProperty.InterfaceAsString;
-            loaderProperty.ImplementationAsType = _CachingService.Get<Type>(cacheKeyImplementation);
-            if (loaderProperty.ImplementationAsType == null)
+            try
             {
-                loaderProperty.ImplementationAsType = Type.GetType(loaderProperty.ImplementationAsString, true);
-                _CachingService.Insert(cacheKeyImplementation, loaderProperty.ImplementationAsType);
+                string cacheKeyImplementation = moduleName + loaderProperty.ImplementationAsString;
+                string cacheKeyInterface = moduleName + loaderProperty.InterfaceAsString;
+                loaderProperty.ImplementationAsType = _CachingService.Get<Type>(cacheKeyImplementation);
+                if (loaderProperty.ImplementationAsType == null)
+                {
+                    loaderProperty.ImplementationAsType = Type.GetType(loaderProperty.ImplementationAsString, true);
+                    _CachingService.Insert(cacheKeyImplementation, loaderProperty.ImplementationAsType);
+                }
+                loaderProperty.InterfaceAsType = _CachingService.Get<Type>(cacheKeyInterface);
+                if (loaderProperty.InterfaceAsType == null)
+                {
+                    loaderProperty.InterfaceAsType = Type.GetType(loaderProperty.InterfaceAsString);
+                    _CachingService.Insert(cacheKeyInterface, loaderProperty.InterfaceAsType);
+                }
+
+                TypeInfo typeInfo = loaderProperty.ImplementationAsType.GetTypeInfo();
+                if (typeInfo.ImplementedInterfaces.Contains(loaderProperty.InterfaceAsType))
+                {
+                    _DependencyInjectionContainer.Add(loaderProperty.ImplementationAsType, loaderProperty.InterfaceAsType, cacheKeyImplementation);
+                }
+                else
+                {
+                    throw new Exception($"Type: {loaderProperty.ImplementationAsString} doesn't implement {loaderProperty.InterfaceAsString} in {configFile}");
+                }
             }
-            loaderProperty.InterfaceAsType = _CachingService.Get<Type>(cacheKeyInterface);
-            if (loaderProperty.InterfaceAsType == null)
+            catch (Exception ex)
             {
-                loaderProperty.InterfaceAsType = Type.GetType(loaderProperty.InterfaceAsString);
-                _CachingService.Insert(cacheKeyInterface, loaderProperty.InterfaceAsType);
-            }
-            
-            TypeInfo typeInfo = loaderProperty.ImplementationAsType.GetTypeInfo();
-            if (typeInfo.ImplementedInterfaces.Contains(loaderProperty.InterfaceAsType))
-            {
-                _DependencyInjectionContainer.Add(loaderProperty.ImplementationAsType, loaderProperty.InterfaceAsType, cacheKeyImplementation);
-            }
-            else
-            {
-                throw new Exception($"Type: {loaderProperty.ImplementationAsString} doesn't implement {loaderProperty.InterfaceAsString} in {configFile}");
-            }
+                KraftLogger.LogError($"void LoadPropertiesInContainer: Loaderproperty: {loaderProperty} || moduleName: {moduleName} || configFile: {configFile}", ex);
+                throw;
+            }            
         }
     }
 }
