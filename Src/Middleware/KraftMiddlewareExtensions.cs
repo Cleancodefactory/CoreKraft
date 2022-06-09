@@ -4,6 +4,7 @@ using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Models.Web.Settings;
+using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Recorders.Store;
 using Ccf.Ck.Utilities.DependencyContainer;
 using Ccf.Ck.Utilities.Generic.Topologies;
@@ -342,8 +343,10 @@ namespace Ccf.Ck.Web.Middleware
                 services.AddHostedService<SignalService>(sp => sp.GetRequiredService<SignalService>());
                 //End Signals
 
-                services.AddSingleton<IndirectCallService>();
-                services.AddHostedService<IndirectCallService>(sp => sp.GetRequiredService<IndirectCallService>());
+
+                IIndirectCallService icsvc = new IndirectCallService(null);
+                services.AddSingleton<IIndirectCallService>(icsvc);
+                services.AddHostedService(sp => sp.GetRequiredService<IIndirectCallService>() as IHostedService);
 
                 //RecordersStore which contians dictionary of the running instances
                 services.AddSingleton<RecordersStoreImp>();

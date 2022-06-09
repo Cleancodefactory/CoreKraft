@@ -8,14 +8,14 @@ namespace Ccf.Ck.SysPlugins.Interfaces
     /// <summary>
     /// Node execution context as seen by Data loaders
     /// </summary>
-    public interface IDataLoaderContext: IDataStateHelperProvider<IDictionary<string, object>> {
+    public interface IDataLoaderContext: ISupportsPluginServiceManager, IDataStateHelperProvider<IDictionary<string, object>> {
         IPluginsSynchronizeContextScoped OwnContextScoped { get; }
         IPluginsSynchronizeContextScoped DataLoaderContextScoped { get; }
         Node CurrentNode { get; }
         IPluginAccessor<INodePlugin> CustomService { get; }
         LoadedNodeSet LoadedNodeSet { get; }
         Dictionary<string, object> ParentResult { get; }
-        IPluginServiceManager PluginServiceManager { get; }
+        //IPluginServiceManager PluginServiceManager { get; }
         IProcessingContext ProcessingContext { get; }
 
         string Path { get; }

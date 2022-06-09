@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.DirectCall;
+using Ccf.Ck.SysPlugins.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -10,8 +11,7 @@ using System.Threading.Tasks;
 
 namespace Ccf.Ck.Web.Middleware
 {
-    public class IndirectCallService : IHostedService
-    {
+    public class IndirectCallService : IIndirectCallService, IHostedService {
         public const int TIMEOUT_SECONDS = 120;
         public const int RESULT_PRESERVE_SECONDS = 3600;
         public const int SCHEDULE_TIMEOUT_SECONDS = 84000;
@@ -69,7 +69,7 @@ namespace Ccf.Ck.Web.Middleware
                     // Discard timeouted tasks
                     if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.scheduleTimeout)) {
                         // Move this to finished
-                        waiting.task.status = Status.Discarded;
+                        waiting.task.status = IndirectCallStatus.Discarded;
                         lock(_Finished) {
                             _Finished.Add(waiting.task.guid, waiting.task);
                         }
@@ -77,7 +77,7 @@ namespace Ccf.Ck.Web.Middleware
                     }
                     var result = waiting.task;
                     result.started = DateTime.Now;
-                    result.status = Status.Running;
+                    result.status = IndirectCallStatus.Running;
                     lock(_Finished)
                     {
                         _Finished.Add(result.guid, result);
@@ -86,7 +86,7 @@ namespace Ccf.Ck.Web.Middleware
                     var returnModel = DirectCallService.Instance.Call(result.input);
                     result.result = returnModel;
                     result.finished = DateTime.Now;
-                    result.status = Status.Finished;
+                    result.status = IndirectCallStatus.Finished;
                     continue; // Check for more tasks before waiting
                 }
                 _ThreadSignal.WaitOne(TimeSpan.FromSeconds(TIMEOUT_SECONDS));
@@ -100,7 +100,7 @@ namespace Ccf.Ck.Web.Middleware
                 foreach (var kv in _Finished) {
                     var tsk = kv.Value;
                     if (tsk.finished.HasValue &&
-                        tsk.status == Status.Finished && 
+                        tsk.status == IndirectCallStatus.Finished && 
                         (DateTime.Now - tsk.finished) > TimeSpan.FromSeconds(RESULT_PRESERVE_SECONDS)) {
                         _toclean.Add(kv.Key);
                     }
@@ -120,11 +120,11 @@ namespace Ccf.Ck.Web.Middleware
             Guid guid, 
             InputModel input, 
             ReturnModel result, 
-            Status status,
+            IndirectCallStatus status,
             DateTime? started, 
             DateTime? finished) {
 
-            public Status status { get; set; } = status;
+            public IndirectCallStatus status { get; set; } = status;
             public ReturnModel result { get; set; } = result;
             public DateTime? started { get; set; } = started;
             public DateTime? finished { get; set; } = finished;
@@ -132,14 +132,7 @@ namespace Ccf.Ck.Web.Middleware
 
         private record QueuedTask(TaskHolder task, DateTime queued, int scheduleTimeout = SCHEDULE_TIMEOUT_SECONDS);
 
-        public enum Status
-        {
-            Unavailable         = 0x0000,
-            Queued              = 0x0001,
-            Running             = 0x0002,
-            Finished            = 0x0003,
-            Discarded           = 0x0004    // The task was not executed, most likely because of a scheduling timeout
-        }
+        
 
         #endregion Types
 
@@ -147,15 +140,15 @@ namespace Ccf.Ck.Web.Middleware
 
         public Guid Call(InputModel input, int timeout = SCHEDULE_TIMEOUT_SECONDS)
         {
-            var tsk = new TaskHolder(Guid.NewGuid(), input, null, Status.Queued, null, null);
-            var waiting = new QueuedTask(tsk,DateTime.Now,timeout);
+            var tsk = new TaskHolder(Guid.NewGuid(), input, null, IndirectCallStatus.Queued, null, null);
+            var waiting = new QueuedTask(tsk,DateTime.Now,timeout != 0?timeout: SCHEDULE_TIMEOUT_SECONDS);
             lock(_Waiting)
             {
                 _Waiting.Enqueue(waiting);
             }
             return waiting.task.guid;
         }
-        public Status CallStatus(Guid guid)
+        public IndirectCallStatus CallStatus(Guid guid)
         {
             TaskHolder task = null;
             lock(_Finished)
@@ -165,9 +158,9 @@ namespace Ccf.Ck.Web.Middleware
                 } else {
                     lock (_Waiting) {
                         if (_Waiting.Any(t => t.task.guid == guid)) {
-                            return Status.Queued;
+                            return IndirectCallStatus.Queued;
                         } else {
-                            return Status.Unavailable;
+                            return IndirectCallStatus.Unavailable;
                         }
                     }
                 }

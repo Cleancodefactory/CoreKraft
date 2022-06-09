@@ -11,6 +11,7 @@ using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
+using Ccf.Ck.SysPlugins.Interfaces;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 {
@@ -28,6 +29,14 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                    return CallRead;
                 case nameof(CallWrite):
                     return CallWrite;
+                case nameof(ScheduleCallRead):
+                    return ScheduleCallRead;
+                case nameof(ScheduleCallWrite):
+                    return ScheduleCallWrite;
+                case nameof(ScheduledCallStatus):
+                    return ScheduledCallStatus;
+                case nameof(ScheduledCallResult):
+                    return ScheduledCallResult;
             }
             return null;
         }
@@ -92,7 +101,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 
         #region Functions
 
-        private ParameterResolverValue _Call(bool isWrite,HostInterface ctx, ParameterResolverValue[] args)
+       
+
+        private ParameterResolverValue _Call(bool isWrite,HostInterface ctx, ParameterResolverValue[] args,bool isIndirect = false)
         {
             dcall.InputModel inp = new dcall.InputModel() { IsWriteOperation = isWrite };
             ReturnModel ret = null;
@@ -130,21 +141,34 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                     }
                 }
             }
-            ret = DirectCallService.Instance.Call(inp);
-            if (ret.IsSuccessful) {
-                if (ret.BinaryData is IPostedFile pf) {
-                    return new ParameterResolverValue(pf);
-                } else if (ret.Data != null) {
-                    return ret.Data switch {
-                        Dictionary<string, object> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
-                        List<Dictionary<string, object>> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
-                        _ => new ParameterResolverValue(null)
-                    };
-                } else {
-                    return new ParameterResolverValue(null);
-                }
+            if (isIndirect) {
+
+                if (ctx is ISupportsPluginServiceManager services) {
+
+                    var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));
+                    if (idc != null) {
+                        Guid guid = idc.Call(inp, 0);
+                        return new ParameterResolverValue(guid.ToString());
+                    }
+                } 
+                throw new Exception("The context of the Function does not have access to the IndirectCalls service");
             } else {
-                return Error.Create(ret.ErrorMessage);
+                ret = DirectCallService.Instance.Call(inp);
+                if (ret.IsSuccessful) {
+                    if (ret.BinaryData is IPostedFile pf) {
+                        return new ParameterResolverValue(pf);
+                    } else if (ret.Data != null) {
+                        return ret.Data switch {
+                            Dictionary<string, object> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
+                            List<Dictionary<string, object>> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
+                            _ => new ParameterResolverValue(null)
+                        };
+                    } else {
+                        return new ParameterResolverValue(null);
+                    }
+                } else {
+                    return Error.Create(ret.ErrorMessage);
+                }
             }
         }
         /// <summary>
@@ -171,6 +195,75 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         public ParameterResolverValue CallWrite(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(true, ctx, args);
         }
+        [Function(nameof(ScheduleCallRead), "Executes read action on the node in the nodeset specified by the address and returns the result")]
+        [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
+        [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
+        [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
+        public ParameterResolverValue ScheduleCallRead(HostInterface ctx, ParameterResolverValue[] args) {
+            return _Call(false, ctx, args,true);
+        }
+        [Function(nameof(ScheduleCallWrite), "Executes read action on the node in the nodeset specified by the address and returns the result")]
+        [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
+        [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
+        [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
+        public ParameterResolverValue ScheduleCallWrite(HostInterface ctx, ParameterResolverValue[] args) {
+            return _Call(true, ctx, args, true);
+        }
+
+        public ParameterResolverValue ScheduledCallStatus(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is ISupportsPluginServiceManager services) {
+                if (args.Length != 1) {
+                    throw new ArgumentException("ScheduledCallStatus requires one argument - the id of the task");
+                }
+                string sid = Convert.ToString(args[0]);
+
+                if (Guid.TryParse(sid, out Guid guid)) {
+                    var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));
+                    if (idc != null) {
+                        IndirectCallStatus status = idc.CallStatus(guid);
+                        return new ParameterResolverValue(status.ToString());
+                    }
+                }
+            }
+            return new ParameterResolverValue(IndirectCallStatus.Unavailable.ToString());
+        }
+
+        public ParameterResolverValue ScheduledCallResult(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is ISupportsPluginServiceManager services) {
+                if (args.Length != 1) {
+                    throw new ArgumentException("ScheduledCallStatus requires one argument - the id of the task");
+                }
+                string sid = Convert.ToString(args[0]);
+
+                if (Guid.TryParse(sid, out Guid guid)) {
+                    var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));
+                    if (idc != null) {
+                        dcall.ReturnModel ret = idc.GetResult(guid);
+                        if (ret.IsSuccessful) {
+                            if (ret.BinaryData is IPostedFile pf) {
+                                return new ParameterResolverValue(pf);
+                            } else if (ret.Data != null) {
+                                return ret.Data switch {
+                                    Dictionary<string, object> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
+                                    List<Dictionary<string, object>> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
+                                    _ => new ParameterResolverValue(null)
+                                };
+                            } else {
+                                return new ParameterResolverValue(null);
+                            }
+                        } else {
+                            return Error.Create(ret.ErrorMessage);
+                        }
+                    }
+                }
+            } else {
+                throw new Exception("The context of the Function does not have access to the IndirectCalls service");
+            }
+            return new ParameterResolverValue(null);
+        }
+
         #endregion
 
     }
