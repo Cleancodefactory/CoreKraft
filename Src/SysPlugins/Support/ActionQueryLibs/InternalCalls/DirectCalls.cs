@@ -148,7 +148,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                     var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));
                     if (idc != null) {
                         Guid guid = idc.Call(inp, 0);
-                        return new ParameterResolverValue(guid.ToString());
+                        if (guid == Guid.Empty) {
+                            return Error.Create("Cannot schedule the call.");
+                        } else {
+                            return new ParameterResolverValue(guid.ToString());
+                        }
+                        
                     }
                 } 
                 throw new Exception("The context of the Function does not have access to the IndirectCalls service");
@@ -182,7 +187,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
-        [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
+        [Result("TaskId guid string or error", TypeFlags.String | TypeFlags.Error )]
         public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args);
         }
@@ -191,11 +196,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0,"address","Address in the form module/nodeset[/node.path]",TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
-        [Result("Result from the node converted to script usable List or Dict depending on what the node returns",TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
+        [Result("TaskId guid string or error", TypeFlags.String | TypeFlags.Error)]
         public ParameterResolverValue CallWrite(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(true, ctx, args);
         }
-        [Function(nameof(ScheduleCallRead), "Executes read action on the node in the nodeset specified by the address and returns the result")]
+        [Function(nameof(ScheduleCallRead), "Schedules read action on the node in the nodeset specified by the address and returns the result")]
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
@@ -203,7 +208,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         public ParameterResolverValue ScheduleCallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args,true);
         }
-        [Function(nameof(ScheduleCallWrite), "Executes read action on the node in the nodeset specified by the address and returns the result")]
+        [Function(nameof(ScheduleCallWrite), "Schedules write action on the node in the nodeset specified by the address and returns the result")]
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
@@ -212,6 +217,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             return _Call(true, ctx, args, true);
         }
 
+        [Function(nameof(ScheduledCallStatus), "Attempts to obtain the scheduiling status of a scheduled task")]
+        [Parameter(0, "taskid", "A guid as string", TypeFlags.String)]
+        [Result("One of: Queued, Running, Finished, Discarded or Unavailable", TypeFlags.String)]
         public ParameterResolverValue ScheduledCallStatus(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is ISupportsPluginServiceManager services) {
                 if (args.Length != 1) {
@@ -230,6 +238,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             return new ParameterResolverValue(IndirectCallStatus.Unavailable.ToString());
         }
 
+        [Function(nameof(ScheduledCallResult),"Attempts to obtain the result of a finished scheduled task")]
+        [Parameter(0, "taskid", "A guid as string", TypeFlags.String)]
+        [Result("Result converted to script usable List or Dict depending on what the task result is (the same as CallRead), null is returned if the result is not available. It is recommended to check status first.", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
         public ParameterResolverValue ScheduledCallResult(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is ISupportsPluginServiceManager services) {
                 if (args.Length != 1) {

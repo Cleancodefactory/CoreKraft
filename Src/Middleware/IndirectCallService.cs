@@ -140,6 +140,7 @@ namespace Ccf.Ck.Web.Middleware
 
         public Guid Call(InputModel input, int timeout = SCHEDULE_TIMEOUT_SECONDS)
         {
+            if (input == null) return Guid.Empty;
             var tsk = new TaskHolder(Guid.NewGuid(), input, null, IndirectCallStatus.Queued, null, null);
             var waiting = new QueuedTask(tsk,DateTime.Now,timeout != 0?timeout: SCHEDULE_TIMEOUT_SECONDS);
             lock(_Waiting)
