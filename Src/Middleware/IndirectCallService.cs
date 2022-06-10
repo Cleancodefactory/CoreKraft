@@ -146,6 +146,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 _Waiting.Enqueue(waiting);
             }
+            _ThreadSignal.Set();
             return waiting.task.guid;
         }
         public IndirectCallStatus CallStatus(Guid guid)

@@ -217,7 +217,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                 if (args.Length != 1) {
                     throw new ArgumentException("ScheduledCallStatus requires one argument - the id of the task");
                 }
-                string sid = Convert.ToString(args[0]);
+                string sid = Convert.ToString(args[0].Value);
 
                 if (Guid.TryParse(sid, out Guid guid)) {
                     var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));
@@ -235,7 +235,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                 if (args.Length != 1) {
                     throw new ArgumentException("ScheduledCallStatus requires one argument - the id of the task");
                 }
-                string sid = Convert.ToString(args[0]);
+                string sid = Convert.ToString(args[0].Value);
 
                 if (Guid.TryParse(sid, out Guid guid)) {
                     var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));

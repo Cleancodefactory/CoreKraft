@@ -344,9 +344,9 @@ namespace Ccf.Ck.Web.Middleware
                 //End Signals
 
 
-                IIndirectCallService icsvc = new IndirectCallService(null);
+                var icsvc = new IndirectCallService(null);
                 services.AddSingleton<IIndirectCallService>(icsvc);
-                services.AddHostedService(sp => sp.GetRequiredService<IIndirectCallService>() as IHostedService);
+                services.AddHostedService<IndirectCallService>(sp => sp.GetRequiredService<IIndirectCallService>() as IndirectCallService);
 
                 //RecordersStore which contians dictionary of the running instances
                 services.AddSingleton<RecordersStoreImp>();
