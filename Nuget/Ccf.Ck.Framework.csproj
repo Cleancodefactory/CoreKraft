@@ -60,6 +60,7 @@
 		- Version 5.0.6: Fix an error with ProgressiveWebApps
 		- Version 5.0.7: Restructure DirectCall's execution to be synchronous
 		- Version 6.0.0: Updated to .NET 6.0
+		- Version 6.0.1: Update plugin interface
 	</PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
