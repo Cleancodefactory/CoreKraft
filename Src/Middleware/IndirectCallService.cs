@@ -178,6 +178,24 @@ namespace Ccf.Ck.Web.Middleware
             return null;
         }
 
+        public IIndirectCallInfo GetIndirectCallInfo(Guid guid) {
+            TaskHolder task = null;
+            lock (_Finished) {
+                if (_Finished.TryGetValue(guid, out task)) {
+                    return new IndirectCallInfo(guid, task.status, task.result, task.started, task.finished);
+                } else {
+                    lock (_Waiting) {
+                        if (_Waiting.Any(t => t.task.guid == guid)) {
+                            return new IndirectCallInfo(guid, IndirectCallStatus.Queued);
+                        } else {
+                            return new IndirectCallInfo(guid, IndirectCallStatus.Unavailable);
+                        }
+                    }
+                }
+            }
+
+        }
+
         #endregion
 
     }

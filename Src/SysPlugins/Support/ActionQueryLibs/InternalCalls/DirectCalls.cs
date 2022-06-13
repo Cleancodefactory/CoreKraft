@@ -187,7 +187,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
-        [Result("TaskId guid string or error", TypeFlags.String | TypeFlags.Error )]
+        [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
         public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args);
         }
@@ -196,7 +196,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0,"address","Address in the form module/nodeset[/node.path]",TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
-        [Result("TaskId guid string or error", TypeFlags.String | TypeFlags.Error)]
+        [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
         public ParameterResolverValue CallWrite(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(true, ctx, args);
         }
@@ -204,7 +204,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
-        [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
+        [Result("TaskId guid string or error", TypeFlags.String | TypeFlags.Error)]
         public ParameterResolverValue ScheduleCallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args,true);
         }
@@ -212,7 +212,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
-        [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
+        [Result("TaskId guid string or error", TypeFlags.String | TypeFlags.Error)]
         public ParameterResolverValue ScheduleCallWrite(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(true, ctx, args, true);
         }
