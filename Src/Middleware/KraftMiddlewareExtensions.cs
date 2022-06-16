@@ -650,7 +650,9 @@ namespace Ccf.Ck.Web.Middleware
 
                 try
                 {
-                    Assembly loadedAssembly = Assembly.LoadFile(asmFullName);
+                    AssemblyName assemblyName = new AssemblyName(args.Name);
+                    assemblyName.CodeBase = asmFullName;
+                    Assembly loadedAssembly = Assembly.LoadFile(assemblyName.CodeBase);
                     if (loadedAssembly != null)
                     {
                         found = true;
