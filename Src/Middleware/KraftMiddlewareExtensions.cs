@@ -643,36 +643,11 @@ namespace Ccf.Ck.Web.Middleware
             {
                 return null;
             }
-            bool found = false;
-            foreach (string dir in _KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders)
-            {
-                string asmFullName = Path.Combine(dir, "_PluginsReferences", fileName);
 
-                try
-                {
-                    AssemblyName assemblyName = new AssemblyName(args.Name);
-                    assemblyName.CodeBase = asmFullName;
-                    Assembly loadedAssembly = Assembly.LoadFile(assemblyName.CodeBase);
-                    if (loadedAssembly != null)
-                    {
-                        found = true;
-                        return loadedAssembly;
-                    }
-                }
-                catch
-                {
-                    //do nothing
-                    continue;
-                }
-                finally
-                {
-                    if (!found)
-                    {
-                        KraftLogger.LogError($"Method: CurrentDomain_AssemblyResolve: The file {asmFullName} requested by {args.RequestingAssembly.FullName} was not found!");
-                    }
-                }
-            }
-            return null;
+            return Utilities.Generic.Utilities.LoadAssembly(
+                    _KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders,
+                    "_PluginsReferences",
+                    fileName, args.RequestingAssembly.FullName);
         }
     }
 }

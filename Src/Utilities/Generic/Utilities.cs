@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -115,6 +117,45 @@ namespace Ccf.Ck.Utilities.Generic
                 return hasWritePermissions;
             }
             return hasWritePermissions;
+        }
+
+        public static Assembly LoadAssembly(List<string> dirs, string additionalPath, string fileName, string requestingAssembly)
+        {
+            bool found = false;
+            foreach (string dir in dirs)
+            {
+                string asmFullName = Path.Combine(dir, additionalPath, fileName);
+
+                try
+                {
+                    if (File.Exists(asmFullName))
+                    {
+                        Assembly loadedAssembly = Assembly.LoadFile(asmFullName);
+                        if (loadedAssembly != null)
+                        {
+                            found = true;
+                            return loadedAssembly;
+                        }
+                    }
+                    else
+                    {
+                        KraftLogger.LogError($"Method: CurrentDomain_AssemblyResolve(FileExists): The file {asmFullName} requested by {requestingAssembly} was not found!");
+                    }
+                }
+                catch
+                {
+                    //do nothing
+                    continue;
+                }
+                finally
+                {
+                    if (!found)
+                    {
+                        KraftLogger.LogError($"Method: CurrentDomain_AssemblyResolve: The file {asmFullName} requested by {requestingAssembly} was not found!");
+                    }
+                }
+            }
+            return null;
         }
 
         public class RestartReason
