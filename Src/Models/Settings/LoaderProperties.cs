@@ -28,6 +28,23 @@ namespace Ccf.Ck.Models.Settings
                 _ImplementationAsType = value;
             }
         }
+
+        public string TypeAsString
+        {
+            get
+            {
+                return ImplementationAsString.Split(',')[0].Trim();
+            }
+        }
+
+        public string AssemblyNameAsString
+        {
+            get
+            {
+                return ImplementationAsString.Split(',')[1].Trim() + ".dll";
+            }
+        }
+
         public string InterfaceAsString { get; set; }
 
         public Type InterfaceAsType
