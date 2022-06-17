@@ -93,9 +93,15 @@ namespace Ccf.Ck.Models.Settings.Modules
                     KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders,
                     "_PluginsReferences",
                     loaderProperty.ImplementationAsString.Split(',')[1].Trim() + ".dll", string.Empty);
-
-                    loaderProperty.ImplementationAsType = Type.GetType(loaderProperty.ImplementationAsString, true);
-                    _CachingService.Insert(cacheKeyImplementation, loaderProperty.ImplementationAsType);
+                    try
+                    {
+                        loaderProperty.ImplementationAsType = Type.GetType(loaderProperty.ImplementationAsString, true, true);
+                        _CachingService.Insert(cacheKeyImplementation, loaderProperty.ImplementationAsType);
+                    }
+                    catch(Exception ex)
+                    {
+                        KraftLogger.LogError($"void LoadPropertiesInContainer: Loaderproperty: {loaderProperty.ImplementationAsString}", ex);
+                    }
                 }
                 loaderProperty.InterfaceAsType = _CachingService.Get<Type>(cacheKeyInterface);
                 if (loaderProperty.InterfaceAsType == null)

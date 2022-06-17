@@ -139,7 +139,7 @@ namespace Ccf.Ck.Utilities.Generic
                     }
                     else
                     {
-                        KraftLogger.LogError($"Method: CurrentDomain_AssemblyResolve(FileExists): The file {asmFullName} requested by {requestingAssembly} was not found!");
+                        KraftLogger.LogError($"Method: LoadAssembly(FileExists): The file {asmFullName} requested by {requestingAssembly} was not found!");
                     }
                 }
                 catch
@@ -151,7 +151,7 @@ namespace Ccf.Ck.Utilities.Generic
                 {
                     if (!found)
                     {
-                        KraftLogger.LogError($"Method: CurrentDomain_AssemblyResolve: The file {asmFullName} requested by {requestingAssembly} was not found!");
+                        KraftLogger.LogError($"Method: LoadAssembly: The file {asmFullName} requested by {requestingAssembly} was not found!");
                     }
                 }
             }
