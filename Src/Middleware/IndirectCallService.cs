@@ -38,8 +38,7 @@ namespace Ccf.Ck.Web.Middleware
         public IndirectCallService(IServiceScopeFactory scopeFactory) {
             _ScopeFactory = scopeFactory;
             _SchedulerThread = new Thread(new ThreadStart(this.Scheduler));
-            
-            
+            _SchedulerThread.IsBackground = true;
         }
 
         #endregion Construction
