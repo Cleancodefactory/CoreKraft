@@ -495,23 +495,13 @@ namespace Ccf.Ck.Web.Middleware
                         _KraftGlobalConfigurationSettings.GeneralSettings.ModuleKey2Path = moduleKey2Path;
                     }
                     #region Watching appsettings, PassThroughJsConfig, nlogConfig
-                    //appsettings.{Production} configuration watch
-                    _Configuration.GetReloadToken().RegisterChangeCallback(_ =>
+                    string environment = "Production";
+                    if (env.IsDevelopment())
                     {
-                        string environment = "Production";
-                        if (env.IsDevelopment())
-                        {
-                            environment = "Development";
-                        }
-                        RestartReason restartReason = new RestartReason
-                        {
-                            Reason = "appsettings-Configuration Changed",
-                            Description = $"'appsettings.{environment}.json' has been altered"
-                        };
-                        AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
-                        AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
-                        RestartApplication(applicationLifetime, restartReason, restart);
-                    }, null);
+                        environment = "Development";
+                    }
+                    //Configuration watch PassThroughJsConfig
+                    AttachWatcher(env.ContentRootPath, $"appsettings.{environment}.json", applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
                     //Configuration watch PassThroughJsConfig
                     AttachWatcher(env.ContentRootPath, _KraftGlobalConfigurationSettings.GeneralSettings.PassThroughJsConfig, applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
                     //Configuration watch nlog.config
@@ -628,7 +618,7 @@ namespace Ccf.Ck.Web.Middleware
 
             void OnError(object sender, ErrorEventArgs e)
             {
-                KraftLogger.LogCritical(e.GetException(), "OnError in AttachModulesWatcher");
+                KraftLogger.LogCritical(e.GetException(), "OnError in AttachWatcher");
             }
         }
 
