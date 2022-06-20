@@ -34,31 +34,25 @@ namespace Ccf.Ck.Utilities.Generic
 
         public static void RestartApplication(IHostApplicationLifetime applicationLifetime, RestartReason restartReason, Action<bool> restart = null)
         {
-            //Robert
-            //try
-            //{
-            //    if (applicationLifetime != null)
-            //    {
-            //        if (restartReason != null)
-            //        {
-            //            KraftLogger.LogDebug($"Method: RestartApplication: Stopping application Reason: {restartReason.Reason} additional info {restartReason.Description}");
-            //        }
-            //        applicationLifetime.StopApplication();
-            //        if (!applicationLifetime.ApplicationStopping.IsCancellationRequested)
-            //        {
-            //            Task.Delay(10 * 1000, applicationLifetime.ApplicationStopping);
-            //        }
-            //        restart?.Invoke(true);
-            //    }
-            //    else
-            //    {
-            //        KraftLogger.LogDebug("Method: RestartApplication: applicationLifetime is null.");
-            //    }
-            //}
-            //catch (Exception exception)
-            //{
-            //    KraftLogger.LogError(exception, "Method: RestartApplication(IApplicationLifetime applicationLifetime)");
-            //}
+            try
+            {
+                if (applicationLifetime != null)
+                {
+                    if (restartReason != null)
+                    {
+                        KraftLogger.LogDebug($"Method: RestartApplication: Stopping application Reason: {restartReason.Reason} additional info {restartReason.Description}");
+                    }
+                    restart?.Invoke(true);                  
+                }
+                else
+                {
+                    KraftLogger.LogDebug("Method: RestartApplication: applicationLifetime is null.");
+                }
+            }
+            catch (Exception exception)
+            {
+                KraftLogger.LogError(exception, "Method: RestartApplication(IApplicationLifetime applicationLifetime)");
+            }
         }
 
         public static string GenerateETag(byte[] data)
