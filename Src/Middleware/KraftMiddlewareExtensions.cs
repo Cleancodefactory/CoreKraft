@@ -512,41 +512,10 @@ namespace Ccf.Ck.Web.Middleware
                         AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
                         RestartApplication(applicationLifetime, restartReason, restart);
                     }, null);
-                    //PassThroughJsConfig configuration watch
-                    IChangeToken changeTokenPassThroughJsConfig = _KraftGlobalConfigurationSettings.GeneralSettings.BindKraftConfigurationGetReloadToken(env);
-                    if (changeTokenPassThroughJsConfig != null)
-                    {
-                        changeTokenPassThroughJsConfig.RegisterChangeCallback(_ =>
-                        {
-                            RestartReason restartReason = new RestartReason
-                            {
-                                Reason = "PassThroughJsConfig Changed",
-                                Description = $"'{_KraftGlobalConfigurationSettings.GeneralSettings.PassThroughJsConfig}' has been altered"
-                            };
-                            AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
-                            AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
-                            RestartApplication(applicationLifetime, restartReason, restart);
-                        }, null);
-                    }
-                    //FileInfo nlogConfig = new FileInfo(Path.Combine(env.ContentRootPath, "nlog.config"));
-                    //if (nlogConfig.Exists)
-                    //{
-                    //    IChangeToken changeTokenNlogConfig = env.ContentRootFileProvider.Watch(nlogConfig.Name);
-                    //    if (changeTokenNlogConfig != null)
-                    //    {
-                    //        changeTokenNlogConfig.RegisterChangeCallback(_ =>
-                    //        {
-                    //            RestartReason restartReason = new RestartReason
-                    //            {
-                    //                Reason = "Nlog.config Changed",
-                    //                Description = $"'Nlog.config' has been altered"
-                    //            };
-                    //            AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
-                    //            AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
-                    //            RestartApplication(applicationLifetime, restartReason, restart);
-                    //        }, null);
-                    //    }
-                    //}
+                    //Configuration watch PassThroughJsConfig
+                    AttachWatcher(env.ContentRootPath, _KraftGlobalConfigurationSettings.GeneralSettings.PassThroughJsConfig, applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
+                    //Configuration watch nlog.config
+                    AttachWatcher(env.ContentRootPath, "nlog.config", applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
                     #endregion End: Watching appsettings, PassThroughJsConfig, nlogConfig
                 }
                 catch (Exception boom)
@@ -606,6 +575,61 @@ namespace Ccf.Ck.Web.Middleware
             //This is the last statement
             KraftExceptionHandlerMiddleware.HandleErrorAction(app);
             return app;
+        }
+
+        public static void AttachWatcher(string dir, string fileName, IHostApplicationLifetime applicationLifetime, Action<bool> restart, UnhandledExceptionEventHandler appDomain_OnUnhandledException,
+            ResolveEventHandler appDomain_OnAssemblyResolve)
+        {
+            if (fileName == null || !File.Exists(Path.Combine(dir, fileName)))
+            {
+                //Do nothing for none existant folders
+                return;
+            }
+            FileSystemWatcher fileWatcher;
+            RestartReason restartReason = new RestartReason();
+            fileWatcher = new FileSystemWatcher(dir)
+            {
+                // watch for everything
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
+                IncludeSubdirectories = false,
+                Filter = fileName,
+                InternalBufferSize = 16384
+            };
+            // Add event handlers.
+            fileWatcher.Changed += OnChanged;
+            fileWatcher.Created += OnChanged;
+            fileWatcher.Deleted += OnChanged;
+            fileWatcher.Renamed += OnRenamed;
+            fileWatcher.Error += OnError;
+
+            // Begin watching...
+            fileWatcher.EnableRaisingEvents = true;
+
+            void OnChanged(object source, FileSystemEventArgs e)
+            {
+                fileWatcher.EnableRaisingEvents = false;
+                //Bug in Docker which will trigger OnChanged during StartUp (How to fix?)
+                AppDomain.CurrentDomain.UnhandledException -= appDomain_OnUnhandledException;
+                AppDomain.CurrentDomain.AssemblyResolve -= appDomain_OnAssemblyResolve;
+                restartReason.Reason = "File Changed";
+                restartReason.Description = $"ChangeType: {e.ChangeType} file {e.FullPath}";
+                RestartApplication(applicationLifetime, restartReason, restart);
+            }
+
+            void OnRenamed(object source, RenamedEventArgs e)
+            {
+                fileWatcher.EnableRaisingEvents = false;
+                AppDomain.CurrentDomain.UnhandledException -= appDomain_OnUnhandledException;
+                AppDomain.CurrentDomain.AssemblyResolve -= appDomain_OnAssemblyResolve;
+                restartReason.Reason = "File Renamed";
+                restartReason.Description = $"Renaming from {e.OldFullPath} to {e.FullPath}";
+                RestartApplication(applicationLifetime, restartReason, restart);
+            }
+
+            void OnError(object sender, ErrorEventArgs e)
+            {
+                KraftLogger.LogCritical(e.GetException(), "OnError in AttachModulesWatcher");
+            }
         }
 
         private static void AppDomain_OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
