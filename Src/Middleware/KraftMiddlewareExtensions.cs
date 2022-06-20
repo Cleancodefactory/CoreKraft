@@ -528,25 +528,25 @@ namespace Ccf.Ck.Web.Middleware
                             RestartApplication(applicationLifetime, restartReason, restart);
                         }, null);
                     }
-                    FileInfo nlogConfig = new FileInfo(Path.Combine(env.ContentRootPath, "nlog.config"));
-                    if (nlogConfig.Exists)
-                    {
-                        IChangeToken changeTokenNlogConfig = env.ContentRootFileProvider.Watch(nlogConfig.Name);
-                        if (changeTokenNlogConfig != null)
-                        {
-                            changeTokenNlogConfig.RegisterChangeCallback(_ =>
-                            {
-                                RestartReason restartReason = new RestartReason
-                                {
-                                    Reason = "Nlog.config Changed",
-                                    Description = $"'Nlog.config' has been altered"
-                                };
-                                AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
-                                AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
-                                RestartApplication(applicationLifetime, restartReason, restart);
-                            }, null);
-                        }
-                    }
+                    //FileInfo nlogConfig = new FileInfo(Path.Combine(env.ContentRootPath, "nlog.config"));
+                    //if (nlogConfig.Exists)
+                    //{
+                    //    IChangeToken changeTokenNlogConfig = env.ContentRootFileProvider.Watch(nlogConfig.Name);
+                    //    if (changeTokenNlogConfig != null)
+                    //    {
+                    //        changeTokenNlogConfig.RegisterChangeCallback(_ =>
+                    //        {
+                    //            RestartReason restartReason = new RestartReason
+                    //            {
+                    //                Reason = "Nlog.config Changed",
+                    //                Description = $"'Nlog.config' has been altered"
+                    //            };
+                    //            AppDomain.CurrentDomain.UnhandledException -= AppDomain_OnUnhandledException;
+                    //            AppDomain.CurrentDomain.AssemblyResolve -= AppDomain_OnAssemblyResolve;
+                    //            RestartApplication(applicationLifetime, restartReason, restart);
+                    //        }, null);
+                    //    }
+                    //}
                     #endregion End: Watching appsettings, PassThroughJsConfig, nlogConfig
                 }
                 catch (Exception boom)
