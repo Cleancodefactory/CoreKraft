@@ -61,6 +61,7 @@
 		- Version 5.0.7: Restructure DirectCall's execution to be synchronous
 		- Version 6.0.0: Updated to .NET 6.0
 		- Version 6.0.1: Update plugin interface
+		- Version 6.0.2: Load dynamic assemblies through LoadAssembly and call GetType on the loaded assembly
 	</PackageReleaseNotes>
     <!-- Description and Release notes -->
   </PropertyGroup>
