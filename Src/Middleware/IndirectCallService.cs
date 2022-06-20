@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.DirectCall;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -52,7 +53,9 @@ namespace Ccf.Ck.Web.Middleware
         public Task StopAsync(CancellationToken cancellationToken) {
             _Continue = false;
             _ThreadSignal.Set();
+            KraftLogger.LogDebug("IndirectCallService:StopAsync (before _SchedulerThread.Join()) executed");
             _SchedulerThread.Join();
+            KraftLogger.LogDebug("IndirectCallService:StopAsync (after _SchedulerThread.Join()) executed");
             return Task.FromResult(0);
         }
         private void Scheduler() {
