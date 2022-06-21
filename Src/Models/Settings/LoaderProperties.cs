@@ -29,21 +29,21 @@ namespace Ccf.Ck.Models.Settings
             }
         }
 
-        public string TypeAsString
-        {
-            get
-            {
-                return ImplementationAsString.Split(',')[0].Trim();
-            }
-        }
+        //public string TypeAsString
+        //{
+        //    get
+        //    {
+        //        return ImplementationAsString.Split(',')[0].Trim();
+        //    }
+        //}
 
-        public string AssemblyNameAsString
-        {
-            get
-            {
-                return ImplementationAsString.Split(',')[1].Trim() + ".dll";
-            }
-        }
+        //public string AssemblyNameAsString
+        //{
+        //    get
+        //    {
+        //        return ImplementationAsString.Split(',')[1].Trim() + ".dll";
+        //    }
+        //}
 
         public string InterfaceAsString { get; set; }
 

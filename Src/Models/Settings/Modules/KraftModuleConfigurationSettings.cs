@@ -89,11 +89,7 @@ namespace Ccf.Ck.Models.Settings.Modules
                 loaderProperty.ImplementationAsType = _CachingService.Get<Type>(cacheKeyImplementation);
                 if (loaderProperty.ImplementationAsType == null)
                 {
-                    Assembly assembly = Utilities.Generic.Utilities.LoadAssembly(
-                    KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders,
-                    "_PluginsReferences",
-                    loaderProperty.AssemblyNameAsString, string.Empty);
-                    loaderProperty.ImplementationAsType = assembly.GetType(loaderProperty.TypeAsString, true, true);
+                    loaderProperty.ImplementationAsType = Type.GetType(loaderProperty.ImplementationAsString, true);
                     _CachingService.Insert(cacheKeyImplementation, loaderProperty.ImplementationAsType);
                 }
                 loaderProperty.InterfaceAsType = _CachingService.Get<Type>(cacheKeyInterface);
