@@ -16,11 +16,6 @@ namespace Ccf.Ck.Models.Settings
         {
             get
             {
-                //if (_ImplementationAsType == null)
-                //{
-                //    _ImplementationAsType = Type.GetType(ImplementationAsString) ?? throw new NullReferenceException(nameof(ImplementationAsString));
-                //}
-
                 return _ImplementationAsType;
             }
             internal set
@@ -29,33 +24,12 @@ namespace Ccf.Ck.Models.Settings
             }
         }
 
-        //public string TypeAsString
-        //{
-        //    get
-        //    {
-        //        return ImplementationAsString.Split(',')[0].Trim();
-        //    }
-        //}
-
-        //public string AssemblyNameAsString
-        //{
-        //    get
-        //    {
-        //        return ImplementationAsString.Split(',')[1].Trim() + ".dll";
-        //    }
-        //}
-
         public string InterfaceAsString { get; set; }
 
         public Type InterfaceAsType
         {
             get
             {
-                //if (_InterfaceAsType == null)
-                //{
-                //    _InterfaceAsType = Type.GetType(InterfaceAsString) ?? throw new NullReferenceException(nameof(InterfaceAsString));
-                //}
-
                 return _InterfaceAsType;
             }
             internal set
