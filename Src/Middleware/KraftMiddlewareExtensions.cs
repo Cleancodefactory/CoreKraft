@@ -503,7 +503,10 @@ namespace Ccf.Ck.Web.Middleware
                     //Configuration watch PassThroughJsConfig
                     AttachWatcher(env.ContentRootPath, $"appsettings.{environment}.json", applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
                     //Configuration watch PassThroughJsConfig
-                    AttachWatcher(env.ContentRootPath, _KraftGlobalConfigurationSettings.GeneralSettings.PassThroughJsConfig, applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
+                    if (_KraftGlobalConfigurationSettings.GeneralSettings.GetBindKraftConfigurationContent(env))
+                    {
+                        AttachWatcher(env.ContentRootPath, _KraftGlobalConfigurationSettings.GeneralSettings.PassThroughJsConfig, applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
+                    }
                     //Configuration watch nlog.config
                     AttachWatcher(env.ContentRootPath, "nlog.config", applicationLifetime, restart, AppDomain_OnUnhandledException, AppDomain_OnAssemblyResolve);
                     #endregion End: Watching appsettings, PassThroughJsConfig, nlogConfig

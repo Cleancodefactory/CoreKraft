@@ -111,7 +111,7 @@ namespace Ccf.Ck.Models.Settings
             }
         }
 
-        public IChangeToken BindKraftConfigurationGetReloadToken(IWebHostEnvironment webHostEnvironment)
+        public bool GetBindKraftConfigurationContent(IWebHostEnvironment webHostEnvironment)
         {
             if (PassThroughJsConfig != null)
             {
@@ -133,14 +133,13 @@ namespace Ccf.Ck.Models.Settings
                     },
                     RegexOptions.Singleline);
                     //Restart application if file changes
-                    return webHostEnvironment.ContentRootFileProvider.Watch(configFile.Name);
+                    return true;
                 }
             }
-            else
-            {
-                BindKraftConfiguration = "{}";
-            }
-            return null;
+            
+            BindKraftConfiguration = "{}";
+            
+            return false;
         }
 
         public string ModulesRootFolder(string moduleKey)
