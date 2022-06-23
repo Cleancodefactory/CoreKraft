@@ -28,7 +28,7 @@ namespace Ccf.Ck.Web.Middleware
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            KraftLogger.LogInformation("CoreKraft-Background-Service is starting.");
+            KraftLogger.LogInformation("SignalService: StartAsync executed.");
             _ServiceProvider = _ScopeFactory.CreateScope().ServiceProvider;
             _KraftGlobalConfigurationSettings = _ServiceProvider.GetRequiredService<KraftGlobalConfigurationSettings>();
 
@@ -63,7 +63,7 @@ namespace Ccf.Ck.Web.Middleware
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            KraftLogger.LogInformation("CoreKraft-Background-Service is stopped.");
+            KraftLogger.LogInformation("SignalService: StopAsync executed");
             foreach (Timer timer in _Timers)
             {
                 timer?.Change(Timeout.Infinite, 0);

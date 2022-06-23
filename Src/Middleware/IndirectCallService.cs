@@ -46,7 +46,7 @@ namespace Ccf.Ck.Web.Middleware
 
         #region Scheduler
         public Task StartAsync(CancellationToken cancellationToken) {
-            KraftLogger.LogInformation("IndirectCallService is starting.");
+            KraftLogger.LogInformation("IndirectCallService: StartAsync executed.");
             _SchedulerThread.Start();
             return Task.FromResult(0);
         }
@@ -54,9 +54,8 @@ namespace Ccf.Ck.Web.Middleware
         public Task StopAsync(CancellationToken cancellationToken) {
             _Continue = false;
             _ThreadSignal.Set();
-            KraftLogger.LogInformation("IndirectCallService:StopAsync (before _SchedulerThread.Join()) executed");
+            KraftLogger.LogInformation("IndirectCallService:StopAsync executed");
             _SchedulerThread.Join();
-            KraftLogger.LogInformation("IndirectCallService:StopAsync (after _SchedulerThread.Join()) executed");
             return Task.FromResult(0);
         }
         private void Scheduler() {

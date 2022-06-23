@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Ccf.Ck.Libs.Logging;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -32,6 +33,7 @@ namespace Ccf.Ck.Launchers.Main
             _RestartRequest = restart;
             if (restart)
             {
+                KraftLogger.LogInformation($"Restart: executed");
                 Console.WriteLine($"========= Restarting App at: {DateTime.Now.ToLongTimeString()} =========");
             }
             _CancellationToken.Cancel();

@@ -58,6 +58,7 @@ namespace Ccf.Ck.Web.Middleware
 
         public static IServiceProvider UseBindKraft(this IServiceCollection services, IConfiguration configuration)
         {
+            KraftLogger.LogInformation($"IServiceProvider UseBindKraft: executed");
             try
             {
                 services.AddDistributedMemoryCache();
@@ -361,6 +362,7 @@ namespace Ccf.Ck.Web.Middleware
 
         public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostEnvironment env, Action<bool> restart = null)
         {
+            KraftLogger.LogInformation($"IApplicationBuilder UseBindKraft: executed");
             //AntiforgeryService
             //app.Use(next => context =>
             //{
@@ -578,6 +580,7 @@ namespace Ccf.Ck.Web.Middleware
                 //Do nothing for none existant folders
                 return;
             }
+            KraftLogger.LogInformation($"AttachWatcher: Attach watcher {fileName}");
             FileSystemWatcher fileWatcher;
             RestartReason restartReason = new RestartReason();
             fileWatcher = new FileSystemWatcher(dir)
