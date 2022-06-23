@@ -396,7 +396,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             }
             else
             {
-                if (!File.Exists(filepath)) throw new Exception("PostedFile - file does not exist");
+                if (!File.Exists(filepath)) throw new Exception($"PostedFile: {filepath} does not exist");
                 var fi = new FileInfo(filepath);
 
                 var pf = new PostedFile(contentType, fi.Length, Path.GetFileName(filepath), filepath, path =>
