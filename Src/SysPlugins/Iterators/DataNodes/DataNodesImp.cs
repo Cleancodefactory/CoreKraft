@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
+using Ccf.Ck.Models.Enumerations;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 {
@@ -662,7 +663,38 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
             }
         }
+        /// <summary>
+        /// Orders and returns the portion of the children for pre or post execution
+        /// </summary>
+        /// <param name="children"></param>
+        /// <param name="action"></param>
+        /// <param name="preLoader"></param>
+        /// <returns></returns>
+        private static List<Node> ForReadExecution(this List<Node> children, EReadAction action, bool preLoader = false) {
 
+            return 0;
+        }
+        private static int ReadExecutionOrder(this Node node, EReadAction action) {
+            int ord = node.ExecutionOrder;
+            if (node.Read != null) {
+                if (node.Read.ExecutionOrder != 0) {
+                    ord = node.Read.ExecutionOrder;
+                }
+                if (action == EReadAction.Select) {
+                    if (node.Read.Select != null) {
+                        if (node.Read.Select.ExecutionOrder != 0) {
+                            ord = node.Read.Select.ExecutionOrder;
+                        } 
+                    }
+                    
+                } else if (action == EReadAction.New && node.Read.New != null) {
+                    if (node.Read.New.ExecutionOrder != 0) {
+                        ord = node.Read.New.ExecutionOrder;
+                    }
+                }
+            }
+            return ord;
+        }
         #endregion
     }
 }
