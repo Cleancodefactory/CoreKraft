@@ -8,4 +8,8 @@
     <PackageDescription>This package contains CoreKraft DirectCall models.</PackageDescription>
   </PropertyGroup>
   
+  <ItemGroup>
+    <ProjectReference Include="..\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
+  </ItemGroup>
+  
 </Project>

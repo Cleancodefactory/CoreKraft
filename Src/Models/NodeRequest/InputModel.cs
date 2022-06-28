@@ -26,6 +26,10 @@ namespace Ccf.Ck.Models.NodeRequest
         public KraftGlobalConfigurationSettings KraftGlobalConfigurationSettings { get; private set; }
 
         //public InputModelParameters InputModelParameters { get; private set; }
+        /// <summary>
+        /// Specifies the read action. By default it is select. Not used for write operations
+        /// </summary>
+        public EReadAction ReadAction { get; set; } = EReadAction.Default;
 
         public ReadOnlyDictionary<string, object> Client { get; private set; }
 
