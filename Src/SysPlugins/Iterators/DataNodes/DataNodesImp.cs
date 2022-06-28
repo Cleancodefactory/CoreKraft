@@ -670,11 +670,15 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// <param name="action"></param>
         /// <param name="preLoader"></param>
         /// <returns></returns>
-        private static List<Node> ForReadExecution(this List<Node> children, EReadAction action, bool preLoader = false) {
-
-            return 0;
+        internal static List<Node> ForReadExecution(this List<Node> children, EReadAction action, bool preLoader = false) {
+            if (children == null) return null;
+            if (preLoader) {
+                return children.Where(n => n.ReadExecutionOrder(action) < 0).OrderBy(nameof => n.ReadExecutionOrder(action)).ToList();
+            } else {
+                return children.Where(n => n.ReadExecutionOrder(action) >= 0).OrderBy(nameof => n.ReadExecutionOrder(action)).ToList();
+            }
         }
-        private static int ReadExecutionOrder(this Node node, EReadAction action) {
+        internal static int ReadExecutionOrder(this Node node, EReadAction action) {
             int ord = node.ExecutionOrder;
             if (node.Read != null) {
                 if (node.Read.ExecutionOrder != 0) {
@@ -687,11 +691,12 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                         } 
                     }
                     
-                } else if (action == EReadAction.New && node.Read.New != null) {
-                    if (node.Read.New.ExecutionOrder != 0) {
-                        ord = node.Read.New.ExecutionOrder;
-                    }
                 }
+                //else if (action == EReadAction.New && node.Read.New != null) {
+                //    if (node.Read.New.ExecutionOrder != 0) {
+                //        ord = node.Read.New.ExecutionOrder;
+                //    }
+                //}
             }
             return ord;
         }
