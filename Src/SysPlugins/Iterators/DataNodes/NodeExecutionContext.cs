@@ -327,6 +327,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         public string Path { get; private set; }
         public string Action { get; private set; }
         public string NodeKey { get; private set; }
+        public EReadAction ReadAction => this.ProcessingContext.InputModel.ReadAction;
+                
         /// <summary>
         /// Node configuration
         /// </summary>
@@ -594,6 +596,42 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         {
             protected NodeExecutionContext Context { get; private set; }
 
+            public ActionBase PerformedAction() {
+                if (Context.Action == ACTION_READ) {
+                    if (Context.CurrentNode.Read != null) {
+                        return Context.ReadAction switch {
+                            EReadAction.Select => Context.CurrentNode.Read?.Select,
+                            EReadAction.New => Context.CurrentNode.Read?.New,
+                            _ => null
+                        };
+                    }
+                } else if (Context.Action == ACTION_WRITE) {
+                    if (Context.CurrentNode.Write != null) {
+                        return Context.Operation switch {
+                            OPERATION_INSERT => Context.CurrentNode.Write?.Insert,
+                            OPERATION_UPDATE => Context.CurrentNode.Write?.Update,
+                            OPERATION_DELETE => Context.CurrentNode.Write?.Delete,
+                            _ => null
+                        };
+                    }
+                }
+                return null;
+            }
+            public A Action<A>() where A: ActionBase, new() {
+                var a = new A();
+                return a switch {
+                    Select => Context.CurrentNode?.Read?.Select as A,
+                    New => Context.CurrentNode?.Read?.New as A,
+                    Insert => Context.CurrentNode?.Write?.Insert as A,
+                    Update => Context.CurrentNode?.Write?.Update as A,
+                    Delete => Context.CurrentNode?.Write?.Delete as A,
+                    _ => null
+                };
+                return null;
+            }
+                //Context.CurrentNode
+                
+            
             public IDataStateHelper<IDictionary<string, object>> DataState => DataStateUtility.Instance;
 
             public NodeExecutionContextProxy(NodeExecutionContext ctx)

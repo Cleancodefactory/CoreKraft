@@ -93,40 +93,47 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             NodeExecutionContext.Manager execContextManager = new NodeExecutionContext.Manager(dataIteratorContext, node, ACTION_READ);
             #endregion
 
+            #region Main loader plugin creation
+            // 1. Load the main plugin - Data Loader kind
+            // This context will be the same for all the parent produced rows over which we execute a child node
+            IDataLoaderPlugin dataPlugin = null;
+            IPluginsSynchronizeContextScoped contextScoped = null;
+            string pluginName = null;
+            if (readAction == EReadAction.Select) {
+
+                if (!string.IsNullOrEmpty(node.DataPluginName)) {
+                    pluginName = node.DataPluginName;
+                }
+            } else if (readAction == EReadAction.New) {
+                if (!string.IsNullOrEmpty(node?.Read?.New?.Plugin)) {
+                    pluginName = node.Read.New.Plugin;
+                }
+            } else {
+                throw new Exception("Unsupported read action");
+            }
+            if (pluginName != null) {
+                dataPlugin = dataIteratorContext.DataLoaderPluginAccessor.LoadPlugin(node.DataPluginName);
+                // 2. Update the Node execution context with the actual data for the current loop.
+                //Dictionary<string, object> parentResult = null;
+                contextScoped = dataIteratorContext.DataLoaderPluginAccessor.GetPluginsSynchronizeContextScoped(node.DataPluginName, dataPlugin).Result;
+                if (contextScoped is IContextualBasketConsumer) {
+                    var consumer = contextScoped as IContextualBasketConsumer;
+                    consumer.InspectBasket(new NodeContextualBasket(execContextManager));
+                }
+            }
+            // Set the scoped context to the node execution context
+            execContextManager.DataLoaderContextScoped = contextScoped;
+            #endregion
+
+
+
             // MAIN CYCLE - repeated once per each parent result (for the starting node - it is repeated once)
 
             foreach (Dictionary<string, object> row in parentResult)
             {
                 using (var stackframe = execContextManager.Datastack.Scope(row))
                 {
-                    // 1. Load the main plugin - Data Loader kind
-                    IDataLoaderPlugin dataPlugin = null;
-                    IPluginsSynchronizeContextScoped contextScoped = null;
-                    string pluginName = null;
-                    if (readAction == EReadAction.Select) {
-
-                        if (!string.IsNullOrEmpty(node.DataPluginName)) {
-                            pluginName = node.DataPluginName;
-                        }
-                    } else if (readAction == EReadAction.New) {
-                        if (!string.IsNullOrEmpty(node?.Read?.New?.Plugin)) {
-                            pluginName = node.Read.New.Plugin;
-                        }
-                    } else {
-                        throw new Exception("Unsupported read action");
-                    }
-                    if (pluginName != null) {
-                        dataPlugin = dataIteratorContext.DataLoaderPluginAccessor.LoadPlugin(node.DataPluginName);
-                        // 2. Update the Node execution context with the actual data for the current loop.
-                        //Dictionary<string, object> parentResult = null;
-                        contextScoped = dataIteratorContext.DataLoaderPluginAccessor.GetPluginsSynchronizeContextScoped(node.DataPluginName, dataPlugin).Result;
-                        if (contextScoped is IContextualBasketConsumer) {
-                            var consumer = contextScoped as IContextualBasketConsumer;
-                            consumer.InspectBasket(new NodeContextualBasket(execContextManager));
-                        }
-                    }
-
-                    execContextManager.DataLoaderContextScoped = contextScoped;
+                   
                     // execContextManager.ParentResult = row; // Wrong
                     //execContextManager.Phase = "BEFORE_SQL"; // I think 'Phase' is a relic, couldn't find any usage.
                     execContextManager.Row = row; // This is needed by the resolvers, but is not visible to plugins!
