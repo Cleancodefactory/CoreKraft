@@ -11,10 +11,9 @@ using Ccf.Ck.Utilities.Profiling;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 
-namespace Ccf.Ck.SysPlugins.Data.Db.ADO
-{
+namespace Ccf.Ck.SysPlugins.Data.Db.ADO {
     public class ADOSynchronizeContextScopedDefault<XConnection> : IPluginsSynchronizeContextScoped, IADOTransactionScope, IContextualBasketConsumer
-        where XConnection: DbConnection, new() {
+        where XConnection : DbConnection, new() {
 
         protected DbConnection _DbConnection;
         protected DbTransaction _DbTransaction;
@@ -65,7 +64,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
         public object StartTransaction() {
             if (_DbTransaction == null) {
-                
+
                 _DbTransaction = GetConnection().BeginTransaction();
             }
             return _DbTransaction;
@@ -97,6 +96,9 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 // MatchCollection matches = _DynamicParameterRegEx.Matches(connectionString);
                 connectionString = _DynamicParameterRegEx.Replace(connectionString, m => {
                     string varname = m.Groups[1].Value;
+                    if (LoaderContext == null) {
+                        throw new Exception("The Loader context is not available at this time.");
+                    }
                     var val = LoaderContext.Evaluate(varname);
                     if (val.Value == null || val.ValueType == EResolverValueType.Invalid) {
                         KraftLogger.LogError($"Expected parameter in connection string: {m.Groups[1].Value} was not resolved! Check that parameter's expression. It is recommended to not define it on node basis, but only in a nodeset root!");
@@ -136,7 +138,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
                 // TODO Here it times out - before the connection string
                 _DbConnection = KraftProfiler.Current.ProfiledDbConnection(new XConnection());
-                
+
                 _DbConnection.ConnectionString = connectionString;
             }
             if (_DbConnection.State != ConnectionState.Open) {

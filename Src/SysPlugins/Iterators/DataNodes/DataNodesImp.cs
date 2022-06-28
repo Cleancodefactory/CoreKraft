@@ -85,6 +85,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 return dataIteratorContext.BailOut;
             }
             object returnResult = null;
+            EReadAction readAction = dataIteratorContext.ProcessingContext.InputModel.ReadAction; // Select by default
+            
             // We have to iterate through the parent rows, so we cannot create the results here, but we will do it as soon as possible
             List<Dictionary<string, object>> results = null;
 
@@ -100,14 +102,25 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // 1. Load the main plugin - Data Loader kind
                     IDataLoaderPlugin dataPlugin = null;
                     IPluginsSynchronizeContextScoped contextScoped = null;
-                    if (!string.IsNullOrEmpty(node.DataPluginName))
-                    {
+                    string pluginName = null;
+                    if (readAction == EReadAction.Select) {
+
+                        if (!string.IsNullOrEmpty(node.DataPluginName)) {
+                            pluginName = node.DataPluginName;
+                        }
+                    } else if (readAction == EReadAction.New) {
+                        if (!string.IsNullOrEmpty(node?.Read?.New?.Plugin)) {
+                            pluginName = node.Read.New.Plugin;
+                        }
+                    } else {
+                        throw new Exception("Unsupported read action");
+                    }
+                    if (pluginName != null) {
                         dataPlugin = dataIteratorContext.DataLoaderPluginAccessor.LoadPlugin(node.DataPluginName);
                         // 2. Update the Node execution context with the actual data for the current loop.
                         //Dictionary<string, object> parentResult = null;
                         contextScoped = dataIteratorContext.DataLoaderPluginAccessor.GetPluginsSynchronizeContextScoped(node.DataPluginName, dataPlugin).Result;
-                        if (contextScoped is IContextualBasketConsumer)
-                        {
+                        if (contextScoped is IContextualBasketConsumer) {
                             var consumer = contextScoped as IContextualBasketConsumer;
                             consumer.InspectBasket(new NodeContextualBasket(execContextManager));
                         }
@@ -663,43 +676,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
             }
         }
-        /// <summary>
-        /// Orders and returns the portion of the children for pre or post execution
-        /// </summary>
-        /// <param name="children"></param>
-        /// <param name="action"></param>
-        /// <param name="preLoader"></param>
-        /// <returns></returns>
-        internal static List<Node> ForReadExecution(this List<Node> children, EReadAction action, bool preLoader = false) {
-            if (children == null) return null;
-            if (preLoader) {
-                return children.Where(n => n.ReadExecutionOrder(action) < 0).OrderBy(nameof => n.ReadExecutionOrder(action)).ToList();
-            } else {
-                return children.Where(n => n.ReadExecutionOrder(action) >= 0).OrderBy(nameof => n.ReadExecutionOrder(action)).ToList();
-            }
-        }
-        internal static int ReadExecutionOrder(this Node node, EReadAction action) {
-            int ord = node.ExecutionOrder;
-            if (node.Read != null) {
-                if (node.Read.ExecutionOrder != 0) {
-                    ord = node.Read.ExecutionOrder;
-                }
-                if (action == EReadAction.Select) {
-                    if (node.Read.Select != null) {
-                        if (node.Read.Select.ExecutionOrder != 0) {
-                            ord = node.Read.Select.ExecutionOrder;
-                        } 
-                    }
-                    
-                }
-                //else if (action == EReadAction.New && node.Read.New != null) {
-                //    if (node.Read.New.ExecutionOrder != 0) {
-                //        ord = node.Read.New.ExecutionOrder;
-                //    }
-                //}
-            }
-            return ord;
-        }
+        
         #endregion
     }
 }
