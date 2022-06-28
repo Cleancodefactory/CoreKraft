@@ -17,6 +17,7 @@
             public const string RouteDataTokenSignalRead = "signalread";
             public const string RouteDataTokenSignalWrite = "signalwrite";
             public const string RouteDataTokenRead = "read";
+            public const string RouteDataTokenNew = "new";
             public const string RouteDataTokenWrite = "write";
             public const string RouteDataTokenSingle = "single";
             public const string RouteDataTokenBatch = "batch";

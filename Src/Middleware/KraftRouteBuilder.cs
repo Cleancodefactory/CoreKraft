@@ -76,6 +76,14 @@ namespace Ccf.Ck.Web.Middleware
             );
 
             kraftRoutesBuilder.MapRoute(
+                name: "corekraft_single_new_route",
+                template: kraftUrlSegment + "/new/{" + Constants.RouteSegmentConstants.RouteModule + "}/{" + Constants.RouteSegmentConstants.RouteNodeset + "}/{" + Constants.RouteSegmentConstants.RouteNodepath + "?}",
+                defaults: null,
+                constraints: null,
+                dataTokens: new { key = Constants.RouteSegmentConstants.RouteDataTokenNew }
+            );
+
+            kraftRoutesBuilder.MapRoute(
                 name: "corekraft_single_write_route",
                 template: kraftUrlSegment + "/write/{" + Constants.RouteSegmentConstants.RouteModule + "}/{" + Constants.RouteSegmentConstants.RouteNodeset + "}/{" + Constants.RouteSegmentConstants.RouteNodepath + "?}",
                 defaults: null,

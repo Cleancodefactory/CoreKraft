@@ -120,7 +120,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 
         protected ELoaderType GetLoaderContent(string sysrequestcontent)
         {
-            ELoaderType loaderType = ELoaderType.None;
+            ELoaderType loaderType = ELoaderType.DataLoader; //This is default if nothing is found
             if (!string.IsNullOrEmpty(sysrequestcontent))
             {
                 if (!int.TryParse(sysrequestcontent, out int enumValueInt))
