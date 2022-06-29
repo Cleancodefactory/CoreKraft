@@ -14,12 +14,6 @@ namespace Ccf.Ck.Models.NodeSet
             set;
         }
 
-        public int ExecutionOrder
-        {
-            get;
-            set;
-        }
-
         public Settings Settings
         {
             get;
