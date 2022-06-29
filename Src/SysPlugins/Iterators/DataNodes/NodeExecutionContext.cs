@@ -596,6 +596,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         {
             protected NodeExecutionContext Context { get; private set; }
 
+            #region Current action helpers
+            /// <summary>
+            /// Returns the currently performed action
+            /// </summary>
+            /// <returns></returns>
             public ActionBase PerformedAction() {
                 if (Context.Action == ACTION_READ) {
                     if (Context.CurrentNode.Read != null) {
@@ -617,21 +622,46 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
                 return null;
             }
-            public A Action<A>() where A: ActionBase, new() {
-                var a = new A();
-                return a switch {
-                    Select => Context.CurrentNode?.Read?.Select as A,
-                    New => Context.CurrentNode?.Read?.New as A,
-                    Insert => Context.CurrentNode?.Write?.Insert as A,
-                    Update => Context.CurrentNode?.Write?.Update as A,
-                    Delete => Context.CurrentNode?.Write?.Delete as A,
-                    _ => null
-                };
+            /// <summary>
+            /// Executes a delegate for the current action if it is of type A. Use as many of these as needed to execute code for different action cases
+            /// </summary>
+            /// <typeparam name="A"></typeparam>
+            /// <param name="action"></param>
+            /// <returns></returns>
+            public bool ForCurrentAction<A>(Action<A> action) where A: ActionBase {
+                ActionBase actionBase = PerformedAction();
+                if (actionBase == null) return false;
+                if (typeof(A) == actionBase.GetType()) {
+                    action(actionBase as A);
+                    return true;
+                }
+                return false;
+            }
+            #endregion
+            #region General action helpers
+            public A GetAction<A>() where A: ActionBase {
+
+                if (typeof(A) == typeof(Select)) return Context.CurrentNode?.Read?.Select as A;
+                else if (typeof(A) == typeof(New)) return Context.CurrentNode?.Read?.New as A;
+                else if (typeof(A) == typeof(Insert)) return Context.CurrentNode?.Write?.Insert as A;
+                else if (typeof(A) == typeof(Update)) return Context.CurrentNode?.Write?.Update as A;
+                else if (typeof(A) == typeof(Delete)) return Context.CurrentNode?.Write?.Delete as A;
                 return null;
             }
-                //Context.CurrentNode
-                
-            
+            /// <summary>
+            /// Executes a delegate for action A if it exists, does nothing otherwise
+            /// </summary>
+            /// <typeparam name="A">One of the ActionBase types</typeparam>
+            /// <param name="action">Delegate to execute</param>
+            /// <returns>Boolean indicating if execution was performed or not.</returns>
+            public bool OverAction<A>(Action<A> action) where A: ActionBase {
+                A a = GetAction<A>();
+                if (a == null) return false;
+                action(a);
+                return true;
+            }
+            #endregion
+
             public IDataStateHelper<IDictionary<string, object>> DataState => DataStateUtility.Instance;
 
             public NodeExecutionContextProxy(NodeExecutionContext ctx)

@@ -5,9 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
     internal static class InternalExtensions {
+
+        #region Read extensions
+        // Not needed - using this is impossible or should be based on pre-plugins
         /// <summary>
         /// Orders and returns the portion of the children for pre or post execution
         /// </summary>
@@ -22,6 +26,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
             } else {
                 return children.Where(n => n.ReadExecutionOrder(action) >= 0).OrderBy(n => n.ReadExecutionOrder(action)).ToList();
             }
+        }
+        internal static List<Node> OrderForReadExecution(this List<Node> children, EReadAction action) {
+            if (children == null) return null;
+            return children.OrderBy(n => n.ReadExecutionOrder(action)).ToList();
         }
         internal static int ReadExecutionOrder(this Node node, EReadAction action) {
             int ord = node.ExecutionOrder;
@@ -44,5 +52,32 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
             }
             return ord;
         }
+        #endregion
+
+        #region Write extensions
+        internal static List<Node> ForWriteExecution(this List<Node> children, string operation, bool preLoaded = false) {
+            if (children == null) return null;
+            if (preLoaded) {
+                return children.Where(n => n.WriteExecutionOrder(operation) < 0).OrderBy(n => n.WriteExecutionOrder(operation)).ToList();
+            } else {
+                return children.Where(n => n.WriteExecutionOrder(operation) >= 0).OrderBy(n => n.WriteExecutionOrder(operation)).ToList();
+            }
+        }
+        internal static int WriteExecutionOrder(this Node node, string operation) {
+            int ord = node.ExecutionOrder;
+            if (node.Write != null) {
+                if (node.Write.ExecutionOrder != 0) {
+                    ord = node.Write.ExecutionOrder;
+                }
+                ord = operation switch {
+                    OPERATION_INSERT => node.Write?.Insert.ExecutionOrder ?? ord,
+                    OPERATION_UPDATE => node.Write?.Update.ExecutionOrder ?? ord,
+                    OPERATION_DELETE => node.Write?.Delete.ExecutionOrder ?? ord,
+                    _ => ord
+                };
+            }
+            return ord;
+        }
+        #endregion
     }
 }

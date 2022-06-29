@@ -158,16 +158,15 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     #endregion
 
                     // 4. Data loader execution
-                    // 4.1. Execute it (we alreade got the plugin in the beginning - see 1.)
-                    // 4.1.1. Update context
-                    //execContextManager.Phase = "SQL";
+                    // 4.1. Execute it (we already got the plugin in the beginning - see 1.)
+
                     // 4.1.2. Execute loader
                     if (execContextManager.LoaderContext.StartNode.Read != null && dataPlugin != null)
                     {
                         dataPlugin.Execute(execContextManager.LoaderPluginProxy);
                         if (_bailOut()) return null;
                     }
-                    // The data  loader plugins are responsible to put their results into the REsults collection in the execution context
+                    // The data  loader plugins are responsible to put their results into the Results collection in the execution context
                     // We have to discuss this - once comitted there is no going back, so we have to be sure this is the best behavior!
                     // 5. Execute custom plugins after SQL
                     // Update context (TODO: are there any more updates neccessary?)
@@ -181,46 +180,15 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                         if (_bailOut()) return null;
                     }
 
-                    #region AfterSQL Plugins (Deprecated code)
-                    //pluginExecuteParameters = new CustomPluginExecuteParameters
-                    //{
-                    //    Phase = "AFTER_SQL",
-                    //    Row = row,
-                    //    Results = null,
-                    //    Parents = dataIteratorContext.Datastack,
-                    //    Path = node.NodeKey,
-                    //    NodeParameters = parametersContext.PublicContext,
-                    //    Action = OPERATION_READ,
-                    //    NodeKey = node.NodeKey
-                    //};
-                    //pluginExecuteParameters.SqlStatement = GetSqlStatement(node, ACTION_SELECT);
-
-                    //customPluginsResults = plugins?.ExecuteAsync(node.AfterDataExecutionPlugins, pluginExecuteParameters).Result;
-
-                    //if (customPluginsResults != null && customPluginsResults is IEnumerable<Dictionary<string, object>>)
-                    //    results.AddRange(customPluginsResults as IEnumerable<Dictionary<string, object>>);
-                    #endregion
-
                     // 6. Execute the child nodes
-                    foreach (Node childNode in node.Children.OrderBy(n => n.ExecutionOrder))
+                    foreach (Node childNode in node.Children.OrderForReadExecution(readAction))
                     {
                         ExecuteReadNode(childNode, results, dataIteratorContext);
                         if (_bailOut()) return null;
                     }
 
-                    #region Child Nodes (Deprecated code)
-
-                    //if (node.Children != null && node.Children.Count > 0)
-                    //{
-                    //    IterateChildren(node, results, dataIteratorContext);
-                    //}
-
-                    #endregion
 
                     // 7. Execute custom plugins after children
-                    // Update context (TODO: are there any more updates?)
-                    //execContextManager.Phase = "AFTER_CHILDREN";
-                    // execContextManager.Results = results; // NO NEED - the reference is already there
                     // 7.1. - execute plugin
                     if (node.Read != null)
                     {
