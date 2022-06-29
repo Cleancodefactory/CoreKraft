@@ -93,6 +93,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             inputModelParameters.Nodeset = routeDataPrimitives.Nodeset;
             inputModelParameters.Nodepath = routeDataPrimitives.Nodepath;
             inputModelParameters.IsWriteOperation = routeDataPrimitives.IsWriteOperation;
+            inputModelParameters.ReadAction = routeDataPrimitives.ReadAction;
             return inputModelParameters;
         }
 
@@ -103,7 +104,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
                 string sysrequestcontent = _QueryCollection[loaderTypeKey]?.ToString();
                 return GetLoaderContent(sysrequestcontent);
             }
-            return ELoaderType.None;
+            return ELoaderType.DataLoader;
         }
 
         protected List<IProcessingContext> CreateProcessingContexts(List<InputModel> inputModels)
@@ -120,7 +121,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 
         protected ELoaderType GetLoaderContent(string sysrequestcontent)
         {
-            ELoaderType loaderType = ELoaderType.DataLoader; //This is default if nothing is found
+            ELoaderType loaderType = ELoaderType.None; //We are here because something with the name sysrequestcontent has been found
             if (!string.IsNullOrEmpty(sysrequestcontent))
             {
                 if (!int.TryParse(sysrequestcontent, out int enumValueInt))
@@ -180,6 +181,13 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
                 {
                     isWriteOperation = true;
                 }
+                if (!isWriteOperation)
+                {
+                    if (routeData.DataTokens["key"] != null && routeData.DataTokens["key"].Equals(Constants.RouteSegmentConstants.RouteDataTokenNew))
+                    {
+                        routeDataPrimitives.ReadAction = EReadAction.New;
+                    }                    
+                }
                 routeDataPrimitives.IsWriteOperation = isWriteOperation;
                 routeDataPrimitives.Module = routeData.Values[Constants.RouteSegmentConstants.RouteModule] as string;
                 routeDataPrimitives.Nodeset = routeData.Values[Constants.RouteSegmentConstants.RouteNodeset] as string;
@@ -190,6 +198,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 
         public class RouteDataPrimitives
         {
+            internal EReadAction ReadAction { get; set; } = EReadAction.Default;
             internal bool IsWriteOperation { get; set; }
             internal string Module { get; set; }
             internal string Nodeset { get; set; }

@@ -10,6 +10,7 @@ namespace Ccf.Ck.Models.NodeRequest
         public string Nodeset { get; set; }
         public string Nodepath { get; set; }
         public string BindingKey { get; set; }
+        public EReadAction ReadAction { get; set; } = EReadAction.Default;
         public bool IsWriteOperation { get; set; }
         public ELoaderType LoaderType { get; set; }
         public KraftGlobalConfigurationSettings KraftGlobalConfigurationSettings { get; set; }

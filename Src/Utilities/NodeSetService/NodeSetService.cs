@@ -152,9 +152,16 @@ namespace Ccf.Ck.Utilities.NodeSetService
         {
             if (node != null)
             {
-                if (node.Read != null && node.Read.Select != null && node.Read.Select.HasLoadQuery())
+                if (node.Read != null)
                 {
-                    ReadQueryFile(fileName, node.Read.Select);
+                    if (node.Read.Select != null && node.Read.Select.HasLoadQuery())
+                    {
+                        ReadQueryFile(fileName, node.Read.Select);
+                    }
+                    else if (node.Read.New != null && node.Read.New.HasLoadQuery())
+                    {
+                        ReadQueryFile(fileName, node.Read.New);
+                    }
                 }
                 if (node.Write != null)
                 {
