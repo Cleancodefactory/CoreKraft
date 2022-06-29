@@ -112,10 +112,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 throw new Exception("Unsupported read action");
             }
             if (pluginName != null) {
-                dataPlugin = dataIteratorContext.DataLoaderPluginAccessor.LoadPlugin(node.DataPluginName);
+                dataPlugin = dataIteratorContext.DataLoaderPluginAccessor.LoadPlugin(pluginName);
                 // 2. Update the Node execution context with the actual data for the current loop.
                 //Dictionary<string, object> parentResult = null;
-                contextScoped = dataIteratorContext.DataLoaderPluginAccessor.GetPluginsSynchronizeContextScoped(node.DataPluginName, dataPlugin).Result;
+                contextScoped = dataIteratorContext.DataLoaderPluginAccessor.GetPluginsSynchronizeContextScoped(pluginName, dataPlugin).Result;
                 if (contextScoped is IContextualBasketConsumer) {
                     var consumer = contextScoped as IContextualBasketConsumer;
                     consumer.InspectBasket(new NodeContextualBasket(execContextManager));
@@ -347,6 +347,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
 
                 // 6. Execute children now if the operation is delete
+                // 6.1 Split the children between pre and post - used in non-delete for now
+                List<Node> preChildren = null;
+                List<Node> postChildren = null;
                 // Should we remove these?
                 #region Reversed Order Processing
                 if (operation == OPERATION_DELETE)
@@ -389,6 +392,33 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                         }
                     }
                 }
+                else // For now we do not touch the delete, but we will
+                {
+                    preChildren = node.Children.ForWriteExecution(operation, true);
+                    postChildren = node.Children.ForWriteExecution(operation, false);
+
+                    using (var stackframe = dataIteratorContext.Datastack.Scope(row)) {
+                        if (preChildren != null && preChildren.Count > 0) {
+
+                            if (row != null) {
+                                foreach (Node childNode in preChildren) {
+                                    string currentNodePath = (!string.IsNullOrEmpty(nodePath))
+                                                                 ? nodePath + "." + childNode.NodeKey.Trim()
+                                                                 : childNode.NodeKey.Trim();
+
+
+                                    if (row.ContainsKey(childNode.NodeKey.Trim())) {
+                                        object currentDataNode = row[childNode.NodeKey.Trim()];
+                                        row[childNode.NodeKey.Trim()] =
+                                            ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
+                                        if (_bailOut()) return null;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
                 #endregion
 
                 // 7. Execute main action for this node (the data plugin)
@@ -399,36 +429,12 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     dataPlugin?.Execute(execContextManager.LoaderPluginProxy);
                     if (_bailOut()) return null;
                 }
-                #region (DEPRECATED CODE)
-                // 7.1. Accomodate the results from before sql plugins
-                //if (customPluginsResults != null && customPluginsResults is IEnumerable<Dictionary<string, object>>)
-                //{
-                //    ApplyResultsToRow(row, customPluginsResults as IEnumerable<Dictionary<string, object>>);
-                //}
-                #endregion
                 #endregion
 
 
                 #region 8. AfterNodeAction Plugins
                 // 8. Switch to after SQL mode (in fact it is also after children if we have delete operation, but we have to catch up step by step.
                 //execContextManager.Phase = "AFTER_SQL";
-
-                #region (Deprecated code)
-                /*
-                pluginExecuteParameters = new CustomPluginExecuteParameters
-                {
-                    Phase = "AFTER_SQL",
-                    Row = row,
-                    Results = null,
-                    Parents = dataIteratorContext.Datastack,
-                    Path = node.NodeKey,
-                    NodeParameters = parametersContext.PublicContext,
-                    Action = ACTION_WRITE,
-                    NodeKey = node.NodeKey
-                };
-                pluginExecuteParameters.SqlStatement = GetSqlStatement(node, operation);
-                */
-                #endregion
 
                 #region 8.1. Execute the plugins (after sql)
                 if (node.Write != null)
@@ -438,15 +444,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
                 #endregion
 
-                #region (DEPRECATED code)
-                // (Deprecated) 8.2. Accomodate the results if any - this is now responsibility of the plugin itself
-                //if (customPluginsResults != null && customPluginsResults is IEnumerable<Dictionary<string, object>>)
-                //{
-                //    ApplyResultsToRow(row, customPluginsResults as IEnumerable<Dictionary<string, object>>);
-                //}
-
-                #endregion
-
                 #region NormalOrderProcessing
                 // 9. Execute the children now (for non-delete operations).
                 // Keeping this code inline makes it a bit easier to follow the processing procedure
@@ -454,12 +451,12 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 {
                     using (var stackframe = dataIteratorContext.Datastack.Scope(row))
                     {
-                        if (node.Children != null && node.Children.Count > 0)
+                        if (postChildren != null && postChildren.Count > 0)
                         {
 
                             if (row != null)
                             {
-                                foreach (Node childNode in node.Children)
+                                foreach (Node childNode in postChildren)
                                 {
                                     string currentNodePath = (!string.IsNullOrEmpty(nodePath))
                                                                  ? nodePath + "." + childNode.NodeKey.Trim()
@@ -487,32 +484,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 // 10. Switch to after children mode
                 //execContextManager.Phase = "AFTER_SQL";
 
-                #region Deprecated code
-                //pluginExecuteParameters = new CustomPluginExecuteParameters
-                //{
-                //    Phase = "AFTER_CHILDREN",
-                //    Row = row,
-                //    Results = null,
-                //    Parents = dataIteratorContext.Datastack,
-                //    Path = node.NodeKey,
-                //    Action = ACTION_WRITE,
-
-                //    NodeKey = node.NodeKey,
-                //    NodeParameters = parametersContext.PublicContext
-                //};
-                //pluginExecuteParameters.SqlStatement = GetSqlStatement(node, operation);
-                #endregion deprecated code
                 // 11. Execute the plugins for after children
                 if (node.Write != null)
                 {
                     plugins?.Execute(node.Write.AfterNodeChildrenPlugins, execContextManager.CustomPluginProxy, _bailOut);
                     if (_bailOut()) return null;
                 }
-                #region DEPRECATED CODE
-                // 11.1. Accomodate the results from the plugins.
-                //if (customPluginsResults != null && customPluginsResults is IEnumerable<Dictionary<string, object>>)
-                //    ApplyResultsToRow(row, customPluginsResults as IEnumerable<Dictionary<string, object>>);
-                #endregion
+
                 #endregion
             }
 

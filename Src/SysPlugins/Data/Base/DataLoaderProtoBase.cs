@@ -4,6 +4,7 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Models.NodeSet;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.Models.ContextBasket;
+using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 
 namespace Ccf.Ck.SysPlugins.Data.Base
 {
@@ -26,7 +27,8 @@ namespace Ccf.Ck.SysPlugins.Data.Base
         protected ScopeContext Scope(IDataLoaderContext p) { return p.OwnContextScoped as ScopeContext; }
         protected ActionBase Action(IDataLoaderContext execContext)  {
             if (execContext.Action == ACTION_READ) {
-                return execContext.CurrentNode.Read.Select;
+                var hlp = execContext as IActionHelpers;
+                return hlp.PerformedAction();
             } else if (execContext.Action == ACTION_WRITE) {
                 switch (execContext.Operation) {
                     case OPERATION_INSERT:
@@ -58,10 +60,10 @@ namespace Ccf.Ck.SysPlugins.Data.Base
         {
             if (ctx.Action == ModelConstants.ACTION_READ)
             {
-                var op = ctx.CurrentNode?.Read?.Select;
-                if (op != null)
-                {
-                    return op.Query;
+                var hlp = ctx as IActionHelpers;
+                var act = hlp.PerformedAction();
+                if (act != null) {
+                    return act.Query;
                 }
             }
             else if (ctx.Action == ModelConstants.ACTION_WRITE)

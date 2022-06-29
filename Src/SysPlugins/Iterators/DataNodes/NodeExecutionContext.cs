@@ -12,6 +12,7 @@ using System.ComponentModel;
 using Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
+using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 {
@@ -592,7 +593,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         #endregion
 
         #region Context proxies
-        public class NodeExecutionContextProxy : IDataStateHelperProvider<IDictionary<string, object>>
+        public class NodeExecutionContextProxy : IDataStateHelperProvider<IDictionary<string, object>>, IActionHelpers
         {
             protected NodeExecutionContext Context { get; private set; }
 

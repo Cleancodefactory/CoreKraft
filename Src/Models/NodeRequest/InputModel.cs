@@ -20,6 +20,7 @@ namespace Ccf.Ck.Models.NodeRequest
             Client = new ReadOnlyDictionary<string, object>(UpdateParameters(parameters));
             Server = new ReadOnlyDictionary<string, object>(parameters.ServerVariables ?? new Dictionary<string, object>());
             SecurityModel = parameters.SecurityModel;
+            ReadAction = parameters.ReadAction;
             Data = new ReadOnlyDictionary<string, object>(parameters.Data);
         }
 
