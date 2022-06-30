@@ -155,6 +155,49 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             string source = argsCasted[0].Value as string;
             return new ParameterResolverValue(StdGetParameterValue(source, paramName, ctx));
         }
+        /// <summary>
+        /// Navigates to a value from the specified point
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        public ParameterResolverValue NavGetFrom(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (args.Count != 2) throw new ArgumentException("NavGetFrom requires 2 arguments");
+            var fromwhere = args[0].Value as string;
+            var inputModel = ctx.ProcessingContext.InputModel;
+            if (fromwhere != null) {
+                Dictionary<string, object> start = fromwhere switch {
+                    INPUT => ctx.Row,
+                    CURRENT => ctx.Row,
+                    FILTER => inputModel.Data.ToDictionary(kv => kv.Key, kv => kv.Value),
+                    DATA => inputModel.Data.ToDictionary(kv => kv.Key, kv => kv.Value),
+                    PARENT =>  
+                        (ctx.Datastack is ListStack<Dictionary<string,object>> stack && stack != null && stack.Count > 0) ?
+                            stack.Top() as Dictionary<string, object> :
+                            null,           
+                     _ => null
+                };
+                if (start != null) {
+                    var path = args[1].Value as string;
+                    if (path != null) {
+                        object current = start;
+                        var chain = path.Split('.');
+                        for (int i = 0; i < chain.Length; i++) {
+                            var idx = chain[i].Trim();
+                            if (current is Dictionary<string, object> dict) {
+                                current = dict[idx];
+                            } else if (current is IEnumerable<Dictionary<string, object>> list) {
+                                var n = Convert.ToInt32(idx);
+                                current = list.ToArray()[n];
+                            } else {
+                                return new ParameterResolverValue(null);
+                            }
+                        }
+                        return new ParameterResolverValue(current);
+                    }
+                }
+            }
+            return new ParameterResolverValue(null);
+        }
         public ParameterResolverValue CurrentData(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             ResolverArguments<ParameterResolverValue> argsCasted = args as ResolverArguments<ParameterResolverValue>;
             if (ctx.Action == ACTION_WRITE) {

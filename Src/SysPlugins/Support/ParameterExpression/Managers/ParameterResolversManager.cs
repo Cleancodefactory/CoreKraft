@@ -51,6 +51,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             },
                             {
                                 new Resolver() {
+                                    Alias = "NavGetFrom",
+                                    Arguments= 2,
+                                    Name = "NavGetFrom"
+                                } 
+                            },
+                            {
+                                new Resolver() {
                                     Alias = "CurrentData",
                                     Arguments = 0,
                                     Name = "CurrentData"
