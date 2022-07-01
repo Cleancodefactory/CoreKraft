@@ -70,9 +70,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
                     ord = node.Write.ExecutionOrder;
                 }
                 ord = operation switch {
-                    OPERATION_INSERT => node.Write?.Insert.ExecutionOrder ?? ord,
-                    OPERATION_UPDATE => node.Write?.Update.ExecutionOrder ?? ord,
-                    OPERATION_DELETE => node.Write?.Delete.ExecutionOrder ?? ord,
+                    OPERATION_INSERT => node.Write?.Insert?.ExecutionOrder ?? ord,
+                    OPERATION_UPDATE => node.Write?.Update?.ExecutionOrder ?? ord,
+                    OPERATION_DELETE => node.Write?.Delete?.ExecutionOrder ?? ord,
                     _ => ord
                 };
             }
