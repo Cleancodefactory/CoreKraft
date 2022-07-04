@@ -447,6 +447,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 #region NormalOrderProcessing
                 // 9. Execute the children now (for non-delete operations).
                 // Keeping this code inline makes it a bit easier to follow the processing procedure
+                // It is not a problem that the postChildren is pre-calculated - it depends on the existence of the nodes.
                 if (operation != OPERATION_DELETE)
                 {
                     using (var stackframe = dataIteratorContext.Datastack.Scope(row))
