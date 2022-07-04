@@ -19,6 +19,8 @@ namespace Ccf.Ck.Launchers.Main
         public static async Task Main(string[] args)
         {
             _Args = args;
+            //_Args = new string[1];
+            //_Args[0] = @"/mnt/d/_Development/Ccf/CcfRepositories/Customers/Website_AndGrains";
 
             await StartServer();
             while (_RestartRequest)
