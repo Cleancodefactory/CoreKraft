@@ -23,12 +23,13 @@ namespace Ccf.Ck.Web.Middleware.Tools
         private const string ONSYSTEMSTARTUPTYPE = "onsystemstartup";
         private const string ONSYSTEMSHUTDOWNTYPE = "onsystemshutdown";
         private const string INCODESTARTTYPE = "from code";
+        private static KraftModuleCollection _KraftModuleCollection;
 
         internal static RequestDelegate ExecutionDelegate(IApplicationBuilder app, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             INodeSetService nodeSetService = app.ApplicationServices.GetService<INodeSetService>();
-            KraftModuleCollection modulesCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
-            SignalsResponse signalsResponse = GenerateSignalResponse(kraftGlobalConfigurationSettings, modulesCollection, nodeSetService);
+            _KraftModuleCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
+            SignalsResponse signalsResponse = GenerateSignalResponse(kraftGlobalConfigurationSettings, _KraftModuleCollection, nodeSetService);
             string message = JsonSerializer.Serialize<SignalsResponse>(signalsResponse);
             if (!string.IsNullOrEmpty(message))
             {
@@ -117,8 +118,12 @@ namespace Ccf.Ck.Web.Middleware.Tools
 
         private static ModuleSignalDetails GenerateDetails(string moduleKey, KraftModuleSignal kraftModuleSignal, INodeSetService nodeSetService)
         {
+            KraftModule loadedModule = _KraftModuleCollection.GetModule(moduleKey);
             ModuleSignalDetails moduleSignalDetails = new ModuleSignalDetails();
-            LoadedNodeSet nodeSet = nodeSetService.LoadNodeSet(moduleKey, kraftModuleSignal.NodeSet, kraftModuleSignal.NodePath);
+            LoadedNodeSet nodeSet = nodeSetService.LoadNodeSet(moduleKey, 
+                                                                kraftModuleSignal.NodeSet, 
+                                                                kraftModuleSignal.NodePath,
+                                                                loadedModule);
             if (nodeSet.StartNode.Read != null)
             {
                 moduleSignalDetails.Read = nodeSet.StartNode.Read;

@@ -21,6 +21,7 @@ namespace Ccf.Ck.Models.KraftModule
         const string TEMPLATES_FOLDER_NAME = "Templates";
         const string DEPENDENCY_FILE_NAME = "Dependency.json";
         const string CONFIGURATION_FILE_NAME = "Configuration.json";
+        const string NODESET_NAME = "NodeSets";
         const string RESOURCEDEPENDENCY_FILE_NAME = "Module.dep";
 
         private readonly DependencyInjectionContainer _DependencyInjectionContainer;
@@ -31,12 +32,15 @@ namespace Ccf.Ck.Models.KraftModule
         public TemplateKraftBundle TemplateKraftBundle { get; private set; }
         public StyleKraftBundle StyleKraftBundle { get; private set; }
         public KraftModuleConfigurationSettings ModuleSettings { get; private set; }
-        public KraftModuleRootConf KraftModuleRootConf { get; private set; }        
+        public KraftModuleRootConf KraftModuleRootConf { get; private set; }
         public string Key { get; private set; }
+        public string Name { get; private set; }
         //public bool IsInitialized { get; private set; }
         public string DirectoryName { get; private set; }
         public int DependencyOrderIndex { get; private set; }
         public IDictionary<string, KraftModule> Dependencies { get; private set; }
+
+        public Dictionary<string, string> NodeSetMappings { get; set; }
 
         internal KraftModule(string directoryName, string moduleName,
             DependencyInjectionContainer dependencyInjectionContainer,
@@ -48,14 +52,15 @@ namespace Ccf.Ck.Models.KraftModule
             _DependencyInjectionContainer = dependencyInjectionContainer;
             DirectoryName = directoryName;
             _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
-            Key = moduleName;
+            Key = kraftDependableModule.Key;
+            Name = kraftDependableModule.Name;
             //dependencies
             Dependencies = new Dictionary<string, KraftModule>();
             foreach (KeyValuePair<string, IDependable<KraftDependableModule>> item in kraftDependableModule.Dependencies)
             {
                 Dependencies.Add(item.Key, moduleCollection.GetModule(item.Key));
             }
-            
+
             DependencyOrderIndex = kraftDependableModule.DependencyOrderIndex;
             KraftModuleRootConf = kraftDependableModule.KraftModuleRootConf;
 
@@ -65,6 +70,16 @@ namespace Ccf.Ck.Models.KraftModule
             TemplateKraftBundle = null;
 
             ModulePath = Path.Combine(DirectoryName, moduleName);
+
+            NodeSetMappings = new Dictionary<string, string>();
+            if (Directory.Exists(Path.Combine(ModulePath, NODESET_NAME)))
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(ModulePath, NODESET_NAME));
+                foreach (DirectoryInfo dirInfo in directoryInfo.GetDirectories())
+                {
+                    NodeSetMappings.Add(dirInfo.Name.ToLower(), dirInfo.FullName);
+                }
+            }
 
             //read configs and dependencies
             InitConfiguredPlugins(Key, Path.Combine(ModulePath, CONFIGURATION_FILE_NAME), cachingService);
@@ -121,7 +136,7 @@ namespace Ccf.Ck.Models.KraftModule
                 if (resBundleProfile != null)
                 {
                     resBundleProfile.StartDirPath = resFolderPath;
-                    resBundleProfile.ProfileFiles = new List<string> { resProfileFileName, RESOURCEDEPENDENCY_FILE_NAME  };//The default should be last
+                    resBundleProfile.ProfileFiles = new List<string> { resProfileFileName, RESOURCEDEPENDENCY_FILE_NAME };//The default should be last
                     return resBundle;
                 }
             }

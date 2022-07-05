@@ -8,6 +8,7 @@ using Ccf.Ck.Utilities.MemoryCache;
 using Ccf.Ck.Models.NodeSet;
 using NodeSetModel = Ccf.Ck.Models.NodeSet.NodeSet;
 using Ccf.Ck.Models.Settings;
+using Ccf.Ck.Models.KraftModule;
 
 namespace Ccf.Ck.Utilities.NodeSetService
 {
@@ -27,20 +28,19 @@ namespace Ccf.Ck.Utilities.NodeSetService
         #endregion
 
         #region Public Methods
-        public LoadedNodeSet LoadNodeSet(string module, string treeNodesName, string nodeName)
+        public LoadedNodeSet LoadNodeSet(string module, string treeNodesName, string nodeName, KraftModule kraftModule)
         {
             LoadedNodeSet loaderContext = new LoadedNodeSet();
             //find the node definition in the directory specified
             //load the definition
             //parse the definition and populate into the models
-            NodeSetModel nodeSet = null;
-            string NODESET_DIRNAME = "NodeSets";
-            string cacheKey = $"NodeSet_{module}_{treeNodesName}";
-            nodeSet = _CachingService.Get<NodeSetModel>(cacheKey);
+            string treeNodesNameLower = treeNodesName?.ToLower();
+            string cacheKey = $"NodeSet_{module}_{treeNodesNameLower}";
+            NodeSetModel nodeSet = _CachingService.Get<NodeSetModel>(cacheKey);
             if (nodeSet == null)
             {
                 nodeSet = new NodeSetModel();
-                string nodeSetDir = Path.Combine(_KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(module), module, NODESET_DIRNAME, treeNodesName);
+                string nodeSetDir = kraftModule.NodeSetMappings[treeNodesNameLower];
                 string nodeSetFile = Path.Combine(nodeSetDir, "Definition.json");
 
                 if (!File.Exists(nodeSetFile))
@@ -57,7 +57,7 @@ namespace Ccf.Ck.Utilities.NodeSetService
                     nodeSet = result.NodeSet;
                 };
 
-                nodeSet.Name = treeNodesName;
+                nodeSet.Name = treeNodesNameLower;
 
                 ProcessNodes(nodeSet.Root, nodeSetFile, nodeSet);
                 _CachingService.Insert(cacheKey, nodeSet, fileProvider.Watch("**/*.*"));

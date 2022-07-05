@@ -50,7 +50,8 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             LoadedNodeSet loadedNodeSet = _NodesSetService.LoadNodeSet(
                                                 processingContext.InputModel.Module,
                                                 processingContext.InputModel.NodeSet,
-                                                processingContext.InputModel.Nodepath);
+                                                processingContext.InputModel.Nodepath,
+                                                loadedModule);
             if (CheckValidity(processingContext, loadedModule, loadedNodeSet))
             {
                 PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
