@@ -11,6 +11,7 @@ namespace Ccf.Ck.Models.Enumerations {
     public enum ECallType {
         WebRequest = 0,
         DirectCall = 1,
-        Signal = 2
+        Signal = 2,
+        ServiceTask = 3
     }
 }
