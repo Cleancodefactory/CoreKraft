@@ -34,12 +34,13 @@ namespace Ccf.Ck.Utilities.NodeSetService
             //find the node definition in the directory specified
             //load the definition
             //parse the definition and populate into the models
-            string cacheKey = $"NodeSet_{module}_{treeNodesName}";
+            string treeNodesNameLower = treeNodesName?.ToLower();
+            string cacheKey = $"NodeSet_{module}_{treeNodesNameLower}";
             NodeSetModel nodeSet = _CachingService.Get<NodeSetModel>(cacheKey);
             if (nodeSet == null)
             {
                 nodeSet = new NodeSetModel();
-                string nodeSetDir = kraftModule.NodeSetMappings[treeNodesName];
+                string nodeSetDir = kraftModule.NodeSetMappings[treeNodesNameLower];
                 string nodeSetFile = Path.Combine(nodeSetDir, "Definition.json");
 
                 if (!File.Exists(nodeSetFile))
@@ -56,7 +57,7 @@ namespace Ccf.Ck.Utilities.NodeSetService
                     nodeSet = result.NodeSet;
                 };
 
-                nodeSet.Name = treeNodesName;
+                nodeSet.Name = treeNodesNameLower;
 
                 ProcessNodes(nodeSet.Root, nodeSetFile, nodeSet);
                 _CachingService.Insert(cacheKey, nodeSet, fileProvider.Watch("**/*.*"));
