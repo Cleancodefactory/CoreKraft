@@ -462,7 +462,7 @@ namespace Ccf.Ck.Web.Middleware
                         foreach (KeyValuePair<string, IDependable<KraftDependableModule>> depModule in kraftDependableModules)
                         {
                             KraftDependableModule kraftDependable = (depModule.Value as KraftDependableModule);
-                            KraftModule kraftModule = modulesCollection.RegisterModule(kraftDependable.KraftModuleRootPath, depModule.Value.Key, kraftDependable, cachingService);
+                            KraftModule kraftModule = modulesCollection.RegisterModule(kraftDependable.KraftModuleRootPath, depModule.Value.Name, kraftDependable, cachingService);
                             KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModuleImages);
                             KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModulePublic);
                             moduleKey2Path.Add(kraftModule.Key, kraftDependable.KraftModuleRootPath);

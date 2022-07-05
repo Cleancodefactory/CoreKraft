@@ -10,18 +10,25 @@ namespace Ccf.Ck.Models.KraftModule
 {
     public class KraftModulesConstruction
     {
+        private struct ModuleProps
+        {
+            public string Name; 
+            public string Key;
+            public string Path;
+        }
+
         public Dictionary<string, IDependable<KraftDependableModule>> Init(string defaultStartModule, List<string> modulesRootFolders)
         {
-            Dictionary<string, string> allReferencedModules = Collect(modulesRootFolders);
+            Dictionary<string, ModuleProps> allReferencedModules = Collect(modulesRootFolders);
             Dictionary<string, IDependable<KraftDependableModule>> modulesCollection = LoadModulesAsDependable(allReferencedModules);
             KraftDependableModule startDependableModule = modulesCollection[defaultStartModule.ToLower()] as KraftDependableModule;
             ConstructDependencies(startDependableModule, modulesCollection);
             return OrderModulesByDependencies(modulesCollection);
         }
 
-        private Dictionary<string, string> Collect(List<string> modulesRootFolders)
+        private Dictionary<string, ModuleProps> Collect(List<string> modulesRootFolders)
         {
-            Dictionary<string, string> allReferencedModules = new Dictionary<string, string>();
+            Dictionary<string, ModuleProps> allReferencedModules = new Dictionary<string, ModuleProps>();
             foreach (string dir in modulesRootFolders)
             {
                 string[] moduleDirectories = Directory.GetDirectories(dir);
@@ -32,7 +39,11 @@ namespace Ccf.Ck.Models.KraftModule
                     {
                         if (!allReferencedModules.ContainsKey(moduleDirectory.Name.ToLower()))
                         {
-                            allReferencedModules.Add(moduleDirectory.Name.ToLower(), moduleDirectory.FullName);
+                            ModuleProps moduleProps = new ModuleProps();
+                            moduleProps.Key = moduleDirectory.Name.ToLower();
+                            moduleProps.Name = moduleDirectory.Name;
+                            moduleProps.Path = moduleDirectory.FullName;
+                            allReferencedModules.Add(moduleProps.Key, moduleProps);
                         }
                     }
                 }
@@ -40,14 +51,13 @@ namespace Ccf.Ck.Models.KraftModule
             return allReferencedModules;
         }
 
-        private Dictionary<string, IDependable<KraftDependableModule>> LoadModulesAsDependable(Dictionary<string, string> allReferencedModules)
+        private Dictionary<string, IDependable<KraftDependableModule>> LoadModulesAsDependable(Dictionary<string, ModuleProps> allReferencedModules)
         {
             Dictionary<string, IDependable<KraftDependableModule>> modulesCollection = new Dictionary<string, IDependable<KraftDependableModule>>();
-            foreach (KeyValuePair<string, string> module in allReferencedModules)
+            foreach (ModuleProps moduleProps in allReferencedModules.Values)
             {
-                KraftDependableModule kraftDependableModule = new KraftDependableModule();
-                kraftDependableModule = ReadModuleMetaConfiguration(module.Value, module.Key) as KraftDependableModule;
-                kraftDependableModule.KraftModuleRootPath = Directory.GetParent(module.Value).FullName;
+                KraftDependableModule kraftDependableModule = ReadModuleMetaConfiguration(moduleProps) as KraftDependableModule;
+                kraftDependableModule.KraftModuleRootPath = Directory.GetParent(moduleProps.Path).FullName;
                 foreach (KeyValuePair<string, string> item in kraftDependableModule.KraftModuleRootConf.OptionalDependencies)
                 {
                     if (allReferencedModules.ContainsKey(item.Key))//Check if module loaded. If true put it safely in the regular dependencies
@@ -104,12 +114,12 @@ namespace Ccf.Ck.Models.KraftModule
             }
         }
 
-        private IDependable<KraftDependableModule> ReadModuleMetaConfiguration(string modulePath, string key)
+        private IDependable<KraftDependableModule> ReadModuleMetaConfiguration(ModuleProps moduleProps)
         {
             KraftDependableModule kraftDependable = new KraftDependableModule();
             try
             {
-                using (StreamReader r = new StreamReader(Path.Combine(modulePath, "Dependency.json")))
+                using (StreamReader r = new StreamReader(Path.Combine(moduleProps.Path, "Dependency.json")))
                 {
                     Dictionary<string, string> depVersion = new Dictionary<string, string>();
                     kraftDependable.KraftModuleRootConf = JsonConvert.DeserializeObject<KraftModuleRootConf>(r.ReadToEnd());
@@ -124,13 +134,14 @@ namespace Ccf.Ck.Models.KraftModule
                         depVersion.Add(item.Key.ToLower(), item.Value);
                     }
                     kraftDependable.KraftModuleRootConf.OptionalDependencies = depVersion;
-                    kraftDependable.Key = key;
+                    kraftDependable.Key = moduleProps.Key;
+                    kraftDependable.Name = moduleProps.Name;
                     return kraftDependable;
                 }
             }
             catch (Exception boom)
             {
-                throw new Exception($"Reading module's meta configuration file failed for module \"{modulePath}\". {boom.Message}");
+                throw new Exception($"Reading module's meta configuration file failed for module \"{moduleProps.Name}\". {boom.Message}");
             }
         }
     }

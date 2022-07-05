@@ -6,6 +6,8 @@ namespace Ccf.Ck.Utilities.Generic.Topologies
     {
         int DependencyOrderIndex { get; }
         string Key { get; }
+        string Name { get; }
+        string Path { get; }
         IDictionary<string, IDependable<T>> Dependencies { get; }
     }
 }

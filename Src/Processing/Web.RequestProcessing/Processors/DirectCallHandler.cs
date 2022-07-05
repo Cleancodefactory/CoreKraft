@@ -42,7 +42,8 @@ namespace Ccf.Ck.Processing.Web.Request
             LoadedNodeSet loadedNodeSet = _NodesSetService.LoadNodeSet(
                                                 processingContext.InputModel.Module,
                                                 processingContext.InputModel.NodeSet,
-                                                processingContext.InputModel.Nodepath);
+                                                processingContext.InputModel.Nodepath,
+                                                loadedModule);
             StringBuilder sb;
             if (!CheckValidity(processingContext, loadedModule, loadedNodeSet, out sb))
             {
