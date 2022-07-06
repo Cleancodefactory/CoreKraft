@@ -8,6 +8,7 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
 using Ccf.Ck.SysPlugins.Interfaces.Packet;
+using Ccf.Ck.Models.KraftModule;
 
 namespace Ccf.Ck.SysPlugins.Views.Html
 {
@@ -17,33 +18,42 @@ namespace Ccf.Ck.SysPlugins.Views.Html
         {
             if (currentNode is View view)
             {
-                string cachedView = null;
-                string cacheKey = null;
-                ICachingService cachingService = null;
-                if (processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization)
+                KraftModuleCollection kraftModuleCollection = pluginServiceManager.GetService<KraftModuleCollection>(typeof(KraftModuleCollection));
+                if (kraftModuleCollection != null)
                 {
-                    cacheKey = processingContext.InputModel.Module + processingContext.InputModel.NodeSet + processingContext.InputModel.Nodepath + view.BindingKey + "_View";
-                    cachingService = pluginServiceManager.GetService<ICachingService>(typeof(ICachingService));
-                    cachedView = cachingService.Get<string>(cacheKey);
-                }
-                if (cachedView == null)
-                {
-                    string directoryPath = Path.Combine(
-                        processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(processingContext.InputModel.Module),
-                        processingContext.InputModel.Module,
-                        "Views");
-
-                    PhysicalFileProvider fileProvider = new PhysicalFileProvider(directoryPath);
-                    cachedView = File.ReadAllText(Path.Combine(directoryPath, view.Settings.Path));
-                    if (cachingService != null && processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization)
+                    KraftModule kraftModule = kraftModuleCollection.GetModule(processingContext.InputModel.Module);
+                    if (kraftModule != null)
                     {
-                        cachingService.Insert(cacheKey, cachedView, fileProvider.Watch(view.Settings.Path));
-                    }
+                        string cachedView = null;
+                        string cacheKey = null;
+                        ICachingService cachingService = null;
+                        if (processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization)
+                        {
+                            cacheKey = kraftModule.Name + processingContext.InputModel.NodeSet + processingContext.InputModel.Nodepath + view.BindingKey + "_View";
+                            cachingService = pluginServiceManager.GetService<ICachingService>(typeof(ICachingService));
+                            cachedView = cachingService.Get<string>(cacheKey);
+                        }
+                        if (cachedView == null)
+                        {
+                            string directoryPath = Path.Combine(
+                                processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolder(kraftModule.Key),
+                                kraftModule.Name,
+                                "Views");
+
+                            PhysicalFileProvider fileProvider = new PhysicalFileProvider(directoryPath);
+                            cachedView = File.ReadAllText(Path.Combine(directoryPath, view.Settings.Path));
+                            if (cachingService != null && processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.EnableOptimization)
+                            {
+                                cachingService.Insert(cacheKey, cachedView, fileProvider.Watch(view.Settings.Path));
+                            }
+                        }
+                        IResourceModel resourceModel = new ResourceModel();
+                        resourceModel.Content = cachedView;
+                        resourceModel.SId = $"node/view/{kraftModule.Name}/{processingContext.InputModel.NodeSet}/{processingContext.InputModel.Nodepath}/{view.BindingKey}";
+                        processingContext.ReturnModel.Views.Add(view.BindingKey, resourceModel);
+                    }                    
                 }
-                IResourceModel resourceModel = new ResourceModel();
-                resourceModel.Content = cachedView;
-                resourceModel.SId = $"node/view/{processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/{processingContext.InputModel.Nodepath}/{view.BindingKey}";
-                processingContext.ReturnModel.Views.Add(view.BindingKey, resourceModel);
+                //Error
             }
             else
             {
