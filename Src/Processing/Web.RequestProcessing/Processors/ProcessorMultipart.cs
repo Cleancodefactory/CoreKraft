@@ -46,6 +46,7 @@ namespace Ccf.Ck.Processing.Web.Request
                         }
                         InputModelParameters inputModelParameters = CreateBaseInputModelParameters(_KraftGlobalConfigurationSettings, securityModel);
                         inputModelParameters = ExtendInputModelParameters(inputModelParameters);
+                        inputModelParameters.ServerVariables.Add(CallTypeConstants.REQUEST_PROCESSOR, "Multipart");
                         inputModelParameters.LoaderType |= ELoaderType.DataLoader; //TODO Not override passed in flags
 
                         foreach (string metaInfoKey in postedFile.MetaInfo.Keys)

@@ -83,6 +83,9 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             inputModelParameters.ServerVariables = _ServerCollection;
             inputModelParameters.KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
             inputModelParameters.SecurityModel = securityModel;
+            if (inputModelParameters.ServerVariables == null) inputModelParameters.ServerVariables = new Dictionary<string, object>();
+            inputModelParameters.ServerVariables.Add(CallTypeConstants.REQUEST_CALL_TYPE, (int)ECallType.WebRequest);
+            inputModelParameters.ServerVariables.Add(CallTypeConstants.TASK_KIND, CallTypeConstants.TASK_KIND_WEBREQUEST);
             return inputModelParameters;
         }
 

@@ -40,6 +40,8 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             InputModelParameters inputModelParameters = CreateBaseInputModelParameters(_KraftGlobalConfigurationSettings, securityModel);
             inputModelParameters = ExtendInputModelParameters(inputModelParameters);
+            inputModelParameters.ServerVariables.Add(CallTypeConstants.REQUEST_PROCESSOR, "Signal");
+            inputModelParameters.ServerVariables[CallTypeConstants.REQUEST_CALL_TYPE] = (int)ECallType.Signal;
             if (_RequestContentType == ESupportedContentTypes.JSON)
             {
                 inputModelParameters.Data = GetBodyJson<Dictionary<string, object>>(_HttpContext.Request);

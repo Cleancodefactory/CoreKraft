@@ -70,7 +70,12 @@ namespace Ccf.Ck.Processing.Web.Request
             inputModelParameters.QueryCollection = _InputModel.QueryCollection;
             inputModelParameters.Data = _InputModel.Data;
             inputModelParameters.LoaderType = ELoaderType.DataLoader;
-            
+            inputModelParameters.ServerVariables = new Dictionary<string, object>() {
+                { CallTypeConstants.REQUEST_CALL_TYPE, (int)_InputModel.CallType },
+                { CallTypeConstants.TASK_KIND, _InputModel.TaskKind },
+                { CallTypeConstants.REQUEST_PROCESSOR, "DirectCallHandler" } // Do not use nameof here - this name should remain constant even if the class name changes.
+            };
+
             IProcessingContext processingContext = new ProcessingContext(this);
             processingContext.InputModel = new InputModel(inputModelParameters);
             List<IProcessingContext> processingContexts = new List<IProcessingContext>(1);

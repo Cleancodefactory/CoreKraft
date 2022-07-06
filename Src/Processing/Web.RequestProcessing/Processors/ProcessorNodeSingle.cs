@@ -7,6 +7,7 @@ using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Utilities.NodeSetService;
+using Ccf.Ck.Models.Enumerations;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -31,6 +32,7 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             InputModelParameters inputModelParameters = CreateBaseInputModelParameters(_KraftGlobalConfigurationSettings, securityModel);
             inputModelParameters = ExtendInputModelParameters(inputModelParameters);
+            inputModelParameters.ServerVariables.Add(CallTypeConstants.REQUEST_PROCESSOR, "NodeSingle");
             if (_RequestContentType == ESupportedContentTypes.JSON) {
                 inputModelParameters.Data = GetBodyJson<Dictionary<string, object>>(_HttpContext.Request);
             } else if (_RequestContentType == ESupportedContentTypes.FORM_URLENCODED) {

@@ -74,6 +74,30 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "RequestType",
+                                     Arguments = 0,
+                                     Name = "RequestType"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
+                                     Alias = "RequestProcessor",
+                                     Arguments = 0,
+                                     Name = "RequestProcessor"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
+                                     Alias = "RequestTask",
+                                     Arguments = 0,
+                                     Name = "RequestTask"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "NewGuid",
                                      Arguments = 0,
                                      Name = "NewGuid"

@@ -84,6 +84,8 @@ namespace Ccf.Ck.Web.Middleware
                     {
                         _Finished.Add(result.guid, result);
                     }
+                    // Mark call as indirect call
+                    if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
                     // We depend on the DirectCall to indicate the success in the ReturnModel
                     var returnModel = DirectCallService.Instance.Call(result.input);
                     result.result = returnModel;
