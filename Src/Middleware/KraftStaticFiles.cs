@@ -15,7 +15,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 builder.UseStaticFiles(new StaticFileOptions
                 {
-                    ServeUnknownFileTypes = false,
+                    ServeUnknownFileTypes = true,
                     DefaultContentType = "image/png",
                     FileProvider = new PhysicalFileProvider(dirInfo.FullName),
                     RequestPath = new PathString($"/{startNode}/{resourceSegmentName}/{directoryInfo.Name}/{type}"),
