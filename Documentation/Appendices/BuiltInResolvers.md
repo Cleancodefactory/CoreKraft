@@ -25,11 +25,11 @@ SELECT * FROM SOME_TABLE WHERE ID=@id AND SOME_FIELD LIKE '%' || @param1 || '%';
 
 ## The language of the `Expression`
 
-The `resolver expressions` are a very simplistic miniature language with a extremely small set of basic rules and support for functions we call `Resolvers`. The resolvers that can be used are configurable and their numbers can be extended with plugins containing more of them. These extended sets of resolvers may be available in one project and not available in another. In this document we list those that are built-in inside the CoreKraft itself and are always there - can be used in any expression in any CoreKraft project.
+The `resolver expressions` are a very simplistic miniature language with a extremely small set of basic rules and support for functions we call `Resolvers`. The resolvers that can be used are configurable and their numbers can be extended with plugins containing more of them. In this document we discuss the built-in resolvers inside the CoreKraft itself.
 
 ## The expression syntax
 
-The extended Backus–Naur form of the syntax is:
+The EBNF syntax:
 
 ```EBNF
 
@@ -97,11 +97,11 @@ Where the initial data comes from? Notice the `GetFrom` resolver, it fetches a v
 
 **paramname** - The name to look for.
 
-Gets a value from the standard sources. When a list of sources is specified, checks them in the order specified until a parameter with the paramname is found or returns null if the list is exhausted.
+Gets a value from the standard sources. When a list of sources is specified, checks them in the order specified until a parameter with the `paramname` is found or returns null if the list is exhausted.
 
-The type of the returned value will depend on the source's capability to return differently typed values. Depending on the plugins that use the parameters it might be possible to leave the potentially needed conversion to them or write more precise expressions that make sure the values are presented to the plugins already converted. See for example the `CastAs` resolver below.
+The type of the returned value will depend on the source's capability to return differently typed values. See also the `CastAs` resolver below for the cases where explicit type casting is needed.
 
-Standard sources:
+**Standard sources:**
 
 `current` - (write). Represents the object processed by the node. 
 
@@ -126,9 +126,42 @@ _**Currently**_ there is no representation of headers of HTTP requests and accor
 _**Currently**_ multiple values attached to the same name are not supported for HTTP requests and if support is introduced it will take the form of an array (as if a value in JSON post is an array). Processing arrays is supported by some resolvers, but is hard to provide full general support without introducing disproportionally complex additions and we are working on finding the right way to do this without making writing CoreKraft NodeSets harder.
 
 
+### NavGetFrom(source, dottedpath)
+
+Advanced version of GetFrom ...
+
+### CurrentData()
+
+Returns the data for the current node (write operations only) as a dictionary. Most useful for ActionQuery scripts which need to access the whole record.
+
+### GetHostingUrl()
+
+Returns the hosting URL from the appsettins.
+
+### RequestType()
+
+Returns the current request/call type. One of the ECallType values as integers: 
+
+0 - Web request
+1 - Direct call
+2 - Signal
+3 - Service call (also known as indirect call)
+
+### RequestProcessor()
+
+Returns a string identifying which processor/handler created the request/call. Processors/handlers construct the processing context being executed. Each processor deals with specific concerns like different manners of decoding input data, batching multiple requests and so on.
+
+### RequestTask()
+
+Arbitrary string marking the purpose/role of the current request. By default set to "webrequest" and "call" (for direct calls). Do not use the default values to identify the type of request - use RequestType() instead. This value is intended for marking hte request explicitly by the code that creates the request. It might happen in processors of WEB requests in future, but currently it is mainly designed for direct calls and scheduled service calls. For example certain requests can be marked as "import" which marking will be accessible for scripts and even SQL and allow conditional logic enabling the same nodeset to work correctly for requests sent by UI and requests sent by import task.
+
+### NewGuid()
+
+Generates and returns a new Guid as string.
+
 ### GetUserId()
 
-If there is a logged on user, returns the user id provided by the authorization server (see authentication and authorization in CoreKraft). If there is no logged on user the resolver returns null.
+If there is a logged on user, returns the user id provided by the authorization server (see authentication and authorization in CoreKraft). If there is no logged on user the resolver returns null. This resolver is used extensively in Nodesets where the performed operations differ for logged on and anonymous users.
 
 ### GetUserEmail()
 
@@ -138,7 +171,7 @@ If there is a logged on user, returns the email provided by the authorization se
 
 Returns a 0 | 1 result indicating if the logged on user has the `role`.
 
-**role** - a string specifying the role name. These are the roles given by the authorization server, any application specific roles are its own concern.
+**role** - a string specifying the role name. These are the roles given by the authorization server. The actual role names depend on the configuration of the authorization server, however by default it supports "`user`", "`manager`" and "`administrator`" assignable to individual users. Real world usage showed that they are rarely extended and only the default roles are used in the vast majority of cases. There is a logical reason for this trend - most application need more than just roles and typically assign user rights in application specific manner. As CoreKraft typically serves multiple applications at once and behind the same authorization server, the roles from the authorization server are typically convenient for initial user assignment, identifying admins and little else. In real applications the users are usually recognized by their ID, recorded by the application with some minimal initial settings and further details are left to the managers/admins of the specific application. I.e. the authorization server's user id and roles are useful for identification, but not much useful for detailed authorization and especially in the cases when many applications use the same authorization and seek a common and minimal set of general roles.
 
 ### Or(a,b)
 
@@ -183,8 +216,7 @@ Casts `b` to the type specified by `a`
 
 ### OrderByEntry(a, b, c)
 
-### OrderBy(a)
-
+### OrderBy(a), OrderBy2(a,b), OrderBy3(a, b,c)
 ### ApiTokenFromAuth(a)
 
 ### GetUserDetails(a)
@@ -203,5 +235,7 @@ Casts `b` to the type specified by `a`
 
 **pos**, **neg** - The two possible returnees, they will be returned "as is" without type or flags changed.
 
+### CheckedText(text, regexp)
 
+Checks the `text` against the `regexp` and returns it as ParameterResolverValue marked as content (EResolverValueType.ContentType) if matched or null marked as invalid if not. The resulting value is handled typically as text insert (by DB plugins for example) allowing to use text inserted in an SQL statement without risk of security compromises. Other plugins can use the resulting value differently - please check first. While there are cases when this may be unavoidable mass usage of CheckedText is not recommended. It will protect against SQL injection (for example) only if the regular expression is carefully composed, massive usage will obviously rise the risk of checks that will miss something.
 
