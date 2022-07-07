@@ -62,6 +62,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
             //  Trace.WithContext(dataIteratorContext.ProcessingContext.TraceId).Log("Nodeset READ operation starting- nodeset: {0}, modekey: {1}",dataIteratorContext.LoadedNodeSet.StartNode.NodeSet.Name, dataIteratorContext.LoadedNodeSet.StartNode.NodeKey);
             var results = new List<Dictionary<string, object>>() { new Dictionary<string, object>() { } };
+            
             object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext);
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
@@ -78,7 +79,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// <param name="parentResult"></param>
         /// <param name="dataIteratorContext"></param>
         /// <returns></returns>
-        private object ExecuteReadNode(Node node, IEnumerable<Dictionary<string, object>> parentResult, DataIteratorContext dataIteratorContext)
+        private object ExecuteReadNode(Node node, IEnumerable<Dictionary<string, object>> parentResult, DataIteratorContext dataIteratorContext, IIteratorMeta metaStore)
         {
             #region Preparation of necessary structures
             bool _bailOut() {
@@ -268,7 +269,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 
         }
 
-        private object ExecuteWriteNode(Node node, object dataNode, string nodePath, DataIteratorContext dataIteratorContext)
+        private object ExecuteWriteNode(Node node, object dataNode, string nodePath, DataIteratorContext dataIteratorContext, IIteratorMeta metaStore)
         {
             #region Preparation of necessary structures
             bool _bailOut() {

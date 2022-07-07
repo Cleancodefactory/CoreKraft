@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.SysPlugins.Interfaces.Packet;
+﻿using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.SysPlugins.Interfaces.Packet;
 using System;
 using System.Collections.Generic;
 
@@ -23,6 +24,8 @@ namespace Ccf.Ck.Models.Packet
         public IReturnStatus Status { get; set; } = new ReturnStatus();
         public IHttpResponseBuilder ResponseBuilder { get; set; }
 
+        public MetaRoot ExecutionMeta { get; set; }
+
         //public List<StatusResult> StatusResults { get; set; }
 
 
@@ -45,6 +48,8 @@ namespace Ccf.Ck.Models.Packet
 
             public Dictionary<string, IResourceModel> Views { get => ((IReturnModel)_Model).Views; set => ((IReturnModel)_Model).Views = value; }
             public IReturnStatus Status { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            public MetaRoot ExecutionMeta => ((IReturnModel)_Model).ExecutionMeta;
         }
     }
 }
