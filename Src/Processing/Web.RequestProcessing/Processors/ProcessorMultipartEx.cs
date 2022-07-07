@@ -47,6 +47,7 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             InputModelParameters inputModelParameters = CreateBaseInputModelParameters(_KraftGlobalConfigurationSettings, securityModel);
             inputModelParameters = ExtendInputModelParameters(inputModelParameters);
+            inputModelParameters.ServerVariables.Add(CallTypeConstants.REQUEST_PROCESSOR, "MultipartEx");
             inputModelParameters.LoaderType |= ELoaderType.DataLoader; //TODO Not override passed in flags
 
             inputModelParameters.Data = data;

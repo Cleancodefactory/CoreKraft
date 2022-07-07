@@ -12,6 +12,7 @@ using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Utilities.NodeSetService;
+using Ccf.Ck.Models.Enumerations;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -52,6 +53,7 @@ namespace Ccf.Ck.Processing.Web.Request
                 }
             }
             InputModelParameters inputModelParameters = CreateBaseInputModelParameters(kraftGlobalConfigurationSettings, securityModel);
+            inputModelParameters.ServerVariables.Add(CallTypeConstants.REQUEST_PROCESSOR, "NodeBatch");
             //we expect the routing to be like this:
             //domain.com/startnode/<read|write>/module/nodeset/<nodepath>?lang=de
             string decodedUrl = WebUtility.UrlDecode(request.Url);

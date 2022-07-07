@@ -1,9 +1,8 @@
 # Built-in parameter resolvers
 
-In the NodeSet files (Definition.json in a sub-directory of NodeSets module directory) one can specify parameters at each `node` or even separate set of parameters for read and write operations done by the node. Additionally parameters can be specified at root level of the NodeSet and they will be applicable in any node in the NodeSet at any depth. For more information see the CoreKraft documentation and tutorials.
+In the NodeSet files (Definition.json in a sub-directory of NodeSets module directory) one can specify parameters at each `node` or even separate set of parameters for `read` and `write` operations done by the node. Additionally parameters can be specified at root level of the NodeSet and they will be applicable in any node in the NodeSet at any depth. For more information see the CoreKraft documentation and tutorials.
 
-Here we describe the built-in `resolvers` that can be used in the parameter expressions. The parameters are specified as follows (regardless of where in the NodeSet it is placed):
-
+Here we describe the built-in `resolvers` which can be used in the parameter expressions. An example parameter definition:
 ```JSON
     "parameters": [
         {
@@ -18,7 +17,7 @@ Here we describe the built-in `resolvers` that can be used in the parameter expr
     ]
 ```
 
-The `Expression` entry specifies how to obtain and calculate the value for the parameter. Check the rest of the documentation for more information how they are consumed by various plugins. To keep this document readable on its own, lets illustrate it in an SQL query possibly executed by one of the database plugins:
+The `Expression` entry specifies how to obtain and calculate the value for the parameter. Check the rest of the documentation for more information how they are consumed by various plugins. For example in an SQL query executed by one of the database plugins the parameter usage will look like this:
 
 ```SQL
 SELECT * FROM SOME_TABLE WHERE ID=@id AND SOME_FIELD LIKE '%' || @param1 || '%';

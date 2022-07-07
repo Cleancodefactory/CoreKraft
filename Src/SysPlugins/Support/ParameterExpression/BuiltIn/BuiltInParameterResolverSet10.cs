@@ -238,6 +238,30 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
             return new ParameterResolverValue(settings.GeneralSettings.HostingUrl);
         }
+        #region Call type and purpose queries into the server variables
+        public ParameterResolverValue RequestType(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            var inputModel = ctx.ProcessingContext.InputModel;
+            int call_type = 0;
+            if ( inputModel.Server != null && inputModel.Server.TryGetValue(CallTypeConstants.REQUEST_CALL_TYPE,out object val)) {
+                call_type = Convert.ToInt32(val);
+            }
+            return new ParameterResolverValue(call_type);
+        }
+        public ParameterResolverValue RequestProcessor(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            var inputModel = ctx.ProcessingContext.InputModel;
+            if (inputModel.Server != null && inputModel.Server.TryGetValue(CallTypeConstants.REQUEST_PROCESSOR, out object val)) {
+                return new ParameterResolverValue(val);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue RequestTask(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            var inputModel = ctx.ProcessingContext.InputModel;
+            if (inputModel.Server != null && inputModel.Server.TryGetValue(CallTypeConstants.TASK_KIND, out object val)) {
+                return new ParameterResolverValue(val);
+            }
+            return new ParameterResolverValue(null);
+        }
+        #endregion
 
         public ParameterResolverValue NewGuid(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {

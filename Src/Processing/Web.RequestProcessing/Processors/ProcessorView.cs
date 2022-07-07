@@ -56,6 +56,7 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             InputModelParameters inputModelParameters = CreateBaseInputModelParameters(_KraftGlobalConfigurationSettings, securityModel);
             inputModelParameters = ExtendInputModelParameters(inputModelParameters);
+            inputModelParameters.ServerVariables.Add(CallTypeConstants.REQUEST_PROCESSOR, "View");
             inputModelParameters.Data = GetBodyJson<Dictionary<string, object>>(_HttpContext.Request);
             inputModelParameters.FormCollection = _FormCollection;
             inputModelParameters.LoaderType = GetLoaderType(kraftRequestFlagsKey);
