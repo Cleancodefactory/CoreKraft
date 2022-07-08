@@ -62,8 +62,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
             //  Trace.WithContext(dataIteratorContext.ProcessingContext.TraceId).Log("Nodeset READ operation starting- nodeset: {0}, modekey: {1}",dataIteratorContext.LoadedNodeSet.StartNode.NodeSet.Name, dataIteratorContext.LoadedNodeSet.StartNode.NodeKey);
             var results = new List<Dictionary<string, object>>() { new Dictionary<string, object>() { } };
-            
-            object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext);
+            var metaRoot = new MetaRoot(EMetaInfoFlags.None); // TODO: Choose the flags from config
+            object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext, metaRoot);
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
         }
@@ -82,6 +82,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         private object ExecuteReadNode(Node node, IEnumerable<Dictionary<string, object>> parentResult, DataIteratorContext dataIteratorContext, IIteratorMeta metaStore)
         {
             #region Preparation of necessary structures
+            var metaNode = metaStore.Child(node.NodeKey);
+
             bool _bailOut() {
                 return dataIteratorContext.BailOut;
             }
@@ -91,7 +93,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             // We have to iterate through the parent rows, so we cannot create the results here, but we will do it as soon as possible
             List<Dictionary<string, object>> results = null;
 
-            NodeExecutionContext.Manager execContextManager = new NodeExecutionContext.Manager(dataIteratorContext, node, ACTION_READ);
+            NodeExecutionContext.Manager execContextManager = new NodeExecutionContext.Manager(dataIteratorContext, node, ACTION_READ, metaNode);
             #endregion
 
             #region Main loader plugin creation
@@ -184,7 +186,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // 6. Execute the child nodes
                     foreach (Node childNode in node.Children.OrderForReadExecution(readAction))
                     {
-                        ExecuteReadNode(childNode, results, dataIteratorContext);
+                        ExecuteReadNode(childNode, results, dataIteratorContext, metaNode);
                         if (_bailOut()) return null;
                     }
 
@@ -260,10 +262,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         private void BeginWriteOperation(DataIteratorContext dataIteratorContext)
         {
+            var metaRoot = new MetaRoot(EMetaInfoFlags.None); // TODO: Choose the flags from config
+
             object result = ExecuteWriteNode(dataIteratorContext.LoadedNodeSet.StartNode,
                                   dataIteratorContext.ProcessingContext.InputModel.Data,
                                   dataIteratorContext.LoadedNodeSet.StartNode.NodeKey.Trim(),
-                                  dataIteratorContext);
+                                  dataIteratorContext,
+                                  metaRoot);
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
                 
@@ -272,13 +277,14 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         private object ExecuteWriteNode(Node node, object dataNode, string nodePath, DataIteratorContext dataIteratorContext, IIteratorMeta metaStore)
         {
             #region Preparation of necessary structures
+            var metaNode = metaStore.Child(node.NodeKey);
             bool _bailOut() {
                 return dataIteratorContext.BailOut;
             }
             List<Dictionary<string, object>> currentNode = null;
             object result = dataNode;
 
-            NodeExecutionContext.Manager execContextManager = new NodeExecutionContext.Manager(dataIteratorContext, node, ACTION_WRITE);
+            NodeExecutionContext.Manager execContextManager = new NodeExecutionContext.Manager(dataIteratorContext, node, ACTION_WRITE, metaNode);
             // TODO: ?? execContextManager.Data = dataNode;
             #endregion
 
@@ -380,7 +386,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                                             // However we should remove the deleted node
                                             object currentDataNode = row[childNode.NodeKey.Trim()];
                                             row[childNode.NodeKey.Trim()] =
-                                                ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
+                                                ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext, metaNode);
                                             if (_bailOut()) break;
                                         }
 
@@ -411,7 +417,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                                     if (row.ContainsKey(childNode.NodeKey.Trim())) {
                                         object currentDataNode = row[childNode.NodeKey.Trim()];
                                         row[childNode.NodeKey.Trim()] =
-                                            ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
+                                            ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext, metaNode);
                                         if (_bailOut()) return null;
                                     }
 
@@ -469,7 +475,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                                     {
                                         object currentDataNode = row[childNode.NodeKey.Trim()];
                                         row[childNode.NodeKey.Trim()] =
-                                            ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext);
+                                            ExecuteWriteNode(childNode, currentDataNode, currentNodePath, dataIteratorContext, metaNode);
                                         if (_bailOut()) return null;
                                     }
 

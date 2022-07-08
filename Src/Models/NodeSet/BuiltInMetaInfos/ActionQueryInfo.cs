@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Ccf.Ck.Models.NodeSet {
     public class ActionQueryInfo: MetaInfoBase {
-        public ActionQueryInfo() {
+        public ActionQueryInfo():base() {
         }
 
         private List<Script> _Scripts;

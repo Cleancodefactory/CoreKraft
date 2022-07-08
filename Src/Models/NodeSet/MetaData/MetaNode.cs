@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Models.NodeSet {
-    public class MetaNode: IIteratorMeta, IExecutionMeta {
+    public class MetaNode: IIteratorMeta, IExecutionMeta, IBuiltInExecutionMeta
+    {
 
         private MetaRoot _metaRoot;
 
@@ -16,38 +17,47 @@ namespace Ccf.Ck.Models.NodeSet {
             }
             _metaRoot = root;
             Step = root.AddStep(); // Executed this on which step
+            Executions = 1;
         }
 
         public string Name { get; protected set; }
         public int Step { get; protected set; }
+        public int Executions { get; protected set; }
         public Dictionary<string, MetaNode> Children { get; protected set; }
         private Dictionary<Type, object> Infos { get; set; } = new Dictionary<Type, object>();
 
         #region IIteratorMeta
 
         public MetaNode Child(string name) {
-            if (Children.ContainsKey(name)) return Children[name];
-            var node = new MetaNode(_metaRoot, name);
+            MetaNode node;
+            if (Children.ContainsKey(name))
+            {
+                node = Children[name];
+                node.Executions++;
+                return node;
+            }
+            node = new MetaNode(_metaRoot, name);
             Children.Add(name, node);
             
             return node;
         }
         #endregion
         #region IExecutionMeta
-        public T GetInfo<T>() where T: MetaInfoBase {
+        public T GetInfo<T>() where T: MetaInfoBase, new() {
             if (Infos.TryGetValue(typeof(T), out var info)) {
                 return info as T;
             }
             return default(T);
         }
 
-        public T SetInfo<T>(T info) where T: MetaInfoBase {
+        public T CreateInfo<T>() where T: MetaInfoBase, new() {
             if (Infos.TryGetValue(typeof(T), out var _info)) {
-                return _info as T;
+                var info = _info as T;
+                info.AddExecution();
+                return info;
             } else {
-                if (info != null) {
-                    info.Flags = _metaRoot.Flags;
-                }
+                var info = new T();
+                info.Flags = _metaRoot.Flags;
                 Infos.Add(typeof(T), info);
                 return info;
             }

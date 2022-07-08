@@ -9,12 +9,8 @@ namespace Ccf.Ck.Models.NodeSet {
     /// Supported only by the MetaNode, should be extended with infos for the diferrent plugins with default implementations for their properties based on the methods here
     /// </summary>
     public interface IExecutionMeta {
-        T GetInfo<T>() where T: MetaInfoBase;
-        T SetInfo<T>(T info) where T: MetaInfoBase;
+        T GetInfo<T>() where T: MetaInfoBase, new();
 
-        T CreateInfo<T>() where T: MetaInfoBase, new() {
-            T info = new T();
-            return SetInfo<T>(info);
-        }
+        T CreateInfo<T>() where T : MetaInfoBase, new();
     }
 }

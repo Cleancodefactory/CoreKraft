@@ -11,5 +11,7 @@ namespace Ccf.Ck.SysPlugins.Interfaces.NodeExecution {
         bool ForCurrentAction<A>(Action<A> action) where A : ActionBase;
         A GetAction<A>() where A : ActionBase;
         bool OverAction<A>(Action<A> action) where A : ActionBase;
+
+        IExecutionMeta NodeMeta { get; }
     }
 }

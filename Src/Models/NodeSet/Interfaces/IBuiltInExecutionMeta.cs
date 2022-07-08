@@ -10,13 +10,9 @@ namespace Ccf.Ck.Models.NodeSet {
             get { 
                 return GetInfo<ADOInfo>();
             } 
-            set {
-                SetInfo<ADOInfo>(value);
-            }
         }
         ActionQueryInfo ActionQuery {
             get { return GetInfo<ActionQueryInfo>(); }
-            set { SetInfo(value); }
         }
     }
 }

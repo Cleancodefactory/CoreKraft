@@ -8,7 +8,14 @@ using System.Threading.Tasks;
 namespace Ccf.Ck.Models.NodeSet {
     // Base class for all meta infos
     public class MetaInfoBase {
-        
+        public MetaInfoBase()
+        {
+
+        }
+
+        public int LogicalExcutions { get; protected set; } = 1;
+
         public EMetaInfoFlags Flags { get; internal set; }
+        public virtual void AddExecution() {  }
     }
 }

@@ -12,6 +12,7 @@ using System.Data.Common;
 using System.Text;
 using System.Text.RegularExpressions;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
+using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 
 namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 {
@@ -96,6 +97,12 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
         protected override List<Dictionary<string, object>> Read(IDataLoaderReadContext execContext)
         {
+            ADOInfo metaReport = null;
+            if (execContext is IActionHelpers helper) {
+                metaReport = helper.NodeMeta.CreateInfo<ADOInfo>();
+            }
+            var metaNode = execContext as IActionHelpers;
+
             // TODO: What to return if there is no statement:
             //  I think we should have two policies - empty object which enables children extraction if logically possible and
             //  null wich stops the processing here.
@@ -132,11 +139,13 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                         {
                             do
                             {
+                                int n_rows = 0;
                                 if (reader.HasRows)
                                 {
                                     // Read a result (many may be contained) row by row
                                     while (reader.Read())
                                     {
+                                        n_rows++;
                                         Dictionary<string, object> currentResult = new Dictionary<string, object>(reader.FieldCount);
                                         for (int i = 0; i < reader.FieldCount; i++)
                                         {
@@ -177,7 +186,10 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
                                     }
                                 }
+                                metaReport.AddResult(n_rows, reader.FieldCount);
                             } while (reader.NextResult());
+                            reader.Close();
+                            metaReport.RowsAffected = reader.RecordsAffected;
                         }
                     }
                 }
@@ -235,7 +247,15 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <param name="configuration"></param>
         /// <returns></returns>
         protected override object Write(IDataLoaderWriteContext execContext)
-        { //IDataLoaderContext execContext, Configuration configuration) {
+        {
+            ADOInfo metaReport = null;
+            if (execContext is IActionHelpers helper)
+            {
+                metaReport = helper.NodeMeta.CreateInfo<ADOInfo>();
+            }
+            var metaNode = execContext as IActionHelpers;
+
+            //IDataLoaderContext execContext, Configuration configuration) {
             string sqlQuery = null;
             List<string> parameters = new List<string>();
             try
@@ -264,8 +284,10 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                         {
                             do
                             {
+                                int n_rows = 0;
                                 while (reader.Read())
                                 {
+                                    n_rows++;
                                     for (int i = 0; i < reader.FieldCount; i++)
                                     {
                                         string fname = reader.GetName(i);
@@ -292,10 +314,13 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                         execContext.Row[fname] = (v is DBNull) ? null : v;
                                     }
                                 }
+                                metaReport.AddResult(n_rows, reader.FieldCount);
                                 // This is important, we have been doing this for a single result before, but it is better to assume more than one, so that 
                                 // update of the data being written can be done more freely - using more than one select statement after writing. This is
                                 // probably rare, but having the opportunity is better than not having it.
                             } while (reader.NextResult());
+                            reader.Close();
+                            metaReport.RowsAffected = reader.RecordsAffected;
                             if (execContext.Operation != OPERATION_DELETE)
                             {
                                 execContext.DataState.SetUnchanged(execContext.Row);
