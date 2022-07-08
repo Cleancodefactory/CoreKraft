@@ -186,10 +186,16 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
                                     }
                                 }
-                                metaReport.AddResult(n_rows, reader.FieldCount);
+                                if (metaReport != null)
+                                {
+                                    metaReport.AddResult(n_rows, reader.FieldCount);
+                                }
                             } while (reader.NextResult());
                             reader.Close();
-                            metaReport.RowsAffected = reader.RecordsAffected;
+                            if (metaReport != null)
+                            {
+                                metaReport.RowsAffected = reader.RecordsAffected;
+                            }
                         }
                     }
                 }
@@ -314,13 +320,19 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                         execContext.Row[fname] = (v is DBNull) ? null : v;
                                     }
                                 }
-                                metaReport.AddResult(n_rows, reader.FieldCount);
+                                if (metaReport != null)
+                                {
+                                    metaReport.AddResult(n_rows, reader.FieldCount);
+                                }
                                 // This is important, we have been doing this for a single result before, but it is better to assume more than one, so that 
                                 // update of the data being written can be done more freely - using more than one select statement after writing. This is
                                 // probably rare, but having the opportunity is better than not having it.
                             } while (reader.NextResult());
                             reader.Close();
-                            metaReport.RowsAffected = reader.RecordsAffected;
+                            if (metaReport != null)
+                            {
+                                metaReport.RowsAffected = reader.RecordsAffected;
+                            }
                             if (execContext.Operation != OPERATION_DELETE)
                             {
                                 execContext.DataState.SetUnchanged(execContext.Row);
