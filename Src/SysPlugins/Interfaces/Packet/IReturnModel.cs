@@ -11,7 +11,6 @@ namespace Ccf.Ck.SysPlugins.Interfaces.Packet
         IHttpResponseBuilder ResponseBuilder { get; set; }
         IReturnStatus Status { get; set; }
         Dictionary<string, IResourceModel> Views { get; set; }
-
-        MetaRoot ExecutionMeta { get { return null; } }
+        MetaRoot ExecutionMeta { get; set; }
     }
 }

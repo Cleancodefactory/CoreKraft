@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Utilities\Generic\Ccf.Ck.Utilities.Generic.csproj" />
     <ProjectReference Include="..\..\Utilities\MemoryCache\Ccf.Ck.Utilities.MemoryCache.csproj" />
+    <ProjectReference Include="..\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
     <ProjectReference Include="..\Web.Settings\Ccf.Ck.Models.Web.Settings.csproj" />
   </ItemGroup>
 

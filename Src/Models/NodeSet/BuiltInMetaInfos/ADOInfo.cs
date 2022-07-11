@@ -13,8 +13,10 @@ namespace Ccf.Ck.Models.NodeSet {
         public record Result(int Rows, int Fields);
         public class Execution
         {
+            private Stack<Result> _Results = null;
+
             public int RowsAffected { get; set; }
-            private Stack<Result> _Results = new Stack<Result>();
+            
             #region Methods
             public IEnumerable<Result> Results { 
                 get {
@@ -23,6 +25,10 @@ namespace Ccf.Ck.Models.NodeSet {
             }
             public void AddResult(Result r)
             {
+                if (_Results == null)
+                {
+                    _Results = new Stack<Result>();
+                }
                 _Results.Push(r);
             }
             #endregion
@@ -54,11 +60,11 @@ namespace Ccf.Ck.Models.NodeSet {
             }
         }
 
-        public IEnumerable<IEnumerable<Result>> ResultsLog { 
-            get {
-                return ExecutionsLog.Select(e => e.Results);
-            } 
-        }
+        //public IEnumerable<IEnumerable<Result>> ResultsLog { 
+        //    get {
+        //        return ExecutionsLog.Select(e => e.Results);
+        //    } 
+        //}
 
         #region plugin reporting
         public int RowsAffected

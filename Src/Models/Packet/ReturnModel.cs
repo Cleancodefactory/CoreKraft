@@ -49,7 +49,7 @@ namespace Ccf.Ck.Models.Packet
             public Dictionary<string, IResourceModel> Views { get => ((IReturnModel)_Model).Views; set => ((IReturnModel)_Model).Views = value; }
             public IReturnStatus Status { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-            public MetaRoot ExecutionMeta => ((IReturnModel)_Model).ExecutionMeta;
+            public MetaRoot ExecutionMeta { get => ((IReturnModel)_Model).ExecutionMeta; set => ((IReturnModel)_Model).ExecutionMeta = value; }
         }
     }
 }

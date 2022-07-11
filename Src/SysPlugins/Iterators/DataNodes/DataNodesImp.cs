@@ -59,13 +59,14 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         private void BeginReadOperation(DataIteratorContext dataIteratorContext)
         {
-
             //  Trace.WithContext(dataIteratorContext.ProcessingContext.TraceId).Log("Nodeset READ operation starting- nodeset: {0}, modekey: {1}",dataIteratorContext.LoadedNodeSet.StartNode.NodeSet.Name, dataIteratorContext.LoadedNodeSet.StartNode.NodeKey);
             var results = new List<Dictionary<string, object>>() { new Dictionary<string, object>() { } };
-            var metaRoot = new MetaRoot(EMetaInfoFlags.None); // TODO: Choose the flags from config
+            EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
+            MetaRoot metaRoot = new MetaRoot(infoFlag); // TODO: Choose the flags from config
             object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext, metaRoot);
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
         }
 
         /// <summary>
@@ -262,8 +263,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         private void BeginWriteOperation(DataIteratorContext dataIteratorContext)
         {
-            var metaRoot = new MetaRoot(EMetaInfoFlags.None); // TODO: Choose the flags from config
-
+            EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
+            MetaRoot metaRoot = new MetaRoot(infoFlag); 
             object result = ExecuteWriteNode(dataIteratorContext.LoadedNodeSet.StartNode,
                                   dataIteratorContext.ProcessingContext.InputModel.Data,
                                   dataIteratorContext.LoadedNodeSet.StartNode.NodeKey.Trim(),
@@ -271,7 +272,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                                   metaRoot);
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
-                
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
+
         }
 
         private object ExecuteWriteNode(Node node, object dataNode, string nodePath, DataIteratorContext dataIteratorContext, IIteratorMeta metaStore)

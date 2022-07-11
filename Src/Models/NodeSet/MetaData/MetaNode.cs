@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 namespace Ccf.Ck.Models.NodeSet {
     public class MetaNode: IIteratorMeta, IExecutionMeta, IBuiltInExecutionMeta
     {
-
-        private MetaRoot _metaRoot;
+        private readonly MetaRoot _MetaRoot;
 
         public MetaNode(MetaRoot root, string name) {
             Name = name;
-            _metaRoot = root;
-            if (_metaRoot == null) {
+            _MetaRoot = root;
+            if (_MetaRoot == null) {
                 throw new ArgumentNullException(nameof(root));
             }
             
@@ -25,7 +24,7 @@ namespace Ccf.Ck.Models.NodeSet {
         public int Step { get; protected set; }
         public int Executions { get; protected set; }
         public Dictionary<string, MetaNode> Children { get; protected set; } = new Dictionary<string, MetaNode>();
-        private Dictionary<Type, object> Infos { get; set; } = new Dictionary<Type, object>();
+        public Dictionary<Type, object> Infos { get; set; } = new Dictionary<Type, object>();
 
         #region IIteratorMeta
 
@@ -37,7 +36,7 @@ namespace Ccf.Ck.Models.NodeSet {
                 node.Executions++;
                 return node;
             }
-            node = new MetaNode(_metaRoot, name);
+            node = new MetaNode(_MetaRoot, name);
             Children.Add(name, node);
             
             return node;
@@ -58,7 +57,7 @@ namespace Ccf.Ck.Models.NodeSet {
                 return info;
             } else {
                 var info = new T();
-                info.Flags = _metaRoot.Flags;
+                info.Flags = _MetaRoot.Flags;
                 Infos.Add(typeof(T), info);
                 return info;
             }
