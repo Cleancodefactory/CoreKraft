@@ -12,10 +12,11 @@ namespace Ccf.Ck.Models.NodeSet {
 
         public MetaNode(MetaRoot root, string name) {
             Name = name;
+            _metaRoot = root;
             if (_metaRoot == null) {
                 throw new ArgumentNullException(nameof(root));
             }
-            _metaRoot = root;
+            
             Step = root.AddStep(); // Executed this on which step
             Executions = 1;
         }
@@ -23,7 +24,7 @@ namespace Ccf.Ck.Models.NodeSet {
         public string Name { get; protected set; }
         public int Step { get; protected set; }
         public int Executions { get; protected set; }
-        public Dictionary<string, MetaNode> Children { get; protected set; }
+        public Dictionary<string, MetaNode> Children { get; protected set; } = new Dictionary<string, MetaNode>();
         private Dictionary<Type, object> Infos { get; set; } = new Dictionary<Type, object>();
 
         #region IIteratorMeta
