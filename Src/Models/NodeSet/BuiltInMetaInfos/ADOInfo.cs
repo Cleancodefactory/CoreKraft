@@ -23,6 +23,11 @@ namespace Ccf.Ck.Models.NodeSet {
                     return _Results;
                 }
             }
+            public Result LastResult {
+                get {
+                    return _Results?.Peek();
+                }
+            }
             public void AddResult(Result r)
             {
                 if (_Results == null)
@@ -76,6 +81,11 @@ namespace Ccf.Ck.Models.NodeSet {
             set
             {
                 _TopExecution.RowsAffected = value;
+            }
+        }
+        public Result LastResult {
+            get {
+                return _TopExecution?.LastResult;
             }
         }
         public void AddResult(int rows, int fields) {

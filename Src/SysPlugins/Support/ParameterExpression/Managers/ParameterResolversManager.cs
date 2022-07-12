@@ -297,6 +297,21 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                      Arguments = 2,
                                      Name = "idlist"
                                 }
+                            },
+                            //////////////////////////// META /////////////////////////
+                            {
+                                new Resolver() {
+                                    Alias = "MetaNode",
+                                    Arguments = 1,
+                                    Name = "MetaNode"
+                                }
+                            },
+                            {
+                                new Resolver() {
+                                    Alias = "MetaADOResult",
+                                    Arguments = 1,
+                                    Name = "MetaADOResult"
+                                }
                             }
                         }
                     }
