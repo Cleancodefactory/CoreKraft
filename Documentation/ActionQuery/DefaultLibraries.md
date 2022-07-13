@@ -241,6 +241,7 @@ The function does not throw exceptions for inappropriate arguments and will retu
 **ToNodesetData(value)**
 
 **ToGeneralData(value)**
+#### Error handling functions
 
 **Error(code , text)**
 **Error(text)**
@@ -250,6 +251,40 @@ The function does not throw exceptions for inappropriate arguments and will retu
 **ErrorText(error)**
 
 **ErrorCode(error)**
+
+#### Meta information extraction functions
+
+> These are available only in scripts running as node plugins (both loaders and custom). In other scenarios they will return null no matter what arguments are passed.
+
+**MetaADOResult(field[, depth])**
+
+Gets ADO meta information for the last database operation performed in the node specified (depth).
+
+`field` - Specifies which field to extract. Can be: `rowsaffected`, `rows`, `fields`. 
+
+_rowsaffected_ returns the reported rows affected (-1 on select, 0 or more on insert, update and delete statements). The value applies to the entire SQL batch.
+
+_rows_ - returns the number of rows fetched for the last result set. A batch can return many result sets, this function provides access only to th last one.
+
+_fields_ - The number of columns in the last result set.
+
+`depth` - If omitted assumed 0. 0 - extracts the meta info for the current node (should not be used in before main action scripts), 1 - extracts from the parent and so on. If the depth exceeds the execution chain length null will be returned.
+
+
+**MetaNode(field[, depth])**
+
+Extracts general information from the meta node
+
+`field` - Specifies which field to extract. Can be: `name`, `step`, `executions`. 
+
+`depth` - If omitted assumed 0. 0 - extracts the meta info for the current node , 1 - extracts from the parent and so on. If the depth exceeds the execution chain length null will be returned.
+
+**MetaRoot(field)**
+
+Extracts general meta information from the current execution as whole. Some fields change during execution and may return different meta information depending on where and when they are fetched.
+                
+`field` - Specifies which field to extract. Can be: `flags`, `steps`, `basic`, `debug`, `trace`, `log`. 
+
 
 ### NodeSet library
 

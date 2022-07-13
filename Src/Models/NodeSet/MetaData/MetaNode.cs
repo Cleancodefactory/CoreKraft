@@ -20,12 +20,17 @@ namespace Ccf.Ck.Models.NodeSet {
             Executions = 1;
         }
 
+        private MetaNode _Parent;
+
         public string Name { get; protected set; }
         public int Step { get; protected set; }
         public MetaRoot Root { 
             get {
                 return _MetaRoot;
             } 
+        }
+        public MetaNode GetParent() {
+            return _Parent;
         }
         public int Executions { get; protected set; }
         public Dictionary<string, MetaNode> Children { get; protected set; } = new Dictionary<string, MetaNode>();
@@ -39,6 +44,7 @@ namespace Ccf.Ck.Models.NodeSet {
             {
                 node = Children[name];
                 node.Executions++;
+                node._Parent = this;
                 return node;
             }
             node = new MetaNode(_MetaRoot, name);
