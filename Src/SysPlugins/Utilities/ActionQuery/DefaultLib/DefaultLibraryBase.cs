@@ -46,6 +46,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(Length) => Length,
                 nameof(Replace) => Replace,
                 nameof(RegexReplace) => RegexReplace,
+                nameof(RegexMatch) => RegexMatch,
                 nameof(Split) => Split,
                 nameof(Trim) => Trim,
                 nameof(EncodeBase64) => EncodeBase64,
@@ -847,6 +848,19 @@ namespace Ccf.Ck.SysPlugins.Utilities
             else
             {
                 return new ParameterResolverValue(str);
+            }
+
+        }
+        [Function(nameof(RegexMatch), "")]
+        public ParameterResolverValue RegexMatch(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 2) throw new ArgumentException("RegexReplace accepts exactly 3  argument.");
+            string str = Convert.ToString(args[0].Value);
+            string patt = Convert.ToString(args[1].Value);
+            if (!string.IsNullOrWhiteSpace(patt)) {
+                Regex rex = new Regex(patt);
+                return new ParameterResolverValue(rex.IsMatch(str));
+            } else {
+                return new ParameterResolverValue(false);
             }
 
         }
