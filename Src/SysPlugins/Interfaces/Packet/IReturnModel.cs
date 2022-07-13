@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Ccf.Ck.Models.NodeSet;
+using System.Collections.Generic;
 
 namespace Ccf.Ck.SysPlugins.Interfaces.Packet
 {
@@ -10,5 +11,6 @@ namespace Ccf.Ck.SysPlugins.Interfaces.Packet
         IHttpResponseBuilder ResponseBuilder { get; set; }
         IReturnStatus Status { get; set; }
         Dictionary<string, IResourceModel> Views { get; set; }
+        MetaRoot ExecutionMeta { get; set; }
     }
 }

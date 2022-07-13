@@ -7,6 +7,7 @@ using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Interfaces;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
 using Ccf.Ck.SysPlugins.Interfaces.Packet;
+using Ccf.Ck.Models.Enumerations;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
@@ -77,6 +78,24 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
                     packet.Add(new XElement("data", new XCData(JsonConvert.SerializeObject(processingContext.ReturnModel.Data, settings))));
+                }
+
+                
+                if (processingContext.ReturnModel.ExecutionMeta != null)
+                {
+                    EMetaInfoFlags infoFlag = processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
+                    if (infoFlag != EMetaInfoFlags.None)
+                    {
+                        JsonSerializerSettings settings = new JsonSerializerSettings();
+                        settings.Error = (serializer, err) =>
+                        {
+                            err.ErrorContext.Handled = true;
+                        };
+
+                        settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+
+                        packet.Add(new XElement("meta", new XCData(JsonConvert.SerializeObject(processingContext.ReturnModel.ExecutionMeta, settings))));
+                    }
                 }
 
                 if (processingContext.ReturnModel.Views != null)

@@ -24,6 +24,8 @@ using System.Threading.Tasks;
 using System.Net;
 using Newtonsoft.Json;
 using System.IO;
+using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
+using Ccf.Ck.Models.NodeSet;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
 {
@@ -767,6 +769,100 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         #endregion Standard resolvers
 
         #region Arithmetic resolvers
+
+        #endregion
+
+        #region MetaInfo resolvers
+        /// <summary>
+        /// Fetches a general node meta information field
+        /// MetaNodeInfo(param)
+        /// param - name of the parameter to return from the metanode:
+        ///     name - node name
+        ///     step - execution step
+        ///     executions - number of executions
+        /// </summary>
+        public ParameterResolverValue MetaNode(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (ctx is IActionHelpers helper) {
+                if (helper.NodeMeta is MetaNode node) {
+                    if (args.Count > 1) {
+                        var param = args[0].Value as string;
+                        if (param != null) {
+                            return new ParameterResolverValue(param switch {
+                                "name" => node.Name,
+                                "step" => node.Step,
+                                "executions" => node.Executions,
+                                _ => null
+                            });
+                        }
+                    }
+                }
+            }
+            return new ParameterResolverValue(null);
+        }
+        /// <summary>
+        /// Fetches meta field from the ADO last execution. Used before the data loader 
+        /// will return data from an execution in a previously executed node 
+        /// (strongly not recommended in such a context, any solution will be too fragile even if it works correctly in the beginning)
+        /// 
+        /// MetaADOResult(param)
+        /// param - name of the parameter to return from the metanode:
+        ///     rowsaffected - on select will be -1 on write will be the number of actually affected rows in the corresponding database
+        ///     rows - rows fetched
+        ///     fields - number of fields in each row.
+        /// </summary>
+        public ParameterResolverValue MetaADOResult(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (ctx is IActionHelpers helper) {
+                if (helper.NodeMeta is MetaNode node && node.GetInfo<ADOInfo>() is ADOInfo ado) {
+                    var lastResult = ado.LastResult;
+                    if (args.Count > 1) {
+                        var param = args[0].Value as string;
+                        if (param != null) {
+                            return new ParameterResolverValue(param switch {
+                                "rowsaffected" => ado.RowsAffected,
+                                "rows" => lastResult?.Rows,
+                                "fields" => lastResult?.Fields,
+                                _ => null
+                            });
+                        }
+                    }
+                }
+            }
+            return new ParameterResolverValue(null);
+        }
+        /// <summary>
+        /// Fetches meta field from the meta tre's root. 
+        /// 
+        /// MetaRoot(param)
+        /// param - name of the parameter to return from the metanode:
+        ///     steps - on select will be -1 on write will be the number of actually affected rows in the corresponding database
+        ///     flags - rows fetched
+        ///     basic - has or not Basic flag set
+        ///     trace - has or not Trace flag set
+        ///     debug - has or not Debug flag set
+        ///     log - has or not Log flag set
+        /// </summary>
+        public ParameterResolverValue MetaRoot(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (ctx is IActionHelpers helper) {
+                if (helper.NodeMeta is MetaNode node && node.Root is MetaRoot root) {
+                    if (args.Count > 1) {
+                        var param = args[0].Value as string;
+                        if (param != null) {
+                            return new ParameterResolverValue(param switch {
+                                "steps" => root.Steps,
+                                "flags" => (int)root.Flags,
+                                "basic" => root.Flags.HasFlag(EMetaInfoFlags.Basic) ? true : false,
+                                "trace" => root.Flags.HasFlag(EMetaInfoFlags.Trace) ? true : false,
+                                "debug" => root.Flags.HasFlag(EMetaInfoFlags.Debug) ? true : false,
+                                "log" => root.Flags.HasFlag(EMetaInfoFlags.Log) ? true : false,
+                                _ => null
+                            });
+                        }
+                    }
+                }
+            }
+            return new ParameterResolverValue(null);
+        }
+
 
         #endregion
 

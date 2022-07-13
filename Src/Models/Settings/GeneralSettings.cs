@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Ccf.Ck.Models.Enumerations;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,8 @@ namespace Ccf.Ck.Models.Settings
     public class GeneralSettings
     {
         private Dictionary<string, string> _ModuleKey2Path;
+        private bool _EnumParsed = false;
+        private EMetaInfoFlags _MetaInfoFlag;
 
         public GeneralSettings()
         {
@@ -31,6 +34,24 @@ namespace Ccf.Ck.Models.Settings
         public string DefaultStartModule { get; set; }
         public string PageTitle { get; set; }
         public string PassThroughJsConfig { get; set; }
+        public string MetaLogging { get; set; }
+        public EMetaInfoFlags MetaLoggingEnumFlag
+        {
+            get
+            {
+                if (_EnumParsed)
+                {
+                    return _MetaInfoFlag;
+                }
+                _EnumParsed = true;
+                if (!Enum.TryParse(MetaLogging, out _MetaInfoFlag))
+                {
+                    _MetaInfoFlag = EMetaInfoFlags.None;
+                }
+                
+                return _MetaInfoFlag;                
+            }
+        }
         public string BindKraftConfiguration
         {
             get;
@@ -58,7 +79,7 @@ namespace Ccf.Ck.Models.Settings
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
         public List<string> SupportedLanguages { get; set; }
         public List<string> WatchSubFoldersForRestart { get; set; }
-        
+
         public ToolsSettings ToolsSettings { get; set; }
 
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
@@ -86,7 +107,7 @@ namespace Ccf.Ck.Models.Settings
                     }
                     else if (m.Groups["env"].Success)//%something%
                     {
-                        string envVariable =  Environment.GetEnvironmentVariable(m.Groups["env"].Value);
+                        string envVariable = Environment.GetEnvironmentVariable(m.Groups["env"].Value);
                         if (!string.IsNullOrEmpty(envVariable))
                         {
                             return envVariable;
@@ -136,9 +157,9 @@ namespace Ccf.Ck.Models.Settings
                     return true;
                 }
             }
-            
+
             BindKraftConfiguration = "{}";
-            
+
             return false;
         }
 

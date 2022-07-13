@@ -93,12 +93,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         {
             private NodeExecutionContext Context { get; set; }
 
-            internal Manager(DataIteratorContext dic, Node currentNode, string action)
+            internal Manager(DataIteratorContext dic, Node currentNode, string action, IExecutionMeta metaNode)
             {
                 Context = new NodeExecutionContext(dic, currentNode, action);
                 Context.ParameterResolverProxy = new ParameterResolverContext(Context);
                 Context.CustomPluginProxy = (action == ACTION_READ) ? (new CustomPluginReadContext(Context) as CustomPluginContext): (new CustomPluginWriteContext(Context) as CustomPluginContext);
                 Context.LoaderPluginProxy = (action == ACTION_READ) ?new LoaderPluginReadContext(Context) as LoaderPluginContext:new LoaderPluginWriteContext(Context) as LoaderPluginContext;
+                Context.MetaNode = metaNode;
             }
 
             public IDataStateHelper<IDictionary<string, object>> DataState => DataStateUtility.Instance;
@@ -329,6 +330,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         public string Action { get; private set; }
         public string NodeKey { get; private set; }
         public EReadAction ReadAction => this.ProcessingContext.InputModel.ReadAction;
+        public IExecutionMeta MetaNode { get; private set; }
                 
         /// <summary>
         /// Node configuration
@@ -672,6 +674,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public void BailOut() {
                 Context.BailOut();
             }
+            public IExecutionMeta NodeMeta => Context.MetaNode;
         }
         /// <summary>
         /// This is the proxy presented to the resolvers
