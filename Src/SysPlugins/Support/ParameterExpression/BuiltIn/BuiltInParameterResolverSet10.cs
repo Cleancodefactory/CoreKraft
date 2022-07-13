@@ -829,6 +829,39 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             }
             return new ParameterResolverValue(null);
         }
+        /// <summary>
+        /// Fetches meta field from the meta tre's root. 
+        /// 
+        /// MetaRoot(param)
+        /// param - name of the parameter to return from the metanode:
+        ///     steps - on select will be -1 on write will be the number of actually affected rows in the corresponding database
+        ///     flags - rows fetched
+        ///     basic - has or not Basic flag set
+        ///     trace - has or not Trace flag set
+        ///     debug - has or not Debug flag set
+        ///     log - has or not Log flag set
+        /// </summary>
+        public ParameterResolverValue MetaRoot(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (ctx is IActionHelpers helper) {
+                if (helper.NodeMeta is MetaNode node && node.Root is MetaRoot root) {
+                    if (args.Count > 1) {
+                        var param = args[0].Value as string;
+                        if (param != null) {
+                            return new ParameterResolverValue(param switch {
+                                "steps" => root.Steps,
+                                "flags" => (int)root.Flags,
+                                "basic" => root.Flags.HasFlag(EMetaInfoFlags.Basic) ? true : false,
+                                "trace" => root.Flags.HasFlag(EMetaInfoFlags.Trace) ? true : false,
+                                "debug" => root.Flags.HasFlag(EMetaInfoFlags.Debug) ? true : false,
+                                "log" => root.Flags.HasFlag(EMetaInfoFlags.Log) ? true : false,
+                                _ => null
+                            });
+                        }
+                    }
+                }
+            }
+            return new ParameterResolverValue(null);
+        }
 
 
         #endregion

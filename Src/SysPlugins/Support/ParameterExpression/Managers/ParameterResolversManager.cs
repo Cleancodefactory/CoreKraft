@@ -312,6 +312,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                     Arguments = 1,
                                     Name = "MetaADOResult"
                                 }
+                            },
+                            {
+                                new Resolver() {
+                                    Alias = "MetaRoot",
+                                    Arguments = 1,
+                                    Name = "MetaRoot"
+                                }
                             }
                         }
                     }

@@ -22,6 +22,11 @@ namespace Ccf.Ck.Models.NodeSet {
 
         public string Name { get; protected set; }
         public int Step { get; protected set; }
+        public MetaRoot Root { 
+            get {
+                return _MetaRoot;
+            } 
+        }
         public int Executions { get; protected set; }
         public Dictionary<string, MetaNode> Children { get; protected set; } = new Dictionary<string, MetaNode>();
         public Dictionary<Type, object> Infos { get; set; } = new Dictionary<Type, object>();
