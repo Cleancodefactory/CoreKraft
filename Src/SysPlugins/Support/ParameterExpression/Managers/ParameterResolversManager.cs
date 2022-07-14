@@ -302,21 +302,21 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver() {
                                     Alias = "MetaNode",
-                                    Arguments = 1,
+                                    Arguments = 2,
                                     Name = "MetaNode"
                                 }
                             },
                             {
                                 new Resolver() {
                                     Alias = "MetaADOResult",
-                                    Arguments = 1,
+                                    Arguments = 2,
                                     Name = "MetaADOResult"
                                 }
                             },
                             {
                                 new Resolver() {
                                     Alias = "MetaRoot",
-                                    Arguments = 1,
+                                    Arguments = 2,
                                     Name = "MetaRoot"
                                 }
                             }

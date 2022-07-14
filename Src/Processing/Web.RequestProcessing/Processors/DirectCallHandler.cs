@@ -39,11 +39,14 @@ namespace Ccf.Ck.Processing.Web.Request
         public void Execute(IProcessingContext processingContext, ITransactionScopeContext transactionScopeContext)
         {
             KraftModule loadedModule = _KraftModuleCollection.GetModule(processingContext.InputModel.Module);
-            LoadedNodeSet loadedNodeSet = _NodesSetService.LoadNodeSet(
-                                                processingContext.InputModel.Module,
-                                                processingContext.InputModel.NodeSet,
-                                                processingContext.InputModel.Nodepath,
-                                                loadedModule);
+            LoadedNodeSet loadedNodeSet = default(LoadedNodeSet);
+            if (loadedModule != null) {
+                loadedNodeSet = _NodesSetService.LoadNodeSet(
+                                                    processingContext.InputModel.Module,
+                                                    processingContext.InputModel.NodeSet,
+                                                    processingContext.InputModel.Nodepath,
+                                                    loadedModule);
+            }
             StringBuilder sb;
             if (!CheckValidity(processingContext, loadedModule, loadedNodeSet, out sb))
             {
