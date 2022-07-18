@@ -18,6 +18,7 @@ using Ccf.Ck.Models.NodeSet;
 using System.Text;
 using Grace.DependencyInjection.Impl.Wrappers;
 using Ccf.Ck.Models.Packet;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -57,6 +58,7 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             else
             {
+                KraftLogger.LogError($"DirectCallHandler:Execute has the following error: {sb.ToString()}");
                 processingContext.ReturnModel.Status.IsSuccessful = false;
                 processingContext.ReturnModel.Status.StatusResults.Add(new StatusResult(){ Message = sb.ToString(), StatusResultType= SysPlugins.Interfaces.Packet.StatusResultEnum.EStatusResult.StatusResultError});
             }
