@@ -928,6 +928,8 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         #endregion
 
         #region idlist
+        // TODO May be also an idlist converting its elements to a specified numeric type
+
         /// <summary>
         /// Converts a list/array to SQL content applicable in syntax like IN ( @here goes the list )
         /// Supports numeric list and string list
@@ -951,9 +953,9 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 Regex rex = new Regex(re, RegexOptions.CultureInvariant | RegexOptions.Singleline);
                 IEnumerable indata;
                 if (input.Value is IDictionary) {
-                    indata = (input.Value as IDictionary).Values;
+                    indata = (input.Value as IDictionary).Values; // Only values (e.g. object with Id-s)
                 } else {
-                    indata = input.Value as IEnumerable;
+                    indata = input.Value as IEnumerable; // Array of values (keys)
                 }
                 foreach (var v in indata) {
                     if (v != null)
@@ -969,7 +971,11 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                         throw new Exception("null item in a collection while converting to replacable idlist");
                     }
                 }
-                return new ParameterResolverValue(sbresult.ToString(), EResolverValueType.ContentType);
+                if (sbresult.Length == 0) {
+                    return new ParameterResolverValue("NULL", EResolverValueType.ContentType);
+                } else {
+                    return new ParameterResolverValue(sbresult.ToString(), EResolverValueType.ContentType);
+                }
             } else if (type_and_check.Value == null && input.Value is IEnumerable) { // Numbers
                 IEnumerable indata;
                 if (input.Value is IDictionary)
@@ -981,17 +987,23 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 foreach (var v in indata)
                 {
                     if (sbresult.Length > 0) sbresult.Append(',');
-                    if (v is int || v is Int16 || v is Int32 || v is Int64) {
+                    if (v is int || v is Int16 || v is Int32 || v is Int64 || v is sbyte) {
                         sbresult.Append(Convert.ToInt64(v).ToString(CultureInfo.InvariantCulture));
-                    } else if (v is uint || v is UInt16 || v is UInt32 || v is UInt64) {
+                    } else if (v is uint || v is UInt16 || v is UInt32 || v is UInt64 || v is byte) {
                         sbresult.Append(Convert.ToUInt64(v).ToString(CultureInfo.InvariantCulture));
+                    } else if (v is decimal) {
+                        sbresult.Append(Convert.ToDecimal(v).ToString(CultureInfo.InvariantCulture));
                     } else if (v is float || v is double) {
                         sbresult.Append(Convert.ToDouble(v).ToString(CultureInfo.InvariantCulture));
                     } else {
                         throw new Exception("Non-numeric and non-null item found in the input");
                     }
                 }
-                return new ParameterResolverValue(sbresult.ToString(), EResolverValueType.ContentType);
+                if (sbresult.Length == 0) {
+                    return new ParameterResolverValue("NULL", EResolverValueType.ContentType);
+                } else {
+                    return new ParameterResolverValue(sbresult.ToString(), EResolverValueType.ContentType);
+                }
             } else {
                 throw new Exception("Unacceptable type parameter or the value is not enumerable");
             }

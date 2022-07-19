@@ -298,6 +298,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                      Name = "idlist"
                                 }
                             },
+                            {
+                                new Resolver() // Alias to compensate for the mistake above
+                                {
+                                     Alias = "IdList",
+                                     Arguments = 2,
+                                     Name = "idlist"
+                                }
+                            },
                             //////////////////////////// META /////////////////////////
                             {
                                 new Resolver() {
