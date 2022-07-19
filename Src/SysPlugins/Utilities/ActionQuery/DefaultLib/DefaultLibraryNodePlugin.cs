@@ -16,16 +16,20 @@ using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 namespace Ccf.Ck.SysPlugins.Utilities
 {
     [Library("default", LibraryContextFlags.Node)]
-    public class DefaultLibraryNodePlugin<HostInterface>: DefaultLibraryBase<HostInterface> where HostInterface: class
+    public class DefaultLibraryNodePlugin<HostInterface> : DefaultLibraryBase<HostInterface> where HostInterface : class
     {
         public DefaultLibraryNodePlugin()
         {
 
         }
         private static readonly DefaultLibraryNodePlugin<HostInterface> _Instance = new DefaultLibraryNodePlugin<HostInterface>();
-        public static DefaultLibraryNodePlugin<HostInterface> Instance { get {
+        public static DefaultLibraryNodePlugin<HostInterface> Instance
+        {
+            get
+            {
                 return _Instance;
-            } } 
+            }
+        }
 
         public override HostedProc<HostInterface> GetProc(string name)
         {
@@ -68,6 +72,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return GetAllResults;
                 case nameof(RemoveResult):
                     return RemoveResult;
+                case nameof(RemoveAllResults):
+                    return RemoveAllResults;
                 case nameof(ModifyResult):
                     return ModifyResult;
 
@@ -95,43 +101,58 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(BailOut), "")]
-        public ParameterResolverValue BailOut(HostInterface ctx, ParameterResolverValue[] args) {
-            if (ctx is INodePluginContext rctx) {
+        public ParameterResolverValue BailOut(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (ctx is INodePluginContext rctx)
+            {
                 rctx.BailOut();
             }
             return new ParameterResolverValue(null);
         }
 
         [Function(nameof(OverrideResponseData), "")]
-        public ParameterResolverValue OverrideResponseData(HostInterface ctx, ParameterResolverValue[] args) {
+        public ParameterResolverValue OverrideResponseData(HostInterface ctx, ParameterResolverValue[] args)
+        {
             if (args.Length != 1) throw new ArgumentException("OverrideResponseData requires exactly 1 argument");
-            if (ctx is IDataLoaderContext ctx1) {
+            if (ctx is IDataLoaderContext ctx1)
+            {
                 ctx1.ProcessingContext.ReturnModel.Data = args[0].Value;
-            } else if (ctx is INodePluginContext ctx2) {
+            }
+            else if (ctx is INodePluginContext ctx2)
+            {
                 ctx2.ProcessingContext.ReturnModel.Data = args[0].Value;
             }
             return args[0];
         }
 
         [Function(nameof(ForceJSONResponse), "")]
-        public ParameterResolverValue ForceJSONResponse(HostInterface ctx, ParameterResolverValue[] args) {
-            if (ctx is IDataLoaderContext ctx1) {
+        public ParameterResolverValue ForceJSONResponse(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (ctx is IDataLoaderContext ctx1)
+            {
                 ctx1.ProcessingContext.ReturnModel.ResponseBuilder = new JsonResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx1.ProcessingContext }));
-            } else if (ctx is INodePluginContext ctx2) {
+            }
+            else if (ctx is INodePluginContext ctx2)
+            {
                 ctx2.ProcessingContext.ReturnModel.ResponseBuilder = new JsonResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx2.ProcessingContext }));
             }
             return new ParameterResolverValue(null);
         }
 
         [Function(nameof(ForceTextResponse), "")]
-        public ParameterResolverValue ForceTextResponse(HostInterface ctx, ParameterResolverValue[] args) {
+        public ParameterResolverValue ForceTextResponse(HostInterface ctx, ParameterResolverValue[] args)
+        {
             string contentType = null;
-            if (args.Length > 0) {
+            if (args.Length > 0)
+            {
                 contentType = Convert.ToString(args[0].Value);
             }
-            if (ctx is IDataLoaderContext ctx1) {
+            if (ctx is IDataLoaderContext ctx1)
+            {
                 ctx1.ProcessingContext.ReturnModel.ResponseBuilder = new TextResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx1.ProcessingContext }), contentType);
-            } else if (ctx is INodePluginContext ctx2) {
+            }
+            else if (ctx is INodePluginContext ctx2)
+            {
                 ctx2.ProcessingContext.ReturnModel.ResponseBuilder = new TextResponseBuilder(new ProcessingContextCollection(new List<IProcessingContext> { ctx2.ProcessingContext }), contentType);
             }
             return new ParameterResolverValue(contentType);
@@ -179,21 +200,45 @@ namespace Ccf.Ck.SysPlugins.Utilities
             if (ctx is INodePluginReadContext rctx)
             {
                 var result = new Dictionary<string, object>();
-                if (args.Length == 1 && args[0].Value is IDictionary _dict) {
-                    foreach (DictionaryEntry e in _dict) {
+                if (args.Length == 1 && args[0].Value is IDictionary _dict)
+                {
+                    foreach (DictionaryEntry e in _dict)
+                    {
                         result.TryAdd(Convert.ToString(e.Key), ParameterResolverValue.Strip(e.Value));
                     }
                     rctx.Results.Add(result);
                     return new ParameterResolverValue(null);
-                    
-                } else {
+
+                }
+                else if (args.Length == 1 && args[0].Value is IEnumerable _enumerable)
+                {
+                    foreach (var e in _enumerable)
+                    {
+                        if (ParameterResolverValue.Strip(e) is IDictionary dict)
+                        {
+                            result = new Dictionary<string, object>();
+                            foreach (DictionaryEntry dictEntry in dict)
+                            {
+                                result.TryAdd(Convert.ToString(dictEntry.Key), ParameterResolverValue.Strip(dictEntry.Value));
+                            }
+                            rctx.Results.Add(result);
+                        }
+                    }
+                    return new ParameterResolverValue(null);
+                }
+                else
+                {
                     var count = args.Length / 2;
-                    for (int i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++)
+                    {
                         var name = args[i * 2].Value as string;
                         var value = args[i * 2 + 1].Value;
-                        if (name != null) {
+                        if (name != null)
+                        {
                             result[name] = value;
-                        } else {
+                        }
+                        else
+                        {
                             throw new ArgumentException($"AddResult works with no arguments or with even number of arguments repeatig name, value pattern. The {i * 2} argument is not a string.");
                         }
                     }
@@ -222,45 +267,68 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(ModifyResult), "")]
-        public ParameterResolverValue ModifyResult(HostInterface ctx, ParameterResolverValue[] args) {
+        public ParameterResolverValue ModifyResult(HostInterface ctx, ParameterResolverValue[] args)
+        {
             Dictionary<string, object> result = null;
-            if (ctx is INodePluginReadContext rctx) {
-                if (rctx.Results.Count > 0) {
-                    if (args.Length > 1) {
+            if (ctx is INodePluginReadContext rctx)
+            {
+                if (rctx.Results.Count > 0)
+                {
+                    if (args.Length > 1)
+                    {
                         var index = Convert.ToUInt32(args[0].Value);
-                        if (index >= 0 && index < rctx.Results.Count) {
+                        if (index >= 0 && index < rctx.Results.Count)
+                        {
                             result = rctx.Results[rctx.Results.Count - 1];
-                        } else {
+                        }
+                        else
+                        {
                             throw new IndexOutOfRangeException("ModifyResult specified indes (first arg) is out of range");
                         }
-                    } else {
+                    }
+                    else
+                    {
                         throw new ArgumentException("ModifyResult requires some arguments.");
                     }
-                } else {
+                }
+                else
+                {
                     throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
                 }
-            } else if (ctx is INodePluginWriteContext wctx) {
+            }
+            else if (ctx is INodePluginWriteContext wctx)
+            {
                 throw new InvalidOperationException("ModifyResult is not available for write actions - use SetResult instead.");
-            } else {
+            }
+            else
+            {
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
 
-            if (args.Length == 2 && args[1].Value is IDictionary _dict) {
-                foreach (DictionaryEntry e in _dict) {
+            if (args.Length == 2 && args[1].Value is IDictionary _dict)
+            {
+                foreach (DictionaryEntry e in _dict)
+                {
                     result[Convert.ToString(e.Key)] = ParameterResolverValue.Strip(e.Value);
                 }
                 // In this case we cannot guarantee which one is the last value and we return null in order to avoid misunderstandings.
                 return new ParameterResolverValue(null);
-            } else {
+            }
+            else
+            {
                 var count = (args.Length - 1) / 2;
                 object lastvalue = null;
-                for (int i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++)
+                {
                     var name = args[1 + i * 2].Value as string;
                     var value = args[i * 2 + 2].Value;
-                    if (name != null) {
+                    if (name != null)
+                    {
                         result[name] = value;
                         lastvalue = value;
-                    } else {
+                    }
+                    else
+                    {
                         throw new ArgumentException($"ModifyResult works with 1 argument or with even number of arguments after the index (first arg) repeatig name, value pattern. The {i * 2} argument is not a string.");
                     }
                 }
@@ -277,7 +345,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 if (rctx.Results.Count > 0)
                 {
                     result = rctx.Results[rctx.Results.Count - 1];
-                } 
+                }
                 else
                 {
                     throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
@@ -292,22 +360,30 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
 
-            if (args.Length == 1 && args[0].Value is IDictionary _dict) {
-                foreach (DictionaryEntry e in _dict) {
+            if (args.Length == 1 && args[0].Value is IDictionary _dict)
+            {
+                foreach (DictionaryEntry e in _dict)
+                {
                     result[Convert.ToString(e.Key)] = ParameterResolverValue.Strip(e.Value);
                 }
                 // In this case we cannot guarantee which one is the last value and we return null in order to avoid misunderstandings.
                 return new ParameterResolverValue(null);
-            } else {
+            }
+            else
+            {
                 var count = args.Length / 2;
                 object lastvalue = null;
-                for (int i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++)
+                {
                     var name = args[i * 2].Value as string;
                     var value = args[i * 2 + 1].Value;
-                    if (name != null) {
+                    if (name != null)
+                    {
                         result[name] = value;
                         lastvalue = value;
-                    } else {
+                    }
+                    else
+                    {
                         throw new ArgumentException($"SetResult works with no arguments or with even number of arguments repeatig name, value pattern. The {i * 2} argument is not a string.");
                     }
                 }
@@ -316,35 +392,51 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(ClearResultExcept), "")]
-        public ParameterResolverValue ClearResultExcept(HostInterface ctx, ParameterResolverValue[] args) {
+        public ParameterResolverValue ClearResultExcept(HostInterface ctx, ParameterResolverValue[] args)
+        {
             Dictionary<string, object> result = null;
-            if (ctx is INodePluginReadContext rctx) {
-                if (rctx.Results.Count > 0) {
+            if (ctx is INodePluginReadContext rctx)
+            {
+                if (rctx.Results.Count > 0)
+                {
                     result = rctx.Results[rctx.Results.Count - 1];
-                } else {
+                }
+                else
+                {
                     throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
                 }
-            } else if (ctx is INodePluginWriteContext wctx) {
+            }
+            else if (ctx is INodePluginWriteContext wctx)
+            {
                 result = wctx.Row;
-            } else {
+            }
+            else
+            {
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
             List<string> preservekeys = new List<string>(10);
-            if (args.Length == 1 && args[0].Value is IList list) {
-                foreach (object e in list) {
+            if (args.Length == 1 && args[0].Value is IList list)
+            {
+                foreach (object e in list)
+                {
                     preservekeys.Add(Convert.ToString(ParameterResolverValue.Strip(e)));
                 }
-            } else {
-                for (int i = 0; i < args.Length; i++) {
+            }
+            else
+            {
+                for (int i = 0; i < args.Length; i++)
+                {
                     var name = Convert.ToString(args[i].Value);
 
-                    if (!string.IsNullOrEmpty(name)) {
+                    if (!string.IsNullOrEmpty(name))
+                    {
                         preservekeys.Add(name);
                     }
                 }
             }
             var keys = result.Keys.Where(k => !preservekeys.Contains(k));
-            foreach (var k in keys) {
+            foreach (var k in keys)
+            {
                 result.Remove(k);
             }
             return new ParameterResolverValue(preservekeys.ConvertAll(s => new ParameterResolverValue(s)));
@@ -375,8 +467,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(GetStatePropertyName), "")]
-        public ParameterResolverValue GetStatePropertyName(HostInterface ctx, ParameterResolverValue[] args) {
-            if (ctx is INodePluginContext dtx) {
+        public ParameterResolverValue GetStatePropertyName(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (ctx is INodePluginContext dtx)
+            {
                 return new ParameterResolverValue(dtx.DataState.StatePropertyName);
             }
             return new ParameterResolverValue(null);
@@ -433,12 +527,18 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="args"></param>
         /// <returns></returns>
         [Function(nameof(ResultsCount), "")]
-        public ParameterResolverValue ResultsCount(HostInterface ctx, ParameterResolverValue[] args) {
-            if (ctx is INodePluginReadContext rctx) {
+        public ParameterResolverValue ResultsCount(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (ctx is INodePluginReadContext rctx)
+            {
                 return new ParameterResolverValue(rctx.Results.Count);
-            } else if (ctx is INodePluginWriteContext wctx) {
+            }
+            else if (ctx is INodePluginWriteContext wctx)
+            {
                 return new ParameterResolverValue(1);
-            } else {
+            }
+            else
+            {
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
         }
@@ -450,42 +550,78 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="args"></param>
         /// <returns></returns>
         [Function(nameof(GetResult), "")]
-        public ParameterResolverValue GetResult(HostInterface ctx, ParameterResolverValue[] args) {
-            if (ctx is INodePluginReadContext rctx) {
+        public ParameterResolverValue GetResult(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (ctx is INodePluginReadContext rctx)
+            {
                 int index = -1;
-                if (args.Length < 1) {//throw new ArgumentException("GetResult in read actions requires an argument - the index of the result to return.");
+                if (args.Length < 1)
+                {//throw new ArgumentException("GetResult in read actions requires an argument - the index of the result to return.");
                     index = rctx.Results.Count - 1;
-                } else {
+                }
+                else
+                {
                     index = Convert.ToInt32(args[0].Value);
                 }
-                if (index >= 0 && index < rctx.Results.Count) {
+                if (index >= 0 && index < rctx.Results.Count)
+                {
                     return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results[index]);
                 }
                 return new ParameterResolverValue(null);
-            } else if (ctx is INodePluginWriteContext wctx) {
+            }
+            else if (ctx is INodePluginWriteContext wctx)
+            {
                 return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(wctx.Row);
-            } else {
+            }
+            else
+            {
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
         }
 
         [Function(nameof(RemoveResult), "")]
-        public ParameterResolverValue RemoveResult(HostInterface ctx, ParameterResolverValue[] args) {
-            if (ctx is INodePluginReadContext rctx) {
+        public ParameterResolverValue RemoveResult(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (ctx is INodePluginReadContext rctx)
+            {
                 if (args.Length < 1) throw new ArgumentException("RemoveResult in read actions requires an argument - the index of the result to return.");
                 var index = Convert.ToInt32(args[0].Value);
-                if (index >= 0 && index < rctx.Results.Count) {
+                if (index >= 0 && index < rctx.Results.Count)
+                {
                     var result = DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results[index]);
                     rctx.Results.RemoveAt(index);
                     return result;
                 }
                 return new ParameterResolverValue(null);
-            } else if (ctx is INodePluginWriteContext wctx) {
+            }
+            else if (ctx is INodePluginWriteContext wctx)
+            {
                 throw new Exception("RemoveResult cannot be used in write actions.");
-            } else {
+            }
+            else
+            {
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
         }
+
+        [Function(nameof(RemoveAllResults), "Removes all results collected in read operation so far.")]
+        public ParameterResolverValue RemoveAllResults(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (ctx is INodePluginReadContext rctx)
+            {
+                rctx.Results.Clear();
+                return new ParameterResolverValue(null);
+            }
+            else if (ctx is INodePluginWriteContext wctx)
+            {
+                throw new Exception("RemoveAllResults cannot be used in write actions.");
+            }
+            else
+            {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+        }
+
         /// <summary>
         /// Read: GetAllResults():List
         /// Write: GetAllResults():Dict
@@ -494,12 +630,18 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="args"></param>
         /// <returns></returns>
         [Function(nameof(GetAllResults), "")]
-        public ParameterResolverValue GetAllResults(HostInterface ctx, ParameterResolverValue[] args) {
-            if (ctx is INodePluginReadContext rctx) {
+        public ParameterResolverValue GetAllResults(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (ctx is INodePluginReadContext rctx)
+            {
                 return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results);
-            } else if (ctx is INodePluginWriteContext wctx) {
+            }
+            else if (ctx is INodePluginWriteContext wctx)
+            {
                 return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(wctx.Row);
-            } else {
+            }
+            else
+            {
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
         }
@@ -565,7 +707,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             var ctx = _ctx as INodePluginContext;
             return new ParameterResolverValue(ctx.ProcessingContext.InputModel.Nodepath);
-            
+
         }
 
         [Function(nameof(NodeKey), "")]

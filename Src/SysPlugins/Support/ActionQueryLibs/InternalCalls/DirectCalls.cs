@@ -127,7 +127,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                         }
                     } else
                     {
-                        inp.Data = indict.ToDictionary(kv => kv.Key, kv => kv.Value.Value);
+                        inp.Data = DefaultLibraryBase<HostInterface>.ConvertToGenericData(indict) as Dictionary<string, object>;
                     }
                     
                 } else {
