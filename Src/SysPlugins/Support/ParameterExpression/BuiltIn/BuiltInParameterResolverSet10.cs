@@ -1006,7 +1006,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 }
             } else if (type_and_check.Value == null) { // Numbers
                 IEnumerable indata;
-                Regex rex = new Regex(@"^(\+-)?\d+(\.(\d+)?)$", RegexOptions.CultureInvariant | RegexOptions.Singleline);
+                Regex rex = new Regex(@"^(\+-)?\d+(\.(\d+)?)?$", RegexOptions.CultureInvariant | RegexOptions.Singleline);
                 if (input.Value == null) return new ParameterResolverValue("NULL", EResolverValueType.ContentType);
                 var vtype = input.Value.GetType();
                 var _input = input.Value;
