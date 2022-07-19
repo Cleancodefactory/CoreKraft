@@ -35,9 +35,8 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
     /// is setnumber_version. Where the version does not signify built version, but the contents of the set. In other words if in time
     /// it is decided to include new resolvers in the set the version must be incremented.
     /// </summary>
-    public class BuiltInParameterResolverSet1_0: ParameterResolverSet
-    {
-        public BuiltInParameterResolverSet1_0(ResolverSet conf):base(conf) {  }
+    public class BuiltInParameterResolverSet1_0 : ParameterResolverSet {
+        public BuiltInParameterResolverSet1_0(ResolverSet conf) : base(conf) { }
 
         #region Constants for sources of parameters (these are for local usage only)
         const string PARENT = "parent";
@@ -49,7 +48,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         const string INPUT = "input";
         const string DATA = "data";
         const string FILTER = "filter";
-        
+
         #endregion
 
         #region Constants for type names
@@ -59,7 +58,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         const string T_STR = "string";
         const string T_NULL = "null";
 
-        readonly List<string> T_TYPEORDER = new List<string>() { T_UINT, T_INT, T_DBL};
+        readonly List<string> T_TYPEORDER = new List<string>() { T_UINT, T_INT, T_DBL };
 
         private enum Number_Formats {
             Unknown = 0,
@@ -68,6 +67,10 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             Octal = 8,
             Binary = 2
         };
+
+        static readonly Type[] g_NUMERIC_TYPES = new Type[] { typeof(int), typeof(double), typeof(Int16), typeof(Int32), 
+                                                              typeof(Int64), typeof(sbyte), typeof(uint), typeof(UInt16),
+                                                              typeof(UInt32), typeof(UInt64), typeof(float), typeof(decimal), typeof(byte), typeof(string)};
 
         #endregion
 
@@ -970,23 +973,30 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 var re = type_and_check.Value as string;
                 Regex rex = new Regex(re, RegexOptions.CultureInvariant | RegexOptions.Singleline);
                 IEnumerable indata;
-                if (input.Value is IDictionary) {
+                if (input.Value is string str) {
+                    if (rex.IsMatch(str)) {
+                        return new ParameterResolverValue(string.Format("'{0}'", str.Replace("'", "''")));
+                    } else {
+                        return new ParameterResolverValue("NULL", EResolverValueType.ContentType);
+                    }
+                } else if (input.Value is IDictionary) {
                     indata = (input.Value as IDictionary).Values; // Only values (e.g. object with Id-s)
                 } else {
                     indata = input.Value as IEnumerable; // Array of values (keys)
                 }
-                foreach (var v in indata) {
-                    if (v != null)
-                    {
-                        if (rex.IsMatch(v.ToString())) {
-                            if (sbresult.Length > 0) sbresult.Append(',');
-                            sbresult.AppendFormat("'{0}'", v.ToString());
+                if (indata != null) {
+                    foreach (var v in indata) {
+                        if (v != null) {
+                            if (rex.IsMatch(v.ToString())) {
+                                if (sbresult.Length > 0) sbresult.Append(',');
+                                sbresult.AppendFormat("'{0}'", v.ToString());
+                            } else {
+                                //don't stop execution when an item doesn't match?
+                                //throw new Exception("an item does not match YOUR regular expression");
+                            }
                         } else {
-                            //don't stop execution when an item doesn't match?
-                            //throw new Exception("an item does not match YOUR regular expression");
+                            throw new Exception("null item in a collection while converting to replacable idlist");
                         }
-                    } else {
-                        throw new Exception("null item in a collection while converting to replacable idlist");
                     }
                 }
                 if (sbresult.Length == 0) {
@@ -997,33 +1007,39 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             } else if (type_and_check.Value == null && input.Value is IEnumerable) { // Numbers
                 IEnumerable indata;
                 Regex rex = new Regex(@"^(\+-)?\d+(\.(\d+)?)$", RegexOptions.CultureInvariant | RegexOptions.Singleline);
-                if (input.Value is IDictionary)
-                {
-                    indata = (input.Value as IDictionary).Values;
+                if (input.Value == null) return new ParameterResolverValue("NULL", EResolverValueType.ContentType);
+                var vtype = input.Value.GetType();
+                var _input = input.Value;
+                if (g_NUMERIC_TYPES.Any(t => t == vtype)) {
+                    indata = new Object[] { _input };
+                } else if (_input is IDictionary) {
+                    indata = (_input as IDictionary).Values;
                 } else {
-                    indata = input.Value as IEnumerable;
+                    indata = _input as IEnumerable;
                 }
-                foreach (var v in indata)
-                {
-                    if (sbresult.Length > 0) sbresult.Append(',');
-                    if (v is int || v is Int16 || v is Int32 || v is Int64 || v is sbyte) {
-                        sbresult.Append(Convert.ToInt64(v).ToString(CultureInfo.InvariantCulture));
-                    } else if (v is uint || v is UInt16 || v is UInt32 || v is UInt64 || v is byte) {
-                        sbresult.Append(Convert.ToUInt64(v).ToString(CultureInfo.InvariantCulture));
-                    } else if (v is decimal) {
-                        sbresult.Append(Convert.ToDecimal(v).ToString(CultureInfo.InvariantCulture));
-                    } else if (v is float || v is double) {
-                        sbresult.Append(Convert.ToDouble(v).ToString(CultureInfo.InvariantCulture));
-                    } else if (v is string s && !string.IsNullOrWhiteSpace(s)) {
-                        if (s.Contains('.')) {
-                            sbresult.Append(Convert.ToDouble(s).ToString(CultureInfo.InvariantCulture));
+
+                if (indata != null) {
+                    foreach (var v in indata) {
+                        if (sbresult.Length > 0) sbresult.Append(',');
+                        if (v is int || v is Int16 || v is Int32 || v is Int64 || v is sbyte) {
+                            sbresult.Append(Convert.ToInt64(v).ToString(CultureInfo.InvariantCulture));
+                        } else if (v is uint || v is UInt16 || v is UInt32 || v is UInt64 || v is byte) {
+                            sbresult.Append(Convert.ToUInt64(v).ToString(CultureInfo.InvariantCulture));
+                        } else if (v is decimal) {
+                            sbresult.Append(Convert.ToDecimal(v).ToString(CultureInfo.InvariantCulture));
+                        } else if (v is float || v is double) {
+                            sbresult.Append(Convert.ToDouble(v).ToString(CultureInfo.InvariantCulture));
+                        } else if (v is string s && !string.IsNullOrWhiteSpace(s) && rex.IsMatch(s)) {
+                            if (s.Contains('.')) {
+                                sbresult.Append(Convert.ToDouble(s).ToString(CultureInfo.InvariantCulture));
+                            } else {
+                                sbresult.Append(Convert.ToInt64(s).ToString(CultureInfo.InvariantCulture));
+                            }
+                        } else if (v == null) {
+                            // Nothing - we just skip it
                         } else {
-                            sbresult.Append(Convert.ToInt64(s).ToString(CultureInfo.InvariantCulture));
+                            throw new Exception("Non-numeric (or numbers in string)  item found in the input");
                         }
-                    } else if (v == null) { 
-                        // Nothing - we just skip it
-                    } else {
-                        throw new Exception("Non-numeric (or numbers in string)  item found in the input");
                     }
                 }
                 if (sbresult.Length == 0) {
