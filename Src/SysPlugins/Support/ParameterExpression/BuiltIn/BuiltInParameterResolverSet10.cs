@@ -975,7 +975,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 IEnumerable indata;
                 if (input.Value is string str) {
                     if (rex.IsMatch(str)) {
-                        return new ParameterResolverValue(string.Format("'{0}'", str.Replace("'", "''")));
+                        return new ParameterResolverValue(string.Format("'{0}'", str.Replace("'", "''")), EResolverValueType.ContentType);
                     } else {
                         return new ParameterResolverValue("NULL", EResolverValueType.ContentType);
                     }
