@@ -927,8 +927,26 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         //}
         #endregion
 
-        #region idlist
-        // TODO May be also an idlist converting its elements to a specified numeric type
+        #region idlist and other list oriented
+        /// Splits a string by the specified delimiter (no defaults) or passes the first argument through if it is not a string.
+        /// Arguments: 
+        ///     - argument to split (see above)
+        ///     - delimiter
+        /// Returns the first argument or enumerable of strings
+        /// Suggested usage with IdList e.g. IdList(Split(parameter,','),null) - will treat the values in comma separated values as numbers
+        public ParameterResolverValue Split(IParameterResolverContext ctx, IList<ParameterResolverValue> inargs) {
+            if (inargs.Count > 1) {
+                var input = inargs[0].Value as string;
+                if (input == null) return inargs[0];
+                var delimiter = Convert.ToString(inargs[1].Value);
+                return new ParameterResolverValue(input.Split(delimiter));
+            } else {
+                throw new ArgumentException("Split needs two arguments - check the registration of the resolver");
+            }
+        }
+
+
+
 
         /// <summary>
         /// Converts a list/array to SQL content applicable in syntax like IN ( @here goes the list )
@@ -978,6 +996,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 }
             } else if (type_and_check.Value == null && input.Value is IEnumerable) { // Numbers
                 IEnumerable indata;
+                Regex rex = new Regex(@"^(\+-)?\d+(\.(\d+)?)$", RegexOptions.CultureInvariant | RegexOptions.Singleline);
                 if (input.Value is IDictionary)
                 {
                     indata = (input.Value as IDictionary).Values;
@@ -995,8 +1014,16 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                         sbresult.Append(Convert.ToDecimal(v).ToString(CultureInfo.InvariantCulture));
                     } else if (v is float || v is double) {
                         sbresult.Append(Convert.ToDouble(v).ToString(CultureInfo.InvariantCulture));
+                    } else if (v is string s && !string.IsNullOrWhiteSpace(s)) {
+                        if (s.Contains('.')) {
+                            sbresult.Append(Convert.ToDouble(s).ToString(CultureInfo.InvariantCulture));
+                        } else {
+                            sbresult.Append(Convert.ToInt64(s).ToString(CultureInfo.InvariantCulture));
+                        }
+                    } else if (v == null) { 
+                        // Nothing - we just skip it
                     } else {
-                        throw new Exception("Non-numeric and non-null item found in the input");
+                        throw new Exception("Non-numeric (or numbers in string)  item found in the input");
                     }
                 }
                 if (sbresult.Length == 0) {

@@ -306,6 +306,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                      Name = "idlist"
                                 }
                             },
+                            {
+                                new Resolver()
+                                {
+                                     Alias = "Split",
+                                     Arguments = 2,
+                                     Name = "Split"
+                                }
+                            },
                             //////////////////////////// META /////////////////////////
                             {
                                 new Resolver() {
