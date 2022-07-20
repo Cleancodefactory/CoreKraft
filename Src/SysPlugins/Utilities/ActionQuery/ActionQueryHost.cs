@@ -20,7 +20,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         where HostInterface: class
     {
 
-        public const int DEFAULT_HARDLIMIT = 5000;
+        public const int DEFAULT_HARDLIMIT = 10000;
         public const string HARDLIMIT_SETTING = "AQExecutionLimit";
 
         protected HostInterface _Context = null;
