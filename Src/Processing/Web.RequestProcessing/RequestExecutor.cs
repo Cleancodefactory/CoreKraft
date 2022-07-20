@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.KraftModule;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Processing.Execution;
@@ -95,11 +96,13 @@ namespace Ccf.Ck.Processing.Web.Request
                     });
                 }
                 await Task.WhenAll(tasks);
-            }
-            finally
-            {
                 _IsSystemInMaintenanceMode = false;
                 processor.GenerateResponse();
+            }
+            catch(Exception ex)
+            {
+                KraftLogger.LogError(ex);
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, $"Node configuration mismatch. Please check URL path and logged exceptions.");
             }
         }
     }
