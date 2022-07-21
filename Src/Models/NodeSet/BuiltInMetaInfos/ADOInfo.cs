@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,9 @@ namespace Ccf.Ck.Models.NodeSet {
             private Stack<Result> _Results = null;
 
             public int RowsAffected { get; set; }
+
+            public string SQL { get; set; }
+            public Dictionary<string,string> Parameters { get; set; }
             
             #region Methods
             public IEnumerable<Result> Results { 
@@ -56,7 +60,7 @@ namespace Ccf.Ck.Models.NodeSet {
                 return _Executions.Peek();
             } 
         }
-
+        
         public IEnumerable<Execution> ExecutionsLog
         {
             get
@@ -72,10 +76,13 @@ namespace Ccf.Ck.Models.NodeSet {
         //}
 
         #region plugin reporting
+
         public int RowsAffected
         {
             get
             {
+                var execution = _TopExecution;
+                if (execution == null) return 0;
                 return _TopExecution.RowsAffected;
             }
             set
@@ -83,6 +90,7 @@ namespace Ccf.Ck.Models.NodeSet {
                 _TopExecution.RowsAffected = value;
             }
         }
+        
         public Result LastResult {
             get {
                 return _TopExecution?.LastResult;
@@ -93,7 +101,25 @@ namespace Ccf.Ck.Models.NodeSet {
                 _TopExecution.AddResult(new Result(rows, fields));
             }
         }
-
+        
+        public void ReportSQL(string value) {
+            if (Flags.HasFlag(EMetaInfoFlags.Trace | EMetaInfoFlags.Debug)) {
+                var te = _TopExecution;
+                if (te != null) te.SQL = value;
+            }
+        }
+        public void ReportParameters(DbParameterCollection _params) {
+            if (Flags.HasFlag(EMetaInfoFlags.Trace | EMetaInfoFlags.Debug)) {
+                var coll = new Dictionary<string, string>();
+                foreach (var p in _params) {
+                    if (p is DbParameter param) {
+                        if (param.Value != null) {
+                            coll.TryAdd(param.ParameterName, param.Value.ToString());
+                        }
+                    }
+                }
+            }
+        }
 
         #endregion
 

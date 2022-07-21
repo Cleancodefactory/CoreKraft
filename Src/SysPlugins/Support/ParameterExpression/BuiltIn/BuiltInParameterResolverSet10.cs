@@ -161,6 +161,78 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             return new ParameterResolverValue(StdGetParameterValue(source, paramName, ctx));
         }
         /// <summary>
+        /// Returns source as (raw (string,object)) dictionary. Good for usage in scripts - they will need to pack this with ToDict()
+        /// 
+        /// 
+        /// Configuration entry (c# inline)
+        ///  {
+        ///     new Resolver() {
+        ///       Alias = "GetAll",
+        ///       Arguments = 1,
+        ///       Name = "getAll"
+        ///     }
+        /// }
+        /// Arguments:
+        /// 1 - source := "current,parent,parents,filter,data,client,server,sequrity,input"
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="inargs"></param>
+        /// <returns></returns>
+        public ParameterResolverValue CombineSources(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            ResolverArguments<ParameterResolverValue> argsCasted = args as ResolverArguments<ParameterResolverValue>;
+
+            string fromwhere = Convert.ToString(args[0].Value);
+
+            Dictionary<string, object> SuckDict(Dictionary<string, object> target, IDictionary<string, object> source) {
+                foreach (KeyValuePair<string, object> kvp in source) {
+                    target[kvp.Key] = kvp.Value;
+                }
+                return target;
+            }
+
+            if (!string.IsNullOrWhiteSpace(fromwhere)) {
+
+                var tokens = fromwhere.Split(new char[] { ',' }, 10, StringSplitOptions.None)
+                            .Where(s => !string.IsNullOrWhiteSpace(s))
+                            .Select(s => s.Trim());
+                var inputModel = ctx.ProcessingContext.InputModel;
+                var result = new Dictionary<string, object>();
+                foreach (var token in tokens) {
+                    switch (token) {
+                        case INPUT:
+                        case CURRENT:
+                            if (ctx.Action == ACTION_WRITE) {
+                                SuckDict(result, ctx.Row);
+                            } else {
+                                throw new InvalidOperationException("'current' (or 'input') source is available only for write (store) operation.");
+                            }
+                            break;
+                        case FILTER:
+                            if (ctx.Action != ACTION_READ) {
+                                throw new InvalidOperationException("'filter' source is available only for read (select) operation.");
+                            }
+                            SuckDict(result, inputModel.Data);
+                            break;
+                        case DATA:
+                            SuckDict(result, inputModel.Data);
+                            break;
+                        case PARENT:
+                            SuckDict(result, (ctx.Datastack as ListStack<Dictionary<string, object>>).Top());
+                        break;
+                        case CLIENT:
+                            SuckDict(result, inputModel.Client);
+                            break;
+                        case SERVER:
+                            SuckDict(result, inputModel.Server);
+                            break;
+
+                    }
+                }
+                return new ParameterResolverValue(result);
+            }
+            return new ParameterResolverValue(null);
+        }
+        /// <summary>
         /// Navigates to a value from the specified point
         /// </summary>
         /// <param name="ctx"></param>
@@ -211,7 +283,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 throw new InvalidOperationException("The Currentdata resolver canbe used only for write operations.");
             }
         }
-        
+
 
         public ParameterResolverValue IntegerContent(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             if (args.Count != 1) throw new Exception("IntegerCountent declared with wrong number of arguments (must be 1)");
@@ -637,6 +709,72 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 return new ParameterResolverValue(negative);
             }
 
+        }
+        public ParameterResolverValue Equal(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+
+            int? i = null;
+            double? d = null;
+            uint? u = null;
+            string s = null;
+
+            var useType = DetectBestNumericType(args.ToArray());
+            return useType switch {
+                T_INT => new ParameterResolverValue(args.All(a => {
+                    if (i == null) {
+                        i = Convert.ToInt32(a.Value); return true;
+                    } else {
+                        return Convert.ToInt32(a.Value) == i;
+                    }
+                })),
+                T_UINT => new ParameterResolverValue(args.All(a => {
+                    if (i == null) {
+                        u = Convert.ToUInt32(a.Value); return true;
+                    } else {
+                        return Convert.ToUInt32(a.Value) == u;
+                    }
+                })),
+                T_DBL => new ParameterResolverValue(args.All(a => {
+                    if (i == null) {
+                        d = Convert.ToDouble(a.Value); return true;
+                    } else {
+                        return Convert.ToDouble(a.Value) == i;
+                    }
+                })),
+                T_STR => new ParameterResolverValue(args.All(a => {
+                    if (i == null) {
+                        s = Convert.ToString(a.Value); return true;
+                    } else {
+                        return string.CompareOrdinal(Convert.ToString(a.Value), s) == 0;
+                    }
+                })),
+                _ => new ParameterResolverValue(false)
+            };
+        }
+        public ParameterResolverValue Greater(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            var v1 = args[0];
+            var v2 = args[1];
+            var useType = DetectBestNumericType(new ParameterResolverValue[] { v1, v2 });
+            return new ParameterResolverValue( useType switch {
+                T_INT => Convert.ToInt32(v1.Value) > Convert.ToInt32(v2.Value),
+                T_UINT => Convert.ToUInt32(v1.Value) > Convert.ToUInt32(v2.Value),
+                T_DBL => Convert.ToDouble(v1.Value) > Convert.ToDouble(v2.Value),
+                T_STR => String.CompareOrdinal(Convert.ToString(v1.Value), Convert.ToString(v2.Value)) > 0,
+                _ => false
+
+            });
+        }
+        public ParameterResolverValue Lower(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            var v1 = args[0];
+            var v2 = args[1];
+            var useType = DetectBestNumericType(new ParameterResolverValue[] { v1, v2 });
+            return new ParameterResolverValue(useType switch {
+                T_INT => Convert.ToInt32(v1.Value) < Convert.ToInt32(v2.Value),
+                T_UINT => Convert.ToUInt32(v1.Value) < Convert.ToUInt32(v2.Value),
+                T_DBL => Convert.ToDouble(v1.Value) < Convert.ToDouble(v2.Value),
+                T_STR => String.CompareOrdinal(Convert.ToString(v1.Value), Convert.ToString(v2.Value)) < 0,
+                _ => false
+
+            });
         }
 
         /// <summary>

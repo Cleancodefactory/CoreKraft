@@ -82,6 +82,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// <returns></returns>
         private object ExecuteReadNode(Node node, IEnumerable<Dictionary<string, object>> parentResult, DataIteratorContext dataIteratorContext, IIteratorMeta metaStore)
         {
+            // Check if we have anything to do here
+            if (node.Read == null) return null; // No read instructions - nothing to read
+            
             #region Preparation of necessary structures
             var metaNode = metaStore.Child(node.NodeKey);
 
