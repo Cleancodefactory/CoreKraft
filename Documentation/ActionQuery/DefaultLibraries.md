@@ -154,6 +154,8 @@ __Add( arg {, arg} )__ - Returns the sum of all the arguments.
 
 **RegexReplace(string, pattern, replacewith)** - Replaces substrings matching the `pattern` in the `string` with the `replacewith`. The pattern uses the C# regular expression syntax. All arguments are converted to strings if they are other types. `Returns`: the resulting string.
 
+**RegexMatch(string, pattern)** - Test if the `string` matches the `pattern`.
+
 **Split(string [, separator])** - Splits the string using the specified separator or using "," if it is omitted. The result is an AC list (see List functions).
 
 **Trim(string)** - Trims the string and returns the resulting string.

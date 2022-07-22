@@ -227,7 +227,93 @@ Casts `b` to the type specified by `a`
 
 ### IntegerContent(a)
 
-### idlist(a,b)
+### Split(input, separator)
+
+If the `input` is a string it will be split into array of strings separated by the specified by the `separator` argument separator. If the `input` is not a string it will be returned "AS-IS".
+
+Useful for use together with `idlist` for instance. `idlist` will deal with dictionaries, lists and other enumerable parameters, containing numbers or strings, but will not know what to do with a plain string. Thus using something like `idlist(Split(input,','), null)` will accept either sets of numbers (the elements being numbers or strings) or plain strings containing lists of numbers separated by coma in this example.
+
+### idlist(input,regex)
+
+Produces a value marked as "content" (e.g. for injection in SQL for instance) containing the elements of the `input`. The `input` must be some enumerable - a dictionary, a collection. In case of dictionary only the values will be used. 
+
+Example: Let us assume we call through AJAX and a Javascript array goes into the input. The idlist will take all the elements from the array and generate a string like below:
+
+```
+# input: [1,2,3]
+idlist(input, null) # will produce 1,2,3
+
+#input []
+idlist(input, null) # will produce NULL
+
+#input ['a','b','c']
+idlist(input, null) # will produce NULL - see the comments below
+
+#input ['a','b','c']
+idlist(input, 'a|b|c') # will produce 'a','b','c' - see the comments below
+
+#input 'a'
+idlist(input, 'a|b|c') # will produce 'a'
+```
+
+* When elements are strings the `regex` argument must be supplied and the elements must match it.
+
+* A single value as input will be treated as an array with a single element.
+
+* To use as an input a string containing list of elements `idlist` must be used together with `Split` (see above)
+
+### MetaADOResult(field[, depth])
+
+Gets ADO meta information for the last database operation performed in the node specified (`depth`).
+
+`field` - Specifies which field to extract. Can be: `rowsaffected`, `rows`, `fields`. 
+
+_`rowsaffected`_ returns the reported rows affected (-1 on select, 0 or more on insert, update and delete statements). The value applies to the entire SQL batch.
+
+_`rows`_ - returns the number of rows fetched for the last result set. A batch can return many result sets, this function provides access only to th last one.
+
+_`fields`_ - The number of columns in the last result set.
+
+`depth` - Extracts the meta info for the 
+> 0 -current node (0) (_should not be used in before main action scripts_)
+
+> 1 - extracts from the parent and so on. If the depth exceeds the execution chain null will be returned.
+
+`rows` and `fields` will be available only if MetLogging contains the Basic flag.
+
+
+### MetaNode(field, depth)
+
+Extracts general information from the meta node
+
+`field` - Specifies which field to extract. Can be: `name`, `step`, `executions`. 
+
+`depth` - Extracts the meta info for the 
+
+> 0 -current node (0) (_should not be used in before main action scripts_)
+
+> 1 - extracts from the parent and so on. If the depth exceeds the execution chain null will be returned.
+
+
+### MetaRoot(field)
+
+Extracts general meta information from the current execution as whole. Some fields change during execution and may return different meta information depending on where and when they are fetched.
+                
+`field` - Specifies which field to extract. Can be: `flags`, `steps`, `basic`, `debug`, `trace`, `log`.
+
+This one is mainly useful to determine if certain flag is set in the configuration when the parameter is used for something dependent on that information.
+
+### Lower(a,b)
+
+Compares `a` and `b` and returns `true` if a is lower than b. While it works with strings, comparison based on locale settings is not supported for now.
+
+### Greater(a,b)
+
+Compares `a` and `b` and returns `true` if a is greater than b. While it works with strings, comparison based on locale settings is not supported for now.
+
+### Equal(a,b)
+
+Compares `a` and `b` and returns `true` if a is greater than b. While it works with strings, the comparison will be exact.
 
 ### IfThenElse(condition, pos, neg)
 
