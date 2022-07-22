@@ -64,9 +64,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
             MetaRoot metaRoot = new MetaRoot(infoFlag); // TODO: Choose the flags from config
             object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext, metaRoot);
+            metaRoot.SetFinished();
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
-            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
+            
         }
 
         /// <summary>
@@ -82,6 +84,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// <returns></returns>
         private object ExecuteReadNode(Node node, IEnumerable<Dictionary<string, object>> parentResult, DataIteratorContext dataIteratorContext, IIteratorMeta metaStore)
         {
+            // Check if we have anything to do here
+            if (node.Read == null) return null; // No read instructions - nothing to read
+            
             #region Preparation of necessary structures
             var metaNode = metaStore.Child(node.NodeKey);
 
@@ -270,9 +275,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                                   dataIteratorContext.LoadedNodeSet.StartNode.NodeKey.Trim(),
                                   dataIteratorContext,
                                   metaRoot);
+            metaRoot.SetFinished();
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
-            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
+            
 
         }
 

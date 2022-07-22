@@ -6,7 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Models.NodeSet {
-    // Base class for all meta infos
+    /// <summary>
+    /// Base class for all meta infos - ADOInfo, ActionQueryInfo etc.
+    /// Reporters of meta data access the flags through this object.
+    /// </summary>
     public class MetaInfoBase {
         public MetaInfoBase()
         {

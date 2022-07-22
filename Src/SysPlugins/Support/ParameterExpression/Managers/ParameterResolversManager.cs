@@ -49,6 +49,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                      Name = "GetFrom"
                                 }
                             },
+                            { 
+                                new Resolver() {
+                                    Alias = "CombineSources",
+                                    Arguments = 1,
+                                    Name = "CombineSources"
+                                }
+                            },
                             {
                                 new Resolver() {
                                     Alias = "NavGetFrom",
@@ -196,6 +203,30 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                     Alias = "IfThenElse",
                                     Arguments = 3,
                                     Name = "IfThenElse"
+                                }
+
+                            },
+                            {
+                                new Resolver() {
+                                    Alias = "Equal",
+                                    Arguments = 2,
+                                    Name = "Equal"
+                                }
+
+                            },
+                            {
+                                new Resolver() {
+                                    Alias = "Greater",
+                                    Arguments = 2,
+                                    Name = "Greater"
+                                }
+
+                            },
+                            {
+                                new Resolver() {
+                                    Alias = "Lower",
+                                    Arguments = 2,
+                                    Name = "Lower"
                                 }
 
                             },

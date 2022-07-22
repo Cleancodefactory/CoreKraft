@@ -114,28 +114,27 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             }
             if (args.Length > 1) {
                 if (args[1].Value is Dictionary<string, ParameterResolverValue> indict) {
-                    if (isWrite)
-                    {
+                    if (isWrite) {
                         var data = DefaultLibraryBase<HostInterface>.ConvertToGenericData(indict);
-                        if (data is Dictionary<string,object> _dictData)
-                        {
+                        if (data is Dictionary<string, object> _dictData) {
                             inp.Data = _dictData;
-                        } else
-                        {
+                        } else {
                             // TODO: This should not happen
                             KraftLogger.LogError("in _Call The passed Data dictionary did not convert correctly", indict);
                         }
-                    } else
-                    {
+                    } else {
                         inp.Data = DefaultLibraryBase<HostInterface>.ConvertToGenericData(indict) as Dictionary<string, object>;
                     }
-                    
+                } else if (args[1].Value is Dictionary<string, object> rawdict) {
+                    inp.Data = rawdict;
                 } else {
                     throw new ArgumentException("Main arguments are currently supported only as a internal AC Dictionary (Dictionary<string, ParameterResolverValue>). Use Dict and related functions from the default library to create one.");
                 }
                 if (args.Length > 2) {
                     if (args[2].Value is Dictionary<string, ParameterResolverValue> qdict) {
                         inp.QueryCollection = qdict.ToDictionary(kv => kv.Key, kv => kv.Value.Value);
+                    } else if (args[2].Value is Dictionary<string, object> rawdict) {
+                        inp.QueryCollection = rawdict;
                     } else {
                         throw new ArgumentException("Query collection arguments are currently supported only as a Dictionary. Use Dict and related functions from the default library to create one.");
                     }

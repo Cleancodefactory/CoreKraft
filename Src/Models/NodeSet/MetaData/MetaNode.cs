@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ccf.Ck.Models.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,10 @@ namespace Ccf.Ck.Models.NodeSet {
             
             Step = root.AddStep(); // Executed this on which step
             Executions = 1;
+            if (root.Flags.HasFlag(EMetaInfoFlags.Profile)) {
+                ExecutionTimes = new List<DateTime>(1); // Fastest in single execution cases.
+                ExecutionTimes.Add(DateTime.UtcNow);
+            }
         }
 
         private MetaNode _Parent;
@@ -33,6 +38,7 @@ namespace Ccf.Ck.Models.NodeSet {
             return _Parent;
         }
         public int Executions { get; protected set; }
+        public List<DateTime> ExecutionTimes { get; protected set; }
         public Dictionary<string, MetaNode> Children { get; protected set; } = new Dictionary<string, MetaNode>();
         public Dictionary<Type, object> Infos { get; set; } = new Dictionary<Type, object>();
 
@@ -45,15 +51,18 @@ namespace Ccf.Ck.Models.NodeSet {
                 node = Children[name];
                 node.Executions++;
                 node._Parent = this;
+                if (ExecutionTimes != null) {
+                    ExecutionTimes.Add(DateTime.UtcNow);
+                }
                 return node;
             }
             node = new MetaNode(_MetaRoot, name);
             Children.Add(name, node);
-            
             return node;
         }
         #endregion
         #region IExecutionMeta
+        
         public T GetInfo<T>() where T: MetaInfoBase, new() {
             if (Infos.TryGetValue(typeof(T), out var info)) {
                 return info as T;
