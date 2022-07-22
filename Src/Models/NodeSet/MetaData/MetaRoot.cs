@@ -10,6 +10,7 @@ namespace Ccf.Ck.Models.NodeSet {
         public MetaRoot(EMetaInfoFlags flags = EMetaInfoFlags.None) {
             Steps = 0;
             Flags = flags;
+            Started = DateTime.UtcNow;
         }
         public int Steps { get; protected set; }
 
@@ -19,6 +20,18 @@ namespace Ccf.Ck.Models.NodeSet {
 
         internal int AddStep() {
             return (++Steps);
+        }
+        public DateTime Started { get; protected set; }
+        public DateTime Finished { get; protected set; }
+
+        public TimeSpan ExecutionTime {
+            get {
+                return Finished - Started;
+            }
+        }
+
+        public void SetFinished() { 
+            Finished = DateTime.UtcNow;
         }
 
         //public MetaNode Current { get; protected set; }

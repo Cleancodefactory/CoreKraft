@@ -110,13 +110,17 @@ namespace Ccf.Ck.Models.NodeSet {
         }
         public void ReportParameters(DbParameterCollection _params) {
             if (Flags.HasFlag(EMetaInfoFlags.Trace | EMetaInfoFlags.Debug)) {
-                var coll = new Dictionary<string, string>();
-                foreach (var p in _params) {
-                    if (p is DbParameter param) {
-                        if (param.Value != null) {
-                            coll.TryAdd(param.ParameterName, param.Value.ToString());
+                var exec = _TopExecution;
+                if (exec != null) {
+                    var coll = new Dictionary<string, string>();
+                    foreach (var p in _params) {
+                        if (p is DbParameter param) {
+                            if (param.Value != null) {
+                                coll.TryAdd(param.ParameterName, param.Value.ToString());
+                            }
                         }
                     }
+                    exec.Parameters = coll;
                 }
             }
         }

@@ -134,6 +134,10 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                         // The processing will make replacements in the SQL and bind parameters by requesting them from the resolver expressions configured on this node.
                         // TODO: Some try...catching is necessary.
                         sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext, out parameters);
+                        if (metaReport != null) {
+                            metaReport.ReportSQL(sqlQuery);
+                            metaReport.ReportParameters(cmd.Parameters);
+                        }
                         LogExecution(sqlQuery, execContext, parameters);
                         using (DbDataReader reader = cmd.ExecuteReader())
                         {
@@ -285,6 +289,10 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                         cmd.Transaction = trans;
                         cmd.Parameters.Clear();
                         sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext, out parameters);
+                        if (metaReport != null) {
+                            metaReport.ReportSQL(sqlQuery);
+                            metaReport.ReportParameters(cmd.Parameters);
+                        }
                         LogExecution(sqlQuery, execContext, parameters);
                         using (DbDataReader reader = cmd.ExecuteReader())
                         {

@@ -64,9 +64,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
             MetaRoot metaRoot = new MetaRoot(infoFlag); // TODO: Choose the flags from config
             object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext, metaRoot);
+            metaRoot.SetFinished();
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
-            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
+            
         }
 
         /// <summary>
@@ -273,9 +275,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                                   dataIteratorContext.LoadedNodeSet.StartNode.NodeKey.Trim(),
                                   dataIteratorContext,
                                   metaRoot);
+            metaRoot.SetFinished();
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
-            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
+            
 
         }
 

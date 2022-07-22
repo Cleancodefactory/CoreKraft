@@ -84,7 +84,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 if (processingContext.ReturnModel.ExecutionMeta != null)
                 {
                     EMetaInfoFlags infoFlag = processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
-                    if (infoFlag != EMetaInfoFlags.None)
+                    if (infoFlag.HasFlag(EMetaInfoFlags.Output)) // Flag for output 
                     {
                         JsonSerializerSettings settings = new JsonSerializerSettings();
                         settings.Error = (serializer, err) =>
