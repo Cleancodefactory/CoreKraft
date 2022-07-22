@@ -11,6 +11,7 @@ using Ccf.Ck.SysPlugins.Data.Base;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Utilities.Json;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
+using System.Text.Json;
 
 namespace Ccf.Ck.SysPlugins.Data.Json
 {
@@ -61,7 +62,12 @@ namespace Ccf.Ck.SysPlugins.Data.Json
 
                     cachingService.Insert(cacheKey, cachedJson, fileProvider.Watch(node.Read.Select.File));
                 }
-                currentResult = new Dictionary<string, object>(JsonConvert.DeserializeObject<Dictionary<string, object>>(cachedJson, new DictionaryConverter()));
+                JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    ReadCommentHandling = JsonCommentHandling.Skip
+                };
+                options.Converters.Add(new DictionaryStringObjectJsonConverter());
+                currentResult = new Dictionary<string, object>(System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(cachedJson, options));
 
             }
             return new List<Dictionary<string, object>>() { currentResult };

@@ -1,16 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
-using Ccf.Ck.Models.Settings;
+﻿using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.NodeRequest;
+using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
+using Ccf.Ck.Utilities.Json;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json;
-using Ccf.Ck.Utilities.Json;
-using Ccf.Ck.Models.ContextBasket;
-using Ccf.Ck.Models.NodeRequest;
+using System.Text.Json;
 
 namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 {
@@ -58,18 +58,27 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 
         public abstract IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null);
 
-        protected T GetBodyJson<T>(HttpRequest httpRequest) where T: new()
+        protected T GetBodyJson<T>(HttpRequest httpRequest) where T : new()
         {
             T result = default(T);
             using (TextReader reader = new StreamReader(httpRequest.Body, Encoding.UTF8))
             {
+                JsonSerializerOptions options = new JsonSerializerOptions
+                {
+                    ReadCommentHandling = JsonCommentHandling.Skip
+                };
                 if (typeof(T) == typeof(Dictionary<string, object>))
                 {
-                    result = JsonConvert.DeserializeObject<T>(reader.ReadToEnd(), new DictionaryConverter());
+                    if (httpRequest.ContentLength.HasValue && httpRequest.ContentLength.Value > 0)
+                    {
+                        options.Converters.Add(new DictionaryStringObjectJsonConverter());
+                        result = JsonSerializer.Deserialize<T>(reader.ReadToEnd(), options);
+
+                    }
                 }
                 else
                 {
-                    result = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+                    result = JsonSerializer.Deserialize<T>(reader.ReadToEnd(), options);
                 }
 
                 if (result == null)

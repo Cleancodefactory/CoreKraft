@@ -13,7 +13,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
-using Newtonsoft.Json;
 using Ccf.Ck.Utilities.Json;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
@@ -232,10 +231,13 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                 var mt = respose.Content.Headers.ContentType?.MediaType;
                 if (mt != null && reJSONMedia.IsMatch(mt)) {
                     var jsonstring = respose.Content.ReadAsStringAsync().Result;
-                    // Utf8JsonReader x = new Utf8JsonReader()
                     try {
-                        //var kirech = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonstring);
-                        var kirech = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonstring, new DictionaryConverter());
+                        JsonSerializerOptions options = new JsonSerializerOptions
+                        {
+                            ReadCommentHandling = JsonCommentHandling.Skip
+                        };
+                        options.Converters.Add(new DictionaryStringObjectJsonConverter());
+                        var kirech = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonstring, options);
                         return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(kirech);
                     } catch (Exception) {
                         return Error.Create("Cannot parse the returned content.");
@@ -294,7 +296,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             if (args.Length > 1) {
                 if (args[1].Value is Dictionary<string, ParameterResolverValue> pdict) {
                     var gendata = DefaultLibraryBase<HostInterface>.ConvertToGenericData(pdict);
-                    var postdata = JsonConvert.SerializeObject(gendata);
+                    var postdata = JsonSerializer.Serialize<object>(gendata);
                     sc = new StringContent(postdata, Encoding.UTF8, "application/json");
                 }
             }
@@ -316,10 +318,13 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                 var mt = respose.Content.Headers.ContentType?.MediaType;
                 if (mt != null && reJSONMedia.IsMatch(mt)) {
                     var jsonstring = respose.Content.ReadAsStringAsync().Result;
-                    // Utf8JsonReader x = new Utf8JsonReader()
                     try {
-                        //var kirech = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonstring);
-                        var kirech = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonstring, new DictionaryConverter());
+                        JsonSerializerOptions options = new JsonSerializerOptions
+                        {
+                            ReadCommentHandling = JsonCommentHandling.Skip
+                        };
+                        options.Converters.Add(new DictionaryStringObjectJsonConverter());
+                        var kirech = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonstring, options);
                         return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(kirech);
                     } catch (Exception) {
                         return Error.Create("Cannot parse the returned content.");
