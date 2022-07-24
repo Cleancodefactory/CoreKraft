@@ -63,21 +63,27 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             T result = default(T);
             using (TextReader reader = new StreamReader(httpRequest.Body, Encoding.UTF8))
             {
-                JsonSerializerOptions options = new JsonSerializerOptions
-                {
-                    ReadCommentHandling = JsonCommentHandling.Skip
-                };
                 if (typeof(T) == typeof(Dictionary<string, object>))
                 {
                     if (httpRequest.ContentLength.HasValue && httpRequest.ContentLength.Value > 0)
                     {
-                        options.Converters.Add(new DictionaryStringObjectJsonConverter());
-                        result = JsonSerializer.Deserialize<T>(reader.ReadToEnd(), options);
+                        //options.Converters.Add(new DictionaryStringObjectJsonConverter());
+                        //result = JsonSerializer.Deserialize<T>(reader.ReadToEnd(), options);
+                        var options = new JsonReaderOptions
+                        {
+                            AllowTrailingCommas = true,
+                            CommentHandling = JsonCommentHandling.Skip
+                        };
+                        result = (T)DictionaryStringObjectJson.Deserialize(reader.ReadToEnd(), options);
 
                     }
                 }
                 else
                 {
+                    JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        ReadCommentHandling = JsonCommentHandling.Skip
+                    };
                     result = JsonSerializer.Deserialize<T>(reader.ReadToEnd(), options);
                 }
 

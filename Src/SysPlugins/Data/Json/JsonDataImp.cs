@@ -62,13 +62,12 @@ namespace Ccf.Ck.SysPlugins.Data.Json
 
                     cachingService.Insert(cacheKey, cachedJson, fileProvider.Watch(node.Read.Select.File));
                 }
-                JsonSerializerOptions options = new JsonSerializerOptions
+                JsonReaderOptions options = new JsonReaderOptions
                 {
-                    ReadCommentHandling = JsonCommentHandling.Skip
+                    AllowTrailingCommas = true,
+                    CommentHandling = JsonCommentHandling.Skip
                 };
-                options.Converters.Add(new DictionaryStringObjectJsonConverter());
-                currentResult = new Dictionary<string, object>(System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(cachedJson, options));
-
+                currentResult = new Dictionary<string, object>((Dictionary<string, object>)DictionaryStringObjectJson.Deserialize(cachedJson, options));
             }
             return new List<Dictionary<string, object>>() { currentResult };
         }

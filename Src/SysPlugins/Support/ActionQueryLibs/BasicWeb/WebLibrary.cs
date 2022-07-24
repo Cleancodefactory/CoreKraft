@@ -232,12 +232,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                 if (mt != null && reJSONMedia.IsMatch(mt)) {
                     var jsonstring = respose.Content.ReadAsStringAsync().Result;
                     try {
-                        JsonSerializerOptions options = new JsonSerializerOptions
+                        JsonReaderOptions options = new JsonReaderOptions
                         {
-                            ReadCommentHandling = JsonCommentHandling.Skip
+                            AllowTrailingCommas = true,
+                            CommentHandling = JsonCommentHandling.Skip
                         };
-                        options.Converters.Add(new DictionaryStringObjectJsonConverter());
-                        var kirech = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonstring, options);
+                        var kirech = new Dictionary<string, object>((Dictionary<string, object>)DictionaryStringObjectJson.Deserialize(jsonstring, options));
                         return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(kirech);
                     } catch (Exception) {
                         return Error.Create("Cannot parse the returned content.");
@@ -319,12 +319,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                 if (mt != null && reJSONMedia.IsMatch(mt)) {
                     var jsonstring = respose.Content.ReadAsStringAsync().Result;
                     try {
-                        JsonSerializerOptions options = new JsonSerializerOptions
+                        JsonReaderOptions options = new JsonReaderOptions
                         {
-                            ReadCommentHandling = JsonCommentHandling.Skip
+                            AllowTrailingCommas = true,
+                            CommentHandling = JsonCommentHandling.Skip
                         };
-                        options.Converters.Add(new DictionaryStringObjectJsonConverter());
-                        var kirech = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonstring, options);
+                        var kirech = new Dictionary<string, object>((Dictionary<string, object>)DictionaryStringObjectJson.Deserialize(jsonstring, options));
                         return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(kirech);
                     } catch (Exception) {
                         return Error.Create("Cannot parse the returned content.");
