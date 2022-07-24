@@ -1027,6 +1027,8 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                                 "basic" => root.Flags.HasFlag(EMetaInfoFlags.Basic) ? true : false,
                                 "trace" => root.Flags.HasFlag(EMetaInfoFlags.Trace) ? true : false,
                                 "debug" => root.Flags.HasFlag(EMetaInfoFlags.Debug) ? true : false,
+                                "output" => root.Flags.HasFlag(EMetaInfoFlags.Output) ? true : false,
+                                "profile" => root.Flags.HasFlag(EMetaInfoFlags.Profile) ? true : false,
                                 "log" => root.Flags.HasFlag(EMetaInfoFlags.Log) ? true : false,
                                 _ => null
                             });
