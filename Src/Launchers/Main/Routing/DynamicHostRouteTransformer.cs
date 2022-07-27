@@ -23,22 +23,25 @@ namespace Ccf.Ck.Launchers.Main.Routing
         {
             foreach (RouteMapping routing in _KraftGlobalConfigurationSettings.GeneralSettings.RazorAreaAssembly.RouteMappings)
             {
-                Regex rg = new Regex(routing.SlugExpression, RegexOptions.IgnoreCase);
-                Match match = rg.Match(httpContext.Request.Path);
-                if (match.Success)
+                if (!string.IsNullOrEmpty(routing.SlugExpression))
                 {
-                    values["controller"] = routing.Controller;
-                    values["action"] = routing.Action;
-
-                    foreach (Group group in match.Groups)
+                    Regex rg = new Regex(routing.SlugExpression, RegexOptions.IgnoreCase);
+                    Match match = rg.Match(httpContext.Request.Path);
+                    if (match.Success)
                     {
-                        if (!string.IsNullOrWhiteSpace(group.Name) && group.Name.Length > 1)
+                        values["controller"] = routing.Controller;
+                        values["action"] = routing.Action;
+
+                        foreach (Group group in match.Groups)
                         {
-                            values[group.Name.Trim()] = group.Value?.Trim();
+                            if (!string.IsNullOrWhiteSpace(group.Name) && group.Name.Length > 1)
+                            {
+                                values[group.Name.Trim()] = group.Value?.Trim();
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
+                }                
             }
             return new ValueTask<RouteValueDictionary>(values);
         }

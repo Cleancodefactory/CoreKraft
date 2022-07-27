@@ -93,6 +93,15 @@ namespace Ccf.Ck.Launchers.Main
                 if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
                 {
                     endpoints.MapDynamicControllerRoute<DynamicHostRouteTransformer>(_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.DefaultRouting);
+                    foreach (RouteMapping mapping in _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.RouteMappings)
+                    {
+                        if (!string.IsNullOrEmpty(mapping.Pattern))
+                        {
+                            endpoints.MapControllerRoute(
+                            name: mapping.Name,
+                            pattern:mapping.Pattern, new { Controller = mapping.Controller, Action = mapping.Action });
+                        }
+                    }
                 }
 
                 // Controller supporting redirect acceptor pages
