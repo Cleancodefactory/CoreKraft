@@ -7,8 +7,13 @@ using System.Threading.Tasks;
 
 namespace Ccf.Ck.Utilities.Json
 {
+
+    /// <summary>
+    /// JSON deserializer/serializer woring with generic data as back end store
+    /// </summary>
     public class DictionaryStringObjectJson
     {
+        #region Deserialization
         public static object Deserialize(string input, JsonReaderOptions jsonReaderOptions = default)
         {
             Utf8JsonReader reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(input), jsonReaderOptions);
@@ -83,12 +88,29 @@ namespace Ccf.Ck.Utilities.Json
                                 result.Add(name, reader.GetString());
                                 break;
                             case JsonTokenType.Number:
-                                if (reader.TryGetInt64(out var num))
-                                {
-                                    result.Add(name, num);
-                                    break;
+                                var strVal = reader.GetString();
+                                if (!string.IsNullOrEmpty(strVal)) {
+                                    if (strVal.IndexOf('.') >= 0) { // Looks like floating point
+                                        if (reader.TryGetDouble(out double dval)) {
+                                            result.Add(name, dval);
+                                            break;
+                                        } else if (reader.TryGetDecimal(out decimal decval)) {
+                                            result.Add(name, dval);
+                                            break;
+                                        }
+                                    } 
+                                    if (reader.TryGetInt64(out long lval)) {
+                                        if (lval >= int.MinValue && lval <= int.MaxValue) {
+                                            result.Add(name, (int)lval);
+                                        } else {
+                                            result.Add(name, lval);
+                                        }
+                                        break;
+                                    }
+                                    throw new Exception($"TraverseObject: Number value cannot be parsed at position: {reader.Position}");
+                                } else {
+                                    result.Add(name, null); // Should be impossible because of the reader
                                 }
-                                result.Add(name, reader.GetDecimal());
                                 break;
                             case JsonTokenType.True:
                                 result.Add(name, true);
@@ -149,12 +171,29 @@ namespace Ccf.Ck.Utilities.Json
                         result.Add(reader.GetString());
                         break;
                     case JsonTokenType.Number:
-                        if (reader.TryGetInt64(out var num))
-                        {
-                            result.Add(num);
-                            break;
+                        var strVal = reader.GetString();
+                        if (!string.IsNullOrEmpty(strVal)) {
+                            if (strVal.IndexOf('.') >= 0) { // Looks like floating point
+                                if (reader.TryGetDouble(out double dval)) {
+                                    result.Add(dval);
+                                    break;
+                                } else if (reader.TryGetDecimal(out decimal decval)) {
+                                    result.Add(dval);
+                                    break;
+                                }
+                            }
+                            if (reader.TryGetInt64(out long lval)) {
+                                if (lval >= int.MinValue && lval <= int.MaxValue) {
+                                    result.Add((int)lval);
+                                } else {
+                                    result.Add(lval);
+                                }
+                                break;
+                            }
+                            throw new Exception($"TraverseObject: Number value cannot be parsed at position: {reader.Position}");
+                        } else {
+                            result.Add(null); // Should be impossible because of the reader
                         }
-                        result.Add(reader.GetDecimal());
                         break;
                     case JsonTokenType.True:
                         result.Add(true);
@@ -173,5 +212,17 @@ namespace Ccf.Ck.Utilities.Json
             }
             throw new Exception($"TraverseArray: No array created and returned at position: {reader.Position}");
         }
+        #endregion Deserialization
+
+        #region Serialization
+        public static object Serialize(string input, JsonReaderOptions jsonReaderOptions = default) {
+            Utf8JsonReader reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(input), jsonReaderOptions);
+            object result = Traverse(ref reader);
+            if (reader.Read()) {
+                throw new Exception($"Deserialize: Token: {reader.TokenType} at position: {reader.Position} after complete deserialization.");
+            }
+            return result;
+        }
+        #endregion
     }
 }
