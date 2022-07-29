@@ -842,23 +842,27 @@ namespace Ccf.Ck.SysPlugins.Utilities
             if (name == null) {
                 throw new ArgumentException($"GSetting argument must be string - the name of the global kraft setting to obtain.");
             }
-            switch (name) {
-                case "EnvironmentName":
-                    return new ParameterResolverValue(kgcf.EnvironmentSettings.EnvironmentName);
-                case "ContentRootPath":
-                    return new ParameterResolverValue(kgcf.EnvironmentSettings.ContentRootPath);
-                case "ApplicationName":
-                    return new ParameterResolverValue(kgcf.EnvironmentSettings.ApplicationName);
-                case "StartModule":
-                    return new ParameterResolverValue(kgcf.GeneralSettings.DefaultStartModule);
-                case "ClientId":
-                    return new ParameterResolverValue(kgcf.GeneralSettings.ClientId);
-                case "HostingUrl":
-                    return new ParameterResolverValue(kgcf.GeneralSettings.HostingUrl);
-                case "KraftUrlSegment":
-                    return new ParameterResolverValue(kgcf.GeneralSettings.KraftUrlSegment);
-
-            }
+            return new ParameterResolverValue(
+                name switch {
+                    "EnvironmentName" => kgcf?.EnvironmentSettings?.EnvironmentName,
+                    "ContentRootPath" => kgcf.EnvironmentSettings?.ContentRootPath,
+                    "ApplicationName" => kgcf?.EnvironmentSettings?.ApplicationName,
+                    "StartModule" => kgcf?.GeneralSettings?.DefaultStartModule,
+                    "ClientId" => kgcf?.GeneralSettings?.ClientId,
+                    "HostingUrl" => kgcf?.GeneralSettings?.HostingUrl,
+                    "KraftUrlSegment" => kgcf?.GeneralSettings?.KraftUrlSegment,
+                    "CssSegment" => kgcf?.GeneralSettings?.KraftUrlCssJsSegment,
+                    "RootSegment" => kgcf?.GeneralSettings?.KraftUrlSegment,
+                    "ResourceSegment" => kgcf?.GeneralSettings?.KraftUrlResourceSegment,
+                    "ModuleImages" => kgcf?.GeneralSettings?.KraftUrlModuleImages,
+                    "ModulePublic" => kgcf?.GeneralSettings?.KraftUrlModulePublic,
+                    "Theme" => kgcf?.GeneralSettings?.Theme,
+                    "HostKey" => kgcf?.GeneralSettings?.ServerHostKey,
+                    "SignalRHub" => kgcf?.GeneralSettings?.SignalRSettings?.HubRoute,
+                    _ => null
+                }
+            );
+            
             throw new ArgumentException($"The setting {name} is not supported");
         }
 

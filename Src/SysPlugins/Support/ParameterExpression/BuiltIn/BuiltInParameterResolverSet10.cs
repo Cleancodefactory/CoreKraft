@@ -315,7 +315,102 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
             return new ParameterResolverValue(settings.GeneralSettings.HostingUrl);
         }
+        public ParameterResolverValue GlobalSetting(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+            if (args.Count > 0) {
+                if (args[0].Value == null) return new ParameterResolverValue(null);
+                var key = Convert.ToString(args[0].Value);
+                return new ParameterResolverValue(
+                    key switch {
+                        "CssSegment" => settings?.GeneralSettings?.KraftUrlCssJsSegment,
+                        "RootSegment" => settings?.GeneralSettings?.KraftUrlSegment,
+                        "ResourceSegment" => settings?.GeneralSettings?.KraftUrlResourceSegment,
+                        "ModuleImages" => settings?.GeneralSettings?.KraftUrlModuleImages,
+                        "ModulePublic" => settings?.GeneralSettings?.KraftUrlModulePublic,
+                        "Theme" => settings?.GeneralSettings?.Theme,
+                        "HostKey" => settings?.GeneralSettings?.ServerHostKey,
+                        "StartModule" => settings?.GeneralSettings?.DefaultStartModule,
+                        "SignalRHub" => settings?.GeneralSettings?.SignalRSettings?.HubRoute,
+                        "EnvironmentName" => settings?.EnvironmentSettings?.EnvironmentName,
+                        "ContentRootPath" => settings?.EnvironmentSettings?.ContentRootPath,
+                        "ApplicationName" => settings?.EnvironmentSettings?.ApplicationName,
+                        "ClientId" => settings?.GeneralSettings?.ClientId,
+                        "HostingUrl" => settings?.GeneralSettings?.HostingUrl,
+                        _ => null
+                    }
+                );
+                
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue ModuleName(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            return new ParameterResolverValue(ctx.ProcessingContext.InputModel.Module);
+        }
+        /// <summary>
+        /// UrlBase(options)
+        /// options - string: (("action" | "resource") | ("read" | "write" | "new")) [, ("module" | module) [, ("images | "public")]]
+        /// action - sets the same as current action
+        /// resource - puts resource segment name
+        /// read, write, new - adds the action in the path
+        /// module - adds the current module name, any other word is treated as explicitly provided module name.
+        /// images, public - add the corresponding segments.
+        /// 
+        /// Examples (assume current module is module1 and action is read and typical settings for segment names):
+        /// UrlBase("new , module2") -> /node/new/module2/
+        /// UrlBase("new , module") -> /node/new/module1/
+        /// UrlBase("write , module") -> /node/write/module1/
+        /// UrlBase("resource, module, images") -> /node/raw/module1/images/
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ParameterResolverValue UrlBase(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (args.Count > 0) {
+                var options = args[0].Value != null ? Convert.ToString(args[0].Value):null;
+                KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+                StringBuilder path = new StringBuilder();
+                path.Append("/").Append(settings.GeneralSettings.KraftUrlSegment).Append("/");
+                if (options != null) {
+                    Regex rex = new Regex(@"(?:(?:(action|resource)|(read|write|new))(?:\s*,\s*(?:(module)(?:\s*,\s*(images|public))?)?)?)?", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                    var match = rex.Match(options);
+                    if (match.Success) {
+                        for (var i = 1; i < match.Groups.Count; i++) {
+                            if (match.Groups[i].Success) {
+                                if (match.Groups[i].Value == "action") {
+                                    path.Append(ctx.Action.ToLower()).Append("/");
+                                } else if (match.Groups[i].Value == "resource") {
+                                    path.Append(settings?.GeneralSettings?.KraftUrlResourceSegment).Append("/");
+                                }
+                                if (i == 2 && match.Groups[i].Success) {
+                                    path.Append(match.Groups[i].ValueSpan).Append("/");
+                                }
+                                if (match.Groups[i].Value == "module") {
+                                    path.Append(ctx.ProcessingContext.InputModel.Module).Append("/");
+                                }
+                                if (match.Groups[i].Value == "images") {
+                                    path.Append(settings?.GeneralSettings?.KraftUrlModuleImages).Append("/");
+                                } else if (match.Groups[i].Value == "public") {
+                                    path.Append(settings?.GeneralSettings?.KraftUrlModulePublic).Append("/");
+                                }
+                            }
+
+                        }
+                        
+                    }
+                }
+                return new ParameterResolverValue(path.ToString());
+            }
+            return new ParameterResolverValue(null);
+        }
         #region Call type and purpose queries into the server variables
+        /// <summary>
+        /// RequestType()
+        /// Returns the type of request see ECallType
+        /// 0 - WebRequest
+        /// 1 - DirectCall
+        /// 2 - Signal
+        /// 3 - ServiceCall (indirect/sheduled call)
+        /// </summary>
+        /// <returns></returns>
         public ParameterResolverValue RequestType(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             var inputModel = ctx.ProcessingContext.InputModel;
             int call_type = 0;

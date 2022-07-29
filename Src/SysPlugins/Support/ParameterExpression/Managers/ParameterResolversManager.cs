@@ -81,6 +81,30 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "GlobalSetting",
+                                     Arguments = 1,
+                                     Name = "GlobalSetting"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
+                                     Alias = "ModuleName",
+                                     Arguments = 0,
+                                     Name = "ModuleName"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
+                                     Alias = "UrlBase",
+                                     Arguments = 1,
+                                     Name = "UrlBase"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "RequestType",
                                      Arguments = 0,
                                      Name = "RequestType"
