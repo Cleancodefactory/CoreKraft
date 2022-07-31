@@ -688,6 +688,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public ParameterResolverValue RegexMatch(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("RegexReplace accepts exactly 3  argument.");
             string str = Convert.ToString(args[0].Value);
+            if (str == null) return new ParameterResolverValue(false);
             string patt = Convert.ToString(args[1].Value);
             if (!string.IsNullOrWhiteSpace(patt)) {
                 Regex rex = new Regex(patt);
@@ -923,6 +924,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                                 "name" => node.Name,
                                 "step" => node.Step,
                                 "executions" => node.Executions,
+                                "datastate" => node.GetVolatileInfo().DataState,
+                                "operation" => node.GetVolatileInfo().Operation,
                                 _ => null
                             });
                         }

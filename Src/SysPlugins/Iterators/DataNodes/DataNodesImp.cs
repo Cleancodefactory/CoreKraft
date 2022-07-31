@@ -329,6 +329,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
                 // 3 Get the state
                 var state = execContextManager.DataState.GetDataState(row); //row[STATE_PROPERTY_NAME] as string;
+                metaNode.GetVolatileInfo().DataState = state;
                 // 3.1 Check for valid state
                 if (state == null) // Deprecated:  row.ContainsKey(STATE_PROPERTY_NAME) == false)
                 {
@@ -337,6 +338,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
                 // 3.2 Determine the actual state to use for this iteration (we may have override)
                 string operation = GetWriteAction(execContextManager.OverrideAction, state);
+                metaNode.GetVolatileInfo().Operation = operation;
 
                 // The action is the actual state we assume!
 

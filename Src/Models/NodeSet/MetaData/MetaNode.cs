@@ -6,8 +6,21 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Models.NodeSet {
+    /// <summary>
+    /// TODO MetaNode may contain temporary data which can be confusing if outputed. So together with the finish time recording we have to remove these values as well.
+    /// </summary>
     public class MetaNode: IIteratorMeta, IExecutionMeta, IBuiltInExecutionMeta
     {
+        #region Nested types
+        public class VolatileInfo
+        {
+            public string DataState { get; set; } = null;
+            public string Operation { get; set; } = null;
+        }
+        
+        #endregion
+
+
         private readonly MetaRoot _MetaRoot;
 
         public MetaNode(MetaRoot root, string name) {
@@ -37,8 +50,16 @@ namespace Ccf.Ck.Models.NodeSet {
         public MetaNode GetParent() {
             return _Parent;
         }
+        #region Volatile info
+        protected VolatileInfo _VolatileInfo { get; } = new VolatileInfo();
+        public VolatileInfo GetVolatileInfo() { return _VolatileInfo; }
+        #endregion
+
+        #region Execution info
         public int Executions { get; protected set; }
         public List<DateTime> ExecutionTimes { get; protected set; }
+        #endregion
+
         public Dictionary<string, MetaNode> Children { get; protected set; } = new Dictionary<string, MetaNode>();
         public Dictionary<Type, object> Infos { get; set; } = new Dictionary<Type, object>();
 
