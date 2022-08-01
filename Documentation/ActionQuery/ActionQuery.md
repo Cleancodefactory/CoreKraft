@@ -6,6 +6,16 @@ The support for AQ is in the form of a host class any plugin can create and exec
 
 Ready-to-use `Scripter` and `NodeScripter` nodeset plugins are provided for use whenever AQ scripting is enough (i.e. there is no need of a custom plugin to provide additional features). See [Using scripter plugins](ScripterPlugin.md) for how-to instructions.
 
+## Quick links
+
+* [Default libraries](DefaultLibraries.md) - Libraries always available to `Scripter` and `NodeScripter` plugins.
+
+* Built in libraries (included when configured): [basicimage](Libs/basicimage.md), [basicweb](Libs/basicweb.md), [files](Libs/files.md), [internalcalls](Libs/internalcalls.md)
+
+* [Useful scripts and examples](UsefulScripts.md)
+
+* [MetaInfo access](ExecutionMetaInfo/ExecutionMetaInfo.md)
+
 ## What is ActionQuery and what is its purpose
 
 TODO:
