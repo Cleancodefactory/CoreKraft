@@ -362,7 +362,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
             throw new InvalidOperationException("ModifyResult is supported only in node plugins. DataLoaders must produce results sequentially in order to stick to universaly expected behaviour!");
         }
 
-        [Function(nameof(SetResult), "")]
+        [Function(nameof(SetResult), "Sets values of the top or current result")]
+        [Parameter(0,"dict","Dictionary to supply keys and values to set",TypeFlags.Dict | TypeFlags.Optional)]
+        [ParameterPattern(0,"keyvalparams","Pairs of key names / values to set",TypeFlags.String,TypeFlags.Varying)]
+        [Result("Returns the last set value - not recommended to use",TypeFlags.Varying)]
         public ParameterResolverValue SetResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;

@@ -277,7 +277,17 @@ _fields_ - The number of columns in the last result set.
 
 Extracts general information from the meta node
 
-`field` - Specifies which field to extract. Can be: `name`, `step`, `executions`. 
+`field` - Specifies which field to extract. Can be: `name`, `step`, `executions`, `datastate`, `operation`. 
+
+- **name** - The name of the node
+
+- **step** - The index of the step of execution
+
+- **executions** - The number of times the node has been executed
+
+- **datastate** - Meaningful only in Write operations. Holds the data state of the data applied to the node - can be null, "0" unchanged, "1" for creation "2" for update "3" for delete. The value is string! Should not be used with depth different than 0 (defaults to 0 if omitted)
+
+- **operation** - The name of the operation (insert, update, delete). Set only in write actions.
 
 `depth` - If omitted assumed 0. 0 - extracts the meta info for the current node , 1 - extracts from the parent and so on. If the depth exceeds the execution chain length null will be returned.
 
@@ -310,7 +320,7 @@ Please check the contexts in which the functions are available. Some of them are
 
 **HasResults()** - returns `true` or `false` depending on if any result exists. In write actions always returns `true`.
 
-**SetResult(`dict | ( key, value [key, value [, key, value ...]])`)** - Sets the result/current result/row. In read actions a result have exist (in DataLoader scripts use AddResult, In Node scripts the node should have produced at least one result otherwise SetResult will fail. To avoid that check ResultsCount or HasResults first).
+**SetResult(`dict | ( key, value [key, value [, key, value ...]])`)** - Sets the result/current result/row. In read actions a result have to exist (in DataLoader scripts use AddResult, In Node scripts the node should have produced at least one result otherwise SetResult will fail. To avoid that check ResultsCount or HasResults first).
 
 > `dict` - A Dict obtained/created previously. All the Dict values are assigned to the result under the same keys.
 
@@ -328,11 +338,11 @@ Please check the contexts in which the functions are available. Some of them are
 
 **ModifyResult(index, ( dict | ( key, value [, key, value ...]))** - Works only in read actions. Modifies the result indicated by `index`, by setting the specified values one by one or by using dictionary in the same fashion like SetResult. As in write actions there is a single current row, which is also the result, this function throws an exception in order to stimulate usage of SetResult in these cases.
 
-**ClearResultExcept(`dict | ([key [, key ...]])`)**
+**ClearResultExcept(`list | ([key [, key ...]])`)** - Clears the result (the top result on read, the `current` on write), but leaves the values of the listed keys intact. Called without arguments clears the result completely.
 
-**CSetting(`name [,default]`)**
+**CSetting(`name [,default]`)** - Gets a custom setting by name. Custom settings are specified in the plugin configurations in Configuration.json or in override sections in `appsettings`. The custom setting values are strings, they should be specified as strings and casted to another type if on needs non-string values.
 
-**CSettingLoader(`name [, default]`)**
+**CSettingLoader(`name [, default]`)** - available only node plugins and not in the data loaders (main node plugins). Gets custom setting (like in CSetting), but from the custom settings of the dataloader of the current node. Scripts used as node plugins need to access these in some situations. Sometimes node plugins are written especially to complement the main function of the node and often this can be written in more flexible way if the settings of the main data loader are accessible - this is the reason for the existence of this function.
 
 **ModuleName()** - Returns module name
 
@@ -346,10 +356,10 @@ Most of these functions set the state property of the current result. To avoid t
 
 **SetResultDeleted()** - Sets the state of the current result to deleted. If you want to impact the current execution process this should be set in a node script executed in `beforenodeaction` phase. 
 
-**SetResultNew()**
+**SetResultNew()** - Sets the state of the result (top on read, current on write) to `new`.
 
-**SetResultUpdated()**
+**SetResultUpdated()** - Sets the state of the result (top on read, current on write) to `changed`.
 
-**GetStatePropertyName**
+**GetStatePropertyName()** - Returns the property name of the data state property. Use this if you want to write script able to work with CoreKraft complied with different name for the state property.
 
 
