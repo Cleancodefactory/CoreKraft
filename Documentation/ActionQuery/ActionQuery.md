@@ -8,6 +8,8 @@ Ready-to-use `Scripter` and `NodeScripter` nodeset plugins are provided for use 
 
 ## Quick links
 
+* [Using the Scripter plugin](ScipterPlugin.md) - The Scripter and NodeScripter plugins. Built-in plugins executing Action Query scripts with (optionally) additional built-in libraries - the most popular way to use scripts within CoreKraft.
+
 * [Default libraries](DefaultLibraries.md) - Libraries always available to `Scripter` and `NodeScripter` plugins.
 
 * Built in libraries (included when configured): [basicimage](Libs/basicimage.md), [basicweb](Libs/basicweb.md), [files](Libs/files.md), [internalcalls](Libs/internalcalls.md)
@@ -16,11 +18,11 @@ Ready-to-use `Scripter` and `NodeScripter` nodeset plugins are provided for use 
 
 * [MetaInfo access](ExecutionMetaInfo/ExecutionMetaInfo.md)
 
-## What is ActionQuery and what is its purpose
+* [Hosting Action Query scripts](AQHosting.md) in plugin you write. By hosting Action Query one has the option to write plugins for CoreKraft like libraries for some kind of tasks driven by a script to do specific work.
 
-TODO:
+* [The purpose and reasons behind Action Query](AQPurpose.md) - Interested why it exists and why Action Query is done that way? Here you can read some considerations that led to its creation. 
 
-Read more [here](AQPurpose.md).
+
 
 ## ActionQuery syntax
 
