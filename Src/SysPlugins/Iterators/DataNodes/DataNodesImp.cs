@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 {
@@ -116,6 +117,14 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             } else if (readAction == EReadAction.New) {
                 if (!string.IsNullOrEmpty(node?.Read?.New?.Plugin)) {
                     pluginName = node.Read.New.Plugin;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(node?.Read?.New?.Query))
+                    {
+                        //There is no plugin but query, most probably misconfigured plugin name
+                        KraftLogger.LogWarning($"Query content for node {node.NodeSet.Name}/{node.NodeKey}: {Environment.NewLine}{node?.Read?.New?.Query}{Environment.NewLine}won't be executed because NEW-PLUGIN not configured.");
+                    }
                 }
             } else {
                 throw new Exception("Unsupported read action");
