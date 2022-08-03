@@ -100,6 +100,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return base.GetProc(name);
         }
 
+
+        //No doc ATM
         [Function(nameof(BailOut), "")]
         public ParameterResolverValue BailOut(HostInterface ctx, ParameterResolverValue[] args)
         {
@@ -110,6 +112,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
+        //No doc ATM
         [Function(nameof(OverrideResponseData), "")]
         public ParameterResolverValue OverrideResponseData(HostInterface ctx, ParameterResolverValue[] args)
         {
@@ -125,6 +128,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return args[0];
         }
 
+        //No doc ATM
         [Function(nameof(ForceJSONResponse), "")]
         public ParameterResolverValue ForceJSONResponse(HostInterface ctx, ParameterResolverValue[] args)
         {
@@ -139,6 +143,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
+        //No doc ATM
         [Function(nameof(ForceTextResponse), "")]
         public ParameterResolverValue ForceTextResponse(HostInterface ctx, ParameterResolverValue[] args)
         {
@@ -158,6 +163,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(contentType);
         }
 
+        //No doc ATM
         [Function(nameof(DictFromParameters), "")]
         [Parameter(0, "parameternames", "comma separated list of parameters to fetch", TypeFlags.String)]
         public ParameterResolverValue DictFromParameters(HostInterface ctx, ParameterResolverValue[] args)
@@ -194,7 +200,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region
 
-        [Function(nameof(AddResult), "")]
+        // Check Length
+        [Function(nameof(AddResult), "Works only in read actions. Creates a new result (resulting row). After it until AddResult is called again SetResult works on the recently added result. Can be called without arguments to create an empty result.")]
         public ParameterResolverValue AddResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginReadContext rctx)
@@ -253,7 +260,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(HasResults), "")]
+        [Function(nameof(HasResults), "Returns true or false depending on if any result exists. In write actions always returns true.")]
         public ParameterResolverValue HasResults(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginReadContext rctx)
@@ -266,7 +273,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(ModifyResult), "")]
+        // Check Length
+        [Function(nameof(ModifyResult), "Works only in read actions. Modifies the result indicated by index, by setting the specified values one by one or by using dictionary in the same fashion like SetResult.")]
         public ParameterResolverValue ModifyResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;
@@ -336,7 +344,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(SetResult), "")]
+        // Check Length
+        [Function(nameof(SetResult), "Sets the result/current result/row. In read actions a result have to exist (in DataLoader scripts use AddResult, In Node scripts the node should have produced at least one result otherwise SetResult will fail. ")]
         public ParameterResolverValue SetResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;
@@ -391,7 +400,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(ClearResultExcept), "")]
+        [Function(nameof(ClearResultExcept), "Clears the result (the top result on read, the current on write), but leaves the values of the listed keys intact. Called without arguments clears the result completely.")]
         public ParameterResolverValue ClearResultExcept(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;
@@ -466,7 +475,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return result;
         }
 
-        [Function(nameof(GetStatePropertyName), "")]
+        [Function(nameof(GetStatePropertyName), "Returns the property name of the data state property. Use this if you want to write script able to work with CoreKraft complied with different name for the state property.")]
         public ParameterResolverValue GetStatePropertyName(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginContext dtx)
@@ -476,7 +485,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(ResetResultState), "")]
+        [Function(nameof(ResetResultState), "Resets the state of the current result to unchanged.")]
         public ParameterResolverValue ResetResultState(HostInterface ctx, ParameterResolverValue[] args)
         {
             var result = _GetResult(ctx);
@@ -487,7 +496,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(SetResultDeleted), "")]
+        [Function(nameof(SetResultDeleted), "Sets the state of the current result to deleted. If you want to impact the current execution process this should be set in a node script executed in beforenodeaction phase.")]
         public ParameterResolverValue SetResultDeleted(HostInterface ctx, ParameterResolverValue[] args)
         {
             var result = _GetResult(ctx);
@@ -498,7 +507,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(SetResultNew), "")]
+        [Function(nameof(SetResultNew), "Sets the state of the result (top on read, current on write) to new.")]
         public ParameterResolverValue SetResultNew(HostInterface ctx, ParameterResolverValue[] args)
         {
             var result = _GetResult(ctx);
@@ -509,7 +518,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(SetResultUpdated), "")]
+        [Function(nameof(SetResultUpdated), "Sets the state of the result (top on read, current on write) to changed.")]
         public ParameterResolverValue SetResultUpdated(HostInterface ctx, ParameterResolverValue[] args)
         {
             var result = _GetResult(ctx);
@@ -526,7 +535,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Function(nameof(ResultsCount), "")]
+        [Function(nameof(ResultsCount), "Returns the number of result dictionaries in read actions and always 1 in write actions.")]
         public ParameterResolverValue ResultsCount(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginReadContext rctx)
@@ -549,7 +558,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Function(nameof(GetResult), "")]
+
+        // Check Length
+        [Function(nameof(GetResult), "In read actions gets result specified by index. In write actions always returns the only result (any arguments are ignored). The return value is a Dict with copy of the result and not the result itself.")]
         public ParameterResolverValue GetResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginReadContext rctx)
@@ -579,7 +590,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(RemoveResult), "")]
+        [Function(nameof(RemoveResult), "Removes result specified by index. index must be between >=0 and < ResultsCount(). In write actions throws an exception.")]
         public ParameterResolverValue RemoveResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginReadContext rctx)
@@ -629,7 +640,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Function(nameof(GetAllResults), "")]
+
+        // Check Length
+        [Function(nameof(GetAllResults), "In read actions returns List of Dict objects (see List and Dict above) which are copies of all the results accumulated so far in the current node. In write actions returns a Dict with the current row.")]
         public ParameterResolverValue GetAllResults(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginReadContext rctx)
@@ -655,7 +668,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="_ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        [Function(nameof(ModulePath), "")]
+        [Function(nameof(ModulePath), "Returns the physical module path of the current module. If argument is passed combines them. For example to get the physical path of the module's Data directory use ModulePath('Data').")]
         public ParameterResolverValue ModulePath(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
@@ -695,14 +708,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(ModuleName), "")]
+        [Function(nameof(ModuleName), "Returns module name.")]
         public ParameterResolverValue ModuleName(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
             return new ParameterResolverValue(ctx.ProcessingContext.InputModel.Module);
         }
 
-        [Function(nameof(NodePath), "")]
+        [Function(nameof(NodePath), "Returns the full path of the node from the current nodeset. The result is a string containg the node names in the path separated with '.' ")]
         public ParameterResolverValue NodePath(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
@@ -710,21 +723,21 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         }
 
-        [Function(nameof(NodeKey), "")]
+        [Function(nameof(NodeKey), "Returns the key name of the current node.")]
         public ParameterResolverValue NodeKey(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
             return new ParameterResolverValue(ctx.NodeKey);
         }
 
-        [Function(nameof(Action), "")]
+        [Function(nameof(Action), "Returns the action: read or write as string.")]
         public ParameterResolverValue Action(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
             return new ParameterResolverValue(ctx.Action);
         }
 
-        [Function(nameof(Operation), "")]
+        [Function(nameof(Operation), "Returns the operation under which the script is executed. Applies to both data loader and node scripts. The returned value is string and can be one of these select, insert, update, delete.")]
         public ParameterResolverValue Operation(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
@@ -734,7 +747,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Settings
 
-        [Function(nameof(CSetting), "")]
+        [Function(nameof(CSetting), "Gets a custom setting by name. Custom settings are specified in the plugin configurations in Configuration.json or in override sections in appsettings")]
         public ParameterResolverValue CSetting(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
@@ -761,7 +774,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
         }
 
-        [Function(nameof(CSettingLoader), "")]
+        // Check Length
+        [Function(nameof(CSettingLoader), "Available only node plugins and not in the data loaders (main node plugins). Gets custom setting (like in CSetting), but from the custom settings of the dataloader of the current node.")]
         public ParameterResolverValue CSettingLoader(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
