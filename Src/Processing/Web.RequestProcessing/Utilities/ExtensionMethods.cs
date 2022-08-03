@@ -63,6 +63,10 @@ namespace Ccf.Ck.Processing.Web.Request.Utilities
                             KraftLogger.LogCritical(error);
                         }
                         httpContext.Request.Headers.Clear();
+                        if (error != null)
+                        {
+                            httpContext.Response.WriteAsync(error).Wait();
+                        }
                         break;
                     }
                 case HttpStatusCode.Unauthorized:
