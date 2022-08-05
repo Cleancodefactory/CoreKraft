@@ -322,9 +322,9 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 }
                 if (input is IEnumerable einput) {
                     foreach (var x in einput) {
-                        return new ParameterResolverValue(true);
+                        return new ParameterResolverValue(false);
                     }
-                    return new ParameterResolverValue(false);
+                    return new ParameterResolverValue(true);
                 }
                 var type = input.GetType();
                 if (g_INT_TYPES.Any(t => t == type)) {

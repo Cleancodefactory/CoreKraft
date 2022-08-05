@@ -85,7 +85,11 @@ This basically boils down to a syntax consisting of function calls with paramete
 
 In this example param2 is param1 concatenated with "%" character which could be useful in LIKE conditions in SQL for example.
 
-In current CoreKraft versions the recursion level allowed for using the `Parameter` syntax is **limited to only one level**. This means that if in the example above a param3 tries to use param2 in a similar way, this will violate the limitation and will cause an exception. This limitation is imposed for a reason, its purpose is to prevent the temptation to use the parameter expressions as a programming language. They are pre-compiled and fast enough for what they do, but making too complex expressions and causing recursion can lead to uncontrollable and hard to calculate complexity. One should not forget that they are intended mainly as the means to fetch the data needed by the plugins, best example are the DB plugins.
+In current CoreKraft versions the recursion level allowed for using the `Parameter` syntax is **limited to only 5 levels**. This means that if one parameter's expression refers another and 4 more times in turn - an exceptioin will be thrown. 
+
+This limitation is imposed for a reason, its purpose is to prevent the temptation to use the parameter expressions as a programming language. They are pre-compiled and fast enough for what they do, but making too complex expressions and causing recursion can lead to uncontrollable and hard to calculate complexity. One should not forget that they are intended mainly as the means to fetch the data needed by the plugins, best example are the DB plugins.
+
+Another case that can often cause serious problems without the recursion limit is usage of `$default` parameter definition. Referring any parameter name not explicitly listed will cause the same expression to be resolved again and again in eternal cycle. While this is clearly a mistake, errors of this kind can sometimes (again by mistake) go into production deployment and without limitation they can practically block the server. With the limitation blocking will be avoided (of course the error still needs to be corrected).
 
 Where the initial data comes from? Notice the `GetFrom` resolver, it fetches a value from the context collections which represent the data in the current request (be it an HTTP one or not.). In the end of the document there is more detailed description of the available collections and what they correspond to.
 
@@ -128,7 +132,23 @@ _**Currently**_ multiple values attached to the same name are not supported for 
 
 ### NavGetFrom(source, dottedpath)
 
-Advanced version of GetFrom ...
+Advanced version of GetFrom accepting a sting as second argument. The string is dotted path to the value that must be read. The path starts from the specified source.
+
+```
+NavGetFrom('current','address.addressid')
+```
+
+The above example fetches the addressid field from a child data node. This may be needed when the "parent" record has to hold id of a single other record. _Of course such scenario requires also specific order of execution if it should work in the insert case._
+
+### CombineSources (sources)
+
+Example CombineSources('client, data').
+
+This resolver accepts a string with sources list (just like GetFrom and NavGetFrom). It creates a new dictionary by combining them in the order specified. 
+
+The resolver is especially useful for Action Query script nodes designed to call internally other nodesets for the actual data extraction and combine/restructure the results. Obviously such nodes will not need much parameters (if any), what they receive as parameters is most likely to be the parameters needed by the called other nodesets.
+
+Without CombineSources the set of data to be passed with the call has to be constructed by adding the values one by one, which can be tedious if not necessary for a reason better than just routing them into the call.
 
 ### CurrentData()
 
@@ -325,3 +345,6 @@ Compares `a` and `b` and returns `true` if a is greater than b. While it works w
 
 Checks the `text` against the `regexp` and returns it as ParameterResolverValue marked as content (EResolverValueType.ContentType) if matched or null marked as invalid if not. The resulting value is handled typically as text insert (by DB plugins for example) allowing to use text inserted in an SQL statement without risk of security compromises. Other plugins can use the resulting value differently - please check first. While there are cases when this may be unavoidable mass usage of CheckedText is not recommended. It will protect against SQL injection (for example) only if the regular expression is carefully composed, massive usage will obviously rise the risk of checks that will miss something.
 
+### IsEmpty(val)
+
+Returns true if the passed value is empty. This includes null values, empty strings, numeric zeros, empty collections. Added in August 2022.
