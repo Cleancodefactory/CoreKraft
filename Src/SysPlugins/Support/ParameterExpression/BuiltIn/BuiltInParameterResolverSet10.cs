@@ -72,6 +72,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                                                               typeof(Int64), typeof(sbyte), typeof(uint), typeof(UInt16),
                                                               typeof(UInt32), typeof(UInt64), typeof(float), typeof(decimal), typeof(byte), typeof(string)};
 
+        static readonly Type[] g_INT_TYPES = new Type[] { typeof(int), typeof(Int16), typeof(Int32),
+                                                              typeof(Int64), typeof(sbyte), typeof(uint), typeof(UInt16),
+                                                              typeof(UInt32), typeof(UInt64), typeof(byte)};
+
+        static readonly Type[] g_FLOAT_TYPES = new Type[] { typeof(double), typeof(float), typeof(decimal) };
+
+
         #endregion
 
         #region Internal utilities (make them at least protected)
@@ -304,6 +311,35 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 // This result will cause excepton if not handled in some special manner.
                 return new ParameterResolverValue(null, EResolverValueType.ContentType, (uint)EValueDataType.Text);
             }
+        }
+        public ParameterResolverValue IsEmpty(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (args.Count == 1) {
+                var input = args[0].Value;
+                if (input == null) return new ParameterResolverValue(true);
+                if (input is string sinput) {
+                    if (string.IsNullOrEmpty(sinput)) return new ParameterResolverValue(true);
+                    return new ParameterResolverValue(false);
+                }
+                if (input is IEnumerable einput) {
+                    foreach (var x in einput) {
+                        return new ParameterResolverValue(true);
+                    }
+                    return new ParameterResolverValue(false);
+                }
+                var type = input.GetType();
+                if (g_INT_TYPES.Any(t => t == type)) {
+                    var i = Convert.ToInt64(input);
+                    if (i == 0) return new ParameterResolverValue(true);
+                    return new ParameterResolverValue(false);
+                }
+                if (g_FLOAT_TYPES.Any(t => t == type)) {
+                    var d = Convert.ToDouble(input);
+                    if (d == 0) return new ParameterResolverValue(true);
+                    return new ParameterResolverValue(false);
+                }
+                return new ParameterResolverValue(false);
+            }
+            return new ParameterResolverValue(true);
         }
         public ParameterResolverValue Skip(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {

@@ -198,6 +198,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                      Name = "NumAsText"
                                 }
                             },
+                            { 
+                                new Resolver() {
+                                    Alias = "IsEmpty",
+                                    Arguments = 1,
+                                    Name = "IsEmpty"
+                                }
+                            },
                             {
                                 new Resolver()
                                 {

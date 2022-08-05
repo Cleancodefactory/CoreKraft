@@ -10,6 +10,8 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Expression
     public class ParameterExpression : ResolverExpression<ParameterResolverValue, IParameterResolverContext>
     {
 
+        public const int MAX_RECURSIONS = 5;
+
         protected override ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver(string name)
         {
             return ParameterResolversManager.Instance.GetResolver(name);
@@ -108,9 +110,9 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Expression
                 var ra = args as ResolverArguments<ParameterResolverValue>;
                 if (ra != null)
                 {
-                    if (ra.Recursions > 2)
+                    if (ra.Recursions > MAX_RECURSIONS)
                     {
-                        throw new Exception("Too many recursions - only up to 2 are allowed");
+                        throw new Exception($"Too many recursions - only up to {MAX_RECURSIONS} are allowed");
                     }
                 }
                 return c.Evaluate(name, args); // TODO: What exactly this would like
