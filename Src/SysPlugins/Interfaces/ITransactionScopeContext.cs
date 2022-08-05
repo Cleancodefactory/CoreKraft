@@ -18,7 +18,6 @@ namespace Ccf.Ck.SysPlugins.Interfaces
         DependencyInjectionContainer DependencyInjectionContainer { get; }
 
         Task<IPluginsSynchronizeContextScoped> GetSynchronizeContextScopedAsync<T>(string contextKey, ELoaderType loaderType, KraftModuleConfigurationSettings moduleConfigSettings, T plugin) where T : IPlugin;
-   
 
         void RollbackTransactions();
         

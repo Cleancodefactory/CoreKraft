@@ -128,7 +128,15 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     DbConnection conn = scopedContext.Connection;
                     using (DbCommand cmd = conn.CreateCommand())
                     {
-                        cmd.Transaction = scopedContext.CurrentTransaction; // if we decide to open transaction in future this will guarantee we only have to open it and will take effect throughout the code.
+                        //cmd.Transaction = scopedContext.CurrentTransaction; //no transaction
+                        if (scopedContext is ADOSynchronizeContextScopedDefault<XConnection> scopedDefault)
+                        {
+                            if (scopedDefault.IsStartReadTransaction())
+                            {
+                                cmd.Transaction = scopedContext.StartADOTransaction(); //start transaction
+                            }
+                        }
+                        
                         cmd.Parameters.Clear();
                         // This will set the resulting command text if everything is Ok.
                         // The processing will make replacements in the SQL and bind parameters by requesting them from the resolver expressions configured on this node.
