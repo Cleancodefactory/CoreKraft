@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 {
@@ -62,10 +63,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             //  Trace.WithContext(dataIteratorContext.ProcessingContext.TraceId).Log("Nodeset READ operation starting- nodeset: {0}, modekey: {1}",dataIteratorContext.LoadedNodeSet.StartNode.NodeSet.Name, dataIteratorContext.LoadedNodeSet.StartNode.NodeKey);
             var results = new List<Dictionary<string, object>>() { new Dictionary<string, object>() { } };
             EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
-            MetaRoot metaRoot = new MetaRoot(infoFlag); // TODO: Choose the flags from config
-            object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext, metaRoot);
-            metaRoot.SetFinished();
-            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = new MetaRoot(infoFlag); // TODO: Choose the flags from config
+            object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext, dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta);
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta.SetFinished();
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
             
@@ -116,6 +116,14 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             } else if (readAction == EReadAction.New) {
                 if (!string.IsNullOrEmpty(node?.Read?.New?.Plugin)) {
                     pluginName = node.Read.New.Plugin;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(node?.Read?.New?.Query))
+                    {
+                        //There is no plugin but query, most probably misconfigured plugin name
+                        KraftLogger.LogWarning($"Query content for node {node.NodeSet.Name}/{node.NodeKey}: {Environment.NewLine}{node?.Read?.New?.Query}{Environment.NewLine}won't be executed because NEW-PLUGIN not configured.");
+                    }
                 }
             } else {
                 throw new Exception("Unsupported read action");
@@ -269,14 +277,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         private void BeginWriteOperation(DataIteratorContext dataIteratorContext)
         {
             EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
-            MetaRoot metaRoot = new MetaRoot(infoFlag); 
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = new MetaRoot(infoFlag); 
             object result = ExecuteWriteNode(dataIteratorContext.LoadedNodeSet.StartNode,
                                   dataIteratorContext.ProcessingContext.InputModel.Data,
                                   dataIteratorContext.LoadedNodeSet.StartNode.NodeKey.Trim(),
                                   dataIteratorContext,
-                                  metaRoot);
-            metaRoot.SetFinished();
-            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = metaRoot;
+                                  dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta);
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta.SetFinished();
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
             
