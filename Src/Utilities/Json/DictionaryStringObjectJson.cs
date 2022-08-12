@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Ccf.Ck.Utilities.Json
 {
@@ -83,12 +81,7 @@ namespace Ccf.Ck.Utilities.Json
                                 result.Add(name, reader.GetString());
                                 break;
                             case JsonTokenType.Number:
-                                if (reader.TryGetInt64(out var num))
-                                {
-                                    result.Add(name, num);
-                                    break;
-                                }
-                                result.Add(name, reader.GetDecimal());
+                                ParseNumber(result, ref reader, name);
                                 break;
                             case JsonTokenType.True:
                                 result.Add(name, true);
@@ -149,12 +142,7 @@ namespace Ccf.Ck.Utilities.Json
                         result.Add(reader.GetString());
                         break;
                     case JsonTokenType.Number:
-                        if (reader.TryGetInt64(out var num))
-                        {
-                            result.Add(num);
-                            break;
-                        }
-                        result.Add(reader.GetDecimal());
+                        ParseNumber(result, ref reader);
                         break;
                     case JsonTokenType.True:
                         result.Add(true);
@@ -172,6 +160,40 @@ namespace Ccf.Ck.Utilities.Json
                 }
             }
             throw new Exception($"TraverseArray: No array created and returned at position: {reader.Position}");
+        }
+
+        private static void ParseNumber<T>(T result, ref Utf8JsonReader reader, string name = null)
+        {
+            if (result is Dictionary<string, object> dict)
+            {
+                if (reader.TryGetInt32(out var numInt))
+                {
+                    dict.Add(name, numInt);
+                }
+                else if (reader.TryGetInt64(out var numLong))
+                {
+                    dict.Add(name, numLong);
+                }
+                else
+                {
+                    dict.Add(name, (reader.GetDecimal()));
+                }
+            }
+            else if (result is List<object> list)
+            {
+                if (reader.TryGetInt32(out var numInt))
+                {
+                    list.Add(numInt);
+                }
+                else if (reader.TryGetInt64(out var numLong))
+                {
+                    list.Add(numLong);
+                }
+                else
+                {
+                    list.Add(reader.GetDecimal());
+                }
+            }
         }
     }
 }

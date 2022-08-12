@@ -10,7 +10,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <PackageDescription>Provides System Plugin for for Db access.</PackageDescription>
+    <PackageDescription>Provides System Plugin for Db access.</PackageDescription>
   </PropertyGroup>
 
   <ItemGroup>
