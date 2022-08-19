@@ -169,6 +169,22 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "And",
+                                     Arguments = 2,
+                                     Name = "And"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
+                                     Alias = "Not",
+                                     Arguments = 1,
+                                     Name = "Not"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "Concat",
                                      Arguments = 2,
                                      Name = "Concat"

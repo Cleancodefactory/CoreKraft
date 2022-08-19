@@ -197,7 +197,17 @@ Returns a 0 | 1 result indicating if the logged on user has the `role`.
 
 Returns 0 | 1 result indicating if the any one of the two arguments is true like.
 
-**a**, **b** - Arguments to check.
+- **a**, **b** - Arguments to check.
+### And(a,b)
+
+Returns 0 | 1 result indicating if both arguments are true-like.
+
+ - **a**, **b** - Arguments to check.
+
+### Not(a)
+
+Returns 1 | 0 result indicating the argument is not truthy (1) or is truthy (0).
+
 ### Concat(a, b)
 
 Converts the two arguments to string (if they are not strings already) and returns a string of them both concatenated one after the other.

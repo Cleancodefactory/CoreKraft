@@ -532,6 +532,16 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             object resultRight = args[1].Value;
             return TrueLike(resultLeft) || TrueLike(resultRight) ? new ParameterResolverValue(1) : new ParameterResolverValue(0);
         }
+        public ParameterResolverValue And(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            object resultLeft = args[0].Value;
+            object resultRight = args[1].Value;
+            return TrueLike(resultLeft) && TrueLike(resultRight) ? new ParameterResolverValue(1) : new ParameterResolverValue(0);
+        }
+        public ParameterResolverValue Not(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            object resultLeft = args[0].Value;
+            
+            return TrueLike(resultLeft) ? new ParameterResolverValue(0) : new ParameterResolverValue(1);
+        }
         public ParameterResolverValue Concat(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {
             string resultLeft = (args[0].Value != null)?args[0].Value.ToString():"";
