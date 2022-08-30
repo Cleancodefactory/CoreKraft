@@ -338,11 +338,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 var state = execContextManager.DataState.GetDataState(row); //row[STATE_PROPERTY_NAME] as string;
                 metaNode.GetVolatileInfo().DataState = state;
                 // 3.1 Check for valid state
-                if (state == null) // Deprecated:  row.ContainsKey(STATE_PROPERTY_NAME) == false)
-                {
-                    continue; // Skip non-existent or invalid state - this also skips the children of this node!
-                    // throw new ArgumentException("{0} property missing from row. Row processing skipped in ExecuteWriteNode", STATE_PROPERTY_NAME);
-                }
+                // Moved after the "before" plugins
                 // 3.2 Determine the actual state to use for this iteration (we may have override)
                 string operation = GetWriteAction(execContextManager.OverrideAction, state);
                 metaNode.GetVolatileInfo().Operation = operation;
@@ -370,6 +366,20 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     plugins?.Execute(node.Write.BeforeNodeActionPlugins, execContextManager.CustomPluginProxy, _bailOut);
                     if (_bailOut()) return null;
                 }
+
+                // 5.1 Recheck the state after the before plugins
+                state = execContextManager.DataState.GetDataState(row); //row[STATE_PROPERTY_NAME] as string;
+                metaNode.GetVolatileInfo().DataState = state;
+                // 5.2 Check for valid state
+                if (state == null) // Deprecated:  row.ContainsKey(STATE_PROPERTY_NAME) == false)
+                {
+                    continue; // Skip non-existent or invalid state - this also skips the children of this node!
+                    // throw new ArgumentException("{0} property missing from row. Row processing skipped in ExecuteWriteNode", STATE_PROPERTY_NAME);
+                }
+                operation = GetWriteAction(execContextManager.OverrideAction, state);
+                metaNode.GetVolatileInfo().Operation = operation;
+                execContextManager.Operation = operation;
+
 
                 // 6. Execute children now if the operation is delete
                 // 6.1 Split the children between pre and post - used in non-delete for now
