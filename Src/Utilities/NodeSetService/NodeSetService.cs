@@ -108,6 +108,8 @@ namespace Ccf.Ck.Utilities.NodeSetService
         {
             if (operation?.CustomPlugins != null)
             {
+                operation.BeforeNodePlugins =
+                    new List<CustomPlugin>(operation.CustomPlugins.OrderBy(p => p.Executionorder).Where(p => p.BeforeNode == true));
                 operation.BeforeNodeActionPlugins =
                     new List<CustomPlugin>(operation.CustomPlugins.OrderBy(p => p.Executionorder).Where(p => p.BeforeNodeAction == true));
                 operation.AfterNodeActionPlugins =

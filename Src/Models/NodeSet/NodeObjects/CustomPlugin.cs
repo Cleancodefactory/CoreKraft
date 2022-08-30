@@ -47,7 +47,10 @@ namespace Ccf.Ck.Models.NodeSet
             get;
             set;
         }
-
+        public bool BeforeNode {
+            get;
+            set;
+        }
         public bool BeforeNodeAction
         {
             get;
