@@ -8,7 +8,7 @@ namespace Ccf.Ck.Models.NodeSet
 
         
 
-        #region Public Properties
+        #region Misc. Public Properties
         public List<Parameter> Parameters { get; set; } = new List<Parameter>();
         
 
@@ -17,7 +17,9 @@ namespace Ccf.Ck.Models.NodeSet
             get;
             set;
         }
+        #endregion
 
+        #region Custom plugins
         public List<CustomPlugin> CustomPlugins { get; set; }  = new List<CustomPlugin>();
         
         public List<CustomPlugin> BeforeNodePlugins { get; set; } = new List<CustomPlugin>();
@@ -27,7 +29,14 @@ namespace Ccf.Ck.Models.NodeSet
         public List<CustomPlugin> AfterNodeActionPlugins { get; set; } = new List<CustomPlugin>();
 
         public List<CustomPlugin> AfterNodeChildrenPlugins { get; set; } = new List<CustomPlugin>();
-        
+
+        #endregion
+
+        #region Additional Loader actions
+        public Prepare Prepare {
+            get;
+            set;
+        }
         #endregion
     }
 }

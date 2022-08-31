@@ -164,6 +164,9 @@ namespace Ccf.Ck.Utilities.NodeSetService
                     {
                         ReadQueryFile(fileName, node.Read.New);
                     }
+                    if (node.Read.Prepare != null && node.Read.Prepare.HasLoadQuery()) {
+                        ReadQueryFile(fileName, node.Read.Prepare);
+                    }
                 }
                 if (node.Write != null)
                 {
@@ -178,6 +181,9 @@ namespace Ccf.Ck.Utilities.NodeSetService
                     if (node.Write.Delete != null && node.Write.Delete.HasLoadQuery())
                     {
                         ReadQueryFile(fileName, node.Write.Delete);
+                    }
+                    if (node.Write.Prepare != null && node.Write.Prepare.HasLoadQuery()) {
+                        ReadQueryFile(fileName, node.Write.Prepare);
                     }
                 }
                 if (node.HasLookup())

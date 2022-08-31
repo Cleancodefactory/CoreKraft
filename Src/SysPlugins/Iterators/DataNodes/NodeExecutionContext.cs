@@ -692,6 +692,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             }
             public IExecutionMeta NodeMeta => Context.MetaNode;
         }
+        
         /// <summary>
         /// This is the proxy presented to the resolvers
         /// </summary>
@@ -829,6 +830,45 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public Dictionary<string, object> Row => Context.Row;
 
         }
+
+        // TODO - may be use the loader read context?
+        /// <summary>
+        /// A context passed to the newer Prepare action
+        /// </summary>
+        public class LoaderPluginPrepareContext : NodeExecutionContextProxy, IDataLoaderPrepareContext { 
+            public LoaderPluginPrepareContext(NodeExecutionContext nodectx) : base(nodectx) { }
+
+            public IPluginsSynchronizeContextScoped OwnContextScoped => Context.DataLoaderContextScoped;
+
+            public IPluginsSynchronizeContextScoped DataLoaderContextScoped => Context.DataLoaderContextScoped;
+
+            public Node CurrentNode => Context.CurrentNode;
+
+            public IPluginAccessor<INodePlugin> CustomService => Context.CustomService;
+
+            public LoadedNodeSet LoadedNodeSet => Context.LoadedNodeSet;
+
+            public Dictionary<string, object> ParentResult => Context.ParentResult;
+
+            public IPluginServiceManager PluginServiceManager => Context.PluginServiceManager;
+
+            public IProcessingContext ProcessingContext => Context.ProcessingContext;
+
+            public string Path => Context.Path;
+
+            public string NodeKey => Context.NodeKey;
+
+            public string Action => Context.Action;
+
+            public string Operation => Context.Operation;
+
+            public List<Dictionary<string, object>> Results => Context.Results;
+
+            public ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null) {
+                return Context.Evaluate(expressionName, oldargs);
+            }
+        }
+
 
         #endregion
 
