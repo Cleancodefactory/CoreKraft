@@ -9,7 +9,7 @@ namespace Ccf.Ck.Models.NodeSet
         
 
         #region Public Properties
-        public List<Parameter> Parameters { get; init; } = new List<Parameter>();
+        public List<Parameter> Parameters { get; set; } = new List<Parameter>();
         
 
         public int ExecutionOrder 

@@ -204,7 +204,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(AddResult), "Works only in read actions. Creates a new result (resulting row). After it until AddResult is called again SetResult works on the recently added result. Can be called without arguments to create an empty result.")]
         public ParameterResolverValue AddResult(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginReadContext rctx)
+            if (ctx is INodePluginContextWithResults rctx)
             {
                 var result = new Dictionary<string, object>();
                 if (args.Length == 1 && args[0].Value is IDictionary _dict)
@@ -263,7 +263,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(HasResults), "Returns true or false depending on if any result exists. In write actions always returns true.")]
         public ParameterResolverValue HasResults(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginReadContext rctx)
+            if (ctx is INodePluginContextWithResults rctx)
             {
                 return new ParameterResolverValue(rctx.Results.Count > 0);
             }
@@ -274,11 +274,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         // Check Length
-        [Function(nameof(ModifyResult), "Works only in read actions. Modifies the result indicated by index, by setting the specified values one by one or by using dictionary in the same fashion like SetResult.")]
+        [Function(nameof(ModifyResult), "Works only in read and before-node write actions. Modifies the result indicated by index, by setting the specified values one by one or by using dictionary in the same fashion like SetResult.")]
         public ParameterResolverValue ModifyResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;
-            if (ctx is INodePluginReadContext rctx)
+            if (ctx is INodePluginContextWithResults rctx)
             {
                 if (rctx.Results.Count > 0)
                 {
@@ -349,23 +349,17 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public ParameterResolverValue SetResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;
-            if (ctx is INodePluginReadContext rctx)
-            {
-                if (rctx.Results.Count > 0)
-                {
+            if (ctx is INodePluginReadContext rctx) {
+                if (rctx.Results.Count > 0) {
                     result = rctx.Results[rctx.Results.Count - 1];
-                }
-                else
-                {
+                } else {
                     throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
                 }
-            }
-            else if (ctx is INodePluginWriteContext wctx)
-            {
+            } else if (ctx is INodePluginWriteContext wctx) {
                 result = wctx.Row;
-            }
-            else
-            {
+            } else if (ctx is INodePluginPreNodeContext) {
+                throw new Exception("The SetResult is not available in PreNode plugins");
+            } else {
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
 
@@ -421,7 +415,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             else
             {
-                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+                throw new Exception("The current execution context is not supported by ClearResultExcept");
             }
             List<string> preservekeys = new List<string>(10);
             if (args.Length == 1 && args[0].Value is IList list)
@@ -488,6 +482,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(ResetResultState), "Resets the state of the current result to unchanged.")]
         public ParameterResolverValue ResetResultState(HostInterface ctx, ParameterResolverValue[] args)
         {
+            if (ctx is INodePluginPreNodeContext) throw new Exception("ResetResultState cannot be used in pre-node plugins");
             var result = _GetResult(ctx);
             if (ctx is INodePluginContext dtx)
             {
@@ -499,6 +494,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(SetResultDeleted), "Sets the state of the current result to deleted. If you want to impact the current execution process this should be set in a node script executed in beforenodeaction phase.")]
         public ParameterResolverValue SetResultDeleted(HostInterface ctx, ParameterResolverValue[] args)
         {
+            if (ctx is INodePluginPreNodeContext) throw new Exception("ResetResultState cannot be used in pre-node plugins");
             var result = _GetResult(ctx);
             if (ctx is INodePluginContext dtx)
             {
@@ -510,6 +506,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(SetResultNew), "Sets the state of the result (top on read, current on write) to new.")]
         public ParameterResolverValue SetResultNew(HostInterface ctx, ParameterResolverValue[] args)
         {
+            if (ctx is INodePluginPreNodeContext) throw new Exception("ResetResultState cannot be used in pre-node plugins");
             var result = _GetResult(ctx);
             if (ctx is INodePluginContext dtx)
             {
@@ -521,6 +518,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(SetResultUpdated), "Sets the state of the result (top on read, current on write) to changed.")]
         public ParameterResolverValue SetResultUpdated(HostInterface ctx, ParameterResolverValue[] args)
         {
+            if (ctx is INodePluginPreNodeContext) throw new Exception("ResetResultState cannot be used in pre-node plugins");
             var result = _GetResult(ctx);
             if (ctx is INodePluginContext dtx)
             {
@@ -538,7 +536,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(ResultsCount), "Returns the number of result dictionaries in read actions and always 1 in write actions.")]
         public ParameterResolverValue ResultsCount(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginReadContext rctx)
+            if (ctx is INodePluginContextWithResults rctx)
             {
                 return new ParameterResolverValue(rctx.Results.Count);
             }
@@ -563,7 +561,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(GetResult), "In read actions gets result specified by index. In write actions always returns the only result (any arguments are ignored). The return value is a Dict with copy of the result and not the result itself.")]
         public ParameterResolverValue GetResult(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginReadContext rctx)
+            if (ctx is INodePluginContextWithResults rctx)
             {
                 int index = -1;
                 if (args.Length < 1)
@@ -593,7 +591,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(RemoveResult), "Removes result specified by index. index must be between >=0 and < ResultsCount(). In write actions throws an exception.")]
         public ParameterResolverValue RemoveResult(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginReadContext rctx)
+            if (ctx is INodePluginContextWithResults rctx)
             {
                 if (args.Length < 1) throw new ArgumentException("RemoveResult in read actions requires an argument - the index of the result to return.");
                 var index = Convert.ToInt32(args[0].Value);
@@ -618,7 +616,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(RemoveAllResults), "Removes all results collected in read operation so far.")]
         public ParameterResolverValue RemoveAllResults(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginReadContext rctx)
+            if (ctx is INodePluginContextWithResults rctx)
             {
                 rctx.Results.Clear();
                 return new ParameterResolverValue(null);
@@ -645,7 +643,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Function(nameof(GetAllResults), "In read actions returns List of Dict objects (see List and Dict above) which are copies of all the results accumulated so far in the current node. In write actions returns a Dict with the current row.")]
         public ParameterResolverValue GetAllResults(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginReadContext rctx)
+            if (ctx is INodePluginContextWithResults rctx)
             {
                 return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(rctx.Results);
             }

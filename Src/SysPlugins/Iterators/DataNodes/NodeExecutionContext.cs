@@ -84,6 +84,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// A context proxy passed to the Data loader plugins
         /// </summary>
         public LoaderPluginContext LoaderPluginProxy { get; private set; }
+
+        /// <summary>
+        /// A context proxy for the pre-plugin custom plugins.
+        /// </summary>
+        public CustomPluginContext CustomPluginPreNodeProxy { get; private set; }
         #endregion
 
         /// <summary>
@@ -99,6 +104,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 Context.ParameterResolverProxy = new ParameterResolverContext(Context);
                 Context.CustomPluginProxy = (action == ACTION_READ) ? (new CustomPluginReadContext(Context) as CustomPluginContext): (new CustomPluginWriteContext(Context) as CustomPluginContext);
                 Context.LoaderPluginProxy = (action == ACTION_READ) ?new LoaderPluginReadContext(Context) as LoaderPluginContext:new LoaderPluginWriteContext(Context) as LoaderPluginContext;
+                Context.CustomPluginPreNodeProxy = new CustomPluginPreNodeContext(Context);
                 Context.MetaNode = metaNode;
             }
 
@@ -204,6 +210,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 get => Context.OverrideAction;
                 set => Context.OverrideAction = value;
             }
+            public NodePluginPhase ExecutionPhase {
+                get => Context.ExecutionPhase;
+                set => Context.ExecutionPhase = value;
+            }
             // Proxies access
             public IParameterResolverContext ParameterResolverProxy => Context.ParameterResolverProxy;
             /// <summary>
@@ -214,6 +224,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             /// A context proxy passed to the Data loader plugins
             /// </summary>
             public LoaderPluginContext LoaderPluginProxy => Context.LoaderPluginProxy;
+            /// <summary>
+            /// A context proxy for the pre-plugin custom plugins.
+            /// </summary>
+            public CustomPluginContext CustomPluginPreNodeProxy => Context.CustomPluginPreNodeProxy;
         }
 
         // ---=== CONTEXT ITEMS ===---
@@ -331,7 +345,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         public string NodeKey { get; private set; }
         public EReadAction ReadAction => this.ProcessingContext.InputModel.ReadAction;
         public IExecutionMeta MetaNode { get; private set; }
-                
+
+        public NodePluginPhase ExecutionPhase { get; private set; }
+
         /// <summary>
         /// Node configuration
         /// </summary>
@@ -735,6 +751,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public string Operation => Context.Operation;
             public string NodeKey => Context.NodeKey;
             public object Data => Context.Data;
+            public NodePluginPhase ExecutionPhase => Context.ExecutionPhase;
 
             public IPluginsSynchronizeContextScoped OwnContextScoped { get; set; }
 
@@ -756,6 +773,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public CustomPluginWriteContext(NodeExecutionContext nodectx) : base(nodectx) { }
 
             public Dictionary<string, object> Row => Context.Row;
+
+        }
+
+        public class CustomPluginPreNodeContext : CustomPluginContext, INodePluginPreNodeContext {
+            public CustomPluginPreNodeContext(NodeExecutionContext nodectx) : base(nodectx) { }
+
+            public List<Dictionary<string, object>> Results => Context.Results;
 
         }
         /// <summary>

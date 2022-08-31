@@ -293,6 +293,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         private object ExecuteWriteNode(Node node, object dataNode, string nodePath, DataIteratorContext dataIteratorContext, IIteratorMeta metaStore)
         {
             #region Preparation of necessary structures
+            ICustomPluginProcessor plugins = new CustomPluginProcessor(); 
             var metaNode = metaStore.Child(node.NodeKey);
             bool _bailOut() {
                 return dataIteratorContext.BailOut;
@@ -321,6 +322,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     var consumer = contextScoped as IContextualBasketConsumer;
                     consumer.InspectBasket(new NodeContextualBasket(execContextManager));
                 }
+            }
+            // PreNode plugin invocation
+            if (node.Write != null) {
+                execContextManager.Results = currentNode;
+                plugins?.Execute(node.Write.BeforeNodePlugins, execContextManager.CustomPluginPreNodeProxy, _bailOut);
+                if (_bailOut()) return null;
+                execContextManager.Results = null; // Write plugins should not have access to all the rows, only the PreNode plugins can access them
             }
 
             // 2. Main cycle.
@@ -357,7 +365,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 // DEPRECATED :Results from plugins - we will reuse this in the next phases too.
                 // Now the plugins have to store data themselves in Row
                 // object customPluginsResults = null;
-                ICustomPluginProcessor plugins = new CustomPluginProcessor();
 
                 // 5.1. Do execute
                 if (node.Write != null)

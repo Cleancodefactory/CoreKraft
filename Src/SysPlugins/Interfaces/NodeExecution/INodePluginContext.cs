@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.NodeSet;
+﻿using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using System.Collections.Generic;
@@ -38,6 +39,8 @@ namespace Ccf.Ck.SysPlugins.Interfaces
         /// Contains the current operation - select, insert, update, delete
         /// </summary>
         string Operation { get; }
+
+        NodePluginPhase ExecutionPhase { get; }
 
         ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null);
 
