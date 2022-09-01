@@ -323,7 +323,15 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     consumer.InspectBasket(new NodeContextualBasket(execContextManager));
                 }
             }
-            // PreNode plugin invocation
+            if (node?.Write?.Prepare != null) {
+                if (dataPlugin is IDataLoaderPluginPrepare prepare) {
+                    execContextManager.Results = currentNode;
+                    execContextManager.Operation = "Prepare";
+                    prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
+                    if (_bailOut()) return null;
+                }
+            }
+            // PreNode plugin invocation (after the prepare operation
             if (node.Write != null) {
                 execContextManager.Results = currentNode;
                 plugins?.Execute(node.Write.BeforeNodePlugins, execContextManager.CustomPluginPreNodeProxy, _bailOut);

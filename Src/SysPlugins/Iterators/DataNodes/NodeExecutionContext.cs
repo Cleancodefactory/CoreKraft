@@ -228,6 +228,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             /// A context proxy for the pre-plugin custom plugins.
             /// </summary>
             public CustomPluginContext CustomPluginPreNodeProxy => Context.CustomPluginPreNodeProxy;
+            public LoaderPluginReadContext LoaderPluginPrepareProxy() {
+                return new LoaderPluginReadContext(Context);
+            }
         }
 
         // ---=== CONTEXT ITEMS ===---
@@ -835,39 +838,39 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// <summary>
         /// A context passed to the newer Prepare action
         /// </summary>
-        public class LoaderPluginPrepareContext : NodeExecutionContextProxy, IDataLoaderPrepareContext { 
-            public LoaderPluginPrepareContext(NodeExecutionContext nodectx) : base(nodectx) { }
+        //public class LoaderPluginPrepareContext : NodeExecutionContextProxy, IDataLoaderPrepareContext { 
+        //    public LoaderPluginPrepareContext(NodeExecutionContext nodectx) : base(nodectx) { }
 
-            public IPluginsSynchronizeContextScoped OwnContextScoped => Context.DataLoaderContextScoped;
+        //    public IPluginsSynchronizeContextScoped OwnContextScoped => Context.DataLoaderContextScoped;
 
-            public IPluginsSynchronizeContextScoped DataLoaderContextScoped => Context.DataLoaderContextScoped;
+        //    public IPluginsSynchronizeContextScoped DataLoaderContextScoped => Context.DataLoaderContextScoped;
 
-            public Node CurrentNode => Context.CurrentNode;
+        //    public Node CurrentNode => Context.CurrentNode;
 
-            public IPluginAccessor<INodePlugin> CustomService => Context.CustomService;
+        //    public IPluginAccessor<INodePlugin> CustomService => Context.CustomService;
 
-            public LoadedNodeSet LoadedNodeSet => Context.LoadedNodeSet;
+        //    public LoadedNodeSet LoadedNodeSet => Context.LoadedNodeSet;
 
-            public Dictionary<string, object> ParentResult => Context.ParentResult;
+        //    public Dictionary<string, object> ParentResult => Context.ParentResult;
 
-            public IPluginServiceManager PluginServiceManager => Context.PluginServiceManager;
+        //    public IPluginServiceManager PluginServiceManager => Context.PluginServiceManager;
 
-            public IProcessingContext ProcessingContext => Context.ProcessingContext;
+        //    public IProcessingContext ProcessingContext => Context.ProcessingContext;
 
-            public string Path => Context.Path;
+        //    public string Path => Context.Path;
 
-            public string NodeKey => Context.NodeKey;
+        //    public string NodeKey => Context.NodeKey;
 
-            public string Action => Context.Action;
+        //    public string Action => Context.Action;
 
-            public string Operation => Context.Operation;
+        //    public string Operation => Context.Operation;
 
-            public List<Dictionary<string, object>> Results => Context.Results;
+        //    public List<Dictionary<string, object>> Results => Context.Results;
 
-            public ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null) {
-                return Context.Evaluate(expressionName, oldargs);
-            }
-        }
+        //    public ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null) {
+        //        return Context.Evaluate(expressionName, oldargs);
+        //    }
+        //}
 
 
         #endregion

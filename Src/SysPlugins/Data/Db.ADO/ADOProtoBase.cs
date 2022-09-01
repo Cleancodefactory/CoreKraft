@@ -21,7 +21,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
     /// </summary>
     /// <typeparam name="XConnection"></typeparam>
     /// <typeparam name="ScopeContext"></typeparam>
-    public abstract class ADOProtoBase<XConnection, ScopeContext> : DataLoaderClassicBase<ScopeContext> where ScopeContext : class, IPluginsSynchronizeContextScoped, new()
+    public abstract class ADOProtoBase<XConnection, ScopeContext> : DataLoaderClassicBase<ScopeContext>, IDataLoaderPluginPrepare where ScopeContext : class, IPluginsSynchronizeContextScoped, new()
         where XConnection : DbConnection, new()
     {
 
@@ -79,7 +79,133 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         //}
         #endregion
 
+        #region Prepare
+        protected virtual void Prepare(IDataLoaderReadContext execContext) {
+            ADOInfo metaReport = null;
+            if (execContext is IActionHelpers helper) {
+                metaReport = helper.NodeMeta.CreateInfo<ADOInfo>();
+            }
+            var metaNode = execContext as IActionHelpers;
 
+            // TODO: What to return if there is no statement:
+            //  I think we should have two policies - empty object which enables children extraction if logically possible and
+            //  null wich stops the processing here.
+            List<Dictionary<string, object>> results = execContext.Results;
+            string sqlQuery = null;
+
+            List<string> parameters = new List<string>();
+            try {
+                Node node = execContext.CurrentNode;
+                string query = null;
+                if (execContext.Action == ACTION_READ) {
+                    query = node.Read?.Prepare?.Query;
+                } else if (execContext.Action == ACTION_WRITE) {
+                    query = node.Write?.Prepare?.Query;
+                }
+
+                if (!string.IsNullOrWhiteSpace(query)) {
+                    // Scope context for the same loader
+                    // Check it is valid
+                    if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext)) {
+                        throw new NullReferenceException("Scoped synchronization and transaction context is not available.");
+                    }
+                    // Configuration settings Should be set to the scoped context during its creation/obtainment - see ExternalServiceImp
+
+                    // No tranaction in read mode - lets not forget that closing the transaction also closes the connection - so the ;ifecycle control will do this using the transaction based notation
+                    // from ITransactionScope
+                    DbConnection conn = scopedContext.Connection;
+                    using (DbCommand cmd = conn.CreateCommand()) {
+                        //cmd.Transaction = scopedContext.CurrentTransaction; //no transaction
+                        if (execContext.Action == ACTION_READ && scopedContext is ADOSynchronizeContextScopedDefault<XConnection> scopedDefault) {
+                            if (scopedDefault.IsStartReadTransaction()) {
+                                cmd.Transaction = scopedContext.StartADOTransaction(); //start transaction
+                            }
+                        }
+
+                        cmd.Parameters.Clear();
+                        // This will set the resulting command text if everything is Ok.
+                        // The processing will make replacements in the SQL and bind parameters by requesting them from the resolver expressions configured on this node.
+                        // TODO: Some try...catching is necessary.
+                        sqlQuery = ProcessCommand(cmd, query, execContext, out parameters);
+                        if (metaReport != null) {
+                            metaReport.ReportSQL(sqlQuery);
+                            metaReport.ReportParameters(cmd.Parameters);
+                        }
+                        LogExecution(sqlQuery, execContext, parameters);
+                        using (DbDataReader reader = cmd.ExecuteReader()) {
+                            do {
+                                // TODO how to proceed here - side effects or no sideffects are we going to return something?
+                                int n_rows = 0;
+                                if (reader.HasRows) {
+                                    // Read a result (many may be contained) row by row
+                                    while (reader.Read()) {
+                                        n_rows++;
+                                        Dictionary<string, object> currentResult = new Dictionary<string, object>(reader.FieldCount);
+                                        for (int i = 0; i < reader.FieldCount; i++) {
+                                            string fldname = reader.GetName(i);
+                                            if (fldname == null) continue;
+                                            // TODO: May be configure that or at least create a compile time definition
+                                            fldname = fldname.ToLower().Trim(); // TODO: lowercase
+                                                                                //fldname = fldname.Trim();
+                                            if (fldname.Length == 0) {
+                                                throw new Exception($"Empty name when reading the output of a query. The field index is {i}. The query is: {cmd.CommandText}");
+                                            }
+                                            if (currentResult.ContainsKey(fldname)) {
+                                                throw new Exception($"Duplicated field name in the output of a query. The field is:{fldname}, the query is: {cmd.CommandText}");
+                                            }
+                                            object v;
+                                            if (reader.IsDBNull(i)) {
+                                                v = null;
+                                            } else {
+                                                if (reader.GetFieldType(i) == typeof(byte[])) {
+                                                    long fldLength = reader.GetBytes(i, 0, null, 0, 0);
+                                                    byte[] bytes = new byte[fldLength];
+                                                    long lread = reader.GetBytes(i, 0, bytes, 0, (int)fldLength);
+                                                    // TODO: lread may be more to the point then fldLength ?
+                                                    v = (PostedFile)bytes;
+                                                } else {
+                                                    v = reader.GetValue(i);
+                                                }
+                                            }
+                                            currentResult.Add(fldname, (v is DBNull) ? null : v);
+
+                                        }
+                                        // Mark the records unchanged, because they are just picked up from the data store (rdbms in this case).
+                                        execContext.DataState.SetUnchanged(currentResult);
+                                        results.Add(currentResult);
+                                        if (!node.IsList) break;
+
+                                    }
+                                }
+                                if (metaReport != null) {
+                                    metaReport.AddResult(n_rows, reader.FieldCount);
+                                }
+                            } while (reader.NextResult());
+                            reader.Close();
+                            if (metaReport != null) {
+                                metaReport.RowsAffected = reader.RecordsAffected;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                if (Action(execContext) == null) {
+                    throw new Exception($"Missing action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module})");
+                }
+                if (!string.IsNullOrEmpty(sqlQuery)) {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (string param in parameters) {
+                        sb.AppendLine(param);
+                    }
+
+                    KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
+                }
+                throw;
+            }
+            return results; // TODO: Decide what behavior we want with empty statements. I for one prefer null result, effectively stopping the operation.
+        }
+
+        #endregion
         //public async Task<object> ExecuteAsync(IDataLoaderContext execContext) {
         //    // The procedure is different enough to deserve splitting by read/write
         //    Configuration cfg = ReadConfiguration(execContext);
