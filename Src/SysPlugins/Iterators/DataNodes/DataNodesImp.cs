@@ -142,6 +142,19 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             execContextManager.DataLoaderContextScoped = contextScoped;
             #endregion
 
+            #region Execute Prepare if requested
+            // TODO See what data to pass as results.
+            // Normally all the results generated from each parent result is collected in a list
+            if (node?.Write?.Prepare != null) {
+                if (dataPlugin is IDataLoaderPluginPrepare prepare) {
+                    execContextManager.Results = currentNode;
+                    execContextManager.Operation = "Prepare";
+                    prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
+                    if (_bailOut()) return null;
+                }
+            }
+            #endregion
+
 
 
             // MAIN CYCLE - repeated once per each parent result (for the starting node - it is repeated once)

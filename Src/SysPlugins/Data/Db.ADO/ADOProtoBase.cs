@@ -80,11 +80,12 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         #endregion
 
         #region Prepare
-        protected virtual void Prepare(IDataLoaderReadContext execContext) {
+        public virtual void Prepare(IDataLoaderReadContext execContext) {
             ADOInfo metaReport = null;
             if (execContext is IActionHelpers helper) {
                 metaReport = helper.NodeMeta.CreateInfo<ADOInfo>();
             }
+            // TODO Review the meta dara - we may want to add Prepare specific entry
             var metaNode = execContext as IActionHelpers;
 
             // TODO: What to return if there is no statement:
@@ -123,9 +124,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                         }
 
                         cmd.Parameters.Clear();
-                        // This will set the resulting command text if everything is Ok.
-                        // The processing will make replacements in the SQL and bind parameters by requesting them from the resolver expressions configured on this node.
-                        // TODO: Some try...catching is necessary.
+                        
                         sqlQuery = ProcessCommand(cmd, query, execContext, out parameters);
                         if (metaReport != null) {
                             metaReport.ReportSQL(sqlQuery);
@@ -137,45 +136,11 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 // TODO how to proceed here - side effects or no sideffects are we going to return something?
                                 int n_rows = 0;
                                 if (reader.HasRows) {
-                                    // Read a result (many may be contained) row by row
+                                    // We do not use non-result execution, because we are not sure if we are going to allow Results changes in a new version
                                     while (reader.Read()) {
                                         n_rows++;
-                                        Dictionary<string, object> currentResult = new Dictionary<string, object>(reader.FieldCount);
-                                        for (int i = 0; i < reader.FieldCount; i++) {
-                                            string fldname = reader.GetName(i);
-                                            if (fldname == null) continue;
-                                            // TODO: May be configure that or at least create a compile time definition
-                                            fldname = fldname.ToLower().Trim(); // TODO: lowercase
-                                                                                //fldname = fldname.Trim();
-                                            if (fldname.Length == 0) {
-                                                throw new Exception($"Empty name when reading the output of a query. The field index is {i}. The query is: {cmd.CommandText}");
-                                            }
-                                            if (currentResult.ContainsKey(fldname)) {
-                                                throw new Exception($"Duplicated field name in the output of a query. The field is:{fldname}, the query is: {cmd.CommandText}");
-                                            }
-                                            object v;
-                                            if (reader.IsDBNull(i)) {
-                                                v = null;
-                                            } else {
-                                                if (reader.GetFieldType(i) == typeof(byte[])) {
-                                                    long fldLength = reader.GetBytes(i, 0, null, 0, 0);
-                                                    byte[] bytes = new byte[fldLength];
-                                                    long lread = reader.GetBytes(i, 0, bytes, 0, (int)fldLength);
-                                                    // TODO: lread may be more to the point then fldLength ?
-                                                    v = (PostedFile)bytes;
-                                                } else {
-                                                    v = reader.GetValue(i);
-                                                }
-                                            }
-                                            currentResult.Add(fldname, (v is DBNull) ? null : v);
-
-                                        }
-                                        // Mark the records unchanged, because they are just picked up from the data store (rdbms in this case).
-                                        execContext.DataState.SetUnchanged(currentResult);
-                                        results.Add(currentResult);
-                                        if (!node.IsList) break;
-
                                     }
+ 
                                 }
                                 if (metaReport != null) {
                                     metaReport.AddResult(n_rows, reader.FieldCount);
@@ -202,7 +167,6 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 }
                 throw;
             }
-            return results; // TODO: Decide what behavior we want with empty statements. I for one prefer null result, effectively stopping the operation.
         }
 
         #endregion
