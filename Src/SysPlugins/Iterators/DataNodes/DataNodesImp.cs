@@ -89,6 +89,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             
             #region Preparation of necessary structures
             var metaNode = metaStore.Child(node.NodeKey);
+            ICustomPluginProcessor plugins = new CustomPluginProcessor();
 
             bool _bailOut() {
                 return dataIteratorContext.BailOut;
@@ -145,12 +146,43 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             #region Execute Prepare if requested
             // TODO See what data to pass as results.
             // Normally all the results generated from each parent result is collected in a list
-            if (node?.Write?.Prepare != null) {
+            if (node?.Read?.Prepare != null) {
                 if (dataPlugin is IDataLoaderPluginPrepare prepare) {
-                    execContextManager.Results = currentNode;
+                    execContextManager.Results = parentResult as List<Dictionary<string, object>>;// For inspection only for now, TODO - fix to list to allow injection of parent results more legaly
                     execContextManager.Operation = "Prepare";
                     prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
                     if (_bailOut()) return null;
+                    execContextManager.Results = null; // Clear the ref for later use
+                } else {
+                    throw new NotSupportedException($"The requested Prepare operation is not supported by the Loader plugin {pluginName}.");
+                }
+            }
+            #endregion
+
+            #region Execute before node plugins if any
+
+            if (node.Read != null) {
+                execContextManager.Results = parentResult as List<Dictionary<string, object>>;
+                plugins?.Execute(node.Read.BeforeNodePlugins, execContextManager.CustomPluginPreNodeProxy, _bailOut);
+                if (_bailOut()) return null;
+                execContextManager.Results = null; // Release the property for later use
+            }
+
+
+
+
+
+            // TODO See what data to pass as results.
+            // Normally all the results generated from each parent result is collected in a list
+            if (node?.Write?.Prepare != null) {
+                if (dataPlugin is IDataLoaderPluginPrepare prepare) {
+                    execContextManager.Results = parentResult as List<Dictionary<string, object>>;// For inspection only for now, TODO - fix to list to allow injection of parent results more legaly
+                    execContextManager.Operation = "Prepare";
+                    prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
+                    if (_bailOut()) return null;
+                    execContextManager.Results = null; // Clear the ref for later use
+                } else {
+                    throw new NotSupportedException($"The requested Prepare operation is not supported by the Loader plugin {pluginName}.");
                 }
             }
             #endregion
@@ -176,8 +208,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     // 3. Execute custom plugins (injects) before main work
                     // 3.1. Prepare plugins - through the processor
                     // object customPluginsResults = new Dictionary<string, object>();
-                    ICustomPluginProcessor plugins = new CustomPluginProcessor();
-
                     // 3.3 The procedure has been changed, now the plugins are responsible to attach results in the Results collection
                     #region 3.3 execute BEFORE SQL plugins over the results
                     if (node.Read != null)
@@ -342,6 +372,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     execContextManager.Operation = "Prepare";
                     prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
                     if (_bailOut()) return null;
+                } else {
+                    throw new NotSupportedException($"The requested Prepare operation is not supported by the Loader plugin {node.DataPluginName}.");
                 }
             }
             // PreNode plugin invocation (after the prepare operation

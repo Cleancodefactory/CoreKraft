@@ -212,7 +212,7 @@ Returns 1 | 0 result indicating the argument is not truthy (1) or is truthy (0).
 
 Converts the two arguments to string (if they are not strings already) and returns a string of them both concatenated one after the other.
 
-**a**, **b** - The arguments to concatenate.
+- **a**, **b** - The arguments to concatenate.
 
 ### Replace(a, b, c)
 
