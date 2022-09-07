@@ -202,6 +202,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         // Check Length
         [Function(nameof(AddResult), "Works only in read actions. Creates a new result (resulting row). After it until AddResult is called again SetResult works on the recently added result. Can be called without arguments to create an empty result.")]
+        [Parameter(0, "Name", "argument name (repeating)", TypeFlags.Optional | TypeFlags.Varying)]
+        [Parameter(1, "Value", "argument value (repeating)", TypeFlags.Optional | TypeFlags.Varying)]
+        [Result("Creates a new resulting row", TypeFlags.Varying)]
         public ParameterResolverValue AddResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginContextWithResults rctx)
@@ -261,6 +264,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(HasResults), "Returns true or false depending on if any result exists. In write actions always returns true.")]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue HasResults(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginContextWithResults rctx)
@@ -275,6 +279,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         // Check Length
         [Function(nameof(ModifyResult), "Works only in read and before-node write actions. Modifies the result indicated by index, by setting the specified values one by one or by using dictionary in the same fashion like SetResult.")]
+        [Parameter(0, "Index", "index of result to modify", TypeFlags.Int)]
+        [Parameter(1, "Name", "name of result (repeating)", TypeFlags.Varying)]
+        [Parameter(2, "Value", "value to replace with (repeating)", TypeFlags.Varying)]
         public ParameterResolverValue ModifyResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;
@@ -395,6 +402,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(ClearResultExcept), "Clears the result (the top result on read, the current on write), but leaves the values of the listed keys intact. Called without arguments clears the result completely.")]
+        [Parameter(0, "Keys", "Keys to keep intact", TypeFlags.Varying)]
+        [Result("Returns the clearned result", TypeFlags.Varying)]
         public ParameterResolverValue ClearResultExcept(HostInterface ctx, ParameterResolverValue[] args)
         {
             Dictionary<string, object> result = null;
@@ -534,6 +543,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="args"></param>
         /// <returns></returns>
         [Function(nameof(ResultsCount), "Returns the number of result dictionaries in read actions and always 1 in write actions.")]
+        [Result("Returns a int32", TypeFlags.Int)]
         public ParameterResolverValue ResultsCount(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginContextWithResults rctx)
@@ -559,6 +569,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         // Check Length
         [Function(nameof(GetResult), "In read actions gets result specified by index. In write actions always returns the only result (any arguments are ignored). The return value is a Dict with copy of the result and not the result itself.")]
+        [Parameter(0, "Index", "index of result", TypeFlags.Int)]
+        [Result("Returns a dictionary COPY of result", TypeFlags.Dict)]
         public ParameterResolverValue GetResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginContextWithResults rctx)
@@ -589,6 +601,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(RemoveResult), "Removes result specified by index. index must be between >=0 and < ResultsCount(). In write actions throws an exception.")]
+        [Parameter(0, "Index", "index to remove result from", TypeFlags.Int)]
+        [Result("Returns the removed result or throws and exception", TypeFlags.Varying)]
         public ParameterResolverValue RemoveResult(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (ctx is INodePluginContextWithResults rctx)
@@ -667,6 +681,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="args"></param>
         /// <returns></returns>
         [Function(nameof(ModulePath), "Returns the physical module path of the current module. If argument is passed combines them. For example to get the physical path of the module's Data directory use ModulePath('Data').")]
+        [Parameter(0, "Subpath", "subpath", TypeFlags.String)]
+        [Result("Returns the path as string", TypeFlags.String)]
         public ParameterResolverValue ModulePath(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
@@ -746,6 +762,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #region Settings
 
         [Function(nameof(CSetting), "Gets a custom setting by name. Custom settings are specified in the plugin configurations in Configuration.json or in override sections in appsettings")]
+        [Parameter(0, "Name", "setting name to find", TypeFlags.Varying)]
+        [Result("Returns custom setting or null", TypeFlags.String | TypeFlags.Null)]
         public ParameterResolverValue CSetting(HostInterface _ctx, ParameterResolverValue[] args)
         {
             var ctx = _ctx as INodePluginContext;
