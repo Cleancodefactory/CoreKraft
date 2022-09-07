@@ -2,7 +2,7 @@
 
 namespace Ccf.Ck.SysPlugins.Interfaces
 {
-    public interface IDataLoaderReadContext: IDataLoaderContext {
+    public interface IDataLoaderReadContext: IDataLoaderContext, INodePluginContextWithResults {
         List<Dictionary<string, object>> Results { get; }
     }
 }

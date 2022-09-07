@@ -3,6 +3,7 @@ using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using System.Collections.Generic;
 
+// TODO Deprecate this - we use the IDataLoaderReadContext instead. Although a bit bad-sounding it works for both read and write
 namespace Ccf.Ck.SysPlugins.Interfaces
 {
     /// <summary>

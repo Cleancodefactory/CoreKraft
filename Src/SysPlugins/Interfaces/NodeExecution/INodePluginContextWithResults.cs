@@ -2,7 +2,7 @@
 
 namespace Ccf.Ck.SysPlugins.Interfaces
 {
-    public interface INodePluginContextWithResults : INodePluginContext
+    public interface INodePluginContextWithResults //: INodePluginContext
     {
         /// <summary>
         /// During read operations plugins can inspect, change and add/insert results as Dictionary(string, object)

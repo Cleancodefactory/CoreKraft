@@ -1244,10 +1244,23 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         /// <param name="ctx"></param>
         /// <param name="inargs"></param>
         /// <returns></returns>
-        public ParameterResolverValue idlist(IParameterResolverContext ctx, IList<ParameterResolverValue> inargs)
+        public ParameterResolverValue idlist(IParameterResolverContext ctx, IList<ParameterResolverValue> inargs) {
+            return _idlist(ctx, inargs, false);
+        }
+        public ParameterResolverValue idlistPadded(IParameterResolverContext ctx, IList<ParameterResolverValue> inargs) {
+            return _idlist(ctx, inargs, true);
+        }
+        public ParameterResolverValue _idlist(IParameterResolverContext ctx, IList<ParameterResolverValue> inargs,bool pad)
         {
             ParameterResolverValue input = inargs[0];
             ParameterResolverValue type_and_check = inargs[1];
+            int padsize = 0;
+            if (pad) {
+                if (inargs.Count > 2) {
+                    padsize = Convert.ToInt32(inargs[2].Value);
+                }
+            }
+            // TODO Apply the padding
             StringBuilder sbresult = new StringBuilder();
 
             if (!string.IsNullOrWhiteSpace(type_and_check.Value as string)) { // RegExp

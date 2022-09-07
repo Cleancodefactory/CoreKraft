@@ -312,7 +312,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             {
                 throw new Exception("The impossible happend! The node context is nor read, nor write context");
             }
-
+            // If we are here result should not be null
             if (args.Length == 2 && args[1].Value is IDictionary _dict)
             {
                 foreach (DictionaryEntry e in _dict)
@@ -444,14 +444,22 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(preservekeys.ConvertAll(s => new ParameterResolverValue(s)));
         }
-        private Dictionary<string, object> _GetResult(HostInterface ctx)
+        private Dictionary<string, object> _GetResult(HostInterface ctx, int index = -1)
         {
             Dictionary<string, object> result = null;
-            if (ctx is INodePluginReadContext rctx)
+            if (ctx is INodePluginContextWithResults rctx)
             {
                 if (rctx.Results.Count > 0)
                 {
-                    result = rctx.Results[rctx.Results.Count - 1];
+                    if (index >= 0) {
+                        if (index < rctx.Results.Count) {
+                            result = rctx.Results[index];
+                        } else {
+                            throw new IndexOutOfRangeException($"The number of 'results' is {rctx.Results.Count} while requesting index: {index}");
+                        }
+                    } else {
+                        result = rctx.Results[rctx.Results.Count - 1];
+                    }
                 }
                 else
                 {
@@ -479,52 +487,60 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
+        // Do not export this directly to the script
+
+        private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<Dictionary<string, object>>,Dictionary<string,object>> action, ParameterResolverValue[] args) {
+            int? index = 0;
+            if (args.Length > 1) {
+                index = Convert.ToInt32(args[0].Value);
+            }
+            IDataStateHelperProvider<Dictionary<string, object>> stateHelper = ctx as IDataStateHelperProvider<Dictionary<string, object>>;
+            if (ctx is INodePluginContextWithResults ctx_r ) {
+                if (ctx_r.Results != null) {
+                    if (index != null) {
+                        if (index < 0) {
+                            ctx_r.Results.ForEach(r => action(stateHelper, r));
+                        } else if (index >= 0 && index < ctx_r.Results.Count) {
+                            action(stateHelper,ctx_r.Results[index.Value]);
+                        } else {
+                            throw new IndexOutOfRangeException("The index argument must be an index of a result or a negative integer");
+                        }
+                    } else {
+                        if (ctx_r.Results.Count > 0) {
+                            action(stateHelper,ctx_r.Results.Last());
+                        } else {
+                            throw new InvalidOperationException("No results are available, check if you can add some.");
+                        }
+                    }
+                }
+            } else if (ctx is INodePluginWriteContext dtx) {
+                if (dtx.Row != null) action(stateHelper, dtx.Row);
+            }
+            return new ParameterResolverValue(null);
+        }
+
         [Function(nameof(ResetResultState), "Resets the state of the current result to unchanged.")]
         public ParameterResolverValue ResetResultState(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginPreNodeContext) throw new Exception("ResetResultState cannot be used in pre-node plugins");
-            var result = _GetResult(ctx);
-            if (ctx is INodePluginContext dtx)
-            {
-                dtx.DataState.SetUnchanged(result);
-            }
-            return new ParameterResolverValue(null);
+            return ProcessResult(ctx, (dh, r) => dh.DataState.SetUnchanged(r), args);
         }
 
         [Function(nameof(SetResultDeleted), "Sets the state of the current result to deleted. If you want to impact the current execution process this should be set in a node script executed in beforenodeaction phase.")]
         public ParameterResolverValue SetResultDeleted(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginPreNodeContext) throw new Exception("ResetResultState cannot be used in pre-node plugins");
-            var result = _GetResult(ctx);
-            if (ctx is INodePluginContext dtx)
-            {
-                dtx.DataState.SetDeleted(result);
-            }
-            return new ParameterResolverValue(null);
+            return ProcessResult(ctx, (dh, r) => dh.DataState.SetDeleted(r), args);
         }
 
         [Function(nameof(SetResultNew), "Sets the state of the result (top on read, current on write) to new.")]
         public ParameterResolverValue SetResultNew(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginPreNodeContext) throw new Exception("ResetResultState cannot be used in pre-node plugins");
-            var result = _GetResult(ctx);
-            if (ctx is INodePluginContext dtx)
-            {
-                dtx.DataState.SetNew(result);
-            }
-            return new ParameterResolverValue(null);
+            return ProcessResult(ctx, (dh, r) => dh.DataState.SetNew(r), args);
         }
 
         [Function(nameof(SetResultUpdated), "Sets the state of the result (top on read, current on write) to changed.")]
         public ParameterResolverValue SetResultUpdated(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (ctx is INodePluginPreNodeContext) throw new Exception("ResetResultState cannot be used in pre-node plugins");
-            var result = _GetResult(ctx);
-            if (ctx is INodePluginContext dtx)
-            {
-                dtx.DataState.SetUpdated(result);
-            }
-            return new ParameterResolverValue(null);
+            return ProcessResult(ctx, (dh, r) => dh.DataState.SetUpdated(r), args);
         }
 
         /// <summary>

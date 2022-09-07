@@ -323,48 +323,83 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
+        private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<Dictionary<string, object>>, Dictionary<string, object>> action, ParameterResolverValue[] args) {
+            int? index = 0;
+            if (args.Length > 1) {
+                index = Convert.ToInt32(args[0].Value);
+            }
+            IDataStateHelperProvider<Dictionary<string, object>> stateHelper = ctx as IDataStateHelperProvider<Dictionary<string, object>>;
+            if (ctx is INodePluginContextWithResults ctx_r) {
+                if (ctx_r.Results != null) {
+                    if (index != null) {
+                        if (index < 0) {
+                            ctx_r.Results.ForEach(r => action(stateHelper, r));
+                        } else if (index >= 0 && index < ctx_r.Results.Count) {
+                            action(stateHelper, ctx_r.Results[index.Value]);
+                        } else {
+                            throw new IndexOutOfRangeException("The index argument must be an index of a result or a negative integer");
+                        }
+                    } else {
+                        if (ctx_r.Results.Count > 0) {
+                            action(stateHelper, ctx_r.Results.Last());
+                        } else {
+                            throw new InvalidOperationException("No results are available, check if you can add some.");
+                        }
+                    }
+                }
+            } else if (ctx is IDataLoaderWriteContext dtx) {
+                if (dtx.Row != null) action(stateHelper, dtx.Row);
+            }
+            return new ParameterResolverValue(null);
+        }
+
+
         [Function(nameof(ResetResultState), "Resets the state of the current result to unchanged.")]
         public ParameterResolverValue ResetResultState(HostInterface ctx, ParameterResolverValue[] args)
         {
-            var result = _GetResult(ctx);
-            if (ctx is IDataLoaderContext dtx)
-            {
-                dtx.DataState.SetUnchanged(result);
-            }
-            return new ParameterResolverValue(null);
+            return ProcessResult(ctx, (dh, r) => dh.DataState.SetUnchanged(r), args);
+            //var result = _GetResult(ctx);
+            //if (ctx is IDataLoaderContext dtx)
+            //{
+            //    dtx.DataState.SetUnchanged(result);
+            //}
+            //return new ParameterResolverValue(null);
         }
 
         [Function(nameof(SetResultDeleted), "Sets the state of the current result to deleted. If you want to impact the current execution process this should be set in a node script executed in beforenodeaction phase.")]
         public ParameterResolverValue SetResultDeleted(HostInterface ctx, ParameterResolverValue[] args)
         {
-            var result = _GetResult(ctx);
-            if (ctx is IDataLoaderContext dtx)
-            {
-                dtx.DataState.SetDeleted(result);
-            }
-            return new ParameterResolverValue(null);
+            return ProcessResult(ctx, (dh, r) => dh.DataState.SetDeleted(r), args);
+            //var result = _GetResult(ctx);
+            //if (ctx is IDataLoaderContext dtx)
+            //{
+            //    dtx.DataState.SetDeleted(result);
+            //}
+            //return new ParameterResolverValue(null);
         }
 
         [Function(nameof(SetResultNew), "Sets the state of the result (top on read, current on write) to new.")]
         public ParameterResolverValue SetResultNew(HostInterface ctx, ParameterResolverValue[] args)
         {
-            var result = _GetResult(ctx);
-            if (ctx is IDataLoaderContext dtx)
-            {
-                dtx.DataState.SetNew(result);
-            }
-            return new ParameterResolverValue(null);
+            return ProcessResult(ctx, (dh, r) => dh.DataState.SetNew(r), args);
+            //var result = _GetResult(ctx);
+            //if (ctx is IDataLoaderContext dtx)
+            //{
+            //    dtx.DataState.SetNew(result);
+            //}
+            //return new ParameterResolverValue(null);
         }
 
         [Function(nameof(SetResultUpdated), "Sets the state of the result (top on read, current on write) to changed.")]
         public ParameterResolverValue SetResultUpdated(HostInterface ctx, ParameterResolverValue[] args)
         {
-            var result = _GetResult(ctx);
-            if (ctx is IDataLoaderContext dtx)
-            {
-                dtx.DataState.SetUpdated(result);
-            }
-            return new ParameterResolverValue(null);
+            return ProcessResult(ctx, (dh, r) => dh.DataState.SetUpdated(r), args);
+            //var result = _GetResult(ctx);
+            //if (ctx is IDataLoaderContext dtx)
+            //{
+            //    dtx.DataState.SetUpdated(result);
+            //}
+            //return new ParameterResolverValue(null);
         }
 
         // Check Length
