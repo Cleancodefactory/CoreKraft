@@ -168,23 +168,6 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 execContextManager.Results = null; // Release the property for later use
             }
 
-
-
-
-
-            // TODO See what data to pass as results.
-            // Normally all the results generated from each parent result is collected in a list
-            if (node?.Write?.Prepare != null) {
-                if (dataPlugin is IDataLoaderPluginPrepare prepare) {
-                    execContextManager.Results = parentResult as List<Dictionary<string, object>>;// For inspection only for now, TODO - fix to list to allow injection of parent results more legaly
-                    execContextManager.Operation = "Prepare";
-                    prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
-                    if (_bailOut()) return null;
-                    execContextManager.Results = null; // Clear the ref for later use
-                } else {
-                    throw new NotSupportedException($"The requested Prepare operation is not supported by the Loader plugin {pluginName}.");
-                }
-            }
             #endregion
 
 
@@ -366,6 +349,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     consumer.InspectBasket(new NodeContextualBasket(execContextManager));
                 }
             }
+            execContextManager.DataLoaderContextScoped = contextScoped;
             if (node?.Write?.Prepare != null) {
                 if (dataPlugin is IDataLoaderPluginPrepare prepare) {
                     execContextManager.Results = currentNode;

@@ -780,10 +780,12 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         }
 
-        public class CustomPluginPreNodeContext : CustomPluginContext, INodePluginPreNodeContext {
+        public class CustomPluginPreNodeContext : CustomPluginContext, INodePluginPreNodeContext, INodePluginReadContext, INodePluginWriteContext {
             public CustomPluginPreNodeContext(NodeExecutionContext nodectx) : base(nodectx) { }
 
             public List<Dictionary<string, object>> Results => Context.Results;
+
+            public Dictionary<string, object> Row => null;
 
         }
         /// <summary>

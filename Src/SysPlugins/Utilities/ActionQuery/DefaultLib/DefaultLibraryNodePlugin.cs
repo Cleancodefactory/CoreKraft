@@ -489,19 +489,21 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         // Do not export this directly to the script
 
-        private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<Dictionary<string, object>>,Dictionary<string,object>> action, ParameterResolverValue[] args) {
+        private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<IDictionary<string, object>>,Dictionary<string,object>> action, ParameterResolverValue[] args) {
             int? index = 0;
             if (args.Length > 1) {
                 index = Convert.ToInt32(args[0].Value);
             }
-            IDataStateHelperProvider<Dictionary<string, object>> stateHelper = ctx as IDataStateHelperProvider<Dictionary<string, object>>;
+            IDataStateHelperProvider<IDictionary<string, object>> stateHelper = ctx as IDataStateHelperProvider<IDictionary<string, object>>;
             if (ctx is INodePluginContextWithResults ctx_r ) {
                 if (ctx_r.Results != null) {
                     if (index != null) {
                         if (index < 0) {
                             ctx_r.Results.ForEach(r => action(stateHelper, r));
                         } else if (index >= 0 && index < ctx_r.Results.Count) {
-                            action(stateHelper,ctx_r.Results[index.Value]);
+                            action(stateHelper, ctx_r.Results[index.Value]);
+                        } else if (index == 0) {
+                            // Nothing to do
                         } else {
                             throw new IndexOutOfRangeException("The index argument must be an index of a result or a negative integer");
                         }

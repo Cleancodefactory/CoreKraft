@@ -1254,6 +1254,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         {
             ParameterResolverValue input = inargs[0];
             ParameterResolverValue type_and_check = inargs[1];
+            int numValues = 0;
             int padsize = 0;
             if (pad) {
                 if (inargs.Count > 2) {
@@ -1261,32 +1262,45 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 }
             }
             // TODO Apply the padding
+            string _padResult(string _result,int resultCount, string padVal = "NULL") {
+                if (resultCount < padsize) {
+                    StringBuilder sb = new StringBuilder(_result);
+                    for (int i = resultCount; i < padsize; i++) {
+                        if (sb.Length > 0) sb.Append(',');
+                        sb.Append(padVal);
+                    }
+                    return sb.ToString();
+                }
+                return _result;
+            }
             StringBuilder sbresult = new StringBuilder();
 
             if (!string.IsNullOrWhiteSpace(type_and_check.Value as string)) { // RegExp
                 var re = type_and_check.Value as string;
                 Regex rex = new Regex(re, RegexOptions.CultureInvariant | RegexOptions.Singleline);
                 IEnumerable indata;
-                if (input.Value is string str) {
+                if (input.Value is string str) { // single string
                     if (rex.IsMatch(str)) {
-                        return new ParameterResolverValue(string.Format("'{0}'", str.Replace("'", "''")), EResolverValueType.ContentType);
+                        return new ParameterResolverValue(_padResult(string.Format("'{0}'", str.Replace("'", "''")),1), EResolverValueType.ContentType);
                     } else {
-                        return new ParameterResolverValue("NULL", EResolverValueType.ContentType);
+                        return new ParameterResolverValue(_padResult("NULL",1), EResolverValueType.ContentType);
                     }
                 } else if (input.Value is IDictionary) {
                     indata = (input.Value as IDictionary).Values; // Only values (e.g. object with Id-s)
                 } else {
                     indata = input.Value as IEnumerable; // Array of values (keys)
                 }
-                if (indata != null) {
+                if (indata != null) { // Enumerate multiple values
+                    numValues = 0;
                     foreach (var v in indata) {
                         if (v != null) {
                             if (rex.IsMatch(v.ToString())) {
                                 if (sbresult.Length > 0) sbresult.Append(',');
-                                sbresult.AppendFormat("'{0}'", v.ToString());
+                                sbresult.AppendFormat("'{0}'", v.ToString().Replace("'","''"));
+                                numValues++;
                             } else {
                                 //don't stop execution when an item doesn't match?
-                                //throw new Exception("an item does not match YOUR regular expression");
+                                throw new Exception("an item does not match YOUR regular expression in idlist or idlistPadded");
                             }
                         } else {
                             throw new Exception("null item in a collection while converting to replacable idlist");
@@ -1294,9 +1308,9 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                     }
                 }
                 if (sbresult.Length == 0) {
-                    return new ParameterResolverValue("NULL", EResolverValueType.ContentType);
+                    return new ParameterResolverValue(_padResult("NULL",1), EResolverValueType.ContentType);
                 } else {
-                    return new ParameterResolverValue(sbresult.ToString(), EResolverValueType.ContentType);
+                    return new ParameterResolverValue(_padResult(sbresult.ToString(),numValues), EResolverValueType.ContentType);
                 }
             } else if (type_and_check.Value == null) { // Numbers
                 IEnumerable indata;
@@ -1312,7 +1326,9 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                     indata = _input as IEnumerable;
                 }
 
+                numValues = 0;
                 if (indata != null) {
+                    
                     foreach (var v in indata) {
                         if (sbresult.Length > 0) sbresult.Append(',');
                         if (v is int || v is Int16 || v is Int32 || v is Int64 || v is sbyte) {
@@ -1334,12 +1350,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                         } else {
                             throw new Exception("Non-numeric (or numbers in string)  item found in the input");
                         }
+                        numValues++;
                     }
                 }
                 if (sbresult.Length == 0) {
-                    return new ParameterResolverValue("NULL", EResolverValueType.ContentType);
+                    return new ParameterResolverValue(_padResult("NULL", 1), EResolverValueType.ContentType);
                 } else {
-                    return new ParameterResolverValue(sbresult.ToString(), EResolverValueType.ContentType);
+                    return new ParameterResolverValue(_padResult(sbresult.ToString(), numValues), EResolverValueType.ContentType);
                 }
             } else {
                 throw new Exception("Unacceptable type parameter or the value is not enumerable");
