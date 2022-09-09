@@ -108,18 +108,24 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #region Logical
 
         [Function(nameof(Or), "Returns true if any of the arguments is a truthy value, otherwise returns false.")]
+        [Parameter(0, "values", "array of truthy or false values", TypeFlags.List)]
+        [Result("Returns boolean", TypeFlags.Bool)]
         public ParameterResolverValue Or(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length == 0) return new ParameterResolverValue(false);
             return new ParameterResolverValue(args.Any(a => ActionQueryHostBase.IsTruthyOrFalsy(a)));
         }
 
         [Function(nameof(And), "Returns true if all of the arguments are truthy values, otherwise returns false.")]
+        [Parameter(0, "values", "array of truthy or false values", TypeFlags.List)]
+        [Result("Returns boolean", TypeFlags.Bool)]
         public ParameterResolverValue And(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length == 0) return new ParameterResolverValue(false);
             return new ParameterResolverValue(args.All(a => ActionQueryHostBase.IsTruthyOrFalsy(a)));
         }
 
-        [Function(nameof(Not), "Inverts the truthiness of the argument. Returns a boolean result.")]
+        [Function(nameof(Not), "Inverts the truthiness of the argument.")]
+        [Parameter(0, "value", "Boolean value to invert", TypeFlags.Bool)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue Not(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
             if (ActionQueryHostBase.IsTruthyOrFalsy(args[0])) {
@@ -130,6 +136,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(IsNull), "Returns true if the argument is null, otherwise returns false.")]
+        [Parameter(0, "value", "value to check", TypeFlags.Varying)]
+        [Result("Returns boolean", TypeFlags.Bool)]
         public ParameterResolverValue IsNull(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
             if (args[0].Value == null) {
@@ -140,6 +148,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(NotNull), "Returns true if the argument is not null, otherwise returns false.")]
+        [Parameter(0, "value", "value to check", TypeFlags.Varying)]
+        [Result("Returns boolean", TypeFlags.Bool)]
         public ParameterResolverValue NotNull(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("Not requires one argument.");
             if (args[0].Value == null) {
@@ -153,6 +163,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #region Arithmetic
 
         [Function(nameof(Random), "Generates a random integer. If min is specified the integer is at least min or greater. If also max is specified the generated number is equal or greater than min, but lower than max.")]
+        [Parameter(0, "min_number", "min number", TypeFlags.Optional | TypeFlags.Int | TypeFlags.Double)]
+        [Parameter(1, "max_number", "max number", TypeFlags.Optional | TypeFlags.Int | TypeFlags.Double)]
+        [Result("Returns a int32 number", TypeFlags.Int)]
         public ParameterResolverValue Random(HostInterface ctx, ParameterResolverValue[] args) {
             int min = 1;
             int max = 100;
@@ -179,6 +192,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(Add), "Returns the sum of all the arguments. If called without arguments will return null.")]
+        [Parameter(0, "values", "numeric values to add", TypeFlags.List)]
+        [Result("Returns numeric value or null", TypeFlags.Int | TypeFlags.Null)]
         public ParameterResolverValue Add(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Any(a => a.Value is double || a.Value is float)) // Double result
             {
@@ -191,6 +206,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(Neg), "Returns the argument with inverted sign if the value is numeric and null otherwise. It is not recommended to use this with unsigned numbers.")]
+        [Parameter(0, "value", "numeric value to invert", TypeFlags.Int | TypeFlags.Double)]
+        [Result("Returns numeric value or null", TypeFlags.Int | TypeFlags.Null)]
         public ParameterResolverValue Neg(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("Neg needs single numeric argument");
             var v = args[0].Value;
@@ -205,6 +222,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(TryAdd), "Like Add, but will return null instead of throwing an exception if the conversion fails.")]
+        [Parameter(0, "values", "numeric values to add", TypeFlags.List)]
+        [Result("Returns numeric value or null if an exception is thrown", TypeFlags.Int | TypeFlags.Null)]
         public ParameterResolverValue TryAdd(HostInterface ctx, ParameterResolverValue[] args) {
             try {
                 return Add(ctx, args);
@@ -226,6 +245,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         // Check Length
         [Function(nameof(ConsumeOne), "When the argument is an AC list removes the last argument of the list and returns it. If the list is empty returns null. When used with queue, dequeues one element and returns it. If the queue is empty returns null.")]
+        [Parameter(0, "List", "AC list or queue to consume from", TypeFlags.List)]
+        [Result("Returns AC list/Queue consumed element or null", TypeFlags.List | TypeFlags.Null)]
         public ParameterResolverValue ConsumeOne(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("ConsumeOne takes one argument - a collection ");
             var _coll = args[0].Value;
@@ -243,7 +264,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(List), "Creates and AC list with the arguments added as items in the list. With no arguments it will create an empty list. Returns: the created AC list.")]
+        [Function(nameof(List), "Creates and AC list with the arguments added as items in the list. With no arguments it will create an empty list.")]
+        [Parameter(0, "Items", "items to be added to the new list", TypeFlags.Optional | TypeFlags.List)]
+        [Result("Returns: the created AC list.", TypeFlags.List)]
         public ParameterResolverValue List(HostInterface ctx, ParameterResolverValue[] args) {
             var list = new List<ParameterResolverValue>(); // The new list
             if (args.Length > 0) {
@@ -260,6 +283,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(ValueList), "The same as List, but the created AC list is marked as one containing values. See ToNodesetData for details.")]
+        [Parameter(0, "Items", "items to be added to the new list", TypeFlags.Optional | TypeFlags.List)]
+        [Result("Returns an AC list", TypeFlags.List)]
         public ParameterResolverValue ValueList(HostInterface ctx, ParameterResolverValue[] args) {
             var list = new ValueList<ParameterResolverValue>(); // The new list
             if (args.Length > 0) {
@@ -275,13 +300,18 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(list);
         }
 
-        [Function(nameof(IsList), "Checks if arg is a List created by List or ValueList or returned from another function. Returns: true or false.")]
+        [Function(nameof(IsList), "Checks if arg is a List created by List or ValueList or returned from another function.")]
+        [Parameter(0, "Element", "argument to check if it is a List/ValueList", TypeFlags.List)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue IsList(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("IsList requires an argument");
             return new ParameterResolverValue(args[0].Value is List<ParameterResolverValue>);
         }
 
-        [Function(nameof(ListAdd), "Adds items at the end of an AC list. Returns: the AC list.")]
+        [Function(nameof(ListAdd), "Adds items at the end of an AC list.")]
+        [Parameter(0, "List", "the AC list", TypeFlags.List)]
+        [Parameter(1, "Items_To_Add", " 1 - n : items to add to list", TypeFlags.List)]
+        [Result("Returns the AC list or null", TypeFlags.List | TypeFlags.Null)]
         public ParameterResolverValue ListAdd(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("ListAdd requires some arguments");
             var list = args[0].Value as IList<ParameterResolverValue>;
@@ -295,7 +325,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(list);
         }
 
-        [Function(nameof(ListRemove), "Removes the element(s) at the specified indexes. The indexes are the positions before doing any removal. Returns: the modified AC list.")]
+        [Function(nameof(ListRemove), "Removes the element(s) at the specified indexes. The indexes are the positions before doing any removal.")]
+        [Parameter(0, "List", "the AC List", TypeFlags.List)]
+        [Parameter(1, "Indexes_To_Remove", "1 - n : item indexes to remove", TypeFlags.List)]
+        [Result("Returns: the modified AC list or null", TypeFlags.List | TypeFlags.Null)]
         public ParameterResolverValue ListRemove(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("ListRemove requires some arguments");
             var list = args[0].Value as IList<ParameterResolverValue>;
@@ -316,7 +349,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         // Check Length
-        [Function(nameof(ListInsert), "Inserts an element in the AC list at the specified index. Will fail only if the underlying List.insert method fails. Use it with the same assumptions. Returns: the AC list.")]
+        [Function(nameof(ListInsert), "Inserts an element in the AC list at the specified index. Will fail only if the underlying List.insert method fails. Use it with the same assumptions.")]
+        [Parameter(0, "List", "the AC list", TypeFlags.List)]
+        [Parameter(1, "Insert_Index", "index to insert to", TypeFlags.Int)]
+        [Parameter(2, "Item", "element to insert", TypeFlags.Varying)]
+        [Result("Returns the AC list", TypeFlags.List | TypeFlags.Null)]
         public ParameterResolverValue ListInsert(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 3) throw new ArgumentException("ListInsert requires 3 arguments");
             var list = args[0].Value as IList<ParameterResolverValue>;
@@ -328,6 +365,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(ListGet), "Gets the element at index and returns it. If the index is out of range returns null.")]
+        [Parameter(0, "List", "the AC list", TypeFlags.List)]
+        [Parameter(1, "Index", "element index", TypeFlags.Int)]
+        [Result("Returns value at index or null", TypeFlags.Varying | TypeFlags.Null)]
         public ParameterResolverValue ListGet(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("ListGet requires 2 arguments");
             var list = args[0].Value as IList<ParameterResolverValue>;
@@ -342,6 +382,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(ListSet), "Sets an element in an AC list. The index must exist in the AC list or an exception will occur.")]
+        [Parameter(0, "List", "the AC list", TypeFlags.List)]
+        [Parameter(1, "Index", "element index", TypeFlags.Int)]
+        [Parameter(2, "Value", "new element value", TypeFlags.Varying)]
+        [Result("Returns the AC list or throws an exception!", TypeFlags.Varying | TypeFlags.Error)]
         public ParameterResolverValue ListSet(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 3) throw new ArgumentException("ListSet requires 3 arguments");
             var list = args[0].Value as IList<ParameterResolverValue>;
@@ -357,6 +401,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(ListClear), "Clears the AC list and returns it.")]
+        [Parameter(0, "List", "the AC list", TypeFlags.List)]
+        [Result("Returns the cleared AC list", TypeFlags.List)]
         public ParameterResolverValue ListClear(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("ListClear requires 1 argument");
             var list = args[0].Value as IList<ParameterResolverValue>;
@@ -389,11 +435,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         // Check Length
         [Function(nameof(AsList), "Converts an externally obtained list-like object into AC list. This function can be also used to create a copy of an existing AC list. Just call AsList(list) and the result will be a copy of list.")]
+        [Parameter(0, "Object", "list like object", TypeFlags.Object)]
+        [Result("Returns an AC list", TypeFlags.List)]
         public ParameterResolverValue AsList(HostInterface ctx, ParameterResolverValue[] args) {
             return _AsList<List<ParameterResolverValue>>(ctx, args);
         }
 
         [Function(nameof(AsValueList), "The same as AsList, but marks the list as list of values. See ToNodesetData for more details.")]
+        [Parameter(0, "Object", "list like object", TypeFlags.Object)]
+        [Result("Returns an AC list", TypeFlags.List)]
         public ParameterResolverValue AsValueList(HostInterface ctx, ParameterResolverValue[] args) {
             return _AsList<ValueList<ParameterResolverValue>>(ctx, args);
         }
@@ -402,11 +452,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #region Dictionary (Dict)
 
         // Check Length
-        [Function(nameof(Dict), "Creates an AC dictionary. Can be used without arguments to create an empty one or with pairs of arguments to add elements on creation. Returns: the new AC dictionary.")]
+        [Function(nameof(Dict), "Creates an AC dictionary. Can be used without arguments to create an empty one or with pairs of arguments to add elements on creation.")]
+        [Parameter(0, "Key", "even index - key (repeating)", TypeFlags.Optional | TypeFlags.Varying)]
+        [Parameter(1, "Value", "odd index - value (repeating)", TypeFlags.Optional | TypeFlags.Varying)]
+        [Result("Returns a AC dictionary", TypeFlags.Dict)]
         public ParameterResolverValue Dict(HostInterface ctx, ParameterResolverValue[] args) {
             var dict = new Dictionary<string, ParameterResolverValue>(); // The new dictionary
             if (args.Length > 0) {
-                if (args.Length % 2 != 0) throw new ArgumentException("Dict accpets only even number of arguments.");
+                if (args.Length % 2 != 0) throw new ArgumentException("Dict accepts only even number of arguments.");
                 for (int i = 0; i < args.Length / 2; i++) {
                     var key = Convert.ToString(args[i * 2].Value);
                     var val = args[i * 2 + 1];
@@ -416,7 +469,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
 
-        [Function(nameof(IsDict), "Checks if arg is a Dict created by Dict or returned from another function. Returns: true or false.")]
+        [Function(nameof(IsDict), "Checks if arg is a Dict created by Dict or returned from another function.")]
+        [Parameter(0, "Argument", "Argument to check", TypeFlags.Varying)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue IsDict(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("IsDict requires an argument.");
             return new ParameterResolverValue(args[0].Value is Dictionary<string, ParameterResolverValue>);
@@ -424,6 +479,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         // Check Length
         [Function(nameof(DictSet), "Sets elements of an AC dictionary. Returns: the same AC dictionary passed with the dict argument with the changes applied to it.")]
+        [Parameter(0, "Dictionary", "the AC dictionary", TypeFlags.List)]
+        [Parameter(1, "Key", "odd index - key (repeating)", TypeFlags.Varying)]
+        [Parameter(2, "Value", "even index - value (repeating)", TypeFlags.Varying)]
+        [Result("Returns the modified AC dictionary", TypeFlags.Dict)]
         public ParameterResolverValue DictSet(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length % 2 == 0) throw new ArgumentException("DictSet requires odd number of  arguments");
             var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
@@ -439,6 +498,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(DictGet), "Gets a value of an element in an AC dictionary. If the key is missing null wil be returned. Returns: the value of the key.")]
+        [Parameter(0, "Dictionary", "the AC dictionary", TypeFlags.List)]
+        [Parameter(1, "Index", "index of element to get", TypeFlags.Int)]
+        [Result("Returns the value at index or null", TypeFlags.Varying | TypeFlags.Null)]
         public ParameterResolverValue DictGet(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("DictGet requires two arguments");
             var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
@@ -450,6 +512,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(DictClear), "Clears an AC dictionary And returns it.")]
+        [Parameter(0, "Dictionary", "The AC Dictionary", TypeFlags.Dict)]
+        [Result("Returns the cleared AC dictionary", TypeFlags.Dict | TypeFlags.Null)]
         public ParameterResolverValue DictClear(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("DictClear requires one argument");
             var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
@@ -458,7 +522,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(dict);
         }
 
-        [Function(nameof(DictRemove), "Removes elements from an AC dictionary. All the specified keys are removed from the dictionary. Returns: the dictionary.")]
+        [Function(nameof(DictRemove), "Removes elements from an AC dictionary. All the specified keys are removed from the dictionary.")]
+        [Parameter(0, "Dictionary", "the AC dictionary", TypeFlags.Dict)]
+        [Parameter(1, "Keys", "1 - n keys to remove", TypeFlags.Varying)]
+        [Result("Returns the modified AC dictionary", TypeFlags.Dict | TypeFlags.Null)]
         public ParameterResolverValue DictRemove(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("DictRemove requires at least one argument");
             var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
@@ -472,6 +539,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(DictRemoveExcept), "Clears all the values in the dictionary except those listed after the first argument, which is the dictionary to clear.")]
+        [Parameter(0, "Dictionary", "the AC Dictionary", TypeFlags.Dict)]
+        [Parameter(1, "Keys", "1 - n keys to keep", TypeFlags.Varying)]
+        [Result("Returns the modified AC dictionary", TypeFlags.Dict | TypeFlags.Null)]
         public ParameterResolverValue DictRemoveExcept(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("DictRemoveExcept requires at least one argument");
             var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
@@ -488,6 +558,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         // Check Length
         [Function(nameof(AsDict), "Converts external object to AC dictionary. The function does not throw exceptions for inappropriate arguments and will return an empty dictionary in such a case. ")]
+        [Parameter(0, "Object", "object to convert to AC dictionary", TypeFlags.Varying)]
+        [Result("Returns a AC dictionary", TypeFlags.Null)]
         public ParameterResolverValue AsDict(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("AsDict requires at least one argument");
             object arg1 = args[0].Value;
@@ -524,6 +596,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(IsDictCompatible), "Checks if AsDict can succeed with the same arguments. See AsDict for more details about the arguments.")]
+        [Parameter(0, "Object", "object to evaluate AC dictionary compatability", TypeFlags.Varying)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue IsDictCompatible(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("IsDictCompatible requires at least one argument");
             object arg1 = args[0].Value;
@@ -579,6 +653,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         // Check Length
         [Function(nameof(Equal), " Compares the two arguments. If any of the two is null false is returned. The arguments are converted to strings and compared - case sensitive.")]
+        [Parameter(0, "First", "Argument to compare", TypeFlags.Varying)]
+        [Parameter(1, "Second", "Argument to compare", TypeFlags.Varying)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue Equal(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("Equal needs two arguments");
             var v1 = args[0].Value;
@@ -595,6 +672,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(Greater), "Compares the arguments and if arg1 is greater than arg2, returns true, otherwise returns false. See Equal for how the arguments are compared.")]
+        [Parameter(0, "First", "Argument to compare", TypeFlags.Varying)]
+        [Parameter(1, "Second", "Argument to compare", TypeFlags.Varying)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue Greater(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("Greater needs two arguments");
             var v1 = args[0].Value;
@@ -611,6 +691,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(Lower), "Compares the arguments and if arg1 is smaller than arg2, returns true, otherwise returns false. See Equal for how the arguments are compared.")]
+        [Parameter(0, "First", "Argument to compare", TypeFlags.Varying)]
+        [Parameter(1, "Second", "Argument to compare", TypeFlags.Varying)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue Lower(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("Lower needs two arguments");
             if (args.Length != 2) throw new ArgumentException("Greater needs two arguments");
@@ -632,11 +715,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #region Strings
 
         [Function(nameof(Concat), "Returns the arguments turned to strings and concatenated in the order in which they appear. If any argument is null, it will be treated as an empty string.")]
+        [Parameter(0, "Strings", "array of strings to concat", TypeFlags.String)]
+        [Result("Returns the concatenated string", TypeFlags.String)]
         public ParameterResolverValue Concat(HostInterface ctx, ParameterResolverValue[] args) {
             return new ParameterResolverValue(String.Concat(args.Select(a => a.Value != null ? a.Value.ToString() : "")));
         }
 
         [Function(nameof(IsEmpty), "Checks if a string is empty. Does not attempt to convert the argument to string, as result any non-string value will be considered to be empty.")]
+        [Parameter(0, "String", "element to check", TypeFlags.String)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue IsEmpty(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("IsEmpty requires single argument.");
             var val = args[0].Value as string;
@@ -644,6 +731,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(Slice), "Returns a string containing the characters from the original string starting at start and ending at end (not including the end). If end is omitted, returns to the end of the string.")]
+        [Parameter(0, "String", "string to slice", TypeFlags.String)]
+        [Parameter(1, "Start_Index","index to start slicing from", TypeFlags.Int)]
+        [Result("Returns a string", TypeFlags.String)]
         public ParameterResolverValue Slice(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length >= 2) {
                 var str = Convert.ToString(args[0].Value);
@@ -658,11 +748,13 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return new ParameterResolverValue(string.Empty);
                 }
             } else {
-                throw new ArgumentException("Slice - incorrect number of arguments, 2 o3 are expected.");
+                throw new ArgumentException("Slice - incorrect number of arguments, 2 or more are expected.");
             }
         }
 
         [Function(nameof(Length), "Depending on the type of the argument, returns the length of the string, list or dictionary.")]
+        [Parameter(0, "Argument", "parsed argument", TypeFlags.Varying)]
+        [Result("Returns a int32 length of argument", TypeFlags.Int)]
         public ParameterResolverValue Length(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("Length accepts exactly one argument.");
             if (args[0].Value is string s) {
@@ -674,6 +766,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(Replace), "Replaces all the occurrences of findwhat in the string with the string passed in replacewidth.")]
+        [Parameter(0, "String", "original string", TypeFlags.String)]
+        [Parameter(1, "Find", "what to find", TypeFlags.String)]
+        [Parameter(2, "Replace", "replace with", TypeFlags.String)]
+        [Result("Returns the resulting string", TypeFlags.String)]
         public ParameterResolverValue Replace(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 3) throw new ArgumentException("Replace accepts exactly 3  argument.");
             string str = Convert.ToString(args[0].Value);
@@ -683,7 +779,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         // Check Length
-        [Function(nameof(RegexReplace), "Replaces substrings matching the pattern in the string with the replacewith. The pattern uses the C# regular expression syntax. All arguments are converted to strings if they are other types. Returns: the resulting string.")]
+        [Function(nameof(RegexReplace), "Replaces substrings matching the pattern in the string with the replacewith. The pattern uses the C# regular expression syntax. All arguments are converted to strings if they are other types.")]
+        [Parameter(0, "String", "original string", TypeFlags.String)]
+        [Parameter(1, "Pattern", "regex pattern", TypeFlags.String)]
+        [Parameter(2, "Replace", "replace with", TypeFlags.String)]
+        [Result("Returns the resulting string", TypeFlags.String)]
         public ParameterResolverValue RegexReplace(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 3) throw new ArgumentException("RegexReplace accepts exactly 3  argument.");
             string str = Convert.ToString(args[0].Value);
@@ -697,7 +797,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
 
         }
-        [Function(nameof(RegexMatch), "Test if the string matches the pattern.Splits the string using the specified separator or using \",\" if it is omitted. The result is an AC list.")]
+        [Function(nameof(RegexMatch), "Test if the string matches the pattern.Splits the string using the specified separator or using \",\" if it is omitted.")]
+        [Parameter(0, "String", "string", TypeFlags.String)]
+        [Parameter(1, "Pattern", "regex pattern", TypeFlags.String)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue RegexMatch(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("RegexReplace accepts exactly 3  argument.");
             string str = Convert.ToString(args[0].Value);
@@ -712,7 +815,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         }
 
-        [Function(nameof(Split), "Splits the string using the specified separator or using \", \" if it is omitted. The result is an AC list")]
+        [Function(nameof(Split), "Splits the string using the specified separator or using \", \" if it is omitted.")]
+        [Parameter(0, "String", "string to split", TypeFlags.String)]
+        [Parameter(1, "Separator", "separator", TypeFlags.Varying)]
+        [Result("Returns an AC list", TypeFlags.List)]
         public ParameterResolverValue Split(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("Split requires at least 1 argument");
             var str = Convert.ToString(args[0].Value);
@@ -730,6 +836,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(Trim), "Trims the string and returns the resulting string.")]
+        [Parameter(0, "String", "string to trim", TypeFlags.String)]
+        [Result("Returns the modified string", TypeFlags.String)]
         public ParameterResolverValue Trim(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("Trim requires one parameter.");
             var str = Convert.ToString(args[0].Value);
@@ -737,6 +845,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(EncodeBase64), "Converts the to string and encodes it to base64 which is returned as string.")]
+        [Parameter(0, "Value", "value to encode", TypeFlags.Varying)]
+        [Result("Returns the encoded string", TypeFlags.String)]
         public ParameterResolverValue EncodeBase64(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("EncodeBase64 requires one parameter.");
             var text = Convert.ToString(args[0].Value);
@@ -746,6 +856,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(DecodeBase64), "Converts the argument to string and decodes it from base64 to UTF8 string.")]
+        [Parameter(0, "Argument", "argument to decode", TypeFlags.Varying)]
+        [Result("Returns a string", TypeFlags.String)]
         public ParameterResolverValue DecodeBase64(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("DecodeBase64 requires one parameter.");
             var encodedText = Convert.ToString(args[0].Value);
@@ -755,7 +867,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         // Check Length
-        [Function(nameof(MD5), "Converts the argument to string, then treating it as UTF8 string converts it to bytes. The hash is calculated from those bytes and returned as string containing the resulting has in bytes listed in hexdecimal (two digits per byte).")]
+        [Function(nameof(MD5), "Converts the argument to string, then treating it as UTF8 string converts it to bytes. The hash is calculated from those bytes and returned as string containing the resulting hash in bytes listed in hexdecimal (two digits per byte).")]
+        [Parameter(0, "Argument", "argument", TypeFlags.Varying)]
+        [Result("Returns a hashed string", TypeFlags.String)]
         public ParameterResolverValue MD5(HostInterface ctx, ParameterResolverValue[] args) {
             string format = "x2";
             if (args.Length < 1 || args.Length > 2) throw new ArgumentException("MD5 accepts 1 or 2 arguments");
@@ -777,6 +891,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #region Typing
 
         [Function(nameof(Cast), "Returns the arg casted to the type specified by type")]
+        [Parameter(0, "Cast_Type", "type to cast to", TypeFlags.Varying)]
+        [Parameter(1, "Value", "value we want to cast", TypeFlags.Varying)]
+        [Result("Returns the casted arg", TypeFlags.Varying)]
         public ParameterResolverValue Cast(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 2) throw new ArgumentException("Cast requires two arguments.");
             string stype = args[0].Value as string;
@@ -798,6 +915,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(TypeOf), "Returns the name of the type contained in the argument. Recognizes only these types: null, string, int, long, double, short, byte, bool and everything else is unknown.")]
+        [Parameter(0, "Argument", "argument to check type", TypeFlags.Varying)]
+        [Result("Returns the type as a string", TypeFlags.String)]
         public ParameterResolverValue TypeOf(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("TypeOf requires one argument.");
             if (args[0].Value == null) return new ParameterResolverValue("null");
@@ -823,6 +942,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(IsNumeric), "Returns true if the argument contains a numeric value.")]
+        [Parameter(0, "Value", "value to check", TypeFlags.Varying)]
+        [Result("Returns a boolean", TypeFlags.Bool)]
         public ParameterResolverValue IsNumeric(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("IsNumeric requires one argument.");
             return new ParameterResolverValue(IsNumeric(args[0].Value));
@@ -835,6 +956,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #region Settings
 
         [Function(nameof(GSetting), "Returns the value of a global setting. Only a small number of global settings can be queried. These are typically defined in the appsettings*.json file.")]
+        [Parameter(0, "Setting", "global setting to find", TypeFlags.Varying)]
+        [Result("Returns a global setting value as string", TypeFlags.Varying)]
         public ParameterResolverValue GSetting(HostInterface _ctx, ParameterResolverValue[] args) {
             KraftGlobalConfigurationSettings kgcf = null;
             var ctx = _ctx as IDataLoaderContext;
@@ -884,6 +1007,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         #endregion
 
         [Function(nameof(Throw), "Throws an exception with the given description.")]
+        [Parameter(0, "Argument", "argument", TypeFlags.Varying)]
+        [Result("Throws an exception", TypeFlags.Error)]
         public ParameterResolverValue Throw(HostInterface ctx, ParameterResolverValue[] args) {
             string extext = null;
             if (args.Length > 0) {
@@ -981,6 +1106,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
         [Function(nameof(MetaRoot), "Gets specific fields of root meta information ot if certain flags are set")]
         [Parameter(0, "field", "field to get: rowsaffected, rows, fields", TypeFlags.Optional | TypeFlags.String)]
+        [Parameter(1, "parentLevel", "0 - current, 1 - parent etc.", TypeFlags.Optional | TypeFlags.Int)]
         [Result("Returns the value or null", TypeFlags.Null | TypeFlags.Int | TypeFlags.Bool)]
         public ParameterResolverValue MetaRoot(HostInterface ctx, ParameterResolverValue[] args) {
             if (ctx is IActionHelpers helper) {
@@ -1007,6 +1133,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         #region Additional helpers for internal use
         [Function("DictToJson","Converts a Dict to JSON string, the dict can contain lists and other dictionaries")]
+        [Parameter(0, "Dictionary", "Dictionary to convert", TypeFlags.Dict)]
+        [Result("Returns a json", TypeFlags.Json)]
         public static ParameterResolverValue DictToJson(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("DictToJson requires a single Dict argument");
@@ -1016,6 +1144,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(JsonConvert.SerializeObject(gendata));
         }
         [Function("JsontoDict", "Converts a JSON string to Dict, if not possible returns null")]
+        [Parameter(0, "JSON", "Json string", TypeFlags.String | TypeFlags.Json)]
+        [Result("Returns an AC Dictionary or null", TypeFlags.Dict | TypeFlags.Null)]
         public static ParameterResolverValue JsonToDict(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("JsonToDict requires a single string argument");

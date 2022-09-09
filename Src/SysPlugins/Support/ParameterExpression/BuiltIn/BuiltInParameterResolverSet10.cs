@@ -868,21 +868,21 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                     }
                 })),
                 T_UINT => new ParameterResolverValue(args.All(a => {
-                    if (i == null) {
+                    if (u == null) {
                         u = Convert.ToUInt32(a.Value); return true;
                     } else {
                         return Convert.ToUInt32(a.Value) == u;
                     }
                 })),
                 T_DBL => new ParameterResolverValue(args.All(a => {
-                    if (i == null) {
+                    if (d == null) {
                         d = Convert.ToDouble(a.Value); return true;
                     } else {
-                        return Convert.ToDouble(a.Value) == i;
+                        return Convert.ToDouble(a.Value) == d;
                     }
                 })),
                 T_STR => new ParameterResolverValue(args.All(a => {
-                    if (i == null) {
+                    if (s == null) {
                         s = Convert.ToString(a.Value); return true;
                     } else {
                         return string.CompareOrdinal(Convert.ToString(a.Value), s) == 0;
