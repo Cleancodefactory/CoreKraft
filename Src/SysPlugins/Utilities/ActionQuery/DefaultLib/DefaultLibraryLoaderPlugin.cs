@@ -328,12 +328,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
-        private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<Dictionary<string, object>>, Dictionary<string, object>> action, ParameterResolverValue[] args) {
+        private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<IDictionary<string, object>>, Dictionary<string, object>> action, ParameterResolverValue[] args) {
             int? index = 0;
             if (args.Length > 1) {
                 index = Convert.ToInt32(args[0].Value);
             }
-            IDataStateHelperProvider<Dictionary<string, object>> stateHelper = ctx as IDataStateHelperProvider<Dictionary<string, object>>;
+            IDataStateHelperProvider<IDictionary<string, object>> stateHelper = ctx as IDataStateHelperProvider<IDictionary<string, object>>;
             if (ctx is INodePluginContextWithResults ctx_r) {
                 if (ctx_r.Results != null) {
                     if (index != null) {
