@@ -68,7 +68,7 @@ namespace Ccf.Ck.Processing.Web.Request
         {
             InputModelParameters inputModelParameters = new InputModelParameters();
             inputModelParameters.KraftGlobalConfigurationSettings = _KraftGlobalConfigurationSettings;
-            inputModelParameters.ReadAction = EReadAction.Default;
+            inputModelParameters.ReadAction = _InputModel.ReadAction;
             inputModelParameters.SecurityModel = securityModel;
             inputModelParameters.Module = _InputModel.Module;
             inputModelParameters.Nodeset = _InputModel.Nodeset;

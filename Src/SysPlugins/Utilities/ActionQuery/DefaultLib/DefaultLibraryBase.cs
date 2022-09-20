@@ -622,30 +622,33 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 chain = args.Skip(1).ToArray();
             }
 
-            object cur = args[0].Value;
+            ParameterResolverValue cur = args[0];
             for (int i = 0; i < chain.Length; i++) {
                 var idx = chain[i];
-                if (cur is IDictionary<string, ParameterResolverValue> pdict) {
+                if (cur.Value is IDictionary<string, ParameterResolverValue> pdict) {
                     string skey = Convert.ToString(idx.Value);
                     if (pdict.ContainsKey(skey)) {
-                        cur = pdict[skey].Value;
+                        cur = pdict[skey]; //.Value;
                         continue;
                     } else {
-                        cur = null;
+                        cur = new ParameterResolverValue(null);
                         break;
                     }
-                } else if (cur is List<ParameterResolverValue> list) {
+                } else if (cur.Value is List<ParameterResolverValue> list) {
                     int index = Convert.ToInt32(idx.Value);
                     if (index >= 0 && index < list.Count) {
-                        cur = list[index].Value;
+                        cur = list[index];
                         continue;
                     } else {
-                        cur = null;
+                        cur = new ParameterResolverValue(null);
                         break;
                     }
+                } else {
+                    // Non-collection - cannot navigate more - null
+                    cur = new ParameterResolverValue(null);
                 }
             }
-            return new ParameterResolverValue(cur);
+            return cur;
         }
         #endregion
 
