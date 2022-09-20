@@ -58,9 +58,20 @@ The points in the execution process in which a custom plugin can be invoked are:
 
     For write operations the `beforenode` plugins see list of the results coming for write before any of them is processed. Useful actions at this point can be changing their states, adding some implicit records for store and so on.
 
+    The context available to these plugins is:
+
+    ```csharp
+        TO DO
+
+    ```
+
     `beforenode` plugins are most often used together with Prepare operations.
 
 - beforenodeaction - before the operation performed by the data loader of the node.
+
+    The context available in this phase contains the same properties and methods as the data loader's context. Thus the execution is almost the same as if the same code is implemented as data loader, the only notable difference at that point will be that the Results will be empty for the first custom plugin. If multiple custom plugins are registered to execute before node action the results will be empty for the first one and then will depend on what each plugin does.
+
+    - These plugins can add results before the data loader produces any. This rarely makes sense for read actions, but can be very useful for writes when implicitly generated data has to be sent for actual writing for instance.
 
 ... TODO CONTINUE ...
 

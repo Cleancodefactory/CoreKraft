@@ -12,6 +12,7 @@ using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.Models.Enumerations;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 {
@@ -26,7 +27,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             switch (name)
             {
                 case nameof(CallRead):
-                   return CallRead;
+                    return CallRead;
+                case nameof(CallNew):
+                    return CallNew;
                 case nameof(CallWrite):
                     return CallWrite;
                 case nameof(ScheduleCallRead):
@@ -103,9 +106,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 
        
 
-        private ParameterResolverValue _Call(bool isWrite,HostInterface ctx, ParameterResolverValue[] args,bool isIndirect = false)
+        private ParameterResolverValue _Call(bool isWrite,HostInterface ctx, ParameterResolverValue[] args,bool isIndirect = false, EReadAction readAction = EReadAction.Default)
         {
-            dcall.InputModel inp = new dcall.InputModel() { IsWriteOperation = isWrite };
+            dcall.InputModel inp = new dcall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
             ReturnModel ret = null;
 
             if (args.Length < 1) throw new ArgumentException("CallRead needs at least one argument - the address to call.");
@@ -189,6 +192,14 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
         public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args);
+        }
+        [Function(nameof(CallNew), "Executes read action on the node in the nodeset specified by the address and returns the result")]
+        [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
+        [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
+        [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
+        public ParameterResolverValue CallNew(HostInterface ctx, ParameterResolverValue[] args) {
+            return _Call(false, ctx, args,false,EReadAction.New);
         }
 
         [Function(nameof(CallWrite), "Executes write action on the node in the nodeset specified by the address and returns the result. Make sure you set the state of the data (or parts of it) to insert, update or delete.")]
