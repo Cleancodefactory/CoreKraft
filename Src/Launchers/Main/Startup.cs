@@ -1,6 +1,7 @@
 ﻿using Ccf.Ck.Launchers.Main.ActionFilters;
 using Ccf.Ck.Launchers.Main.Routing;
 using Ccf.Ck.Launchers.Main.Utils;
+using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.EmailSettings;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Web.Middleware;
@@ -158,6 +159,10 @@ namespace Ccf.Ck.Launchers.Main
                         apm.ApplicationParts.Add(new AssemblyPart(assemblyCode));
                         // https://docs.microsoft.com/en-us/dotnet/core/compatibility/aspnet-core/6.0/razor-compiler-doesnt-produce-views-assembly
                         apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(assemblyCode));
+                    }
+                    else
+                    {
+                        KraftLogger.LogCritical($"Configured assembly {assemblyFile} is missing or error during compilation! No landing page will be loaded.");
                     }
                 }
                 // TODO Remove when all applications are migrated to .NET 6.0
