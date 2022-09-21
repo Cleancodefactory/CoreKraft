@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.ContextBasket;
+using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.Packet;

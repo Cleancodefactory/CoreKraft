@@ -108,8 +108,20 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 
         private ParameterResolverValue _Call(bool isWrite,HostInterface ctx, ParameterResolverValue[] args,bool isIndirect = false, EReadAction readAction = EReadAction.Default)
         {
-            dcall.InputModel inp = new dcall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
+
+            dcall.InputModel inp;
+
+            if (ctx is IDataLoaderContext lctx) {
+                inp = lctx.PrepareCallModel(isWriteOperation: isWrite, readAction: readAction);
+            } else if (ctx is INodePluginContext cctx) {
+                inp = cctx.PrepareCallModel(isWriteOperation: isWrite, readAction: readAction);
+            } else {
+                inp = new dcall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
+            }
             ReturnModel ret = null;
+
+            
+                
 
             if (args.Length < 1) throw new ArgumentException("CallRead needs at least one argument - the address to call.");
             if (!ParseCallAddress(Convert.ToString(args[0].Value), inp)) {

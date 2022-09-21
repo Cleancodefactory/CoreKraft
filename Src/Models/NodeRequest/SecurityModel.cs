@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using Ccf.Ck.Models.Enumerations;
 
 namespace Ccf.Ck.Models.NodeRequest
 {

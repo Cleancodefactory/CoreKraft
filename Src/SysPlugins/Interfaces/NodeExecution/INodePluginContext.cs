@@ -1,4 +1,6 @@
-﻿using Ccf.Ck.Models.Enumerations;
+﻿using Ccf.Ck.Models.DirectCall;
+using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
@@ -47,5 +49,17 @@ namespace Ccf.Ck.SysPlugins.Interfaces
         void BailOut();
 
         CustomPlugin CustomPlugin { get; set; }
+
+        Ccf.Ck.Models.DirectCall.InputModel PrepareCallModel(string module = null, 
+                                                             string nodeset = null, 
+                                                             string nodepath = null, 
+                                                             bool isWriteOperation = false, 
+                                                             EReadAction readAction = EReadAction.Default) {
+            var im = new Ccf.Ck.Models.DirectCall.InputModel(module, nodeset, nodepath, isWriteOperation, readAction);
+            var sm = ProcessingContext?.InputModel?.SecurityModel;
+            im.SecurityModel = new SecurityModelCopy(sm);
+            return im;
+        }
+        
     }
 }
