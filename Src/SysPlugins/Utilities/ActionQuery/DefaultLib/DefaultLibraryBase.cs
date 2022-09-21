@@ -314,7 +314,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Result("Returns the AC list or null", TypeFlags.List | TypeFlags.Null)]
         public ParameterResolverValue ListAdd(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("ListAdd requires some arguments");
-            var list = args[0].Value as IList<ParameterResolverValue>;
+            var arglist = args[0];
+            var list = arglist.Value as IList<ParameterResolverValue>;
             if (list != null) {
                 for (int i = 1; i < args.Length; i++) {
                     list.Add(args[i]); // TODO: Should we break lists?
@@ -322,7 +323,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             } else {
                 return new ParameterResolverValue(null);
             }
-            return new ParameterResolverValue(list);
+            return arglist;
         }
 
         [Function(nameof(ListRemove), "Removes the element(s) at the specified indexes. The indexes are the positions before doing any removal.")]
@@ -331,7 +332,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Result("Returns: the modified AC list or null", TypeFlags.List | TypeFlags.Null)]
         public ParameterResolverValue ListRemove(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("ListRemove requires some arguments");
-            var list = args[0].Value as IList<ParameterResolverValue>;
+            var arglist = args[0];
+            var list = arglist.Value as IList<ParameterResolverValue>;
             if (list != null) {
                 var indices = args.Skip(1).OrderByDescending(a => Convert.ToInt32(a.Value));
                 if (indices.Count() > 0) {
@@ -345,7 +347,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
             } else {
                 return new ParameterResolverValue(null);
             }
-            return new ParameterResolverValue(list);
+            return arglist;
         }
 
         // Check Length
@@ -356,12 +358,13 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Result("Returns the AC list", TypeFlags.List | TypeFlags.Null)]
         public ParameterResolverValue ListInsert(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 3) throw new ArgumentException("ListInsert requires 3 arguments");
-            var list = args[0].Value as IList<ParameterResolverValue>;
+            var arglist = args[0];
+            var list = arglist.Value as IList<ParameterResolverValue>;
             if (list == null) return new ParameterResolverValue(null);
             if (!IsNumeric(args[1].Value)) throw new ArgumentException("ListInsert argument 2 (index) is not numeric");
             var index = Convert.ToInt32(args[1].Value);
             list.Insert(index, args[2]);
-            return new ParameterResolverValue(list);
+            return arglist;
         }
 
         [Function(nameof(ListGet), "Gets the element at index and returns it. If the index is out of range returns null.")]
@@ -388,13 +391,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Result("Returns the AC list or throws an exception!", TypeFlags.Varying | TypeFlags.Error)]
         public ParameterResolverValue ListSet(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 3) throw new ArgumentException("ListSet requires 3 arguments");
-            var list = args[0].Value as IList<ParameterResolverValue>;
+            var arglist = args[0];
+            var list = arglist.Value as IList<ParameterResolverValue>;
             if (list == null) return new ParameterResolverValue(null);
             if (!IsNumeric(args[1].Value)) throw new ArgumentException("ListSet index (arg 2) is not numeric");
             var index = Convert.ToInt32(args[1].Value);
             if (index >= 0 && index < list.Count) {
                 list[index] = args[2];
-                return new ParameterResolverValue(list);
+                return arglist;
             } else {
                 throw new IndexOutOfRangeException("ListSet index is out of range");
             }
@@ -405,10 +409,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Result("Returns the cleared AC list", TypeFlags.List)]
         public ParameterResolverValue ListClear(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("ListClear requires 1 argument");
-            var list = args[0].Value as IList<ParameterResolverValue>;
+            var arglist = args[0];
+            var list = arglist.Value as IList<ParameterResolverValue>;
             if (list == null) return new ParameterResolverValue(null);
             list.Clear();
-            return new ParameterResolverValue(list);
+            return arglist;
         }
         private ParameterResolverValue _AsList<L>(HostInterface ctx, ParameterResolverValue[] args) where L : List<ParameterResolverValue>, new() {
             if (args.Length != 1) throw new ArgumentException("AsList requires 1 argument");
@@ -485,7 +490,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Result("Returns the modified AC dictionary", TypeFlags.Dict)]
         public ParameterResolverValue DictSet(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length % 2 == 0) throw new ArgumentException("DictSet requires odd number of  arguments");
-            var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
+            var argdict = args[0];
+            var dict = argdict.Value as IDictionary<string, ParameterResolverValue>;
             if (dict == null) return new ParameterResolverValue(null);
 
             for (int i = 1; i < args.Length; i += 2) {
@@ -494,7 +500,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 var val = args[i + 1];
                 dict[key] = val;
             }
-            return new ParameterResolverValue(dict);
+            return argdict;
         }
 
         [Function(nameof(DictGet), "Gets a value of an element in an AC dictionary. If the key is missing null wil be returned. Returns: the value of the key.")]
@@ -516,10 +522,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Result("Returns the cleared AC dictionary", TypeFlags.Dict | TypeFlags.Null)]
         public ParameterResolverValue DictClear(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length != 1) throw new ArgumentException("DictClear requires one argument");
-            var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
+            var argdict = args[0];
+            var dict = argdict.Value as IDictionary<string, ParameterResolverValue>;
             if (dict == null) return new ParameterResolverValue(null);
             dict.Clear();
-            return new ParameterResolverValue(dict);
+            return argdict;
         }
 
         [Function(nameof(DictRemove), "Removes elements from an AC dictionary. All the specified keys are removed from the dictionary.")]
@@ -528,14 +535,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Result("Returns the modified AC dictionary", TypeFlags.Dict | TypeFlags.Null)]
         public ParameterResolverValue DictRemove(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("DictRemove requires at least one argument");
-            var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
+            var argdict = args[0];
+            var dict = argdict.Value as IDictionary<string, ParameterResolverValue>;
             if (dict == null) return new ParameterResolverValue(null);
 
             var keys = args.Skip(1).Select(a => Convert.ToString(a.Value));
             foreach (var key in keys) {
                 dict.Remove(key);
             }
-            return new ParameterResolverValue(dict);
+            return argdict;
         }
 
         [Function(nameof(DictRemoveExcept), "Clears all the values in the dictionary except those listed after the first argument, which is the dictionary to clear.")]
@@ -544,6 +552,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         [Result("Returns the modified AC dictionary", TypeFlags.Dict | TypeFlags.Null)]
         public ParameterResolverValue DictRemoveExcept(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length < 1) throw new ArgumentException("DictRemoveExcept requires at least one argument");
+            var argdict = args[0];
             var dict = args[0].Value as IDictionary<string, ParameterResolverValue>;
             if (dict == null) return new ParameterResolverValue(null);
 
@@ -553,7 +562,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     dict.Remove(key);
                 }
             }
-            return new ParameterResolverValue(dict);
+            return argdict;
         }
 
         // Check Length
