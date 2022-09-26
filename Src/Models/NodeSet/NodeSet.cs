@@ -26,6 +26,7 @@ namespace Ccf.Ck.Models.NodeSet
             get;
             set;
         }
+        public Security Security { get; set; }
 
         public string DataPluginName
         {

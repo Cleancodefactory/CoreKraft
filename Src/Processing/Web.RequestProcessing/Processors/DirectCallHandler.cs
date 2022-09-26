@@ -19,6 +19,7 @@ using System.Text;
 using Grace.DependencyInjection.Impl.Wrappers;
 using Ccf.Ck.Models.Packet;
 using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -82,6 +83,14 @@ namespace Ccf.Ck.Processing.Web.Request
                 { CallTypeConstants.TASK_KIND, _InputModel.TaskKind },
                 { CallTypeConstants.REQUEST_PROCESSOR, "DirectCallHandler" } // Do not use nameof here - this name should remain constant even if the class name changes.
             };
+            if (_InputModel.RunAs != null) {
+                inputModelParameters.SecurityModel = null;
+                inputModelParameters.SecurityModel = SecurityModelBuiltIn.Create(_InputModel.RunAs, _KraftGlobalConfigurationSettings);
+                if (inputModelParameters.SecurityModel == null) {
+                    throw new System.UnauthorizedAccessException($"The specified builtin user ({_InputModel.RunAs}) was not found in the global configuration");
+                }
+            }
+
 
             IProcessingContext processingContext = new ProcessingContext(this);
             processingContext.InputModel = new InputModel(inputModelParameters);

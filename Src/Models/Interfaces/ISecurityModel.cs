@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Ccf.Ck.Models.NodeSet;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ccf.Ck.Models.Interfaces
@@ -6,6 +7,11 @@ namespace Ccf.Ck.Models.Interfaces
 
     public interface ISecurityModel
     {
+        bool IsBuiltin { 
+            get {
+                return false;
+            }
+        }
         bool IsAuthenticated { get; }
 
         string UserName { get; }
@@ -22,6 +28,17 @@ namespace Ccf.Ck.Models.Interfaces
             var rolex = Roles.FirstOrDefault(r => string.CompareOrdinal(r, roleName) == 0);
             if (rolex != null) return 0;
             return 1;
+        }
+
+        bool CheckSecurity(Security sec) {
+            if (sec.BuiltinOnly) {
+                if (!IsBuiltin) return false;
+            }
+            if (sec.AllowRoles != null) {
+                var roles = sec.AllowRoles.Intersect(Roles);
+                if (roles != null && roles.Count() > 0) return true;
+            } 
+            return false;
         }
     }
 }

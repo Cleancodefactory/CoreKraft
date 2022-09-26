@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Security;
@@ -18,6 +19,7 @@ namespace Ccf.Ck.Models.DirectCall
             ReadAction = readAction;
         }
 
+        public string RunAs { get; set; }
         public string Module { get; set; }
         public string Nodeset { get; set; }
         public string Nodepath { get; set; }

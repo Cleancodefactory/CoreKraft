@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Models.NodeRequest
 {

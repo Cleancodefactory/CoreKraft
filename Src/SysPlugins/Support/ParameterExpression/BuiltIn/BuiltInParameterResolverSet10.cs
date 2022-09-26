@@ -26,6 +26,7 @@ using Newtonsoft.Json;
 using System.IO;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
 {

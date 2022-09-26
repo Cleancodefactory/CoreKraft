@@ -10,6 +10,7 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Libs.Web.Bundling;
 using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Processing.Web.Request
 {

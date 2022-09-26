@@ -15,6 +15,7 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using Ccf.Ck.Processing.Execution;
 using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Processing.Web.Request
 {

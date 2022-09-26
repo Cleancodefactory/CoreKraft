@@ -10,6 +10,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
+    <ProjectReference Include="..\Interfaces\Ccf.Ck.Models.Interfaces.csproj" />
   </ItemGroup>
   
 </Project>

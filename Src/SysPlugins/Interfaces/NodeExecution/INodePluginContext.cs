@@ -60,6 +60,15 @@ namespace Ccf.Ck.SysPlugins.Interfaces
             im.SecurityModel = new SecurityModelCopy(sm);
             return im;
         }
-        
+        Ccf.Ck.Models.DirectCall.InputModel PrepareCallModelAs(string runas,
+                                                             string module = null,
+                                                             string nodeset = null,
+                                                             string nodepath = null,
+                                                             bool isWriteOperation = false,
+                                                             EReadAction readAction = EReadAction.Default) {
+            var im = new Ccf.Ck.Models.DirectCall.InputModel(module, nodeset, nodepath, isWriteOperation, readAction) { RunAs = runas };
+            return im;
+        }
+
     }
 }

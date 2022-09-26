@@ -39,6 +39,7 @@
     <ProjectReference Include="..\Models\DirectCall\Ccf.Ck.Models.DirectCall.csproj" />
     <ProjectReference Include="..\Models\EmailSettings\Ccf.Ck.Models.EmailSettings.csproj" />
     <ProjectReference Include="..\Models\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
+    <ProjectReference Include="..\Models\Interfaces\Ccf.Ck.Models.Interfaces.csproj" />
     <ProjectReference Include="..\Models\KraftModule\Ccf.Ck.Models.KraftModule.csproj" />
     <ProjectReference Include="..\Models\Settings\Ccf.Ck.Models.Settings.csproj" />
     <ProjectReference Include="..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />

@@ -19,6 +19,7 @@ using System.Net;
 using Ccf.Ck.Processing.Web.ResponseBuilder;
 using System.Linq;
 using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 {

@@ -8,4 +8,9 @@
     <PackageDescription>This package contains the enumerations needed for using CoreKraft Server</PackageDescription>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
+    <ProjectReference Include="..\NodeSet\Ccf.Ck.Models.NodeSet.csproj" />
+  </ItemGroup>
+
 </Project>

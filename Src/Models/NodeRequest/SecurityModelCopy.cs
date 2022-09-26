@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

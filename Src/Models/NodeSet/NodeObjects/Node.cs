@@ -47,6 +47,7 @@ namespace Ccf.Ck.Models.NodeSet
             get;
             set;
         }
+        public Security Security { get; set; }
 
         public NodeSet NodeSet
         {

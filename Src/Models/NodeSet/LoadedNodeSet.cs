@@ -13,5 +13,11 @@ namespace Ccf.Ck.Models.NodeSet
             get;
             set;
         }
+        public Security GetSecurity() {
+            if (NodeSet != null) {
+                return Security.From(NodeSet.Security); // Makes a copy
+            }
+            return null;
+        }
     }
 }

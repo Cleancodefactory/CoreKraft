@@ -19,6 +19,8 @@ namespace Ccf.Ck.Models.NodeSet
         }
         #endregion
 
+        public Security Security { get; set; }
+
         #region Custom plugins
         public List<CustomPlugin> CustomPlugins { get; set; }  = new List<CustomPlugin>();
         

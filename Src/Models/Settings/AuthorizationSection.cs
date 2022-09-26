@@ -17,5 +17,6 @@ namespace Ccf.Ck.Models.Settings
         public string LastName { get; set; }
 
         public List<string> Roles { get; set; }
+        public List<BuiltinUser> BuiltinUsers { get; set; }
     }
 }

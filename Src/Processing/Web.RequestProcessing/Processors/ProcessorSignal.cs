@@ -16,6 +16,7 @@ using Ccf.Ck.Utilities.Generic;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Utilities.NodeSetService;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Processing.Web.Request
 {

@@ -110,13 +110,22 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         {
 
             dcall.InputModel inp;
-
-            if (ctx is IDataLoaderContext lctx) {
-                inp = lctx.PrepareCallModel(isWriteOperation: isWrite, readAction: readAction);
-            } else if (ctx is INodePluginContext cctx) {
-                inp = cctx.PrepareCallModel(isWriteOperation: isWrite, readAction: readAction);
+            if (args.Length > 3 && !string.IsNullOrEmpty(args[3].Value as string)) {
+                if (ctx is IDataLoaderContext lctx) {
+                    inp = lctx.PrepareCallModelAs(runas: args[3].Value as string ,isWriteOperation: isWrite, readAction: readAction);
+                } else if (ctx is INodePluginContext cctx) {
+                    inp = cctx.PrepareCallModelAs(runas: args[3].Value as string, isWriteOperation: isWrite, readAction: readAction);
+                } else {
+                    inp = new dcall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
+                }
             } else {
-                inp = new dcall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
+                if (ctx is IDataLoaderContext lctx) {
+                    inp = lctx.PrepareCallModel(isWriteOperation: isWrite, readAction: readAction);
+                } else if (ctx is INodePluginContext cctx) {
+                    inp = cctx.PrepareCallModel(isWriteOperation: isWrite, readAction: readAction);
+                } else {
+                    inp = new dcall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
+                }
             }
             ReturnModel ret = null;
 
@@ -201,6 +210,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Parameter(3, "runas", "A string with builtin username (see authorization section in global settings)", TypeFlags.String | TypeFlags.Optional)]
         [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
         public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args);
@@ -209,6 +219,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Parameter(3, "runas", "A string with builtin username (see authorization section in global settings)", TypeFlags.String | TypeFlags.Optional)]
         [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
         public ParameterResolverValue CallNew(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args,false,EReadAction.New);
@@ -218,6 +229,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0,"address","Address in the form module/nodeset[/node.path]",TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Parameter(3, "runas", "A string with builtin username (see authorization section in global settings)", TypeFlags.String | TypeFlags.Optional)]
         [Result("Result from the node converted to script usable List or Dict depending on what the node returns", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
         public ParameterResolverValue CallWrite(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(true, ctx, args);
@@ -226,6 +238,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Parameter(3, "runas", "A string with builtin username (see authorization section in global settings)", TypeFlags.String | TypeFlags.Optional)]
         [Result("TaskId guid string or error", TypeFlags.String | TypeFlags.Error)]
         public ParameterResolverValue ScheduleCallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args,true);
@@ -234,6 +247,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Parameter(3, "runas", "A string with builtin username (see authorization section in global settings)", TypeFlags.String | TypeFlags.Optional)]
         [Result("TaskId guid string or error", TypeFlags.String | TypeFlags.Error)]
         public ParameterResolverValue ScheduleCallWrite(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(true, ctx, args, true);

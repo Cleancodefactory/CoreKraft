@@ -13,6 +13,7 @@ using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Utilities.NodeSetService;
 using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Processing.Web.Request
 {

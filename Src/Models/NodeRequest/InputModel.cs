@@ -3,6 +3,7 @@ using Ccf.Ck.Libs.Logging;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Ccf.Ck.Models.Settings;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Models.NodeRequest
 {
