@@ -20,6 +20,7 @@ using Grace.DependencyInjection.Impl.Wrappers;
 using Ccf.Ck.Models.Packet;
 using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.Interfaces;
+using System;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -48,6 +49,11 @@ namespace Ccf.Ck.Processing.Web.Request
                                                     processingContext.InputModel.NodeSet,
                                                     processingContext.InputModel.Nodepath,
                                                     loadedModule);
+            }
+            // {Security} Check security at nodeset level
+            var security = loadedNodeSet.GetNodeSetSecurity();
+            if (!processingContext.CheckSecurity(security)) {
+                throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
             }
             StringBuilder sb;
             if (!CheckValidity(processingContext, loadedModule, loadedNodeSet, out sb))

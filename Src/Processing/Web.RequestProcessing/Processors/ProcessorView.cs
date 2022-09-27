@@ -16,6 +16,7 @@ using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using Ccf.Ck.Processing.Execution;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Interfaces;
+using System;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -33,6 +34,10 @@ namespace Ccf.Ck.Processing.Web.Request
                                                 processingContext.InputModel.NodeSet,
                                                 processingContext.InputModel.Nodepath,
                                                 loadedModule);
+            var security = loadedNodeSet.GetNodeSetSecurity();
+            if (!processingContext.CheckSecurity(security)) {
+                throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
+            }
             if (CheckValidity(processingContext, loadedModule, loadedNodeSet))
             {
                 PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);

@@ -53,6 +53,11 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
                                                 processingContext.InputModel.NodeSet,
                                                 processingContext.InputModel.Nodepath,
                                                 loadedModule);
+            // {Security} Check security on nodeset level
+            var security = loadedNodeSet.GetNodeSetSecurity();
+            if (!processingContext.CheckSecurity(security)) {
+                throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
+            }
             if (CheckValidity(processingContext, loadedModule, loadedNodeSet))
             {
                 PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);

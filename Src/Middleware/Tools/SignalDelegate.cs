@@ -105,6 +105,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                         NodePath = kraftModuleSignal.NodePath,
                         NodeSet = kraftModuleSignal.NodeSet,
                         Maintenance = kraftModuleSignal.Maintenance,
+                        // Info: the actual execution passes through processor base and is checked there for security
                         Details = GenerateDetails(module.Key, kraftModuleSignal, nodeSetService)
                     };
                     //(www)myserver.com/node/<read/write>/signal/board/nodekey?sysrequestcontent=ffff
@@ -124,6 +125,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                                                 kraftModuleSignal.NodeSet, 
                                                                 kraftModuleSignal.NodePath,
                                                                 loadedModule);
+            
             if (nodeSet.StartNode.Read != null)
             {
                 moduleSignalDetails.Read = nodeSet.StartNode.Read;
