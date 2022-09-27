@@ -37,10 +37,12 @@ namespace Ccf.Ck.Models.Interfaces
         /// <returns></returns>
         bool CheckSecurity(Security sec) {
             if (sec == null) return true; // No security
+            if (sec.RequireAuthentication && !IsAuthenticated) return false;
             if (sec.BuiltinOnly) {
-                if (!IsBuiltin) return false;
+                if (!IsBuiltin || !IsAuthenticated) return false;
             }
             if (sec.AllowRoles != null) {
+                if (!IsAuthenticated) return false;
                 var roles = sec.AllowRoles.Intersect(Roles);
                 if (roles != null && roles.Count() > 0) return true;
                 return false;

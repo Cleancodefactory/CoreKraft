@@ -15,7 +15,7 @@ namespace Ccf.Ck.Models.NodeSet
         }
         public Security GetNodeSetSecurity() {
             if (NodeSet != null) {
-                return Security.From(NodeSet.Security); // Makes a copy
+                return Security.From(NodeSet); // Makes a copy
             }
             return null;
         }
@@ -28,7 +28,7 @@ namespace Ccf.Ck.Models.NodeSet
                 return security;
             } else {
                 if (StartNode != null) {
-                    Security security = Security.From(StartNode.Security);
+                    Security security = Security.From(StartNode);
                     return security;
                 }
                 return null;

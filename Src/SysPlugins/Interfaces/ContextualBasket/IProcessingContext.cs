@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.NodeRequest;
+﻿using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.SysPlugins.Interfaces.Packet;
 
@@ -18,8 +19,7 @@ namespace Ccf.Ck.SysPlugins.Interfaces.ContextualBasket
         /// <returns></returns>
         bool CheckSecurity(Security sec) {
             if (sec == null) return true;
-            var secModel = InputModel?.SecurityModel;
-            if (secModel == null) return false; // Any non-null security requires a security model against which to be checked
+            ISecurityModel secModel = new SecurityModelCopy(InputModel?.SecurityModel);
             return secModel.CheckSecurity(sec);
         }
     }
