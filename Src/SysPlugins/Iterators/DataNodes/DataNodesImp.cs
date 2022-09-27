@@ -88,7 +88,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             if (node.Read == null) return null; // No read instructions - nothing to read
             // {Security}
             Security security = Security.From(node.Security);
-            security = security.OverrideWith(node?.Read?.Security);
+            security = security?.OverrideWith(node?.Read?.Security);
             if (!dataIteratorContext.ProcessingContext.CheckSecurity(security)) {
                 var im = dataIteratorContext.ProcessingContext.InputModel;
                 throw new UnauthorizedAccessException($"Security requirements not met for executing a Read on {im.Module}/{im.NodeSet}/{im.Nodepath}");
@@ -327,7 +327,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         {
             // {Security}
             Security security = Security.From(node.Security);
-            security = security.OverrideWith(node?.Write?.Security);
+            security = security?.OverrideWith(node?.Write?.Security);
             if (!dataIteratorContext.ProcessingContext.CheckSecurity(security)) {
                 var im = dataIteratorContext.ProcessingContext.InputModel;
                 throw new UnauthorizedAccessException($"Security requirements not met for executing a Write on {im.Module}/{im.NodeSet}/{im.Nodepath}");

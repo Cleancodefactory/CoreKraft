@@ -23,7 +23,7 @@ namespace Ccf.Ck.Models.NodeSet
             if (NodeSet != null) {
                 Security security = Security.From(NodeSet.Security); // Makes a copy
                 if (StartNode != null) {
-                    security.OverrideWith(StartNode.Security);
+                    security?.OverrideWith(StartNode.Security);
                 }
                 return security;
             } else {
