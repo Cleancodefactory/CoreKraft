@@ -15,7 +15,7 @@ namespace Ccf.Ck.Models.NodeRequest {
                 UserEmail = model.UserEmail;
                 FirstName = model.FirstName;
                 LastName = model.LastName;
-                Roles = model.Roles.ToList();
+                Roles = model.Roles?.ToList();
             }
         }
 
