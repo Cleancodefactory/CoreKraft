@@ -236,8 +236,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         }
         [Function(nameof(ScheduleCallRead), "Schedules read action on the node in the nodeset specified by the address and returns the result")]
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
-        [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
-        [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]
+        [Parameter(1, "data", "A dictionary accessible like posted JSON. The data is preserved until the task is scheduled.", TypeFlags.Dict)]
+        [Parameter(2, "clientdata", "A dictionary of query string parameters. The data is preserved until the task is scheduled.", TypeFlags.Dict | TypeFlags.Optional)]
         [Parameter(3, "runas", "A string with builtin username (see authorization section in global settings)", TypeFlags.String | TypeFlags.Optional)]
         [Result("TaskId guid string or error", TypeFlags.String | TypeFlags.Error)]
         public ParameterResolverValue ScheduleCallRead(HostInterface ctx, ParameterResolverValue[] args) {
