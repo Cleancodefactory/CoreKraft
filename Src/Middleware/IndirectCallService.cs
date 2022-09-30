@@ -1,6 +1,7 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -197,10 +198,34 @@ namespace Ccf.Ck.Web.Middleware
                     }
                 }
             }
+        }
+        #endregion
+
+        #region Control interface
+
+        public IIndirectCallerInfo GetIndirectServiceInfo() {
+            var waiting = _Waiting.Select(qt => new IndirectCallInfoEx(qt.task.guid,
+                                                        IndirectCallStatus.Queued,
+                                                        qt.task.input,
+                                                        qt.task.result,
+                                                        null,
+                                                        null,
+                                                        qt.queued));
+            var finished = _Finished.Select(kv => new IndirectCallInfoEx(
+                kv.Value.guid,
+                kv.Value.status,
+                kv.Value.input,
+                kv.Value.result,
+                kv.Value.started,
+                kv.Value.finished
+            ));
+            return new IndirectCallerInfo(waiting, finished);
 
         }
 
         #endregion
+
+
 
     }
 
