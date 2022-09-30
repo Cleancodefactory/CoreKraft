@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Ccf.Ck.Web.Middleware
 {
-    public class IndirectCallService : IIndirectCallService, IHostedService {
+    public class IndirectCallService : IIndirectCallService, IHostedService, IIndirectCallerControl {
         public const int TIMEOUT_SECONDS = 120;
         public const int RESULT_PRESERVE_SECONDS = 3600;
         public const int SCHEDULE_TIMEOUT_SECONDS = 84000;
