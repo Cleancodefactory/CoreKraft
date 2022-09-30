@@ -26,8 +26,8 @@ namespace Ccf.Ck.Models.Interfaces
 
         int IsInRole(string roleName) {
             var rolex = Roles.FirstOrDefault(r => string.CompareOrdinal(r, roleName) == 0);
-            if (rolex != null) return 0;
-            return 1;
+            if (rolex != null) return 1;
+            return 0;
         }
         /// <summary>
         /// Change this if we add more Security props.
