@@ -65,6 +65,9 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
                                     case "internalcalls":
                                         host.AddLibrary(new DirectCallLib<Context>());
                                         break;
+                                    case "diagnostics":
+                                        host.AddLibrary(new DiagnosticsLib<Context>());
+                                        break;
 
                                 }
                             }
@@ -107,7 +110,7 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
 
         public ParameterResolverValue HostInfo(IDataLoaderContext ctx, ParameterResolverValue[] args)
         {
-            return new ParameterResolverValue("Scripter 1.1");
+            return new ParameterResolverValue("Scripter 1.2");
         }
     }
 }

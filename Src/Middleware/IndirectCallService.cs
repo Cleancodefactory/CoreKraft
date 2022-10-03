@@ -1,6 +1,7 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Ccf.Ck.Web.Middleware
 {
-    public class IndirectCallService : IIndirectCallService, IHostedService {
+    public class IndirectCallService : IIndirectCallService, IHostedService, IIndirectCallerControl {
         public const int TIMEOUT_SECONDS = 120;
         public const int RESULT_PRESERVE_SECONDS = 3600;
         public const int SCHEDULE_TIMEOUT_SECONDS = 84000;
@@ -197,10 +198,34 @@ namespace Ccf.Ck.Web.Middleware
                     }
                 }
             }
+        }
+        #endregion
+
+        #region Control interface
+
+        public IIndirectCallerInfo GetIndirectServiceInfo() {
+            var waiting = _Waiting.Select(qt => new IndirectCallInfoEx(qt.task.guid,
+                                                        IndirectCallStatus.Queued,
+                                                        qt.task.input,
+                                                        qt.task.result,
+                                                        null,
+                                                        null,
+                                                        qt.queued));
+            var finished = _Finished.Select(kv => new IndirectCallInfoEx(
+                kv.Value.guid,
+                kv.Value.status,
+                kv.Value.input,
+                kv.Value.result,
+                kv.Value.started,
+                kv.Value.finished
+            ));
+            return new IndirectCallerInfo(waiting, finished);
 
         }
 
         #endregion
+
+
 
     }
 
