@@ -56,7 +56,9 @@ namespace Ccf.Ck.NodePlugins.Scripter {
                                     case "internalcalls":
                                         host.AddLibrary(new DirectCallLib<Context>());
                                         break;
-
+                                    case "diagnostics":
+                                        host.AddLibrary(new DiagnosticsLib<Context>());
+                                        break;
                                 }
                             }
 

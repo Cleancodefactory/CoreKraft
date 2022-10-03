@@ -14,10 +14,11 @@ using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Models.Enumerations;
 
+
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 {
     [Library("diagnostics", LibraryContextFlags.MainNode)]
-    public class DisagnosticsLib<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
+    public class DiagnosticsLib<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
         
         private object _LockObject = new Object();
@@ -55,7 +56,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         #endregion
 
         #region Helpers
-        
+        private string FormatCallAddress(dcall.InputModel im) {
+            return string.Format("{0}/{1}/{2}", im.Module, im.Nodeset, im.Nodepath);
+        }
         #endregion
 
         #region Functions
@@ -76,8 +79,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                             dinfo["waiting"] = new ParameterResolverValue( info.Waiting.Select(ti => {
                                 var tinfo = new Dictionary<string, ParameterResolverValue>();
                                 tinfo["scheduleid"] = new ParameterResolverValue(ti.ScheduleId.ToString());
-                                tinfo["input"] = new ParameterResolverValue(ti.Input);
-                                tinfo["result"] = new ParameterResolverValue(ti.Result);
+                                tinfo["call"] = new ParameterResolverValue(FormatCallAddress(ti.Input));
+                                if (bIncludeData) {
+                                    tinfo["input"] = new ParameterResolverValue(ti.Input);
+                                    tinfo["result"] = new ParameterResolverValue(ti.Result);
+                                }
                                 tinfo["scheduled"] = new ParameterResolverValue(ti.Scheduled);
                                 tinfo["finished"] = new ParameterResolverValue(ti.Finished);
                                 tinfo["started"] = new ParameterResolverValue(ti.Started);
@@ -90,8 +96,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                             dinfo["finished"] = new ParameterResolverValue(info.Waiting.Select(ti => {
                                 var tinfo = new Dictionary<string, ParameterResolverValue>();
                                 tinfo["scheduleid"] = new ParameterResolverValue(ti.ScheduleId.ToString());
-                                tinfo["input"] = new ParameterResolverValue(ti.Input);
-                                tinfo["result"] = new ParameterResolverValue(ti.Result);
+                                tinfo["call"] = new ParameterResolverValue(FormatCallAddress(ti.Input));
+                                if (bIncludeData) {
+                                    tinfo["input"] = new ParameterResolverValue(ti.Input);
+                                    tinfo["result"] = new ParameterResolverValue(ti.Result);
+                                }
                                 tinfo["scheduled"] = new ParameterResolverValue(ti.Scheduled);
                                 tinfo["finished"] = new ParameterResolverValue(ti.Finished);
                                 tinfo["started"] = new ParameterResolverValue(ti.Started);
@@ -99,7 +108,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                                 return new ParameterResolverValue(tinfo);
                             }).ToList());
                         }
-
+                        return new ParameterResolverValue(dinfo);
+                    } else {
+                        return new ParameterResolverValue(null);
                     }
                 }
                 throw new Exception("The CallSchedulerInfo cannot obtain control interface to IndirectCalls service");
