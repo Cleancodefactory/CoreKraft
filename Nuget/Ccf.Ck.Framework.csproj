@@ -65,6 +65,7 @@
 			- Version 6.0.3: Load dynamic assemblies through GetType with the help of Assembly_Resolve event
 			- Version 6.0.4: Implement beforenode customplugin entry point
 			- Version 6.0.5: Implemented a prepare action on node level which will be executed once for all children
+			- Version 6.0.6: Adding a security node object which restricts internal calls and signals
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
