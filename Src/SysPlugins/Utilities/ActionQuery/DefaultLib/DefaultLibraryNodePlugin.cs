@@ -499,7 +499,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         // Do not export this directly to the script
 
         private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<IDictionary<string, object>>,Dictionary<string,object>> action, ParameterResolverValue[] args) {
-            int? index = 0;
+            int? index = null;
             if (args.Length > 1) {
                 index = Convert.ToInt32(args[0].Value);
             }
@@ -511,8 +511,6 @@ namespace Ccf.Ck.SysPlugins.Utilities
                             ctx_r.Results.ForEach(r => action(stateHelper, r));
                         } else if (index >= 0 && index < ctx_r.Results.Count) {
                             action(stateHelper, ctx_r.Results[index.Value]);
-                        } else if (index == 0) {
-                            // Nothing to do
                         } else {
                             throw new IndexOutOfRangeException("The index argument must be an index of a result or a negative integer");
                         }
