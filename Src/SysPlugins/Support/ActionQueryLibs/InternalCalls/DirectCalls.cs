@@ -215,7 +215,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         public ParameterResolverValue CallRead(HostInterface ctx, ParameterResolverValue[] args) {
             return _Call(false, ctx, args);
         }
-        [Function(nameof(CallNew), "Executes read action on the node in the nodeset specified by the address and returns the result")]
+        [Function(nameof(CallNew), "Executes new action on the node in the nodeset specified by the address and returns the result")]
         [Parameter(0, "address", "Address in the form module/nodeset[/node.path]", TypeFlags.String)]
         [Parameter(1, "data", "A dictionary accessible like posted JSON", TypeFlags.Dict)]
         [Parameter(2, "clientdata", "A dictionary of query string parameters", TypeFlags.Dict | TypeFlags.Optional)]

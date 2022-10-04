@@ -22,5 +22,10 @@ namespace Ccf.Ck.SysPlugins.Interfaces.ContextualBasket
             ISecurityModel secModel = new SecurityModelCopy(InputModel?.SecurityModel);
             return secModel.CheckSecurity(sec);
         }
+        bool NeedsAuthentication(Security sec) {
+            if (sec == null) return false;
+            ISecurityModel secModel = new SecurityModelCopy(InputModel?.SecurityModel);
+            return secModel.NeedsAuthentication(sec);
+        }
     }
 }
