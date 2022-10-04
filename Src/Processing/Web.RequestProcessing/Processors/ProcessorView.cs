@@ -34,12 +34,13 @@ namespace Ccf.Ck.Processing.Web.Request
                                                 processingContext.InputModel.NodeSet,
                                                 processingContext.InputModel.Nodepath,
                                                 loadedModule);
-            var security = loadedNodeSet.GetNodeSetSecurity();
-            if (!processingContext.CheckSecurity(security)) {
-                throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
-            }
-            if (CheckValidity(processingContext, loadedModule, loadedNodeSet))
+            if (CheckValidity(processingContext, loadedModule, loadedNodeSet)) //also redirects if require authorization is true
             {
+                var security = loadedNodeSet.GetNodeSetSecurity();
+                if (!processingContext.CheckSecurity(security))
+                {
+                    throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
+                }
                 PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
                 PluginAccessorImp<INodePlugin> customService = new PluginAccessorImp<INodePlugin>(transactionScopeContext, loadedModule.ModuleSettings);
                 INodeTaskExecutor taskExecutor = new NodeTaskExecutor(transactionScopeContext, loadedModule.ModuleSettings);

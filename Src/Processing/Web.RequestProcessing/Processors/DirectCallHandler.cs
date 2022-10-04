@@ -50,14 +50,15 @@ namespace Ccf.Ck.Processing.Web.Request
                                                     processingContext.InputModel.Nodepath,
                                                     loadedModule);
             }
-            // {Security} Check security at nodeset level
-            var security = loadedNodeSet.GetNodeSetSecurity();
-            if (!processingContext.CheckSecurity(security)) {
-                throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
-            }
             StringBuilder sb;
-            if (!CheckValidity(processingContext, loadedModule, loadedNodeSet, out sb))
+            if (!CheckValidity(processingContext, loadedModule, loadedNodeSet, out sb))//also redirects if require authorization is true
             {
+                // {Security} Check security at nodeset level
+                var security = loadedNodeSet.GetNodeSetSecurity();
+                if (!processingContext.CheckSecurity(security))
+                {
+                    throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
+                }
                 PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
                 PluginAccessorImp<INodePlugin> customService = new PluginAccessorImp<INodePlugin>(transactionScopeContext, loadedModule.ModuleSettings);
                 INodeTaskExecutor taskExecutor = new NodeTaskExecutor(transactionScopeContext, loadedModule.ModuleSettings);
