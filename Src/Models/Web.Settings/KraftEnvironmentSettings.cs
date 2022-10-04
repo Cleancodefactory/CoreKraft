@@ -4,6 +4,8 @@ namespace Ccf.Ck.Models.Web.Settings
 {
     public class KraftEnvironmentSettings
     {
+
+        public KraftEnvironmentSettings() { }
         public KraftEnvironmentSettings(string applicationName, string contentRootPath, string environmentName, string webRootPath)
         {
             ApplicationName = applicationName;
