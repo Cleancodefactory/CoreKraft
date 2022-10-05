@@ -329,7 +329,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<IDictionary<string, object>>, Dictionary<string, object>> action, ParameterResolverValue[] args) {
-            int? index = 0;
+            int? index = null;
             if (args.Length > 1) {
                 index = Convert.ToInt32(args[0].Value);
             }
