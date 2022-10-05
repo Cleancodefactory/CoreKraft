@@ -517,8 +517,6 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     } else {
                         if (ctx_r.Results.Count > 0) {
                             action(stateHelper,ctx_r.Results.Last());
-                        } else {
-                            throw new InvalidOperationException("No results are available, check if you can add some.");
                         }
                     }
                 }
