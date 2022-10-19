@@ -281,14 +281,14 @@ namespace Ccf.Ck.Web.Middleware
                             },
                             OnTokenValidated = context =>
                             {
-                                string returnurl = _KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RedirectAfterLogin;
+                                string returnurl = null; // = _KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RedirectAfterLogin;
                                 if (context.ProtocolMessage.Parameters.ContainsKey("returnurl"))//This is coming from the authorization server
                                 {
                                     returnurl = context.ProtocolMessage.Parameters["returnurl"];
                                 } 
                                 if (!string.IsNullOrEmpty(returnurl)) {
                                     context.Properties.RedirectUri = returnurl;
-                                    context.HttpContext.Session.SetString("returnurl", returnurl);
+                                    //context.HttpContext.Session.SetString("returnurl", returnurl);
                                 }
 
                                 return Task.CompletedTask;

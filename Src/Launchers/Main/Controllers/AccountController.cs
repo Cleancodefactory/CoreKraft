@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Ccf.Ck.Models.Settings;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,12 @@ namespace Ccf.Ck.Launchers.Main.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
+
+        public AccountController(KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) {
+            _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
+        }
+
         [HttpGet]
         public ActionResult SignIn(string returnUrl)
         {
@@ -14,7 +21,13 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             // Note: the authenticationType parameter must match the value configured in Startup.cs
             if (string.IsNullOrEmpty(returnUrl))
             {
+                string redirAfterLogin = _KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RedirectAfterLogin;
                 returnUrl = Url.Action("Index", "Home");
+                if (!string.IsNullOrWhiteSpace(redirAfterLogin) && !string.IsNullOrEmpty(returnUrl)) {
+                    if (!returnUrl.EndsWith('/')) returnUrl += '/';
+                    if (redirAfterLogin.StartsWith('/')) redirAfterLogin = redirAfterLogin.TrimStart('/');
+                    returnUrl += redirAfterLogin;
+                }
             }
             AuthenticationProperties authenticationProperties = new AuthenticationProperties
             {
