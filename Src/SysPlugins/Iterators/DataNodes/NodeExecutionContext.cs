@@ -13,6 +13,7 @@ using Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
+using System.Security.AccessControl;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 {
@@ -67,6 +68,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             Datastack = dic.Datastack;
             OverrideAction = dic.OverrideAction;
             BailOut = () => { dic.BailOut = true; };
+            NodeCache = new Dictionary<string, ParameterResolverValue>();
         }
         #endregion
 
@@ -166,6 +168,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             {
                 get => Context.CurrentNode;
                 set => Context.CurrentNode = value;
+            }
+            [EditorBrowsable(EditorBrowsableState.Never)]
+            public Dictionary<string, ParameterResolverValue> NodeCache {
+                get => Context.NodeCache;
+                set => Context.NodeCache = value;
             }
             /// <summary>
             /// Start node and root of the pacage
@@ -364,6 +371,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         public IPluginServiceManager PluginServiceManager { get; private set; }
 
         public IPluginAccessor<INodePlugin> CustomService { get; private set; }
+
+        public Dictionary<string, ParameterResolverValue> NodeCache { get; private set; }
         #endregion
 
 
@@ -694,6 +703,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 Context.BailOut();
             }
             public IExecutionMeta NodeMeta => Context.MetaNode;
+            public Dictionary<string, ParameterResolverValue> NodeCache => Context.NodeCache;
         }
         
         /// <summary>

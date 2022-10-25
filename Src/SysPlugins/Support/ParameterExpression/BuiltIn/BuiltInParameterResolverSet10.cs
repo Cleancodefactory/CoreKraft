@@ -27,6 +27,7 @@ using System.IO;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Interfaces;
+using System.Security.Cryptography;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
     /// <summary>
@@ -761,6 +762,66 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                 throw new ArgumentException("The first argument to CastAs must be a string that specify the type to cast the second value to. Supported are: int, uint, double, string");
             }
         }
+        /// <summary>
+        /// Caches the first execution and returns the cached value if available
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public ParameterResolverValue Once(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (args.Count > 1) {
+                var name = Convert.ToString(args[0].Value);
+                if (!string.IsNullOrEmpty(name)) {
+                    if (ctx is IActionHelpers helper) {
+                        var cache = helper.NodeCache;
+                        if (cache != null) {
+                            if (cache.ContainsKey(name)) {
+                                return cache[name];
+                            }
+                            var ret = args[1];
+                            cache[name] = ret;
+                            return ret;
+                        }
+                    }
+                    return args[1];
+                } else {
+                    throw new ArgumentException("First argument of Once must be string - the name of the cached value.");
+                }
+            } else {
+                throw new ArgumentException("Once needs 2 arguments, check the registration.");
+            }
+        }
+        /// <summary>
+        /// Generates a random integer number between the two parameters
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue Random(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            int min = 1;
+            int max = 100;
+
+            if (args.Count > 0) {
+                if (args[0].Value is int n) {
+                    min = n;
+                } else if (args[0].Value is long l) {
+                    min = (int)l;
+                }
+                if (args.Count > 1) {
+                    if (args[1].Value is int maxi) {
+                        max = maxi;
+                    } else if (args[1].Value is long maxl) {
+                        max = (int)maxl;
+                    }
+                    if (min >= max) {
+                        throw new ArgumentException("Min value is greater or equals than Max value.");
+                    }
+                }
+            }
+
+            return new ParameterResolverValue(RandomNumberGenerator.GetInt32(min, max));
+        }
+
 
         /// <summary>
         /// Resolver summing TWO numbers, returns number as Value (not Content)
