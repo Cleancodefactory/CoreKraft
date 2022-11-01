@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -68,6 +69,10 @@ namespace Ccf.Ck.Launchers.Main
                 });
             }
             services.AddHttpClient();
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "wwwroot/search-app";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,8 +92,13 @@ namespace Ccf.Ck.Launchers.Main
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseRouting();
+            app.UseSpaStaticFiles();
+            app.UseSpa(spa =>
+            {
+                //spa.Options.SourcePath = "wwwroot/search-app";
+            });
 
+            app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
@@ -119,6 +129,7 @@ namespace Ccf.Ck.Launchers.Main
                 name: "catchall",
                 pattern: "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });
             });
+
         }
 
         private void ConfigureApplicationParts(ApplicationPartManager apm)
