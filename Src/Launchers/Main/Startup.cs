@@ -69,10 +69,14 @@ namespace Ccf.Ck.Launchers.Main
                 });
             }
             services.AddHttpClient();
-            services.AddSpaStaticFiles(configuration =>
+
+            if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
             {
-                configuration.RootPath = "wwwroot/search-app";
-            });
+                services.AddSpaStaticFiles(configuration =>
+                {
+                    configuration.RootPath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.RootPath;//"wwwroot/search-app";
+                });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -92,11 +96,14 @@ namespace Ccf.Ck.Launchers.Main
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseSpaStaticFiles();
-            app.UseSpa(spa =>
+            if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
             {
-                //spa.Options.SourcePath = "wwwroot/search-app";
-            });
+                app.UseSpaStaticFiles();
+                app.UseSpa(spa =>
+                {
+                    spa.Options.SourcePath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.SourcePath;//"wwwroot/search-app";
+                });
+            }
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
@@ -110,7 +117,7 @@ namespace Ccf.Ck.Launchers.Main
                         {
                             endpoints.MapControllerRoute(
                             name: mapping.Name,
-                            pattern:mapping.Pattern, new { Controller = mapping.Controller, Action = mapping.Action });
+                            pattern: mapping.Pattern, new { Controller = mapping.Controller, Action = mapping.Action });
                         }
                     }
                 }
