@@ -174,15 +174,20 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
                 return false;
             }
             var startSec = loadedNodeSet.GetStartSecurity();
+            //Robert add property from configuration
             if (processingContext.NeedsAuthentication(startSec)) {
                 Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.Unauthorized, null);
                 return false;
             }
             //If authentication is required but the user is not logged in redirect to authentication
-            if (loadedNodeSet.StartNode.RequireAuthentication && !processingContext.InputModel.SecurityModel.IsAuthenticated)
+            //Robert add property from configuration
+            if (loadedNodeSet.StartNode.RequireAuthentication)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.Unauthorized, null);
-                return false;
+                if (!processingContext.InputModel.SecurityModel.IsAuthenticated)
+                {
+                    Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.Unauthorized, null);
+                    return false;
+                }
             }
             return true;
         }
