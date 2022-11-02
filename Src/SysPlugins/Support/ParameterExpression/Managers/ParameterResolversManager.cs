@@ -247,6 +247,20 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             },
                             {
                                 new Resolver() {
+                                    Alias = "Random",
+                                    Arguments = 2,
+                                    Name = "Random"
+                                }
+                            },
+                            { 
+                                new Resolver() {
+                                    Alias = "Once",
+                                    Arguments = 2,
+                                    Name = "Once"
+                                }
+                            },
+                            {
+                                new Resolver() {
                                     Alias = "IfThenElse",
                                     Arguments = 3,
                                     Name = "IfThenElse"

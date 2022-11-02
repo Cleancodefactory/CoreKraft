@@ -173,6 +173,11 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
                 Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, error);
                 return false;
             }
+            var startSec = loadedNodeSet.GetStartSecurity();
+            if (processingContext.NeedsAuthentication(startSec)) {
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.Unauthorized, null);
+                return false;
+            }
             //If authentication is required but the user is not logged in redirect to authentication
             if (loadedNodeSet.StartNode.RequireAuthentication && !processingContext.InputModel.SecurityModel.IsAuthenticated)
             {

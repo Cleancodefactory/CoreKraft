@@ -329,7 +329,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<IDictionary<string, object>>, Dictionary<string, object>> action, ParameterResolverValue[] args) {
-            int? index = 0;
+            int? index = null;
             if (args.Length > 1) {
                 index = Convert.ToInt32(args[0].Value);
             }
@@ -347,8 +347,6 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     } else {
                         if (ctx_r.Results.Count > 0) {
                             action(stateHelper, ctx_r.Results.Last());
-                        } else {
-                            throw new InvalidOperationException("No results are available, check if you can add some.");
                         }
                     }
                 }

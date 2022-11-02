@@ -50,5 +50,22 @@ namespace Ccf.Ck.Models.Interfaces
                 return true; // No role list - let everybody in
             } 
         }
+        /// <summary>
+        /// Returns true if passing through authentication can solve the issue
+        /// </summary>
+        /// <param name="sec"></param>
+        /// <returns></returns>
+        bool NeedsAuthentication(Security sec) {
+            if (sec == null) return false; // No security
+            if (sec.BuiltinOnly) {
+                return false;
+            }
+            if (sec.RequireAuthentication && !IsAuthenticated) return true;
+            if (sec.AllowRoles != null) {
+                if (!IsAuthenticated) return true;
+            } 
+            return false;
+            
+        }
     }
 }
