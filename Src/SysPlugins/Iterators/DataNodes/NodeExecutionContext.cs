@@ -704,6 +704,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             }
             public IExecutionMeta NodeMeta => Context.MetaNode;
             public Dictionary<string, ParameterResolverValue> NodeCache => Context.NodeCache;
+            public string Module => Context.ProcessingContext.InputModel.Module;
+            
         }
         
         /// <summary>

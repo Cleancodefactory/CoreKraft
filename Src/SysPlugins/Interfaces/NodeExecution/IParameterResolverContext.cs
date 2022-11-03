@@ -8,7 +8,7 @@ namespace Ccf.Ck.SysPlugins.Interfaces
     /// <summary>
     /// The NodeExecutionContext as seen by resolvers
     /// </summary>
-    public interface IParameterResolverContext: IDataStateHelperProvider<IDictionary<string, object>> {
+    public interface IParameterResolverContext: IModuleElement, IDataStateHelperProvider<IDictionary<string, object>> {
         IPluginAccessor<INodePlugin> CustomService { get; }
         List<Dictionary<string, object>> Datastack { get; }
         

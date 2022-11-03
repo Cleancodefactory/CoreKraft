@@ -19,6 +19,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes.CustomPluginsExecution
                     // the dataloader's context is attached in the iterator
                     ctx.CustomPlugin = customPlugin;
                     ctx.OwnContextScoped = ctx.CustomPluginAccessor.GetPluginsSynchronizeContextScoped(customPlugin.CustomPluginName, plugin).Result;
+                    ctx.OwnContextScoped.SetModuleName(ctx.Module);
                     plugin?.Execute(ctx);
                     if (bailOut()) return;
                 }

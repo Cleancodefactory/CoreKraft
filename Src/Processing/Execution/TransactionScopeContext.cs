@@ -43,6 +43,7 @@ namespace Ccf.Ck.Processing.Execution
             {
                 if (_PluginsSynchronizeContext.TryGetValue(key, out pluginsSynchronizeContextScoped))
                 {
+                    pluginsSynchronizeContextScoped.SetPluginName(contextKey);
                     return pluginsSynchronizeContextScoped;
                 }
                 Logger.LogError("_PluginsSynchronizeContext.TryGetValue(contextKey, out pluginsSynchronizeContextScoped) returned false");
@@ -50,6 +51,7 @@ namespace Ccf.Ck.Processing.Execution
             else
             {
                 pluginsSynchronizeContextScoped = await plugin.GetSynchronizeContextScopedAsync();
+                pluginsSynchronizeContextScoped.SetPluginName(contextKey);
                 pluginsSynchronizeContextScoped.CustomSettings = Utilities.GetCustomSettings(contextKey, loaderType, moduleConfigSettings);
                 if (CanCache(pluginsSynchronizeContextScoped.CustomSettings))
                 {
