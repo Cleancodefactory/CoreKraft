@@ -82,6 +82,19 @@ namespace Ccf.Ck.Launchers.Main
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
         {
             app.UseBindKraft(env, Program.Restart);
+            app.Use(async (context, next) =>
+            {
+                HttpRequest request = context.Request;
+                //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                if (context.User.Identity.IsAuthenticated)
+                {
+                    string s = "GET";
+                }
+                string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent(), request.Path.ToUriComponent(), request.QueryString.ToUriComponent());
+
+                // Call the next delegate/middleware in the pipeline.
+                await next(context);
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -97,45 +110,62 @@ namespace Ccf.Ck.Launchers.Main
 
             if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
             {
+                app.UseRouting();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllerRoute(
+                    name: "sigin",
+                    pattern: "account/signin/{*all}",
+                    defaults: new { controller = "Account", action = "SignIn" });
+
+                    endpoints.MapControllerRoute(
+                    name: "sigout",
+                    pattern: "account/signout",
+                    defaults: new { controller = "Account", action = "SignOut" });
+                });
+
                 app.UseSpaStaticFiles();
                 app.UseSpa(spa =>
                 {
                     spa.Options.SourcePath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.SourcePath;//"wwwroot/search-app";
                 });
             }
-
-            app.UseRouting();
-            app.UseEndpoints(endpoints =>
+            else
             {
-                if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
+                app.UseRouting();
+                app.UseEndpoints(endpoints =>
                 {
-                    endpoints.MapDynamicControllerRoute<DynamicHostRouteTransformer>(_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.DefaultRouting);
-                    foreach (RouteMapping mapping in _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.RouteMappings)
+                    if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
                     {
-                        if (!string.IsNullOrEmpty(mapping.Pattern))
+                        endpoints.MapDynamicControllerRoute<DynamicHostRouteTransformer>(_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.DefaultRouting);
+                        foreach (RouteMapping mapping in _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.RouteMappings)
                         {
-                            endpoints.MapControllerRoute(
-                            name: mapping.Name,
-                            pattern: mapping.Pattern, new { Controller = mapping.Controller, Action = mapping.Action });
+                            if (!string.IsNullOrEmpty(mapping.Pattern))
+                            {
+                                endpoints.MapControllerRoute(
+                                name: mapping.Name,
+                                pattern: mapping.Pattern, new { Controller = mapping.Controller, Action = mapping.Action });
+                            }
                         }
                     }
-                }
 
-                // Controller supporting redirect acceptor pages
-                endpoints.MapControllerRoute(
-                name: "acceptor",
-                pattern: "redirect/{action=Index}/{id?}",
-                defaults: new { controller = "Redirect", action = "Index" });
+                    // Controller supporting redirect acceptor pages
+                    endpoints.MapControllerRoute(
+                    name: "acceptor",
+                    pattern: "redirect/{action=Index}/{id?}",
+                    defaults: new { controller = "Redirect", action = "Index" });
 
-                endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                    endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-                endpoints.MapControllerRoute(
-                name: "catchall",
-                pattern: "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });
-            });
+                    endpoints.MapControllerRoute(
+                    name: "catchall",
+                    pattern: "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });
 
+                    //endpoints.MapFallbackToFile("{**angular}", "search-app/index.html");
+                });
+            }
         }
 
         private void ConfigureApplicationParts(ApplicationPartManager apm)
