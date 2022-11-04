@@ -174,14 +174,15 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
                 return false;
             }
             var startSec = loadedNodeSet.GetStartSecurity();
-            //Robert add property from configuration
-            if (processingContext.NeedsAuthentication(startSec)) {
+            if (processingContext.NeedsAuthentication(startSec))
+            {
                 Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.Unauthorized, null);
                 return false;
             }
             //If authentication is required but the user is not logged in redirect to authentication
-            //Robert add property from configuration
-            if (loadedNodeSet.StartNode.RequireAuthentication)
+            //or if RequireAuthorizationAnyEndpoint is enabled
+            if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorizationAnyEndpoint || 
+                loadedNodeSet.StartNode.RequireAuthentication)
             {
                 if (!processingContext.InputModel.SecurityModel.IsAuthenticated)
                 {
