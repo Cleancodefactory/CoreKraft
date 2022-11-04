@@ -67,6 +67,7 @@
 			- Version 6.0.5: Implemented a prepare action on node level which will be executed once for all children
 			- Version 6.0.6: Adding a security node object which restricts internal calls and signals
 			- Version 6.0.7: Fix bug with security checking (after redirect if needed)
+			- Version 6.0.8: Implement support for Single-Page-Applications and add RequireAuthorizationAnyEndpoint which will secure all entry points to require authenticated user
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
