@@ -47,10 +47,14 @@ namespace Ccf.Ck.Models.KraftModule
                 {
                     return _KraftModulesCollection[pkey];
                 } 
-                //Robert TODO
-                //else {
-                //    throw new System.Exception($"The module {pkey} is not loaded. Check if it is there and if another module depends on it (see Dependency.json)");
-                //}
+                else if (pkey.Equals("null"))//only for now for signals
+                {
+                    return null;
+                }
+                else
+                {
+                    throw new System.Exception($"The module {pkey} is not loaded. Check if it is there and if another module depends on it (see Dependency.json)");
+                }
             }
             return null;
         }
