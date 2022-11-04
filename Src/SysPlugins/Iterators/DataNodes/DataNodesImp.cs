@@ -141,6 +141,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 // 2. Update the Node execution context with the actual data for the current loop.
                 //Dictionary<string, object> parentResult = null;
                 contextScoped = dataIteratorContext.DataLoaderPluginAccessor.GetPluginsSynchronizeContextScoped(pluginName, dataPlugin).Result;
+                contextScoped.SetModuleName(dataIteratorContext.ProcessingContext.InputModel.Module);
                 if (contextScoped is IContextualBasketConsumer) {
                     var consumer = contextScoped as IContextualBasketConsumer;
                     consumer.InspectBasket(new NodeContextualBasket(execContextManager));

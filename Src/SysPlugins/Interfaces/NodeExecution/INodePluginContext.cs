@@ -11,7 +11,7 @@ namespace Ccf.Ck.SysPlugins.Interfaces
     /// <summary>
     /// Node execution context as seen by custom plugins
     /// </summary>
-    public interface INodePluginContext: ISupportsPluginServiceManager, IDataStateHelperProvider<IDictionary<string, object>> {
+    public interface INodePluginContext: IModuleElement, ISupportsPluginServiceManager, IDataStateHelperProvider<IDictionary<string, object>> {
         IProcessingContext ProcessingContext { get;}
         IPluginsSynchronizeContextScoped OwnContextScoped { get; set; }
         IPluginsSynchronizeContextScoped DataLoaderContextScoped { get; }

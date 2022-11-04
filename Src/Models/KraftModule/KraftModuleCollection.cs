@@ -46,6 +46,8 @@ namespace Ccf.Ck.Models.KraftModule
                 if (_KraftModulesCollection.ContainsKey(pkey))
                 {
                     return _KraftModulesCollection[pkey];
+                } else {
+                    throw new System.Exception($"The module {pkey} is not loaded. Check if it is there and if another module depends on it (see Dependency.json)");
                 }
             }
             return null;
