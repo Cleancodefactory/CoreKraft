@@ -82,19 +82,20 @@ namespace Ccf.Ck.Launchers.Main
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
         {
             app.UseBindKraft(env, Program.Restart);
-            app.Use(async (context, next) =>
-            {
-                HttpRequest request = context.Request;
-                //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                if (context.User.Identity.IsAuthenticated)
-                {
-                    string s = "GET";
-                }
-                string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent(), request.Path.ToUriComponent(), request.QueryString.ToUriComponent());
+            //Enable only for debug
+            //app.Use(async (context, next) =>
+            //{
+            //    HttpRequest request = context.Request;
+            //    //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //    if (context.User.Identity.IsAuthenticated)
+            //    {
+            //        string s = "GET";
+            //    }
+            //    string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent(), request.Path.ToUriComponent(), request.QueryString.ToUriComponent());
 
-                // Call the next delegate/middleware in the pipeline.
-                await next(context);
-            });
+            //    // Call the next delegate/middleware in the pipeline.
+            //    await next(context);
+            //});
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
