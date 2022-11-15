@@ -45,7 +45,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 case nameof(PostedFile): return this.PostedFile;
                 case nameof(FileResponse): return FileResponse;
                 case nameof(FileExists): return FileExists;
-                case nameof(ReadFileAsText):return ReadFileAsText;
+                case nameof(ReadFileAsText): return ReadFileAsText;
                     // case nameof(CalcSpreadName): return CalcSpreadName;//TODO Under consideration
             }
             return null;
@@ -353,6 +353,23 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             }
         }
 
+        [Function(nameof(ReadFileAsText), "Reads content as text from PostedFile")]
+        [Parameter(0, "postedfile", "PostedFile to get path from", TypeFlags.PostedFile)]
+        [Result("Returns the content as string", TypeFlags.String)]
+        public ParameterResolverValue ReadFileAsText(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("ReadFileAsText accepts 1 argument of type PostedFile");
+            if (args[0].Value is IPostedFile pf)
+            {
+                StreamReader sr = new StreamReader(pf.OpenReadStream());                
+                return new ParameterResolverValue(sr.ReadToEnd());
+            }
+            else
+            {
+                throw new ArgumentException("The passed in argument is not of type PostedFile");
+            }
+        }
+
         /// <summary>
         /// Creates a PostedFile from a disk file.
         /// </summary>
@@ -436,18 +453,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
 
             return new ParameterResolverValue(File.Exists(path));
         }
-        [Function(nameof(ReadFileAsText), "Creates MD5 hash from PostedFile")]
-        [Parameter(0, "postedfile", "PostedFile to get MD5 hash from", TypeFlags.PostedFile)]
-        [Result("Returns the textread from the file as string", TypeFlags.String)]
-        public ParameterResolverValue ReadFileAsText(HostInterface ctx, ParameterResolverValue[] args) {
-            if (args.Length != 1) throw new ArgumentException("FileMD5 accepts 1 argument of type PostedFile");
-            if (args[0].Value is IPostedFile pf) {
-                StreamReader sr = new StreamReader(pf.OpenReadStream());
-                return new ParameterResolverValue(sr.ReadToEnd());
-            } else {
-                throw new ArgumentException("The passed in argument is not of type PostedFile");
-            }
-        }
+
 
         #endregion
 

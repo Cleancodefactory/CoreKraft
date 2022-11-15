@@ -115,12 +115,12 @@ namespace Ccf.Ck.Launchers.Main
                 app.UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllerRoute(
-                    name: "sigin",
+                    name: "signin",
                     pattern: "account/signin/{*all}",
                     defaults: new { controller = "Account", action = "SignIn" });
 
                     endpoints.MapControllerRoute(
-                    name: "sigout",
+                    name: "signout",
                     pattern: "account/signout",
                     defaults: new { controller = "Account", action = "SignOut" });
                 });

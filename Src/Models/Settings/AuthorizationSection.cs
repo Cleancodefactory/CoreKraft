@@ -11,7 +11,7 @@ namespace Ccf.Ck.Models.Settings
 
         public string RedirectAfterLogin { get; set; }
         public bool RequireAuthorization { get; set; }
-        public bool RequireAuthorizationAnyEndpoint { get; set; } = true;
+        public bool RequireAuthorizationAnyEndpoint { get; set; }
         public string UserName { get; set; }
         public string UserEmail { get; set; }
         public string FirstName { get; set; }
