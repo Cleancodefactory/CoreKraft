@@ -27,6 +27,9 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
         #region Construction and feature configuration
         protected bool SupportTableParameters { get; set; } = false;
+        protected int max_recursions = 0;
+        public const string MAX_RECURSIONS_NAME = "max_recursions";
+        public const int MAX_RECURSIONS_DEFAULT = 5;
         public ADOProtoBase() { }
         #endregion
 
@@ -558,6 +561,20 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <param name="execContext"></param>
         protected virtual string ProcessCommand(DbCommand cmd, string sql, IDataLoaderContext execContext, out List<string> parameters)
         {
+            if (max_recursions <= 0) {
+                var scope = GetSynchronizeContextScopedAsync().Result;
+                if (scope != null) {
+                    if (scope.CustomSettings != null && scope.CustomSettings.ContainsKey(MAX_RECURSIONS_NAME)) { 
+                        string s = scope.CustomSettings[MAX_RECURSIONS_NAME];
+                        if (int.TryParse(s, out int mr)) {
+                            if (mr > 0) {
+                                max_recursions= mr;
+                            }
+                        }
+                    }
+                }
+                if (max_recursions <= 0) max_recursions = MAX_RECURSIONS_DEFAULT;
+            }
             parameters = new List<string>();
             if (string.IsNullOrWhiteSpace(sql)) return null; // We just do nothing in this case.
             Regex reg = new Regex(@"@([a-zA-Z_][a-zA-Z0-9_\$]*)", RegexOptions.None); // This should be configurable
@@ -566,7 +583,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             return result;
         }
 
-        private string BindParameters(DbCommand cmd, string sql, IDataLoaderContext execContext, List<string> parameters, Regex reg)
+        private string BindParameters(DbCommand cmd, string sql, IDataLoaderContext execContext, List<string> parameters, Regex reg,int recursions = 0)
         {
             string result = reg.Replace(sql, m =>
             {
@@ -591,11 +608,19 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 return "@" + paramname;
                             case EResolverValueType.Skip:
                                 return "@" + paramname;
-                            default:
+                            case EResolverValueType.Nonstorable:
+                                return "";
+                            case EResolverValueType.Invalid:
+                                throw new Exception($"Invalid value received for parameter: {paramname}. This is reported by a resolver, check your expression to find out which one does that and why.");
+                            case EResolverValueType.ContentType:
+                                if ((max_recursions > 0 && recursions > max_recursions) || (max_recursions == 0 && recursions > MAX_RECURSIONS_DEFAULT)) {
+                                    throw new OperationCanceledException($"During parameter ({paramname}) binding of an SQL query the maximum recursions limit ({max_recursions}) was reached ({recursions}).");
+                                }
                                 // Replace text
                                 // We ignore all kinds of type info and we just use ToString();
                                 string x = v.Value == null ? "" : v.Value.ToString();
                                 parameters.Add($"Paramname: {paramname} and Paramvalue: {v.Value}");
+                                x = BindParameters(cmd, x, execContext, parameters, reg, recursions + 1);
                                 return x;
                         }
                     }// else skip the rest and leave them unbound. TODO: We will see if this is the correct default behavior.
