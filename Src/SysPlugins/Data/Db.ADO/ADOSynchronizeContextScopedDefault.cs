@@ -173,10 +173,22 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         }
 
         public void ConfigureDbCommand(DbCommand cmd) {
-            if (CustomSettings != null && CustomSettings.ContainsKey("commandtimeout")) {
-                var sto = CustomSettings["commandtimeout"];
-                if (int.TryParse(sto,out int seconds)) {
-                    cmd.CommandTimeout = seconds;
+            if (CustomSettings != null) {
+                string commandTimeout = null;
+                if (CustomSettings.ContainsKey("commandtimeout"))
+                {
+                    commandTimeout = CustomSettings["commandtimeout"];
+                }
+                if (CustomSettings.ContainsKey("CommandTimeout"))
+                {
+                    commandTimeout = CustomSettings["CommandTimeout"];
+                }
+                if (int.TryParse(commandTimeout, out int seconds))
+                {
+                    if (seconds > 0)
+                    {
+                        cmd.CommandTimeout = seconds;
+                    }                    
                 }
             }
         }
