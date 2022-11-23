@@ -119,6 +119,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     // from ITransactionScope
                     DbConnection conn = scopedContext.Connection;
                     using (DbCommand cmd = conn.CreateCommand()) {
+                        cmd.CommandTimeout = 200; //TODO should come from configuration Robert
                         //cmd.Transaction = scopedContext.CurrentTransaction; //no transaction
                         if (execContext.Action == ACTION_READ && scopedContext is ADOSynchronizeContextScopedDefault<XConnection> scopedDefault) {
                             if (scopedDefault.IsStartReadTransaction()) {
