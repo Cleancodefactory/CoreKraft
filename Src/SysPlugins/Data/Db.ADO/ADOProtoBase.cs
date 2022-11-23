@@ -564,8 +564,12 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <param name="execContext"></param>
         protected virtual string ProcessCommand(DbCommand cmd, string sql, IDataLoaderContext execContext, out List<string> parameters)
         {
+            var scope = execContext.OwnContextScoped; //GetSynchronizeContextScopedAsync().Result;
+            if (scope is ADOSynchronizeContextScopedDefault<XConnection> adoscope) {
+                adoscope.ConfigureDbCommand(cmd);
+            }
             if (max_recursions <= 0) {
-                var scope = GetSynchronizeContextScopedAsync().Result;
+                //var scope = GetSynchronizeContextScopedAsync().Result;
                 if (scope != null) {
                     if (scope.CustomSettings != null && scope.CustomSettings.ContainsKey(MAX_RECURSIONS_NAME)) { 
                         string s = scope.CustomSettings[MAX_RECURSIONS_NAME];

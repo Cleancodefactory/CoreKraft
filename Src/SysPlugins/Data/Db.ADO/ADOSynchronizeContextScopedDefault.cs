@@ -28,6 +28,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         public IProcessingContext ProcessingContext { get; set; }
         public NodeExecutionContext.LoaderPluginContext LoaderContext { get; set; }
 
+
+
         #region IPluginsSynchronizeContextScoped
         public Dictionary<string, string> CustomSettings
         {
@@ -168,6 +170,15 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 _DbConnection.Open();
             }
             return _DbConnection;
+        }
+
+        public void ConfigureDbCommand(DbCommand cmd) {
+            if (CustomSettings != null && CustomSettings.ContainsKey("commandtimeout")) {
+                var sto = CustomSettings["commandtimeout"];
+                if (int.TryParse(sto,out int seconds)) {
+                    cmd.CommandTimeout = seconds;
+                }
+            }
         }
         #region IContextualBasketConsumer
         public void InspectBasket(IContextualBasket basket)
