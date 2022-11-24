@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 {
@@ -584,8 +585,9 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             }
             parameters = new List<string>();
             if (string.IsNullOrWhiteSpace(sql)) return null; // We just do nothing in this case.
-            Regex reg = new Regex(@"@([a-zA-Z_][a-zA-Z0-9_\$]*)", RegexOptions.None); // This should be configurable
-            string result = BindParameters(cmd, sql, execContext, parameters, reg);
+            //Regex reg = new Regex(@"@([a-zA-Z_][a-zA-Z0-9_\$]*)", RegexOptions.None); // This should be configurable
+            Regex regex = new Regex(@"(?:\'(?:(?:\'\')|[^\'])*\')|(?:--[^\n\r]*(?:\n|\r)+)|(?:\/\*(?:(?:.|\r|\n)(?!\*\/))*(?:.|\r|\n)?\*\/)|(?:@([a-zA-Z_][a-zA-Z0-9_\$]*))");
+            string result = BindParameters(cmd, sql, execContext, parameters, regex);
             cmd.CommandText = result;
             return result;
         }
@@ -631,10 +633,6 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 return x;
                         }
                     }// else skip the rest and leave them unbound. TODO: We will see if this is the correct default behavior.
-                }
-                else
-                {
-                    throw new Exception("While parsing SQL we received match with invalid first group (which should be impossible)");
                 }
                 return m.Value;
             });
