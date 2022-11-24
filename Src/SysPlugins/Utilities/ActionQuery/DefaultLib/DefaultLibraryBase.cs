@@ -1025,11 +1025,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         //No doc ATM
-        [Function(nameof(Debug), "")]
+        [Function(nameof(Debug), "Writes warnings through the KraftLogger. Log level should be higher or equal WARNING.")]
+        [Parameter(0, "Text or Array of values", "argument", TypeFlags.Varying)]
         public ParameterResolverValue Debug(HostInterface ctx, ParameterResolverValue[] args) {
             if (args.Length > 0) {
                 string log = string.Join(',', args.Select(a => Convert.ToString(a.Value)));
-                KraftLogger.LogError($"ACDebug: {log}\n");
+                KraftLogger.LogWarning($"ACDebug: {log}\n");
                 return new ParameterResolverValue(args[0]);
             }
             return new ParameterResolverValue(null);
