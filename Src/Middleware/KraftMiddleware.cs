@@ -9,9 +9,11 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Interfaces.Packet;
 using Ccf.Ck.Utilities.NodeSetService;
+using dotless.Core.Parser.Infrastructure;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
@@ -26,14 +28,24 @@ namespace Ccf.Ck.Web.Middleware
             IAntiforgery antiforgeryService = builder.ApplicationServices.GetService<IAntiforgery>();
             RequestDelegate requestDelegate = async httpContext =>
             {
-                RequestExecutor requestExecutor = new RequestExecutor(builder.ApplicationServices, httpContext, kraftGlobalConfigurationSettings);
-                await requestExecutor.ExecuteAsync();
+                bool? containsHistory = httpContext.GetRouteData()?.DataTokens?.Values?.Contains("history");
+                if (containsHistory.HasValue && containsHistory.Value)
+                {
+                    //TODO User agent for search engine
 
-                //AntiforgeryService
-                //if (HttpMethods.IsPost(httpContext.Request.Method))
-                //{
-                //    await antiforgeryService.ValidateRequestAsync(httpContext);
-                //}
+
+                }
+                else
+                {
+                    RequestExecutor requestExecutor = new RequestExecutor(builder.ApplicationServices, httpContext, kraftGlobalConfigurationSettings);
+                    await requestExecutor.ExecuteAsync();
+
+                    //AntiforgeryService
+                    //if (HttpMethods.IsPost(httpContext.Request.Method))
+                    //{
+                    //    await antiforgeryService.ValidateRequestAsync(httpContext);
+                    //}
+                }
             };
             return requestDelegate;
         }

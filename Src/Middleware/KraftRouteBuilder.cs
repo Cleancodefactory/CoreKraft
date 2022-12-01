@@ -99,6 +99,14 @@ namespace Ccf.Ck.Web.Middleware
                 dataTokens: new { key = Constants.RouteSegmentConstants.RouteDataTokenSingle }
             );
 
+            kraftRoutesBuilder.MapRoute(
+               name: "corekraft_history_route",
+               template: "nav" + "/{*all}",
+               defaults: null,
+               constraints: null,
+               dataTokens: new { key = Constants.RouteSegmentConstants.RouteHistoryNav }
+           );
+
             IRouter kraftRouter = kraftRoutesBuilder.Build();
             return kraftRouter;
         }

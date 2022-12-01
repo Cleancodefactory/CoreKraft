@@ -161,6 +161,10 @@ namespace Ccf.Ck.Launchers.Main
                     pattern: "{controller=Home}/{action=Index}/{id?}");
 
                     endpoints.MapControllerRoute(
+                    name: "nav",
+                    pattern: "nav/{**all}", new { Controller = "Home", Action = "Index" });
+
+                    endpoints.MapControllerRoute(
                     name: "catchall",
                     pattern: "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });
 

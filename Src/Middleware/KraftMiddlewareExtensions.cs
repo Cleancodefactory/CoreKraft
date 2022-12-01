@@ -517,7 +517,6 @@ namespace Ccf.Ck.Web.Middleware
                 //Configure the CoreKraft routing               
                 RouteHandler kraftRoutesHandler = new RouteHandler(KraftMiddleware.ExecutionDelegate(app, _KraftGlobalConfigurationSettings));
                 app.UseRouter(KraftRouteBuilder.MakeRouter(app, kraftRoutesHandler, kraftUrlSegment));
-
                 #region Tools routing
                 KraftToolsRouteBuilder.MakeRouters(app, _KraftGlobalConfigurationSettings);
                 #endregion Tools routing

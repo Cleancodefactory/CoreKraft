@@ -24,6 +24,7 @@
             public const string RouteDataTokenView = "view";
             public const string RouteDataTokenResource = "resource";
             public const string RouteImages = "images";
+            public const string RouteHistoryNav = "history";
         }
     }
 }
