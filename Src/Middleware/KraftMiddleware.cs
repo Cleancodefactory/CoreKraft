@@ -32,8 +32,6 @@ namespace Ccf.Ck.Web.Middleware
                 if (containsHistory.HasValue && containsHistory.Value)
                 {
                     //TODO User agent for search engine
-
-
                 }
                 else
                 {
