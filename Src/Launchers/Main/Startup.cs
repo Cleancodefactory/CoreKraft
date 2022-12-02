@@ -167,7 +167,7 @@ namespace Ccf.Ck.Launchers.Main
                             throw new Exception("HistoryNavSettings can't be enabled when the SpaSettings are Enabled. Please correct and restart.");
                         }
                         endpoints.MapControllerRoute(
-                        name: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Name,
+                        name: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Name,//"nav"
                         pattern: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Pattern, new { Controller = "Home", Action = "Index" });//"nav/{**all}"
                     }
 
