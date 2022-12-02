@@ -160,6 +160,17 @@ namespace Ccf.Ck.Launchers.Main
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+                    if (_KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Enabled)
+                    {
+                        if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
+                        {
+                            throw new Exception("HistoryNavSettings can't be enabled when the SpaSettings are Enabled. Please correct and restart.");
+                        }
+                        endpoints.MapControllerRoute(
+                        name: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Name,
+                        pattern: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Pattern, new { Controller = "Home", Action = "Index" });//"nav/{**all}"
+                    }
+
                     endpoints.MapControllerRoute(
                     name: "catchall",
                     pattern: "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });

@@ -27,6 +27,7 @@ namespace Ccf.Ck.Models.Settings
             WatchSubFoldersForRestart = new List<string>();
             SignalSettings = new SignalSettings();
             SpaSettings = new SpaSettings();
+            HistoryNavSettings = new HistoryNavSettings();
             HostingServiceSettings = new List<HostingServiceSetting>();
         }
         public string ServerHostKey { get; set; }
@@ -75,6 +76,7 @@ namespace Ccf.Ck.Models.Settings
         public SignalRSettings SignalRSettings { get; set; }
         public SignalSettings SignalSettings { get; set; }
         public SpaSettings SpaSettings { get; set; }
+        public HistoryNavSettings HistoryNavSettings { get; set; }
         public List<HostingServiceSetting> HostingServiceSettings { get; set; }
         public List<string> MetaTags { get; set; }
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
