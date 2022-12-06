@@ -45,6 +45,14 @@ namespace Ccf.Ck.Utilities.Generic
             if (i > 0) return this[Count - n - 1];
             return default(T);
         }
+        public virtual T Bottom()
+        {
+            if (this.Count > 0)
+            {
+                return this[0];
+            }
+            return default(T);
+        }
 
         public StackFrame Scope(T framevalue) {
             return new StackFrame(this,framevalue);

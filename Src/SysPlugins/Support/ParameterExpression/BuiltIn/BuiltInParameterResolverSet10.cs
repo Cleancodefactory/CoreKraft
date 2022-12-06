@@ -49,6 +49,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
         const string INPUT = "input";
         const string DATA = "data";
         const string FILTER = "filter";
+        const string ROOT = "root";
 
         #endregion
 
@@ -258,7 +259,8 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                         (ctx.Datastack is ListStack<Dictionary<string, object>> stack && stack != null && stack.Count > 0) ?
                             stack.Top() as Dictionary<string, object> :
                             null,
-                    _ => null
+                    _ => null,
+                    RootObject 
                 };
                 if (start != null) {
                     var path = args[1].Value as string;
