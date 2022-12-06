@@ -583,7 +583,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             parameters = new List<string>();
             if (string.IsNullOrWhiteSpace(sql)) return null; // We just do nothing in this case.
             //Regex reg = new Regex(@"@([a-zA-Z_][a-zA-Z0-9_\$]*)", RegexOptions.None); // This should be configurable
-            Regex regex = new Regex(@"(?:\'(?:(?:\'\')|[^\'])*\')|(?:--[^\n\r]*(?:\n|\r)+)|(?:\/\*(?:(?:.|\r|\n)(?!\*\/))*(?:.|\r|\n)?\*\/)|(?:@([a-zA-Z_][a-zA-Z0-9_\$]*))");
+            Regex regex = new Regex(@"(?:\'(?:(?:\'\')|[^\'])*\')|(?:--[^\n\r]*(?:\n|\r)+)|(?:\/\*(?:(?:.|\r|\n)(?!\*\/))*(?:.|\r|\n)?\*\/)|[@]{2,}|(?:@([a-zA-Z_][a-zA-Z0-9_\$]*))");
             string result = BindParameters(cmd, sql, execContext, parameters, regex);
             cmd.CommandText = result;
             return result;
