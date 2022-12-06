@@ -259,8 +259,10 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                         (ctx.Datastack is ListStack<Dictionary<string, object>> stack && stack != null && stack.Count > 0) ?
                             stack.Top() as Dictionary<string, object> :
                             null,
-                    _ => null,
-                    RootObject 
+                    ROOT => (ctx.Datastack is ListStack<Dictionary<string, object>> stack && stack != null && stack.Count > 0) ?
+                        stack.Bottom() as Dictionary<string, object> :
+                        null,
+                    _ => null                    
                 };
                 if (start != null) {
                     var path = args[1].Value as string;
