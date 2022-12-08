@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace Ccf.Ck.Models.Settings
 {
-    public class CallSchedulerSettings //: IConfigurationModel
+    public class CallSchedulerCallHandlers //: IConfigurationModel
     {
 
-        public CallSchedulerSettings()
+        public CallSchedulerCallHandlers()
         {
             
         }
