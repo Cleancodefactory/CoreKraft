@@ -259,9 +259,11 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                         (ctx.Datastack is ListStack<Dictionary<string, object>> stack && stack != null && stack.Count > 0) ?
                             stack.Top() as Dictionary<string, object> :
                             null,
-                    ROOT => (ctx.Datastack is ListStack<Dictionary<string, object>> stack && stack != null && stack.Count > 0) ?
-                        stack.Bottom() as Dictionary<string, object> :
-                        null,
+                    // In BeginReadOperation we add empty dictionary which is used as an anchor for the further results DURING EXCECUTION
+                    // this fake object is not returned or used when the execution is done
+                    // READ and WRITE differ!
+                    // In BeginWriteOperation no such ancher is added 
+                    ROOT => GetStackBottom(ctx),
                     _ => null                    
                 };
                 if (start != null) {
@@ -286,6 +288,22 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
             }
             return new ParameterResolverValue(null);
         }
+
+        private Dictionary<string, object> GetStackBottom(IParameterResolverContext ctx)
+        {
+            if (ctx.Action == ACTION_WRITE)
+            {
+                return (ctx.Datastack is ListStack<Dictionary<string, object>> stack && stack != null && stack.Count > 0) ?
+                    stack[0] as Dictionary<string, object> : null;
+            }
+            else if (ctx.Action == ACTION_READ)
+            {
+                return (ctx.Datastack is ListStack<Dictionary<string, object>> stack && stack != null && stack.Count > 1) ?
+                   stack[1] as Dictionary<string, object> : null;
+            }
+            return null;
+        }
+
         public ParameterResolverValue CurrentData(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             ResolverArguments<ParameterResolverValue> argsCasted = args as ResolverArguments<ParameterResolverValue>;
             if (ctx.Action == ACTION_WRITE) {
