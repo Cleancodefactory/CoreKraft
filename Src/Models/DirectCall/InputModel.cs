@@ -31,5 +31,7 @@ namespace Ccf.Ck.Models.DirectCall
 
         public ECallType CallType { get; set; } = ECallType.DirectCall;
         public string TaskKind { get; set; } = CallTypeConstants.TASK_KIND_CALL;
+
+        public CallSchedulerCallHandlers SchedulerCallHandlers { get; set; }
     }
 }

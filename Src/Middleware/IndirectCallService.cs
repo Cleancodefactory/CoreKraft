@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.DirectCall;
+using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,7 @@ namespace Ccf.Ck.Web.Middleware
         public const int SCHEDULE_TIMEOUT_SECONDS = 84000;
         public const int WORKER_THREADS = 2;
 
+        KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings = null;
 
         /// <summary>
         /// Contains all the tasks which are not yet executed
@@ -37,7 +39,8 @@ namespace Ccf.Ck.Web.Middleware
         private IServiceScopeFactory _ScopeFactory;
 
         #region Construction
-        public IndirectCallService(IServiceScopeFactory scopeFactory) {
+        public IndirectCallService(IServiceScopeFactory scopeFactory, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) {
+            _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
             _ScopeFactory = scopeFactory;
             _SchedulerThread = new Thread(new ThreadStart(this.Scheduler));
             _SchedulerThread.IsBackground = true;
