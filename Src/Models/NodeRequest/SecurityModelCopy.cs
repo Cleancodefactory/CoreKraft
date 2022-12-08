@@ -15,11 +15,13 @@ namespace Ccf.Ck.Models.NodeRequest {
                 UserEmail = model.UserEmail;
                 FirstName = model.FirstName;
                 LastName = model.LastName;
+                IsBuiltIn = model.IsBuiltin;
                 Roles = model.Roles?.ToList();
             }
         }
 
         public bool IsAuthenticated { get; private set; } = false;
+        public virtual bool IsBuiltIn { get; private set; } = false;
 
         public string UserName { get; private set; } = null;
 
