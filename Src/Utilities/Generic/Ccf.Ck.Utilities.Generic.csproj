@@ -15,8 +15,4 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="6.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Models\DirectCall\Ccf.Ck.Models.DirectCall.csproj" />
-  </ItemGroup>
-
 </Project>
