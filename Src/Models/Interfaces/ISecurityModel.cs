@@ -4,14 +4,10 @@ using System.Linq;
 
 namespace Ccf.Ck.Models.Interfaces
 {
-
     public interface ISecurityModel
     {
-        bool IsBuiltin { 
-            get {
-                return false;
-            }
-        }
+        bool IsBuiltin { get; }
+
         bool IsAuthenticated { get; }
 
         string UserName { get; }
