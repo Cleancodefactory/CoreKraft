@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.DirectCall;
+using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Microsoft.AspNetCore.Localization;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static Ccf.Ck.Models.NodeSet.ADOInfo;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -21,6 +23,11 @@ namespace Ccf.Ck.Web.Middleware
         protected static int SCHEDULE_TIMEOUT_SECONDS = 84000;
         protected static int WORKER_THREADS = 2;
         protected static int STARTUP_DELAY = 10;
+
+        #region Callback constants
+        public const string INPUT_MODEL_NAME = "input";
+        public const string RETURN_MODEL_NAME = "return";
+        #endregion
 
         private bool _started = false;
 
@@ -117,6 +124,7 @@ namespace Ccf.Ck.Web.Middleware
                         result.status = IndirectCallStatus.Finished;
                         continue; // Check for more tasks before waiting
                     } else {
+                        // If we are here nothing was in the queue for at least TIMEOUT_SECONDS
                         ScheduleOnEmptyQueue();
                     }
                 }
@@ -164,11 +172,56 @@ namespace Ccf.Ck.Web.Middleware
 
             }
         }
+        private void CallHandler(HandlerType callType,InputModel callModel, ReturnModel retModel = null) {
+            InputModel handlerModel = new InputModel();
+            CallScheduerHandler handler = null;
+            var data = new Dictionary<string, object>();
+            switch (callType) {
+                case HandlerType.scheduled:
+                    handler = callModel?.SchedulerCallHandlers?.OnCallScheduled;
+                    if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallScheduled;
+                    data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
+                    break;
+                case HandlerType.started:
+                    handler = callModel?.SchedulerCallHandlers?.OnCallStarted;
+                    if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallStarted;
+                    data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
+                    break;
+                case HandlerType.finished:
+                    handler = callModel?.SchedulerCallHandlers?.OnCallFinished;
+                    if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallFinished;
+                    data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
+                    data.Add(RETURN_MODEL_NAME, retModel != null?callModel.ToDictionary():null);
+                    break;
+                default:
+                    return; // Ignore missconfigured stuff
+            }
+            if (handler != null) {
+                handlerModel.Data = data;
+                handlerModel.ParseAddress(handler.Address);
+                handlerModel.IsWriteOperation = handler.IsWriteOperation;
+                handlerModel.CallType = Models.Enumerations.ECallType.ServiceCall;
+                handlerModel.TaskKind = CallTypeConstants.TASK_KIND_CALLBACK;
+                var returnModel = DirectCallService.Instance.Call(handlerModel);
+                // TODO: Devise further usage of the return result.
+                // The handling below is probably not the best idea - we have to discuss it.
+                if (returnModel != null) {
+                    if (!returnModel.IsSuccessful) {
+                        throw new Exception($"Error while executing callback: {returnModel.ErrorMessage ?? "unknown"}");
+                    }
+                }
+
+            }
+
+        }
         #endregion
 
 
         #region Types
 
+        private enum HandlerType {
+            scheduled, started, finished
+        }
         private record TaskHolder(
             Guid guid, 
             InputModel input, 

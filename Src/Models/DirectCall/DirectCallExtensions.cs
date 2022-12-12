@@ -35,6 +35,25 @@ namespace Ccf.Ck.Models.DirectCall {
             }
             return false;
         }
+        public static Dictionary<string,object> ToDictionary(this InputModel input) {
+            // TODO: Add more stuff
+            var result = new Dictionary<string,object>();
+            result.Add("module",input.Module);
+            result.Add("nodeset", input.Nodeset);
+            result.Add("nodepath", input.Nodepath);
+            result.Add("write", input.IsWriteOperation);
+            result.Add("client", input.QueryCollection);
+            result.Add("data", input.Data);
+            return result;
+        }
+        public static Dictionary<string, object> ToDictionary(this ReturnModel ret) {
+            var result = new Dictionary<string, object>();
+            result.Add("successful", ret.IsSuccessful);
+            result.Add("error", ret.ErrorMessage);
+            result.Add("data", ret.Data);
+            result.Add("binarydata", ret.BinaryData);
+            return result;
+        }
         #endregion
 
     }
