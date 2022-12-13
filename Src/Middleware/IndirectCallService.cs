@@ -172,7 +172,7 @@ namespace Ccf.Ck.Web.Middleware
                 im.Data = new Dictionary<string, object>() {
                     { "scheduler", this}
                 };
-                this.Call(im, 84000, true);
+                this.Call(im, 84000);
 
             }
         }

@@ -342,7 +342,13 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                     }
                 }
                 if (args.Length > 2) {
-                    handler.RunAs = Convert.ToString(args[2].Value);
+                    var s = Convert.ToString(args[2].Value);
+                    if (string.IsNullOrWhiteSpace(s)) {
+                        handler.RunAs = null;
+                    } else {
+                        handler.RunAs = s;
+                    }
+                    
                 }
                 _set(_handlers, handler);
                 return new ParameterResolverValue(address);
