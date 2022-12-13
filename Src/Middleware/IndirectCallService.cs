@@ -22,7 +22,7 @@ namespace Ccf.Ck.Web.Middleware
         protected static int RESULT_PRESERVE_SECONDS = 3600;
         protected static int SCHEDULE_TIMEOUT_SECONDS = 84000;
         protected static int WORKER_THREADS = 2;
-        protected static int STARTUP_DELAY = 10;
+        protected static int STARTUP_DELAY = 30;
 
         #region Callback constants
         public const string INPUT_MODEL_NAME = "input";
@@ -59,16 +59,16 @@ namespace Ccf.Ck.Web.Middleware
             _SchedulerThread = new Thread(new ThreadStart(this.Scheduler));
             _SchedulerThread.IsBackground = true;
             // Update from configuration
-            
+            _UpdateFromConfiguration(kraftGlobalConfigurationSettings);
         }
         private void _UpdateFromConfiguration(KraftGlobalConfigurationSettings global) {
             if (global != null) {
                 var scheduler = global.CallScheduler;
                 if (scheduler != null) {
-                    if (scheduler.StartupDelay >= 0) STARTUP_DELAY = scheduler.StartupDelay;
-                    if (scheduler.RecheckSeconds >=0) TIMEOUT_SECONDS = scheduler.RecheckSeconds;
-                    if (scheduler.ResultPreserveSeconds >= 0) RESULT_PRESERVE_SECONDS = scheduler.ResultPreserveSeconds;
-                    if (scheduler.ScheduleTimeoutSeconds >= 0) SCHEDULE_TIMEOUT_SECONDS = scheduler.ScheduleTimeoutSeconds;
+                    if (scheduler.StartupDelay > 0) STARTUP_DELAY = scheduler.StartupDelay;
+                    if (scheduler.RecheckSeconds >0) TIMEOUT_SECONDS = scheduler.RecheckSeconds;
+                    if (scheduler.ResultPreserveSeconds > 0) RESULT_PRESERVE_SECONDS = scheduler.ResultPreserveSeconds;
+                    if (scheduler.ScheduleTimeoutSeconds > 0) SCHEDULE_TIMEOUT_SECONDS = scheduler.ScheduleTimeoutSeconds;
                     if (scheduler.WorkerThreads >= 1) WORKER_THREADS = scheduler.WorkerThreads;
                 }
             }
@@ -117,11 +117,13 @@ namespace Ccf.Ck.Web.Middleware
                         }
                         // Mark call as indirect call
                         if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
+                        CallHandler(HandlerType.started, result.input);
                         // We depend on the DirectCall to indicate the success in the ReturnModel
                         var returnModel = DirectCallService.Instance.Call(result.input);
                         result.result = returnModel;
                         result.finished = DateTime.Now;
                         result.status = IndirectCallStatus.Finished;
+                        CallHandler(HandlerType.finished, result.input, result.result);
                         continue; // Check for more tasks before waiting
                     } else {
                         // If we are here nothing was in the queue for at least TIMEOUT_SECONDS
@@ -129,8 +131,10 @@ namespace Ccf.Ck.Web.Middleware
                     }
                 }
                 _ThreadSignal.WaitOne(TimeSpan.FromSeconds(_timeout_seconds));
-                lock (_lockObject) {
-                    _started = true;
+                if (!_started && DirectCallService.Instance.Call != null) {
+                    lock (_lockObject) {
+                        _started = true;
+                    }
                 }
                 _timeout_seconds = TIMEOUT_SECONDS;
                 // Clean up old results
@@ -164,11 +168,11 @@ namespace Ccf.Ck.Web.Middleware
                     throw new Exception($"Cannot parse address {handler_def.Address}");
                 }
                 im.IsWriteOperation = handler_def.IsWriteOperation;
-                im.RunAs = handler_def.RunAs;
+                im.RunAs = string.IsNullOrWhiteSpace(handler_def.RunAs)?null: handler_def.RunAs;
                 im.Data = new Dictionary<string, object>() {
                     { "scheduler", this}
                 };
-                this.Call(im);
+                this.Call(im, 84000, true);
 
             }
         }
@@ -240,15 +244,16 @@ namespace Ccf.Ck.Web.Middleware
             public int scheduleTimeout { get; init; } = scheduleTimeout > 0? scheduleTimeout:SCHEDULE_TIMEOUT_SECONDS;
         }
 
-        
+
 
         #endregion Types
 
         #region Public access
 
-        public Guid Call(InputModel input, int timeout = 84000)
+        public Guid Call(InputModel input, int timeout = 84000) => Call(input, timeout, false);
+        public Guid Call(InputModel input, int timeout = 84000,bool noset = false)
         {
-            timeout = SCHEDULE_TIMEOUT_SECONDS;
+            //timeout = SCHEDULE_TIMEOUT_SECONDS;
             if (input == null) return Guid.Empty;
             var tsk = new TaskHolder(Guid.NewGuid(), input, null, IndirectCallStatus.Queued, null, null);
             var waiting = new QueuedTask(tsk,DateTime.Now,timeout != 0?timeout: SCHEDULE_TIMEOUT_SECONDS);
@@ -256,7 +261,10 @@ namespace Ccf.Ck.Web.Middleware
             {
                 _Waiting.Enqueue(waiting);
             }
-            _ThreadSignal.Set();
+            CallHandler(HandlerType.scheduled, input);
+            if (!noset) {
+                _ThreadSignal.Set();
+            }
             return waiting.task.guid;
         }
         public IndirectCallStatus CallStatus(Guid guid)

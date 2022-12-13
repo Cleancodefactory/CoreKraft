@@ -9,6 +9,15 @@ namespace Ccf.Ck.Models.Settings {
     /// Configures a callscheduler event handler. Virtually all the settings are used for creating a DirectCall input model.
     /// </summary>
     public class CallScheduerHandler {
+        public CallScheduerHandler() { }
+        public CallScheduerHandler(CallScheduerHandler _handler) { 
+            if (_handler != null ) {
+                this.RunAs = _handler.RunAs;
+                this.Address = _handler.Address;
+                this.IsWriteOperation= _handler.IsWriteOperation;
+            }
+            
+        }
         public string RunAs { get; set; }
         /// <summary>
         /// Use ParseCallAddress from Utilities.Generic to parse it into InputModel

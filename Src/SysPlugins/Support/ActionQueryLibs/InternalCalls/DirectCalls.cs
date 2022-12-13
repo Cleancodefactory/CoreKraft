@@ -13,6 +13,9 @@ using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Settings;
+using System.Reflection.Metadata;
+using Org.BouncyCastle.Crypto.Modes;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 {
@@ -21,6 +24,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
     {
         
         private object _LockObject = new Object();
+        private CallSchedulerCallHandlers _handlers = new CallSchedulerCallHandlers();
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
         {
@@ -40,6 +44,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                     return ScheduledCallStatus;
                 case nameof(ScheduledCallResult):
                     return ScheduledCallResult;
+                case nameof(OnSchedule):
+                    return OnSchedule;
+                case nameof(OnStart):
+                    return OnStart;
+                case nameof(OnFinish):
+                    return OnFinish;
             }
             return null;
         }
@@ -67,6 +77,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         #endregion
 
         #region Helpers
+        private void SetSchedulerHandling(dcall.InputModel input) {
+            input.SchedulerCallHandlers = _handlers.CloneOrNull();
+        }
+
         private static Regex reAddress = new Regex(@"^([a-zA-Z][a-zA-Z0-9\-\._]*)/([a-zA-Z][a-zA-Z0-9\-\._]*)(?:/([a-zA-Z][a-zA-Z0-9\-\._]*))?$", RegexOptions.Compiled);
         /// <summary>
         /// Parses the address into module, nodeset, nodepath
@@ -170,6 +184,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 
                     var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));
                     if (idc != null) {
+                        SetSchedulerHandling(inp);
                         Guid guid = idc.Call(inp, 0);
                         if (guid == Guid.Empty) {
                             return Error.Create("Cannot schedule the call.");
@@ -309,6 +324,56 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                 throw new Exception("The context of the Function does not have access to the IndirectCalls service");
             }
             return new ParameterResolverValue(null);
+        }
+
+        private ParameterResolverValue OnCallback(Action<CallSchedulerCallHandlers,CallScheduerHandler> _set, ParameterResolverValue[] args) {
+            CallScheduerHandler handler;
+            string address = null;
+            if (args.Length > 0) {
+                address = Convert.ToString(args[0].Value);
+                if (string.IsNullOrEmpty(address)) {
+                    _set(_handlers, null);
+                    return new ParameterResolverValue(null);
+                }
+                handler = new CallScheduerHandler() { Address = address, RunAs = null, IsWriteOperation = false }; // For clarity
+                if (args.Length > 1) {
+                    if (Convert.ToBoolean(args[1].Value)) {
+                        handler.IsWriteOperation = true;
+                    }
+                }
+                if (args.Length > 2) {
+                    handler.RunAs = Convert.ToString(args[2].Value);
+                }
+                _set(_handlers, handler);
+                return new ParameterResolverValue(address);
+            }
+            throw new ArgumentException("The address argument is required. Pass null if you want to remove handler");
+        }
+
+        [Function(nameof(OnSchedule),"Sets the callback node for scheduled calls")]
+        [Parameter(0,"address", "The address to call when the task is scheduled. If null the callback is removed.", TypeFlags.String|TypeFlags.Null)]
+        [Parameter(1, "write", "true id write call should be make", TypeFlags.Bool)]
+        [Parameter(2, "runas", "Built in username if needed", TypeFlags.String | TypeFlags.Optional)]
+        [Result("The address", TypeFlags.String | TypeFlags.Null)]
+        public ParameterResolverValue OnSchedule(HostInterface ctx, ParameterResolverValue[] args) {
+            return OnCallback((hs,h) => hs.OnCallScheduled = h,args);
+        }
+
+        [Function(nameof(OnStart), "Sets the callback node for scheduled calls")]
+        [Parameter(0, "address", "The address to call when the task is scheduled. If null the callback is removed.", TypeFlags.String | TypeFlags.Null)]
+        [Parameter(1, "write", "true id write call should be make", TypeFlags.Bool)]
+        [Parameter(2, "runas", "Built in username if needed", TypeFlags.String | TypeFlags.Optional)]
+        [Result("The address", TypeFlags.String | TypeFlags.Null)]
+        public ParameterResolverValue OnStart(HostInterface ctx, ParameterResolverValue[] args) {
+            return OnCallback((hs, h) => hs.OnCallStarted = h, args);
+        }
+        [Function(nameof(OnFinish), "Sets the callback node for scheduled calls")]
+        [Parameter(0, "address", "The address to call when the task is scheduled. If null the callback is removed.", TypeFlags.String | TypeFlags.Null)]
+        [Parameter(1, "write", "true id write call should be make", TypeFlags.Bool)]
+        [Parameter(2, "runas", "Built in username if needed", TypeFlags.String | TypeFlags.Optional)]
+        [Result("The address", TypeFlags.String | TypeFlags.Null)]
+        public ParameterResolverValue OnFinish(HostInterface ctx, ParameterResolverValue[] args) {
+            return OnCallback((hs, h) => hs.OnCallFinished = h, args);
         }
 
         #endregion
