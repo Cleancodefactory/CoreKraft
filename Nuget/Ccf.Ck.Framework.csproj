@@ -69,6 +69,8 @@
 			- Version 6.0.7: Fix bug with security checking (after redirect if needed)
 			- Version 6.0.8: Implement support for Single-Page-Applications and add RequireAuthorizationAnyEndpoint which will secure all entry points to require authenticated user
 			- Version 6.0.9: Update System.Data.SqlClient to fix vulnerability
+			- Version 6.0.10: Update System.Data.SqlClient to fix vulnerability
+			- Version 6.0.11: Implement schedular callbacks for start and finish for the scheduled tasks
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
