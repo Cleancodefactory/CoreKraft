@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -204,6 +205,7 @@ namespace Ccf.Ck.Web.Middleware
                 handlerModel.Data = data;
                 handlerModel.ParseAddress(handler.Address);
                 handlerModel.IsWriteOperation = handler.IsWriteOperation;
+                handlerModel.RunAs = handler.RunAs;
                 handlerModel.CallType = Models.Enumerations.ECallType.ServiceCall;
                 handlerModel.TaskKind = CallTypeConstants.TASK_KIND_CALLBACK;
                 var returnModel = DirectCallService.Instance.Call(handlerModel);
