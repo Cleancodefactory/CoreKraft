@@ -18,7 +18,7 @@ namespace Ccf.Ck.Models.Settings
         /// <summary>
         /// Nodeset to call when the queue becomes empty - this call is actually scheduled and not executed immediately
         /// </summary>
-        public CallScheduerHandler OnEmptyQueue { get; set; }
+        public ICollection<CallScheduerHandler> OnEmptyQueue { get; set; }
         /// <summary>
         /// Delays the que processing after the ap startup (to give it time to settle enough)
         /// </summary>

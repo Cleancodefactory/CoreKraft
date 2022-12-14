@@ -161,18 +161,22 @@ namespace Ccf.Ck.Web.Middleware
 
         #region Callback helpers
         private void ScheduleOnEmptyQueue() {
-            var handler_def = _KraftGlobalConfigurationSettings?.CallScheduler?.OnEmptyQueue;
-            if (handler_def != null) {
-                InputModel im = new InputModel();
-                if (!im.ParseAddress(handler_def.Address)) {
-                    throw new Exception($"Cannot parse address {handler_def.Address}");
+            var handler_defs = _KraftGlobalConfigurationSettings?.CallScheduler?.OnEmptyQueue;
+            if (handler_defs != null && handler_defs.Count > 0) {
+                foreach (var handler_def in handler_defs) {
+                    InputModel im = new InputModel();
+                    if (!im.ParseAddress(handler_def.Address)) {
+                        throw new Exception($"Cannot parse address {handler_def.Address}");
+                    }
+                    im.IsWriteOperation = handler_def.IsWriteOperation;
+                    im.RunAs = string.IsNullOrWhiteSpace(handler_def.RunAs) ? null : handler_def.RunAs;
+                    im.Data = new Dictionary<string, object>() {
+                        { "reason", "emptyqueue" },
+                        { "scheduler", this}
+                    };
+                    this.Call(im, SCHEDULE_TIMEOUT_SECONDS);
                 }
-                im.IsWriteOperation = handler_def.IsWriteOperation;
-                im.RunAs = string.IsNullOrWhiteSpace(handler_def.RunAs)?null: handler_def.RunAs;
-                im.Data = new Dictionary<string, object>() {
-                    { "scheduler", this}
-                };
-                this.Call(im, 84000);
+                
 
             }
         }

@@ -77,19 +77,47 @@ The points in the execution process in which a custom plugin can be invoked are:
 
 ### Prepare operation
 
-For read actions: 
+For read and/or actions: 
 
 ```JSON
 "read"{
     "prepare": {
         "loadquery": "somefile.sql"
-    }
+    },
+    "select": { ... }
 }
 "write"{
     "prepare": {
         "loadquery": "somefile.sql"
-    }
+    },
+    "insert": { ... },
+    "update": { ... },
+    "delete": { ... }
 }
 ```
 
-The prepare operations are performed by the data loader of the node.
+The prepare operations are performed by the data loader of the node if it supports them. ADO based plugins (all DB plugins) support `Prepare` for instance and they are the most obvious case where such operations are needed sometimes.
+
+> One of the best examples for usage of `Prepare` is the case when one wants to remove all relevant records from database table and then (re)create those that should exist. For simple relation tables this is always a tempting solution, but without `prepare` the only reasonable way to do it is to perform the removal in the parent node as part of the work it does.
+
+> The problem with such a solution is that the parent node take care for two separate concerns and also the construct can be executed only from the parent and executing the node that removes and creates the relations is impossible to call separately. Prepare enables this mass removal to be part of the node that (re)creates the records - just execute the removal query before the other work. So, in real life you will likely have a DELETE statement in `prepare` and then insert will be executed.
+
+`Prepare` has some specifics - it does not receive the same data as the other operations. This means that neither GetFrom('current',name) will not work in write operations and some other resolvers will also have problems. This is a new feature and specialized resolvers will be added to enable more flexible solutions. For now GetFrom('parent',name) and GetFrom('data') or GetFrom('client') are the most useful resolvers. Still there are limitations and issuing correct exceptions is not yet fully implemented. Usage of `Prepare` in read operations is rarely useful and its support for resolvers is minimal compared to write operations. With read operations in `Prepare` query only parameters obtained from `data`, `client` and built-in data (like GetUserId and similar) should be used at this time. Future improvements will enable more parameters to be obtained.
+
+Let's try to illustrate the typical case described above.
+
+The data being written looks something like this:
+
+```Javascript
+{
+    id: 1,
+    name: "Item name",
+    related: [
+        { relatedid: 3},
+        { relatedid: 5}
+    ]
+}
+
+```
+
+To keep things brief 
