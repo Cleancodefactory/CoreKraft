@@ -17,6 +17,8 @@ namespace Ccf.Ck.Models.NodeRequest
         }
         public bool IsAuthenticated => true;
 
+        public bool IsBuiltin => true;
+
         public string UserName => _AuthorizationSection.UserName;
 
         public string UserEmail => _AuthorizationSection.UserEmail;

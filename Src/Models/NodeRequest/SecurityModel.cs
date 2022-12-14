@@ -88,6 +88,14 @@ namespace Ccf.Ck.Models.NodeRequest
             }
         }
 
+        public bool IsBuiltin
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         public int IsInRole(string roleName)
         {
             if (IsAuthenticated)

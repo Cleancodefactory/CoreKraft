@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Models.NodeRequest {
-    public class SecurityModelCopy :ISecurityModel {
+    public class SecurityModelCopy : ISecurityModel {
         public SecurityModelCopy(ISecurityModel model) {
             if (model != null) {
                 IsAuthenticated = model.IsAuthenticated;
@@ -15,11 +15,14 @@ namespace Ccf.Ck.Models.NodeRequest {
                 UserEmail = model.UserEmail;
                 FirstName = model.FirstName;
                 LastName = model.LastName;
+                IsBuiltin = model.IsBuiltin;
                 Roles = model.Roles?.ToList();
             }
         }
 
         public bool IsAuthenticated { get; private set; } = false;
+
+        public bool IsBuiltin { get; private set; } = false;
 
         public string UserName { get; private set; } = null;
 
