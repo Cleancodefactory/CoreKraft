@@ -36,5 +36,6 @@ namespace Ccf.Ck.Models.Settings
             }
             return null;
         }
+        public CallSchedulerSettings CallScheduler { get; set; }
     }
 }

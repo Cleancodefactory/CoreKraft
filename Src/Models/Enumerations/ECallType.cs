@@ -54,6 +54,7 @@ namespace Ccf.Ck.Models.Enumerations {
 
         public const string TASK_KIND_WEBREQUEST = "webrequest";
         public const string TASK_KIND_CALL = "call";
+        public const string TASK_KIND_CALLBACK = "callback";
 
     }
 }

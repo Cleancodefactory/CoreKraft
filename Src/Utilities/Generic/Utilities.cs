@@ -8,12 +8,16 @@ using System.Reflection;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Utilities.Generic
 {
     public class Utilities
     {
+        
+
+        #region Functions
         public static bool CheckNullOrEmpty<T>(T value, bool throwException)
         {
             bool result;
@@ -158,5 +162,6 @@ namespace Ccf.Ck.Utilities.Generic
             public string Reason { get; set; }
             public string Description { get; set; }
         }
+        #endregion
     }
 }

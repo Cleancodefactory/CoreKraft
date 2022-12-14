@@ -339,7 +339,7 @@ namespace Ccf.Ck.Web.Middleware
                 services.AddHostedService<SignalService>(sp => sp.GetRequiredService<SignalService>());
                 //End Signals
 
-                var icsvc = new IndirectCallService(null);
+                var icsvc = new IndirectCallService(null, _KraftGlobalConfigurationSettings);
                 services.AddSingleton<IIndirectCallService>(icsvc);
                 services.AddHostedService<IndirectCallService>(sp => sp.GetRequiredService<IIndirectCallService>() as IndirectCallService);
 

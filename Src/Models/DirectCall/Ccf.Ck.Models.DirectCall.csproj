@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
     <ProjectReference Include="..\Interfaces\Ccf.Ck.Models.Interfaces.csproj" />
+    <ProjectReference Include="..\Settings\Ccf.Ck.Models.Settings.csproj" />
   </ItemGroup>
   
 </Project>

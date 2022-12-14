@@ -90,7 +90,7 @@ namespace Ccf.Ck.Processing.Web.Request
                 { CallTypeConstants.TASK_KIND, _InputModel.TaskKind },
                 { CallTypeConstants.REQUEST_PROCESSOR, "DirectCallHandler" } // Do not use nameof here - this name should remain constant even if the class name changes.
             };
-            if (_InputModel.RunAs != null) {
+            if (!string.IsNullOrWhiteSpace(_InputModel.RunAs)) {
                 inputModelParameters.SecurityModel = null;
                 inputModelParameters.SecurityModel = SecurityModelBuiltIn.Create(_InputModel.RunAs, _KraftGlobalConfigurationSettings);
                 if (inputModelParameters.SecurityModel == null) {

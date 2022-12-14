@@ -670,7 +670,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     {
                         if (subpath.IndexOf("..") >= 0 || subpath.StartsWith("/") || subpath.StartsWith("\\"))
                         {
-                            throw new ArgumentException("The argument of ModulePath, if supplied, must contain path without .. and not starting with a slash");
+                            throw new ArgumentException($"The argument of ModulePath ({subpath}), if supplied, must contain path without .. and not starting with a slash");
                         }
                         return new ParameterResolverValue(Path.Combine(path, subpath));
                     }

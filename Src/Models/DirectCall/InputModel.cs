@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.Settings;
 using System;
 using System.Collections.Generic;
 using System.Security;
@@ -31,5 +32,10 @@ namespace Ccf.Ck.Models.DirectCall
 
         public ECallType CallType { get; set; } = ECallType.DirectCall;
         public string TaskKind { get; set; } = CallTypeConstants.TASK_KIND_CALL;
+
+        /// <summary>
+        /// Callbacks to call before and after the call processing. Specify only those you want and leave the others null.
+        /// </summary>
+        public CallSchedulerCallHandlers SchedulerCallHandlers { get; set; }
     }
 }

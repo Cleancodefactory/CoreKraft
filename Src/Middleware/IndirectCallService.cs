@@ -1,5 +1,7 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.DirectCall;
+using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,15 +12,26 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static Ccf.Ck.Models.NodeSet.ADOInfo;
 
 namespace Ccf.Ck.Web.Middleware
 {
     public class IndirectCallService : IIndirectCallService, IHostedService, IIndirectCallerControl {
-        public const int TIMEOUT_SECONDS = 120;
-        public const int RESULT_PRESERVE_SECONDS = 3600;
-        public const int SCHEDULE_TIMEOUT_SECONDS = 84000;
-        public const int WORKER_THREADS = 2;
+        // This is singleton so when updated from the config nothing is done with them yet
+        protected static int TIMEOUT_SECONDS = 120;
+        protected static int RESULT_PRESERVE_SECONDS = 3600;
+        protected static int SCHEDULE_TIMEOUT_SECONDS = 84000;
+        protected static int WORKER_THREADS = 2;
+        protected static int STARTUP_DELAY = 30;
 
+        #region Callback constants
+        public const string INPUT_MODEL_NAME = "input";
+        public const string RETURN_MODEL_NAME = "return";
+        #endregion
+
+        private bool _started = false;
+
+        KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings = null;
 
         /// <summary>
         /// Contains all the tasks which are not yet executed
@@ -34,15 +47,32 @@ namespace Ccf.Ck.Web.Middleware
         private Thread _SchedulerThread;
         
         private bool _Continue = true;
+        // TODO: With multiple threads we will need synchronization, put the neccessary stuff here
+        private object _lockObject = new object();
+
         private IServiceScopeFactory _ScopeFactory;
 
         #region Construction
-        public IndirectCallService(IServiceScopeFactory scopeFactory) {
+        public IndirectCallService(IServiceScopeFactory scopeFactory, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) {
+            _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
             _ScopeFactory = scopeFactory;
             _SchedulerThread = new Thread(new ThreadStart(this.Scheduler));
             _SchedulerThread.IsBackground = true;
+            // Update from configuration
+            _UpdateFromConfiguration(kraftGlobalConfigurationSettings);
         }
-
+        private void _UpdateFromConfiguration(KraftGlobalConfigurationSettings global) {
+            if (global != null) {
+                var scheduler = global.CallScheduler;
+                if (scheduler != null) {
+                    if (scheduler.StartupDelay > 0) STARTUP_DELAY = scheduler.StartupDelay;
+                    if (scheduler.RecheckSeconds >0) TIMEOUT_SECONDS = scheduler.RecheckSeconds;
+                    if (scheduler.ResultPreserveSeconds > 0) RESULT_PRESERVE_SECONDS = scheduler.ResultPreserveSeconds;
+                    if (scheduler.ScheduleTimeoutSeconds > 0) SCHEDULE_TIMEOUT_SECONDS = scheduler.ScheduleTimeoutSeconds;
+                    if (scheduler.WorkerThreads >= 1) WORKER_THREADS = scheduler.WorkerThreads;
+                }
+            }
+        }
         #endregion Construction
 
         #region Scheduler
@@ -60,41 +90,53 @@ namespace Ccf.Ck.Web.Middleware
             return Task.FromResult(0);
         }
         private void Scheduler() {
+            var _timeout_seconds = STARTUP_DELAY; // 
             while (_Continue) {
-                QueuedTask waiting = null;
-                lock (_Waiting) {
-                    if (!_Waiting.TryDequeue(out waiting))
-                    {
-                        waiting = null;
-                    };
-                }
-                if (waiting != null) {
-                    // Discard timeouted tasks
-                    if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.scheduleTimeout)) {
-                        // Move this to finished
-                        waiting.task.status = IndirectCallStatus.Discarded;
-                        lock(_Finished) {
-                            _Finished.Add(waiting.task.guid, waiting.task);
+                if (_started) {
+                    QueuedTask waiting = null;
+                    lock (_Waiting) {
+                        if (!_Waiting.TryDequeue(out waiting)) {
+                            waiting = null;
+                        };
+                    }
+                    if (waiting != null) {
+                        // Discard timeouted tasks
+                        if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.scheduleTimeout)) {
+                            // Move this to finished
+                            waiting.task.status = IndirectCallStatus.Discarded;
+                            lock (_Finished) {
+                                _Finished.Add(waiting.task.guid, waiting.task);
+                            }
+                            continue;
                         }
-                        continue;
+                        var result = waiting.task;
+                        result.started = DateTime.Now;
+                        result.status = IndirectCallStatus.Running;
+                        lock (_Finished) {
+                            _Finished.Add(result.guid, result);
+                        }
+                        // Mark call as indirect call
+                        if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
+                        CallHandler(HandlerType.started, result.input);
+                        // We depend on the DirectCall to indicate the success in the ReturnModel
+                        var returnModel = DirectCallService.Instance.Call(result.input);
+                        result.result = returnModel;
+                        result.finished = DateTime.Now;
+                        result.status = IndirectCallStatus.Finished;
+                        CallHandler(HandlerType.finished, result.input, result.result);
+                        continue; // Check for more tasks before waiting
+                    } else {
+                        // If we are here nothing was in the queue for at least TIMEOUT_SECONDS
+                        ScheduleOnEmptyQueue();
                     }
-                    var result = waiting.task;
-                    result.started = DateTime.Now;
-                    result.status = IndirectCallStatus.Running;
-                    lock(_Finished)
-                    {
-                        _Finished.Add(result.guid, result);
-                    }
-                    // Mark call as indirect call
-                    if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
-                    // We depend on the DirectCall to indicate the success in the ReturnModel
-                    var returnModel = DirectCallService.Instance.Call(result.input);
-                    result.result = returnModel;
-                    result.finished = DateTime.Now;
-                    result.status = IndirectCallStatus.Finished;
-                    continue; // Check for more tasks before waiting
                 }
-                _ThreadSignal.WaitOne(TimeSpan.FromSeconds(TIMEOUT_SECONDS));
+                _ThreadSignal.WaitOne(TimeSpan.FromSeconds(_timeout_seconds));
+                if (!_started && DirectCallService.Instance.Call != null) {
+                    lock (_lockObject) {
+                        _started = true;
+                    }
+                }
+                _timeout_seconds = TIMEOUT_SECONDS;
                 // Clean up old results
                 CleanUpResults();
             }
@@ -117,10 +159,73 @@ namespace Ccf.Ck.Web.Middleware
 
         #endregion Scheduler
 
-        
+        #region Callback helpers
+        private void ScheduleOnEmptyQueue() {
+            var handler_def = _KraftGlobalConfigurationSettings?.CallScheduler?.OnEmptyQueue;
+            if (handler_def != null) {
+                InputModel im = new InputModel();
+                if (!im.ParseAddress(handler_def.Address)) {
+                    throw new Exception($"Cannot parse address {handler_def.Address}");
+                }
+                im.IsWriteOperation = handler_def.IsWriteOperation;
+                im.RunAs = string.IsNullOrWhiteSpace(handler_def.RunAs)?null: handler_def.RunAs;
+                im.Data = new Dictionary<string, object>() {
+                    { "scheduler", this}
+                };
+                this.Call(im, 84000);
+
+            }
+        }
+        private void CallHandler(HandlerType callType,InputModel callModel, ReturnModel retModel = null) {
+            InputModel handlerModel = new InputModel();
+            CallScheduerHandler handler = null;
+            var data = new Dictionary<string, object>();
+            switch (callType) {
+                case HandlerType.scheduled:
+                    handler = callModel?.SchedulerCallHandlers?.OnCallScheduled;
+                    if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallScheduled;
+                    data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
+                    break;
+                case HandlerType.started:
+                    handler = callModel?.SchedulerCallHandlers?.OnCallStarted;
+                    if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallStarted;
+                    data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
+                    break;
+                case HandlerType.finished:
+                    handler = callModel?.SchedulerCallHandlers?.OnCallFinished;
+                    if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallFinished;
+                    data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
+                    data.Add(RETURN_MODEL_NAME, retModel != null?callModel.ToDictionary():null);
+                    break;
+                default:
+                    return; // Ignore missconfigured stuff
+            }
+            if (handler != null) {
+                handlerModel.Data = data;
+                handlerModel.ParseAddress(handler.Address);
+                handlerModel.IsWriteOperation = handler.IsWriteOperation;
+                handlerModel.CallType = Models.Enumerations.ECallType.ServiceCall;
+                handlerModel.TaskKind = CallTypeConstants.TASK_KIND_CALLBACK;
+                var returnModel = DirectCallService.Instance.Call(handlerModel);
+                // TODO: Devise further usage of the return result.
+                // The handling below is probably not the best idea - we have to discuss it.
+                if (returnModel != null) {
+                    if (!returnModel.IsSuccessful) {
+                        throw new Exception($"Error while executing callback: {returnModel.ErrorMessage ?? "unknown"}");
+                    }
+                }
+
+            }
+
+        }
+        #endregion
+
 
         #region Types
 
+        private enum HandlerType {
+            scheduled, started, finished
+        }
         private record TaskHolder(
             Guid guid, 
             InputModel input, 
@@ -135,16 +240,20 @@ namespace Ccf.Ck.Web.Middleware
             public DateTime? finished { get; set; } = finished;
         }
 
-        private record QueuedTask(TaskHolder task, DateTime queued, int scheduleTimeout = SCHEDULE_TIMEOUT_SECONDS);
+        private record QueuedTask(TaskHolder task, DateTime queued, int scheduleTimeout) {
+            public int scheduleTimeout { get; init; } = scheduleTimeout > 0? scheduleTimeout:SCHEDULE_TIMEOUT_SECONDS;
+        }
 
-        
+
 
         #endregion Types
 
         #region Public access
 
-        public Guid Call(InputModel input, int timeout = SCHEDULE_TIMEOUT_SECONDS)
+        public Guid Call(InputModel input, int timeout = 84000) => Call(input, timeout, false);
+        public Guid Call(InputModel input, int timeout = 84000,bool noset = false)
         {
+            //timeout = SCHEDULE_TIMEOUT_SECONDS;
             if (input == null) return Guid.Empty;
             var tsk = new TaskHolder(Guid.NewGuid(), input, null, IndirectCallStatus.Queued, null, null);
             var waiting = new QueuedTask(tsk,DateTime.Now,timeout != 0?timeout: SCHEDULE_TIMEOUT_SECONDS);
@@ -152,7 +261,10 @@ namespace Ccf.Ck.Web.Middleware
             {
                 _Waiting.Enqueue(waiting);
             }
-            _ThreadSignal.Set();
+            CallHandler(HandlerType.scheduled, input);
+            if (!noset) {
+                _ThreadSignal.Set();
+            }
             return waiting.task.guid;
         }
         public IndirectCallStatus CallStatus(Guid guid)
