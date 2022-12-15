@@ -25,6 +25,11 @@ namespace Ccf.Ck.Web.Middleware
         public const string INPUT_MODEL_NAME = "input";
         public const string RETURN_MODEL_NAME = "return";
         public const string ONSTART_RETURN_NAME = "onstart";
+        public const string CALLBACK_EVENT_NAME = "event";
+        public const string EVENT_NAME_QUEUE = "emptyqueue";
+        public const string EVENT_NAME_SCHEDULE = "schedule";
+        public const string EVENT_NAME_START = "start";
+        public const string EVENT_NAME_FINISH = "finish";
         #endregion
 
         private bool _started = false;
@@ -136,15 +141,16 @@ namespace Ccf.Ck.Web.Middleware
                     } else {
                         // If we are here nothing was in the queue for at least TIMEOUT_SECONDS
                         ScheduleOnEmptyQueue();
+                        _ThreadSignal.Reset();
                     }
                 }
                 _ThreadSignal.WaitOne(TimeSpan.FromSeconds(_timeout_seconds));
                 if (!_started && DirectCallService.Instance.Call != null) {
                     lock (_lockObject) {
                         _started = true;
+                        _timeout_seconds = TIMEOUT_SECONDS;
                     }
                 }
-                _timeout_seconds = TIMEOUT_SECONDS;
                 // Clean up old results
                 CleanUpResults();
             }
@@ -179,7 +185,7 @@ namespace Ccf.Ck.Web.Middleware
                     im.IsWriteOperation = handler_def.IsWriteOperation;
                     im.RunAs = string.IsNullOrWhiteSpace(handler_def.RunAs) ? null : handler_def.RunAs;
                     im.Data = new Dictionary<string, object>() {
-                        { "reason", "emptyqueue" },
+                        { CALLBACK_EVENT_NAME, EVENT_NAME_QUEUE },
                         { "scheduler", this}
                     };
                     this.Call(im, SCHEDULE_TIMEOUT_SECONDS);
@@ -197,11 +203,13 @@ namespace Ccf.Ck.Web.Middleware
                     handler = callModel?.SchedulerCallHandlers?.OnCallScheduled;
                     if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallScheduled;
                     data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
+                    data.Add(CALLBACK_EVENT_NAME, EVENT_NAME_SCHEDULE);
                     break;
                 case HandlerType.started:
                     handler = callModel?.SchedulerCallHandlers?.OnCallStarted;
                     if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallStarted;
                     data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
+                    data.Add(CALLBACK_EVENT_NAME, EVENT_NAME_START);
                     break;
                 case HandlerType.finished:
                     handler = callModel?.SchedulerCallHandlers?.OnCallFinished;
@@ -209,6 +217,7 @@ namespace Ccf.Ck.Web.Middleware
                     data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
                     data.Add(RETURN_MODEL_NAME, retModel != null? retModel.ToDictionary():null);
                     data.Add(ONSTART_RETURN_NAME, callBackReturnModel != null? callBackReturnModel.ToDictionary():null);
+                    data.Add(CALLBACK_EVENT_NAME, EVENT_NAME_FINISH);
                     break;
                 default:
                     return null; // TODO: Ignore missconfigured stuff or may be exception?
