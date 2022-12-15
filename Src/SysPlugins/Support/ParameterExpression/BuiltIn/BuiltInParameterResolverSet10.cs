@@ -28,6 +28,7 @@ using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Interfaces;
 using System.Security.Cryptography;
+using Org.BouncyCastle.Crypto.Modes;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
     /// <summary>
@@ -103,6 +104,9 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                         case INPUT:
                         case CURRENT:
                             if (ctx.Action == ACTION_WRITE) {
+                                if (ctx.ParentAccessNotAllowed) {
+                                    throw new InvalidOperationException("'current' Cannot be used in this situation. It is resolved while parent and current are not yet determined");
+                                }
                                 val = GetParameterValue(ctx.Row);
                             } else {
                                 throw new InvalidOperationException("'current' (or 'input') source is available only for write (store) operation.");
@@ -118,11 +122,17 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                             val = GetParameterValue(inputModel.Data);
                             break;
                         case PARENT:
+                            if (ctx.ParentAccessNotAllowed) {
+                                throw new InvalidOperationException("'parent' Cannot be used in this situation. It is resolved while parent and current are not yet determined");
+                            }
                             if (ctx.Datastack is ListStack<Dictionary<string, object>> && ctx.Datastack != null && ctx.Datastack.Count > 0) {
                                 val = GetParameterValue((ctx.Datastack as ListStack<Dictionary<string, object>>).Top());
                             }
                             break;
                         case PARENTS:
+                            if (ctx.ParentAccessNotAllowed) {
+                                throw new InvalidOperationException("'parent' Cannot be used in this situation. It is resolved while parent and current are not yet determined");
+                            }
                             if (ctx.Datastack != null && ctx.Datastack.Count > 0) {
                                 for (int i = ctx.Datastack.Count - 1; i >= 0; i--) {
                                     val = GetParameterValue(ctx.Datastack[i]);
@@ -256,7 +266,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                     FILTER => inputModel.Data.ToDictionary(kv => kv.Key, kv => kv.Value),
                     DATA => inputModel.Data.ToDictionary(kv => kv.Key, kv => kv.Value),
                     PARENT =>
-                        (ctx.Datastack is ListStack<Dictionary<string, object>> stack && stack != null && stack.Count > 0) ?
+                        (ctx.Datastack is ListStack<Dictionary<string, object>> stack && stack != null && stack.Count > 0 && !ctx.ParentAccessNotAllowed) ?
                             stack.Top() as Dictionary<string, object> :
                             null,
                     // In BeginReadOperation we add empty dictionary which is used as an anchor for the further results DURING EXCECUTION
