@@ -1,21 +1,19 @@
-﻿using Ccf.Ck.Models.DirectCall;
-using dcall = Ccf.Ck.Models.DirectCall;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.DirectCall;
+using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.Models.Settings;
+using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Utilities;
+using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Linq;
-using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.Libs.Logging;
-using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
-using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
-using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Models.Settings;
 using System.Reflection.Metadata;
-using Org.BouncyCastle.Crypto.Modes;
+using System.Text.RegularExpressions;
+using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
+using dcall = Ccf.Ck.Models.DirectCall;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 {
@@ -326,8 +324,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             return new ParameterResolverValue(null);
         }
 
-        private ParameterResolverValue OnCallback(Action<CallSchedulerCallHandlers,CallScheduerHandler> _set, ParameterResolverValue[] args) {
-            CallScheduerHandler handler;
+        private ParameterResolverValue OnCallback(Action<CallSchedulerCallHandlers,CallSchedulerHandler> _set, ParameterResolverValue[] args) {
+            CallSchedulerHandler handler;
             string address = null;
             if (args.Length > 0) {
                 address = Convert.ToString(args[0].Value);
@@ -335,7 +333,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                     _set(_handlers, null);
                     return new ParameterResolverValue(null);
                 }
-                handler = new CallScheduerHandler() { Address = address, RunAs = null, IsWriteOperation = false }; // For clarity
+                handler = new CallSchedulerHandler() { Address = address, RunAs = null, IsWriteOperation = false }; // For clarity
                 if (args.Length > 1) {
                     if (Convert.ToBoolean(args[1].Value)) {
                         handler.IsWriteOperation = true;

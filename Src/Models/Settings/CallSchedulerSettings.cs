@@ -1,5 +1,4 @@
-﻿using Ccf.Ck.Models.Web.Settings;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Ccf.Ck.Models.Settings
 {
@@ -18,7 +17,7 @@ namespace Ccf.Ck.Models.Settings
         /// <summary>
         /// Nodeset to call when the queue becomes empty - this call is actually scheduled and not executed immediately
         /// </summary>
-        public ICollection<CallScheduerHandler> OnEmptyQueue { get; set; }
+        public ICollection<CallSchedulerHandler> OnEmptyQueue { get; set; }
         /// <summary>
         /// Delays the que processing after the ap startup (to give it time to settle enough)
         /// </summary>

@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ccf.Ck.Models.Settings {
+﻿namespace Ccf.Ck.Models.Settings
+{
     /// <summary>
     /// Configures a callscheduler event handler. Virtually all the settings are used for creating a DirectCall input model.
     /// </summary>
-    public class CallScheduerHandler {
-        public CallScheduerHandler() { }
-        public CallScheduerHandler(CallScheduerHandler _handler) { 
+    public class CallSchedulerHandler {
+        public CallSchedulerHandler() { }
+        public CallSchedulerHandler(CallSchedulerHandler _handler) { 
             if (_handler != null ) {
                 this.RunAs = _handler.RunAs;
                 this.Address = _handler.Address;
@@ -26,11 +21,11 @@ namespace Ccf.Ck.Models.Settings {
         public bool IsWriteOperation { get; set; }
 
         #region Helpers
-        public static CallScheduerHandler Read(string address, string runas = null) {
-            return new CallScheduerHandler() { Address= address, RunAs = runas };
+        public static CallSchedulerHandler Read(string address, string runas = null) {
+            return new CallSchedulerHandler() { Address= address, RunAs = runas };
         }
-        public static CallScheduerHandler Write(string address, string runas = null) {
-            return new CallScheduerHandler() { Address = address, RunAs = runas, IsWriteOperation = true };
+        public static CallSchedulerHandler Write(string address, string runas = null) {
+            return new CallSchedulerHandler() { Address = address, RunAs = runas, IsWriteOperation = true };
         }
         #endregion
     }

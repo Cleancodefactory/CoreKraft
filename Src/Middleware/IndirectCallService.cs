@@ -3,17 +3,13 @@ using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static Ccf.Ck.Models.NodeSet.ADOInfo;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -183,7 +179,7 @@ namespace Ccf.Ck.Web.Middleware
         }
         private void CallHandler(HandlerType callType,InputModel callModel, ReturnModel retModel = null) {
             InputModel handlerModel = new InputModel();
-            CallScheduerHandler handler = null;
+            CallSchedulerHandler handler = null;
             var data = new Dictionary<string, object>();
             switch (callType) {
                 case HandlerType.scheduled:
@@ -256,8 +252,8 @@ namespace Ccf.Ck.Web.Middleware
 
         #region Public access
 
-        public Guid Call(InputModel input, int timeout = 84000) => Call(input, timeout, false);
-        public Guid Call(InputModel input, int timeout = 84000,bool noset = false)
+        public Guid Call(InputModel input, int timeout = 86400) => Call(input, timeout, false);
+        public Guid Call(InputModel input, int timeout = 86400, bool noset = false)
         {
             //timeout = SCHEDULE_TIMEOUT_SECONDS;
             if (input == null) return Guid.Empty;
