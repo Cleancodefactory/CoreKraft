@@ -196,7 +196,7 @@ namespace Ccf.Ck.Web.Middleware
                     handler = callModel?.SchedulerCallHandlers?.OnCallFinished;
                     if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallFinished;
                     data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
-                    data.Add(RETURN_MODEL_NAME, retModel != null?callModel.ToDictionary():null);
+                    data.Add(RETURN_MODEL_NAME, retModel != null? retModel.ToDictionary():null);
                     break;
                 default:
                     return; // Ignore missconfigured stuff
