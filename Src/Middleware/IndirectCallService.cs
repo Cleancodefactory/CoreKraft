@@ -24,6 +24,7 @@ namespace Ccf.Ck.Web.Middleware
         #region Callback constants
         public const string INPUT_MODEL_NAME = "input";
         public const string RETURN_MODEL_NAME = "return";
+        public const string ONSTART_RETURN_NAME = "onstart";
         #endregion
 
         private bool _started = false;
@@ -114,13 +115,13 @@ namespace Ccf.Ck.Web.Middleware
                         }
                         // Mark call as indirect call
                         if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
-                        CallHandler(HandlerType.started, result.input);
+                        var callbackReturn = CallHandler(HandlerType.started, result.input);
                         // We depend on the DirectCall to indicate the success in the ReturnModel
                         var returnModel = DirectCallService.Instance.Call(result.input);
                         result.result = returnModel;
                         result.finished = DateTime.Now;
                         result.status = IndirectCallStatus.Finished;
-                        CallHandler(HandlerType.finished, result.input, result.result);
+                        CallHandler(HandlerType.finished, result.input, result.result, callbackReturn);
                         continue; // Check for more tasks before waiting
                     } else {
                         // If we are here nothing was in the queue for at least TIMEOUT_SECONDS
@@ -177,7 +178,7 @@ namespace Ccf.Ck.Web.Middleware
 
             }
         }
-        private void CallHandler(HandlerType callType,InputModel callModel, ReturnModel retModel = null) {
+        private ReturnModel CallHandler(HandlerType callType,InputModel callModel, ReturnModel retModel = null, ReturnModel callBackReturnModel = null) {
             InputModel handlerModel = new InputModel();
             CallSchedulerHandler handler = null;
             var data = new Dictionary<string, object>();
@@ -197,9 +198,10 @@ namespace Ccf.Ck.Web.Middleware
                     if (handler == null) handler = _KraftGlobalConfigurationSettings?.CallScheduler?.CallHandlers?.OnCallFinished;
                     data.Add(INPUT_MODEL_NAME, callModel.ToDictionary());
                     data.Add(RETURN_MODEL_NAME, retModel != null? retModel.ToDictionary():null);
+                    data.Add(ONSTART_RETURN_NAME, callBackReturnModel != null? callBackReturnModel.ToDictionary():null);
                     break;
                 default:
-                    return; // Ignore missconfigured stuff
+                    return null; // TODO: Ignore missconfigured stuff or may be exception?
             }
             if (handler != null) {
                 handlerModel.Data = data;
@@ -215,9 +217,10 @@ namespace Ccf.Ck.Web.Middleware
                     if (!returnModel.IsSuccessful) {
                         throw new Exception($"Error while executing callback: {returnModel.ErrorMessage ?? "unknown"}");
                     }
+                    return retModel;
                 }
-
             }
+            return null;
 
         }
         #endregion
@@ -252,8 +255,7 @@ namespace Ccf.Ck.Web.Middleware
 
         #region Public access
 
-        public Guid Call(InputModel input, int timeout = 86400) => Call(input, timeout, false);
-        public Guid Call(InputModel input, int timeout = 86400, bool noset = false)
+        public Guid Call(InputModel input, int timeout = 86400)
         {
             //timeout = SCHEDULE_TIMEOUT_SECONDS;
             if (input == null) return Guid.Empty;
@@ -264,9 +266,7 @@ namespace Ccf.Ck.Web.Middleware
                 _Waiting.Enqueue(waiting);
             }
             CallHandler(HandlerType.scheduled, input);
-            if (!noset) {
-                _ThreadSignal.Set();
-            }
+            _ThreadSignal.Set();
             return waiting.task.guid;
         }
         public IndirectCallStatus CallStatus(Guid guid)
