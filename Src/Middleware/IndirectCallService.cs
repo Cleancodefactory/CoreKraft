@@ -98,31 +98,41 @@ namespace Ccf.Ck.Web.Middleware
                         };
                     }
                     if (waiting != null) {
-                        // Discard timeouted tasks
-                        if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.scheduleTimeout)) {
-                            // Move this to finished
-                            waiting.task.status = IndirectCallStatus.Discarded;
-                            lock (_Finished) {
-                                _Finished.Add(waiting.task.guid, waiting.task);
+                        try
+                        {
+                            // Discard timeouted tasks
+                            if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.scheduleTimeout))
+                            {
+                                // Move this to finished
+                                waiting.task.status = IndirectCallStatus.Discarded;
+                                lock (_Finished)
+                                {
+                                    _Finished.Add(waiting.task.guid, waiting.task);
+                                }
+                                continue;
                             }
-                            continue;
+                            var result = waiting.task;
+                            result.started = DateTime.Now;
+                            result.status = IndirectCallStatus.Running;
+                            lock (_Finished)
+                            {
+                                _Finished.Add(result.guid, result);
+                            }
+                            // Mark call as indirect call
+                            if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
+                            var callbackReturn = CallHandler(HandlerType.started, result.input);
+                            // We depend on the DirectCall to indicate the success in the ReturnModel
+                            var returnModel = DirectCallService.Instance.Call(result.input);
+                            result.result = returnModel;
+                            result.finished = DateTime.Now;
+                            result.status = IndirectCallStatus.Finished;
+                            CallHandler(HandlerType.finished, result.input, result.result, callbackReturn);
+                            continue; // Check for more tasks before waiting
                         }
-                        var result = waiting.task;
-                        result.started = DateTime.Now;
-                        result.status = IndirectCallStatus.Running;
-                        lock (_Finished) {
-                            _Finished.Add(result.guid, result);
+                        catch (Exception ex)
+                        {
+                            KraftLogger.LogError(ex);
                         }
-                        // Mark call as indirect call
-                        if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
-                        var callbackReturn = CallHandler(HandlerType.started, result.input);
-                        // We depend on the DirectCall to indicate the success in the ReturnModel
-                        var returnModel = DirectCallService.Instance.Call(result.input);
-                        result.result = returnModel;
-                        result.finished = DateTime.Now;
-                        result.status = IndirectCallStatus.Finished;
-                        CallHandler(HandlerType.finished, result.input, result.result, callbackReturn);
-                        continue; // Check for more tasks before waiting
                     } else {
                         // If we are here nothing was in the queue for at least TIMEOUT_SECONDS
                         ScheduleOnEmptyQueue();
@@ -215,9 +225,9 @@ namespace Ccf.Ck.Web.Middleware
                 // The handling below is probably not the best idea - we have to discuss it.
                 if (returnModel != null) {
                     if (!returnModel.IsSuccessful) {
-                        throw new Exception($"Error while executing callback: {returnModel.ErrorMessage ?? "unknown"}");
+                        KraftLogger.LogError($"Error while executing callback: {returnModel.ErrorMessage ?? "unknown"}");
                     }
-                    return retModel;
+                    return returnModel;
                 }
             }
             return null;
