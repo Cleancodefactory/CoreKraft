@@ -34,7 +34,11 @@ namespace Ccf.Ck.Models.Interfaces
         bool CheckSecurity(Security sec) {
             if (sec == null) return true; // No security
             if (sec.BuiltinOnly) {
-                if (!IsBuiltin || !IsAuthenticated) return false;
+                if (IsBuiltin)
+                {
+                    return true;
+                }
+                return IsAuthenticated;
             }
             if (sec.RequireAuthentication && !IsAuthenticated) return false;
             if (sec.AllowRoles != null) {
