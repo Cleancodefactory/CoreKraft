@@ -24,7 +24,7 @@ namespace Ccf.Ck.Models.NodeRequest {
         private bool LoadBuiltin(string user, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) {
             var builtins = kraftGlobalConfigurationSettings.GeneralSettings?.AuthorizationSection?.BuiltinUsers;
             if (builtins == null) return false;
-            var usr = builtins.FirstOrDefault(u => string.CompareOrdinal(u.UserName,user) == 0);
+            BuiltinUser usr = builtins.FirstOrDefault(u => string.CompareOrdinal(u.UserName,user) == 0);
             if (usr != null) {
                 IsBuiltin = true;
                 IsAuthenticated = true;

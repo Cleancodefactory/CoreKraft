@@ -195,7 +195,7 @@ namespace Ccf.Ck.Web.Middleware
             }
         }
         private ReturnModel CallHandler(HandlerType callType,InputModel callModel, ReturnModel retModel = null, ReturnModel callBackReturnModel = null) {
-            InputModel handlerModel = new InputModel();
+            InputModel inputModel = new InputModel();
             CallSchedulerHandler handler = null;
             var data = new Dictionary<string, object>();
             switch (callType) {
@@ -223,13 +223,13 @@ namespace Ccf.Ck.Web.Middleware
                     return null; // TODO: Ignore missconfigured stuff or may be exception?
             }
             if (handler != null) {
-                handlerModel.Data = data;
-                handlerModel.ParseAddress(handler.Address);
-                handlerModel.IsWriteOperation = handler.IsWriteOperation;
-                handlerModel.RunAs = handler.RunAs;
-                handlerModel.CallType = Models.Enumerations.ECallType.ServiceCall;
-                handlerModel.TaskKind = CallTypeConstants.TASK_KIND_CALLBACK;
-                var returnModel = DirectCallService.Instance.Call(handlerModel);
+                inputModel.Data = data;
+                inputModel.ParseAddress(handler.Address);
+                inputModel.IsWriteOperation = handler.IsWriteOperation;
+                inputModel.RunAs = handler.RunAs;
+                inputModel.CallType = Models.Enumerations.ECallType.ServiceCall;
+                inputModel.TaskKind = CallTypeConstants.TASK_KIND_CALLBACK;
+                var returnModel = DirectCallService.Instance.Call(inputModel);
                 // TODO: Devise further usage of the return result.
                 // The handling below is probably not the best idea - we have to discuss it.
                 if (returnModel != null) {
