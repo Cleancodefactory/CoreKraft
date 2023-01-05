@@ -110,6 +110,26 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             NodeExecutionContext.Manager execContextManager = new NodeExecutionContext.Manager(dataIteratorContext, node, ACTION_READ, metaNode);
             #endregion
 
+            #region Check stop/continue conditions
+            
+            if (!string.IsNullOrWhiteSpace(node.BreakIf)) {
+                var result = execContextManager.ParameterResolverProxy.Evaluate(node.BreakIf);
+                if (result.IsTruthy()) {
+                    metaNode.Abort();
+                    // exit node processing
+                    return null;
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(node.ContinueIf)) {
+                var result = execContextManager.ParameterResolverProxy.Evaluate(node.ContinueIf);
+                if (result.IsFalsy()) {
+                    metaNode.Abort();
+                    // exit node processing
+                    return null;
+                }
+            }
+            #endregion
+
             #region Main loader plugin creation
             // 1. Load the main plugin - Data Loader kind
             // This context will be the same for all the parent produced rows over which we execute a child node
@@ -186,7 +206,22 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             {
                 using (var stackframe = execContextManager.Datastack.Scope(row))
                 {
-                   
+                    #region continue/break conditions
+                    if (!string.IsNullOrWhiteSpace(node.Read.BreakIf)) {
+                        var cbcond = execContextManager.ParameterResolverProxy.Evaluate(node.Read.BreakIf);
+                        if (cbcond.IsTruthy()) {
+                            // Skip this iteration
+                            continue;
+                        }
+                    }
+                    if (!string.IsNullOrWhiteSpace(node.Read.ContinueIf)) {
+                        var cbcond = execContextManager.ParameterResolverProxy.Evaluate(node.Read.ContinueIf);
+                        if (cbcond.IsFalsy()) {
+                            // Skip this iteration
+                            continue;
+                        }
+                    }
+                    #endregion
                     // execContextManager.ParentResult = row; // Wrong
                     //execContextManager.Phase = "BEFORE_SQL"; // I think 'Phase' is a relic, couldn't find any usage.
                     execContextManager.Row = row; // This is needed by the resolvers, but is not visible to plugins!
@@ -351,6 +386,30 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             // 1. Extract the data from more generic forms to list<dictionary> form
             currentNode = ReCodeDataNode(dataNode);
 
+            // 1.0.1
+            
+            #region Check stop/continue conditions
+
+            if (!string.IsNullOrWhiteSpace(node.BreakIf)) {
+                var cond = execContextManager.ParameterResolverProxy.Evaluate(node.BreakIf);
+                if (cond.IsTruthy()) {
+                    metaNode.Abort();
+                    // exit node processing
+                    return currentNode;
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(node.ContinueIf)) {
+                var cond = execContextManager.ParameterResolverProxy.Evaluate(node.ContinueIf);
+                if (cond.IsFalsy()) {
+                    metaNode.Abort();
+                    // exit node processing
+                    return currentNode;
+                }
+            }
+            #endregion
+
+
+
             // 1.1. Load the data loader plugin
             IDataLoaderPlugin dataPlugin = null;
             IPluginsSynchronizeContextScoped contextScoped = null;
@@ -395,6 +454,22 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             {
                 //TODO the current implementation is not enforcing the IsList property!!!
                 if (row == null) continue;
+
+                #region Check stop/continue conditions
+
+                if (!string.IsNullOrWhiteSpace(node.Write.BreakIf)) {
+                    var cond = execContextManager.ParameterResolverProxy.Evaluate(node.Write.BreakIf);
+                    if (cond.IsTruthy()) {
+                        continue;
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(node.Write.ContinueIf)) {
+                    var cond = execContextManager.ParameterResolverProxy.Evaluate(node.Write.ContinueIf);
+                    if (cond.IsFalsy()) {
+                        continue;
+                    }
+                }
+                #endregion
 
                 // 3 Get the state
                 var state = execContextManager.DataState.GetDataState(row); //row[STATE_PROPERTY_NAME] as string;

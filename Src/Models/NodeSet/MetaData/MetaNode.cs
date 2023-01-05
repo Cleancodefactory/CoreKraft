@@ -58,6 +58,10 @@ namespace Ccf.Ck.Models.NodeSet {
         #region Execution info
         public int Executions { get; protected set; }
         public List<DateTime> ExecutionTimes { get; protected set; }
+        public void Abort() { 
+            Executions--;
+            ExecutionTimes.RemoveAt(ExecutionTimes.Count - 1);
+        }
         #endregion
 
         public Dictionary<string, MetaNode> Children { get; protected set; } = new Dictionary<string, MetaNode>();
