@@ -111,21 +111,22 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             #endregion
 
             #region Check stop/continue conditions
-            
-            if (!string.IsNullOrWhiteSpace(node.BreakIf)) {
-                var result = execContextManager.ParameterResolverProxy.Evaluate(node.BreakIf);
-                if (result.IsTruthy()) {
-                    metaNode.Abort();
-                    // exit node processing
-                    return null;
+            using (var phb = execContextManager.ProhibitParentResults()) {
+                if (!string.IsNullOrWhiteSpace(node.BreakIf)) {
+                    var result = execContextManager.ParameterResolverProxy.Evaluate(node.BreakIf);
+                    if (result.IsTruthy()) {
+                        metaNode.Abort();
+                        // exit node processing
+                        return null;
+                    }
                 }
-            }
-            if (!string.IsNullOrWhiteSpace(node.ContinueIf)) {
-                var result = execContextManager.ParameterResolverProxy.Evaluate(node.ContinueIf);
-                if (result.IsFalsy()) {
-                    metaNode.Abort();
-                    // exit node processing
-                    return null;
+                if (!string.IsNullOrWhiteSpace(node.ContinueIf)) {
+                    var result = execContextManager.ParameterResolverProxy.Evaluate(node.ContinueIf);
+                    if (result.IsFalsy()) {
+                        metaNode.Abort();
+                        // exit node processing
+                        return null;
+                    }
                 }
             }
             #endregion
@@ -171,32 +172,34 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             execContextManager.DataLoaderContextScoped = contextScoped;
             #endregion
 
-            #region Execute Prepare if requested
-            // TODO See what data to pass as results.
-            // Normally all the results generated from each parent result is collected in a list
-            if (node?.Read?.Prepare != null) {
-                if (dataPlugin is IDataLoaderPluginPrepare prepare) {
-                    execContextManager.Results = parentResult as List<Dictionary<string, object>>;// For inspection only for now, TODO - fix to list to allow injection of parent results more legaly
-                    execContextManager.Operation = "Prepare";
-                    prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
-                    if (_bailOut()) return null;
-                    execContextManager.Results = null; // Clear the ref for later use
-                } else {
-                    throw new NotSupportedException($"The requested Prepare operation is not supported by the Loader plugin {pluginName}.");
+            using (var phb = execContextManager.ProhibitParentResults()) {
+                #region Execute Prepare if requested
+                // TODO See what data to pass as results.
+                // Normally all the results generated from each parent result is collected in a list
+                if (node?.Read?.Prepare != null) {
+                    if (dataPlugin is IDataLoaderPluginPrepare prepare) {
+                        execContextManager.Results = parentResult as List<Dictionary<string, object>>;// For inspection only for now, TODO - fix to list to allow injection of parent results more legaly
+                        execContextManager.Operation = "Prepare";
+                        prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
+                        if (_bailOut()) return null;
+                        execContextManager.Results = null; // Clear the ref for later use
+                    } else {
+                        throw new NotSupportedException($"The requested Prepare operation is not supported by the Loader plugin {pluginName}.");
+                    }
                 }
+                #endregion
+
+                #region Execute before node plugins if any
+
+                if (node.Read != null) {
+                    execContextManager.Results = parentResult as List<Dictionary<string, object>>;
+                    plugins?.Execute(node.Read.BeforeNodePlugins, execContextManager.CustomPluginPreNodeProxy, _bailOut);
+                    if (_bailOut()) return null;
+                    execContextManager.Results = null; // Release the property for later use
+                }
+
+                #endregion
             }
-            #endregion
-
-            #region Execute before node plugins if any
-
-            if (node.Read != null) {
-                execContextManager.Results = parentResult as List<Dictionary<string, object>>;
-                plugins?.Execute(node.Read.BeforeNodePlugins, execContextManager.CustomPluginPreNodeProxy, _bailOut);
-                if (_bailOut()) return null;
-                execContextManager.Results = null; // Release the property for later use
-            }
-
-            #endregion
 
 
 
@@ -206,6 +209,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             {
                 using (var stackframe = execContextManager.Datastack.Scope(row))
                 {
+                    // Here parents are accessible
                     #region continue/break conditions
                     if (!string.IsNullOrWhiteSpace(node.Read.BreakIf)) {
                         var cbcond = execContextManager.ParameterResolverProxy.Evaluate(node.Read.BreakIf);
@@ -387,23 +391,24 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             currentNode = ReCodeDataNode(dataNode);
 
             // 1.0.1
-            
-            #region Check stop/continue conditions
 
-            if (!string.IsNullOrWhiteSpace(node.BreakIf)) {
-                var cond = execContextManager.ParameterResolverProxy.Evaluate(node.BreakIf);
-                if (cond.IsTruthy()) {
-                    metaNode.Abort();
-                    // exit node processing
-                    return currentNode;
+            #region Check stop/continue conditions
+            using (var phb = execContextManager.ProhibitParentResults()) {
+                if (!string.IsNullOrWhiteSpace(node.BreakIf)) {
+                    var cond = execContextManager.ParameterResolverProxy.Evaluate(node.BreakIf);
+                    if (cond.IsTruthy()) {
+                        metaNode.Abort();
+                        // exit node processing
+                        return currentNode;
+                    }
                 }
-            }
-            if (!string.IsNullOrWhiteSpace(node.ContinueIf)) {
-                var cond = execContextManager.ParameterResolverProxy.Evaluate(node.ContinueIf);
-                if (cond.IsFalsy()) {
-                    metaNode.Abort();
-                    // exit node processing
-                    return currentNode;
+                if (!string.IsNullOrWhiteSpace(node.ContinueIf)) {
+                    var cond = execContextManager.ParameterResolverProxy.Evaluate(node.ContinueIf);
+                    if (cond.IsFalsy()) {
+                        metaNode.Abort();
+                        // exit node processing
+                        return currentNode;
+                    }
                 }
             }
             #endregion
@@ -426,22 +431,24 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
             }
             execContextManager.DataLoaderContextScoped = contextScoped;
-            if (node?.Write?.Prepare != null) {
-                if (dataPlugin is IDataLoaderPluginPrepare prepare) {
-                    execContextManager.Results = currentNode;
-                    execContextManager.Operation = "Prepare";
-                    prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
-                    if (_bailOut()) return null;
-                } else {
-                    throw new NotSupportedException($"The requested Prepare operation is not supported by the Loader plugin {node.DataPluginName}.");
+            using (var phb = execContextManager.ProhibitParentResults()) {
+                if (node?.Write?.Prepare != null) {
+                    if (dataPlugin is IDataLoaderPluginPrepare prepare) {
+                        execContextManager.Results = currentNode;
+                        execContextManager.Operation = "Prepare";
+                        prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
+                        if (_bailOut()) return null;
+                    } else {
+                        throw new NotSupportedException($"The requested Prepare operation is not supported by the Loader plugin {node.DataPluginName}.");
+                    }
                 }
-            }
-            // PreNode plugin invocation (after the prepare operation
-            if (node.Write != null) {
-                execContextManager.Results = currentNode;
-                plugins?.Execute(node.Write.BeforeNodePlugins, execContextManager.CustomPluginPreNodeProxy, _bailOut);
-                if (_bailOut()) return null;
-                execContextManager.Results = null; // Write plugins should not have access to all the rows, only the PreNode plugins can access them
+                // PreNode plugin invocation (after the prepare operation
+                if (node.Write != null) {
+                    execContextManager.Results = currentNode;
+                    plugins?.Execute(node.Write.BeforeNodePlugins, execContextManager.CustomPluginPreNodeProxy, _bailOut);
+                    if (_bailOut()) return null;
+                    execContextManager.Results = null; // Write plugins should not have access to all the rows, only the PreNode plugins can access them
+                }
             }
 
             // 2. Main cycle.

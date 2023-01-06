@@ -60,7 +60,9 @@ namespace Ccf.Ck.Models.NodeSet {
         public List<DateTime> ExecutionTimes { get; protected set; }
         public void Abort() { 
             Executions--;
-            ExecutionTimes.RemoveAt(ExecutionTimes.Count - 1);
+            if (ExecutionTimes != null && ExecutionTimes.Count > 0) {
+                ExecutionTimes.RemoveAt(ExecutionTimes.Count - 1);
+            }
         }
         #endregion
 

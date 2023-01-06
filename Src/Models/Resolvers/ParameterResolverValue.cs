@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Models.Enumerations;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 
 // Moved here from Ccf.Ck.SysPlugins.Support.ParameterExpression
@@ -95,6 +96,7 @@ namespace Ccf.Ck.Models.Resolvers
         /// </summary>
         public EResolverValueType ValueType;
 
+        private static Regex _reFalsy = new Regex(@"0|false|no|\-0", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         public bool IsTruthy() {
             var v = Value;
             if (v == null) return false;
@@ -109,7 +111,11 @@ namespace Ccf.Ck.Models.Resolvers
             if (v is ushort us) return us != 0;
             if (v is byte bt) return bt != 0;
             if (v is char c) return c != 0;
-            if (v is string str) return !string.IsNullOrWhiteSpace(str);
+            if (v is string str) {
+                if (string.IsNullOrWhiteSpace(str)) return false;
+                if (_reFalsy.IsMatch(str)) return false;
+                return true;
+            }
             return false;
         }
         public bool IsFalsy() { return !IsTruthy(); }

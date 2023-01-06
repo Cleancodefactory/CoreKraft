@@ -911,7 +911,8 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
             uint? u = null;
             string s = null;
 
-            var useType = DetectBestNumericType(args.ToArray());
+            var useType = DetectBestNumericTypeEx(args.ToArray());
+            if (useType == null) useType = T_STR;
             return useType switch {
                 T_INT => new ParameterResolverValue(args.All(a => {
                     if (i == null) {
@@ -1045,7 +1046,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
             cleanNum = null;
             return Number_Formats.Unknown;
         }
-        private string DetectBestNumericType(params ParameterResolverValue[] vals) {
+        private string DetectBestNumericTypeEx(params ParameterResolverValue[] vals) {
             int maxtype = -1;
             int n;
 
@@ -1078,13 +1079,21 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                         if (maxtype < 0) maxtype = 0;
                     } else {
                         // This should be impossible
-                        throw new Exception("Impossible thing happened during number parsing");
+                        return null;
                     }
                 } else { // not a number
-                    throw new Exception("The parameters of an arithmetic resolver have to be numbers or null");
+                    return null;
+                    
                 }
             }
             return T_TYPEORDER[maxtype];
+        }
+        private string DetectBestNumericType(params ParameterResolverValue[] vals) {
+            string t = DetectBestNumericTypeEx(vals);
+            if (t == null) {
+                throw new Exception("The parameters of an arithmetic resolver have to be numbers or null");
+            }
+            return t;
         }
         private bool TrueLike(object v) {
             if (v == null) {
