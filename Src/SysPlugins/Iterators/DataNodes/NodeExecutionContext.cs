@@ -72,6 +72,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         }
         #endregion
 
+        #region Framing
+        public bool ParentAccessNotAllowed { get; private set; }
+        #endregion
+
         #region Proxy contexts instances
         /// <summary>
         /// A context proxy passed to resolvers from compiled expressions
@@ -109,6 +113,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 Context.CustomPluginPreNodeProxy = new CustomPluginPreNodeContext(Context);
                 Context.MetaNode = metaNode;
             }
+
+            
 
             public IDataStateHelper<IDictionary<string, object>> DataState => DataStateUtility.Instance;
 
@@ -237,6 +243,35 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public CustomPluginContext CustomPluginPreNodeProxy => Context.CustomPluginPreNodeProxy;
             public LoaderPluginReadContext LoaderPluginPrepareProxy() {
                 return new LoaderPluginReadContext(Context);
+            }
+            public ParentResolutionNotAllowed ProhibitParentResults() { return new ParentResolutionNotAllowed(Context); }
+        }
+
+        public class ParentResolutionNotAllowed : IDisposable {
+            private bool disposedValue;
+            private NodeExecutionContext _Context = null;
+            private bool _oldvalue = false;
+            public ParentResolutionNotAllowed(NodeExecutionContext ctx) {
+                _Context = ctx;
+                _oldvalue = ctx.ParentAccessNotAllowed;
+                ctx.ParentAccessNotAllowed = true;
+            }
+
+            protected virtual void Dispose(bool disposing) {
+                if (!disposedValue) {
+                    if (disposing) {
+                        _Context.ParentAccessNotAllowed = _oldvalue;
+                        _Context = null;
+                    }
+                    disposedValue = true;
+                }
+            }
+
+
+            public void Dispose() {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -740,6 +775,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public string Operation => Context.Operation;
 
             public string NodeKey => Context.NodeKey;
+
+            public bool ParentAccessNotAllowed => Context.ParentAccessNotAllowed;
 
             public ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null)
             {

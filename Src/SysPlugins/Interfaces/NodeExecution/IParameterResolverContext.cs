@@ -37,6 +37,8 @@ namespace Ccf.Ck.SysPlugins.Interfaces
 
         string NodeKey { get; }
 
+        bool ParentAccessNotAllowed { get { return false; } }
+
         ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null);
     }
 }

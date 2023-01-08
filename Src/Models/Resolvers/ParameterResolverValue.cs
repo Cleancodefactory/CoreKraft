@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Models.Enumerations;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 
 // Moved here from Ccf.Ck.SysPlugins.Support.ParameterExpression
@@ -95,6 +96,29 @@ namespace Ccf.Ck.Models.Resolvers
         /// </summary>
         public EResolverValueType ValueType;
 
+        private static Regex _reFalsy = new Regex(@"0|false|no|\-0", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        public bool IsTruthy() {
+            var v = Value;
+            if (v == null) return false;
+            if (v is bool b) return b;
+            if (v is int i) return i != 0;
+            if (v is uint ui) { return ui != 0; }
+            if (v is long l) return l != 0;
+            if (v is ulong ul) return ul != 0;
+            if (v is float f) return f != 0;
+            if (v is double d) return d != 0;
+            if (v is short s) return s != 0;
+            if (v is ushort us) return us != 0;
+            if (v is byte bt) return bt != 0;
+            if (v is char c) return c != 0;
+            if (v is string str) {
+                if (string.IsNullOrWhiteSpace(str)) return false;
+                if (_reFalsy.IsMatch(str)) return false;
+                return true;
+            }
+            return false;
+        }
+        public bool IsFalsy() { return !IsTruthy(); }
         private string _ValTypeString()
         {
             if (Value == null) return "null";
@@ -129,6 +153,7 @@ namespace Ccf.Ck.Models.Resolvers
 
         #region Static tools
         public static object Strip(object val) {
+            // TODO: May be recursive?
             if (val is ParameterResolverValue prv) {
                 return prv.Value;
             }
