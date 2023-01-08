@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -57,11 +58,12 @@ namespace Ccf.Ck.Launchers.Main
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            string contentRoot = Directory.GetCurrentDirectory();
+            string contentRoot = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             if (args.Length > 0)
             {
                 contentRoot = Path.GetFullPath(args[0]);
             }
+            Console.WriteLine("Content root: " + contentRoot);
             return Host.CreateDefaultBuilder(args)
                 .UseContentRoot(contentRoot)
                 .ConfigureLogging((hostBuilder, logging) =>
