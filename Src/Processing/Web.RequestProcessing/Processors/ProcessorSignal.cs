@@ -122,7 +122,7 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             IProcessingContext processingContext = new ProcessingContext(this)
             {
-                InputModel = new InputModel(inputModelParameters)
+                InputModel = new InputModel(inputModelParameters, _KraftModuleCollection)
             };
             return processingContext;
         }

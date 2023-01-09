@@ -90,7 +90,7 @@ namespace Ccf.Ck.Processing.Web.Request
                     }
                 }
             }
-            return new InputModel(inputModelParameters);
+            return new InputModel(inputModelParameters, _KraftModuleCollection);
         }
     }
 }

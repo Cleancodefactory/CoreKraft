@@ -461,7 +461,7 @@ namespace Ccf.Ck.Web.Middleware
                             KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModuleImages);
                             KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModulePublic);
                             moduleKey2Path.Add(kraftModule.Key, kraftDependable.KraftModuleRootPath);
-                            string moduleFullPath = Path.Combine(kraftDependable.KraftModuleRootPath, kraftModule.Key);
+                            string moduleFullPath = Path.Combine(kraftDependable.KraftModuleRootPath, kraftModule.Name);
                             string path2Data = Path.Combine(moduleFullPath, "Data");
                             if (!HasWritePermissionOnDir(new DirectoryInfo(path2Data), !env.IsDevelopment()))
                             {

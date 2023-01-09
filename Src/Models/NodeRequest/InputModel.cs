@@ -1,17 +1,25 @@
-﻿using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Libs.Logging;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.Settings;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Ccf.Ck.Models.Settings;
-using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Models.NodeRequest
 {
     public class InputModel
     {
-        public InputModel(InputModelParameters parameters)
+        public InputModel(InputModelParameters parameters, KraftModuleCollection kraftModuleCollection)
         {
-            Module = parameters.Module;
+            if (kraftModuleCollection != null)
+            {
+                Module = kraftModuleCollection.AdjustCasing(parameters.Module);
+            }
+            else
+            {
+                Module= parameters.Module;
+            }
             NodeSet = parameters.Nodeset;
             Nodepath = parameters.Nodepath;
             BindingKey = parameters.BindingKey;

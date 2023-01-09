@@ -56,7 +56,7 @@ namespace Ccf.Ck.Processing.Web.Request
                         }
                         inputModelParameters.Data.Add(key, postedFile);
 
-                        inputModels.Add(new InputModel(inputModelParameters));
+                        inputModels.Add(new InputModel(inputModelParameters, _KraftModuleCollection));
                     }
                 }
             }

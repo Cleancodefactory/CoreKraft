@@ -77,7 +77,7 @@ namespace Ccf.Ck.Processing.Web.Request
                 inputModelParameters.BindingKey = routeData.Values[Constants.RouteSegmentConstants.RouteBindingkey] as string;
             }
             IProcessingContext processingContext = new ProcessingContext(this);
-            processingContext.InputModel = new InputModel(inputModelParameters);
+            processingContext.InputModel = new InputModel(inputModelParameters, _KraftModuleCollection);
             List<IProcessingContext> processingContexts = new List<IProcessingContext>(1);
             processingContexts.Add(processingContext);
             _ProcessingContextCollection = new ProcessingContextCollection(processingContexts);
