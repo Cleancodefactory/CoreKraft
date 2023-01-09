@@ -69,5 +69,18 @@ namespace Ccf.Ck.Models.KraftModule
             }
             return sortedModules;
         }
+
+        public string AdjustCasing(string moduleKey)
+        {
+            KraftModule module = GetModule(moduleKey?.ToLower());
+            if (module != null)
+            {
+                return module.Name;
+            }
+            else
+            {
+                return moduleKey;
+            }
+        }
     }
 }

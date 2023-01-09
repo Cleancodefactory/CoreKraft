@@ -15,8 +15,6 @@ namespace Ccf.Ck.Utilities.Generic
 {
     public class Utilities
     {
-        
-
         #region Functions
         public static bool CheckNullOrEmpty<T>(T value, bool throwException)
         {

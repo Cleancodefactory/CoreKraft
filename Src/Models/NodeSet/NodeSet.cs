@@ -39,5 +39,11 @@ namespace Ccf.Ck.Models.NodeSet
             get;
             set;
         }
+
+        public string Key
+        {
+            get;
+            set;
+        }
     }
 }

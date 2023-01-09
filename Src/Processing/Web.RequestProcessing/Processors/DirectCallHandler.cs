@@ -34,6 +34,7 @@ namespace Ccf.Ck.Processing.Web.Request
         public DirectCallHandler(Ccf.Ck.Models.DirectCall.InputModel inputModel, KraftModuleCollection kraftModuleCollection, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             _InputModel = inputModel;
+            _InputModel.Module = kraftModuleCollection.AdjustCasing(inputModel.Module);
             _KraftModuleCollection = kraftModuleCollection;
             _NodesSetService = nodeSetService;
             _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
@@ -100,7 +101,7 @@ namespace Ccf.Ck.Processing.Web.Request
 
 
             IProcessingContext processingContext = new ProcessingContext(this);
-            processingContext.InputModel = new InputModel(inputModelParameters);
+            processingContext.InputModel = new InputModel(inputModelParameters, _KraftModuleCollection);
             List<IProcessingContext> processingContexts = new List<IProcessingContext>(1);
             processingContexts.Add(processingContext);
             return new ProcessingContextCollection(processingContexts);

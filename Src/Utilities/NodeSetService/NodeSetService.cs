@@ -1,14 +1,14 @@
-﻿using System;
-using System.IO;
+﻿using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.Models.Settings;
+using Ccf.Ck.Utilities.MemoryCache;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Ccf.Ck.Utilities.MemoryCache;
-using Ccf.Ck.Models.NodeSet;
 using NodeSetModel = Ccf.Ck.Models.NodeSet.NodeSet;
-using Ccf.Ck.Models.Settings;
-using Ccf.Ck.Models.KraftModule;
 
 namespace Ccf.Ck.Utilities.NodeSetService
 {
@@ -57,7 +57,8 @@ namespace Ccf.Ck.Utilities.NodeSetService
                     nodeSet = result.NodeSet;
                 };
 
-                nodeSet.Name = treeNodesNameLower;
+                nodeSet.Name = treeNodesName;
+                nodeSet.Key = treeNodesNameLower;
 
                 ProcessNodes(nodeSet.Root, nodeSetFile, nodeSet);
                 _CachingService.Insert(cacheKey, nodeSet, fileProvider.Watch("**/*.*"));

@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
     <ProjectReference Include="..\Interfaces\Ccf.Ck.Models.Interfaces.csproj" />
+    <ProjectReference Include="..\KraftModule\Ccf.Ck.Models.KraftModule.csproj" />
     <ProjectReference Include="..\Settings\Ccf.Ck.Models.Settings.csproj" />
     <ProjectReference Include="..\Web.Settings\Ccf.Ck.Models.Web.Settings.csproj" />
   </ItemGroup>

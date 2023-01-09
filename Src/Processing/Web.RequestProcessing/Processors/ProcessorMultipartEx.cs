@@ -54,7 +54,7 @@ namespace Ccf.Ck.Processing.Web.Request
             inputModelParameters.Data = data;
             
 
-            _ProcessingContextCollection = new ProcessingContextCollection(CreateProcessingContexts(new List<InputModel>() { new InputModel(inputModelParameters) }));
+            _ProcessingContextCollection = new ProcessingContextCollection(CreateProcessingContexts(new List<InputModel>() { new InputModel(inputModelParameters, _KraftModuleCollection) }));
             return _ProcessingContextCollection;
         }
 

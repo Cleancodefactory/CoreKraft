@@ -1,17 +1,17 @@
-﻿using Ccf.Ck.Models.Enumerations;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.ContextBasket;
+using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.NodeSet;
-using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Processing.Web.Request;
 using Ccf.Ck.SysPlugins.Data.Base;
 using Ccf.Ck.SysPlugins.Data.Call.Models;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Ccf.Ck.Libs.Logging;
-using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 
 namespace Ccf.Ck.SysPlugins.Data.Call
 {
@@ -100,9 +100,10 @@ namespace Ccf.Ck.SysPlugins.Data.Call
                     ServerVariables = execContext.ProcessingContext.InputModel.Server != default(ReadOnlyDictionary<string, object>) ? execContext.ProcessingContext.InputModel.Server.ToDictionary(item => item.Key, item => item.Value) : null
                 };
 
+
                 IProcessingContext processingContext = new ProcessingContext(execContext.ProcessingContext.ProcessorHandler)
                 {
-                    InputModel = new InputModel(inputModelParameters)
+                    InputModel = new InputModel(inputModelParameters, null)
                 };
 
                 requestExecutor.ExecuteReEntrance(processingContext, false);

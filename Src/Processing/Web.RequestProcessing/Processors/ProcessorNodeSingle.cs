@@ -41,7 +41,7 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             
             inputModelParameters.LoaderType = GetLoaderType(kraftRequestFlagsKey);
-            _ProcessingContextCollection = new ProcessingContextCollection(CreateProcessingContexts(new List<InputModel> { new InputModel(inputModelParameters) }));
+            _ProcessingContextCollection = new ProcessingContextCollection(CreateProcessingContexts(new List<InputModel> { new InputModel(inputModelParameters, _KraftModuleCollection) }));
             return _ProcessingContextCollection;
         }
     }
