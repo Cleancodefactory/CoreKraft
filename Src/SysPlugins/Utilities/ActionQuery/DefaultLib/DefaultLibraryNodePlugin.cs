@@ -500,7 +500,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
         private ParameterResolverValue ProcessResult(HostInterface ctx, Action<IDataStateHelperProvider<IDictionary<string, object>>,Dictionary<string,object>> action, ParameterResolverValue[] args) {
             int? index = null;
-            if (args.Length > 1) {
+            if (args.Length > 0) {
                 index = Convert.ToInt32(args[0].Value);
             }
             IDataStateHelperProvider<IDictionary<string, object>> stateHelper = ctx as IDataStateHelperProvider<IDictionary<string, object>>;
