@@ -89,6 +89,7 @@ namespace Ccf.Ck.Models.Settings
         public void ReplaceMacrosWithPaths(string contentRootPath, string wwwRootPath)
         {
             Regex regex = new Regex(@"(?:(@(?<first>wwwroot|contentroot)@))|(?:%(?<env>[a-zA-Z0-9_]+)%*)");
+            List<int> _invalids = new List<int>();
             for (int i = 0; i < ModulesRootFolders.Count; i++)
             {
                 ModulesRootFolders[i] = regex.Replace(ModulesRootFolders[i], m =>
@@ -112,12 +113,14 @@ namespace Ccf.Ck.Models.Settings
                     else if (m.Groups["env"].Success)//%something%
                     {
                         string envVariable = Environment.GetEnvironmentVariable(m.Groups["env"].Value);
-                        if (!string.IsNullOrEmpty(envVariable))
+                        //Console.WriteLine("envval:" + envVariable);
+                        if (!string.IsNullOrWhiteSpace(envVariable))
                         {
                             return envVariable;
                         }
                         else
                         {
+                            _invalids.Add(i);
                             return string.Empty; //Variable not valid or not populated
                         }
                     }
@@ -125,6 +128,10 @@ namespace Ccf.Ck.Models.Settings
                 });
             }
             ModulesRootFolders = ModulesRootFolders.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            //Console.WriteLine("invalids:" + _invalids.Count);
+            for (int j = _invalids.Count - 1; j >=0 ; j--) {
+                ModulesRootFolders.RemoveAt(_invalids[j]);
+            }
             DirectoryInfo directoryInfo;
             foreach (string module in ModulesRootFolders)
             {
