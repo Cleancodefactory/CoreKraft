@@ -25,6 +25,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return name switch {
                 nameof(Add) => Add,
                 nameof(TryAdd) => TryAdd,
+                nameof(Sub) => Sub,
+                nameof(TrySub) => TrySub,
                 nameof(Concat) => Concat,
                 nameof(Cast) => Cast,
                 nameof(GSetting) => GSetting,
@@ -220,6 +222,19 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(null);
         }
+        [Function(nameof(Sub),"Subtracts the argument 2 from a argument 1, requires 2 arguments. At least one of them have to be numeric and the other convertible to the same numeric type")]
+        public ParameterResolverValue Sub(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 2) throw new ArgumentException("Sub requires two parameters");
+            if (args[0].Value == null || args[1].Value == null) return new ParameterResolverValue(null);
+            if (args.Any(a => a.Value is double || a.Value is float)) // Double result
+            {
+                return new ParameterResolverValue(Convert.ToDouble(args[0].Value) - Convert.ToDouble(args[1].Value));
+            } else if (args.Any(a => a.Value is int || a.Value is uint || a.Value is short || a.Value is ushort || a.Value is byte || a.Value is char)) {
+                return new ParameterResolverValue(Convert.ToInt32(args[0].Value) - Convert.ToInt32(args[1].Value));
+            } else {
+                return new ParameterResolverValue(null);
+            }
+        }
 
         [Function(nameof(TryAdd), "Like Add, but will return null instead of throwing an exception if the conversion fails.")]
         [Parameter(0, "values", "numeric values to add", TypeFlags.List)]
@@ -227,6 +242,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
         public ParameterResolverValue TryAdd(HostInterface ctx, ParameterResolverValue[] args) {
             try {
                 return Add(ctx, args);
+            } catch {
+                return new ParameterResolverValue(null);
+            }
+        }
+        [Function(nameof(TrySub),"Subtracts 2 arguments, returns null on exception (usually exception during conversion)")]
+        public ParameterResolverValue TrySub(HostInterface ctx, ParameterResolverValue[] args) {
+            try {
+                return Sub(ctx, args);
             } catch {
                 return new ParameterResolverValue(null);
             }
