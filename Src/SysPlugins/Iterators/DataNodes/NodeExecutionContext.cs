@@ -244,17 +244,19 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public LoaderPluginReadContext LoaderPluginPrepareProxy() {
                 return new LoaderPluginReadContext(Context);
             }
-            public ParentResolutionNotAllowed ProhibitParentResults() { return new ParentResolutionNotAllowed(Context); }
+            public ParentResolutionNotAllowed ProhibitParentResults(string reasonDescription = null) { return new ParentResolutionNotAllowed(Context, reasonDescription); }
         }
 
         public class ParentResolutionNotAllowed : IDisposable {
             private bool disposedValue;
             private NodeExecutionContext _Context = null;
             private bool _oldvalue = false;
-            public ParentResolutionNotAllowed(NodeExecutionContext ctx) {
+            private string _reasonDescription;
+            public ParentResolutionNotAllowed(NodeExecutionContext ctx, string reasonDescription = null) {
                 _Context = ctx;
                 _oldvalue = ctx.ParentAccessNotAllowed;
                 ctx.ParentAccessNotAllowed = true;
+                _reasonDescription = reasonDescription;
             }
 
             protected virtual void Dispose(bool disposing) {

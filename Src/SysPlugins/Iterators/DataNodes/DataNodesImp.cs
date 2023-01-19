@@ -172,7 +172,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             execContextManager.DataLoaderContextScoped = contextScoped;
             #endregion
 
-            using (var phb = execContextManager.ProhibitParentResults()) {
+            using (var phb = execContextManager.ProhibitParentResults("Parameters cannot be used in Prepare actions or BeforeNode plugins in read operations")) {
                 #region Execute Prepare if requested
                 // TODO See what data to pass as results.
                 // Normally all the results generated from each parent result is collected in a list
@@ -431,7 +431,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 }
             }
             execContextManager.DataLoaderContextScoped = contextScoped;
-            using (var phb = execContextManager.ProhibitParentResults()) {
+            // Removed the parent access limitations - it will work for write 
+            //using (var phb = execContextManager.ProhibitParentResults()) {
                 if (node?.Write?.Prepare != null) {
                     if (dataPlugin is IDataLoaderPluginPrepare prepare) {
                         execContextManager.Results = currentNode;
@@ -449,7 +450,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     if (_bailOut()) return null;
                     execContextManager.Results = null; // Write plugins should not have access to all the rows, only the PreNode plugins can access them
                 }
-            }
+            //}
 
             // 2. Main cycle.
             //  Split by ordering the items by non-deleted and deleted state for easier processing
