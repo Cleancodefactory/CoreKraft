@@ -81,6 +81,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(IsDictCompatible) => IsDictCompatible,
                 nameof(ToNodesetData) => ToNodesetData,
                 nameof(ToGeneralData) => ToGeneralData,
+                nameof(FromNodesetData) => FromNodesetData,
                 nameof(DictToJson) => DictToJson,
                 nameof(JsonToDict) => JsonToDict,
                 // Meta
@@ -1318,6 +1319,11 @@ namespace Ccf.Ck.SysPlugins.Utilities
         {
             if (args.Length != 1) throw new ArgumentException("ToGeneralData takes one argument");
             return new ParameterResolverValue(ConvertToGeneralData(args[0].Value));
+        }
+        public ParameterResolverValue FromNodesetData(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("From Nodeset data requires exactly one argumen");
+            var inp = args[0].Value;
+            return ConvertFromGenericData(inp);
         }
         #endregion
     }
