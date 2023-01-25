@@ -127,7 +127,7 @@ namespace Ccf.Ck.Models.Settings
                     return null;
                 });
             }
-            ModulesRootFolders = ModulesRootFolders.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
+            //ModulesRootFolders = ModulesRootFolders.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList();
             //Console.WriteLine("invalids:" + _invalids.Count);
             for (int j = _invalids.Count - 1; j >=0 ; j--) {
                 ModulesRootFolders.RemoveAt(_invalids[j]);
