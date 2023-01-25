@@ -76,6 +76,12 @@ namespace Ccf.Ck.Launchers.Main
                     configuration.RootPath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.RootPath;//"wwwroot/search-app";
                 });
             }
+            // TODO enable through configuration
+            services.Configure<FormOptions>(x =>
+            {
+                x.ValueLengthLimit = int.MaxValue;
+                x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
