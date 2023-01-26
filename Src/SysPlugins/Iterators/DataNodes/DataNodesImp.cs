@@ -179,7 +179,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 if (node?.Read?.Prepare != null) {
                     if (dataPlugin is IDataLoaderPluginPrepare prepare) {
                         execContextManager.Results = parentResult as List<Dictionary<string, object>>;// For inspection only for now, TODO - fix to list to allow injection of parent results more legaly
-                        execContextManager.Operation = "Prepare";
+                        execContextManager.Operation = OPERATION_PREPARE;
                         prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
                         if (_bailOut()) return null;
                         execContextManager.Results = null; // Clear the ref for later use
@@ -436,7 +436,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 if (node?.Write?.Prepare != null) {
                     if (dataPlugin is IDataLoaderPluginPrepare prepare) {
                         execContextManager.Results = currentNode;
-                        execContextManager.Operation = "Prepare";
+                        execContextManager.Operation = OPERATION_PREPARE;
                         prepare.Prepare(execContextManager.LoaderPluginPrepareProxy());
                         if (_bailOut()) return null;
                     } else {

@@ -44,6 +44,7 @@
         public const string OPERATION_INSERT = "insert";
         public const string OPERATION_DELETE = "delete";
         public const string OPERATION_UPDATE = "update";
+        public const string OPERATION_PREPARE = "prepare";
         public const string OPERATION_UNCHANGED = "unchanged";
 
         #region Model

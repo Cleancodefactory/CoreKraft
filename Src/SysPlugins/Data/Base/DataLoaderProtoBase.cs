@@ -37,6 +37,8 @@ namespace Ccf.Ck.SysPlugins.Data.Base
                         return execContext.CurrentNode.Write.Update;
                     case OPERATION_DELETE:
                         return execContext.CurrentNode.Write.Delete;
+                    case OPERATION_PREPARE:
+                        return execContext.CurrentNode.Write.Prepare;
                 }
             }
             return null;
