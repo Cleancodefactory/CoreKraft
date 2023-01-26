@@ -465,13 +465,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
                 #region Check stop/continue conditions
 
-                if (!string.IsNullOrWhiteSpace(node.Write.BreakIf)) {
+                if (!string.IsNullOrWhiteSpace(node?.Write?.BreakIf)) {
                     var cond = execContextManager.ParameterResolverProxy.Evaluate(node.Write.BreakIf);
                     if (cond.IsTruthy()) {
                         continue;
                     }
                 }
-                if (!string.IsNullOrWhiteSpace(node.Write.ContinueIf)) {
+                if (!string.IsNullOrWhiteSpace(node?.Write?.ContinueIf)) {
                     var cond = execContextManager.ParameterResolverProxy.Evaluate(node.Write.ContinueIf);
                     if (cond.IsFalsy()) {
                         continue;
