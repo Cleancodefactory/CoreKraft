@@ -2,6 +2,7 @@ namespace Ccf.Ck.Models.NodeSet
 {
     public class Write : OperationBase
     {
+        
         public Insert Insert
         {
             get;

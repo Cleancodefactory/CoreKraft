@@ -438,7 +438,13 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 // update of the data being written can be done more freely - using more than one select statement after writing. This is
                                 // probably rare, but having the opportunity is better than not having it.
                             } while (reader.NextResult());
-                            reader.Close();
+                            if (Action(execContext) != null && Action(execContext).RequireEffect) {
+                                if (reader.RecordsAffected == 0) {
+                                    reader.Close();
+                                    throw new OperationCanceledException("Write operation requires effect, but there was none (rows affected was 0 while expected to be greater). Operation was cancelled.");
+                                }
+                            }
+                            
                             if (metaReport != null)
                             {
                                 metaReport.RowsAffected = reader.RecordsAffected;

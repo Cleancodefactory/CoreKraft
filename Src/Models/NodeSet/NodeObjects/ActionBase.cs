@@ -42,6 +42,12 @@ namespace Ccf.Ck.Models.NodeSet
         public string ContinueIf { get; set; }
         public string BreakIf { get; set; }
 
+        /// <summary>
+        /// Indicates that the operation must have effect - in ADO this requires affected rows != 0, in other
+        /// Loaders it is either not implemented or implemented accordingly (when possible)
+        /// </summary>
+        public bool RequireEffect { get; set; }
+
         public bool IsTypeOf(string ext)
         {
             if (this.File != null)
