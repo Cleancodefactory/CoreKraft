@@ -30,6 +30,8 @@ namespace Ccf.Ck.Models.Settings
             HistoryNavSettings = new HistoryNavSettings();
             HostingServiceSettings = new List<HostingServiceSetting>();
         }
+        public int TaskThreads { get; set; } = 0; // auto by default
+        public int MaxAutoTaskThreads { get; set; } = 4; // has effect only if auto is set
         public string ServerHostKey { get; set; }
         public bool EnableOptimization { get; set; }
         public List<string> ModulesRootFolders { get; set; }

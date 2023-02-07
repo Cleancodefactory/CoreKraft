@@ -47,7 +47,7 @@ namespace Ccf.Ck.Web.Middleware
 
         private AutoResetEvent _ThreadSignal = new AutoResetEvent(true);
 
-        private Thread _SchedulerThread;
+        private List<Thread> _SchedulerThreads = new List<Thread>();
         
         private bool _Continue = true;
         // TODO: With multiple threads we will need synchronization, put the neccessary stuff here
@@ -59,10 +59,40 @@ namespace Ccf.Ck.Web.Middleware
         public IndirectCallService(IServiceScopeFactory scopeFactory, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) {
             _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
             _ScopeFactory = scopeFactory;
-            _SchedulerThread = new Thread(new ThreadStart(this.Scheduler));
-            _SchedulerThread.IsBackground = true;
+            int nThreads = ConfiguredTaskThreads;
+            Thread th;
+            for (var i = 0; i < nThreads; i++) {
+                th = new Thread(new ThreadStart(new ThreadStart(this.Scheduler)));
+                th.IsBackground = true;
+                _SchedulerThreads.Add(th);
+            }
             // Update from configuration
             _UpdateFromConfiguration(kraftGlobalConfigurationSettings);
+        }
+        /// <summary>
+        /// Reader for the number of threads with protection threads >= 1 and <= processorcount
+        /// </summary>
+        private int ConfiguredTaskThreads {
+            get {
+                int n = _KraftGlobalConfigurationSettings.GeneralSettings.TaskThreads;
+                int maxThreads = _KraftGlobalConfigurationSettings.GeneralSettings.MaxAutoTaskThreads;
+                if (maxThreads < 1) { maxThreads= 1; } // Prevent it from being too small
+                if (n == 0) {
+                    // auto choose
+                    if (Environment.ProcessorCount > 1) {
+                        n = Environment.ProcessorCount - 1;
+                        if (maxThreads < n) n = maxThreads;
+                    } else {
+                        n = 1;
+                    }
+                    return n;
+                }
+                if (n < 1) { n = 1; }
+                if (n > 1 && n > Environment.ProcessorCount) {
+                    n = Environment.ProcessorCount;
+                }
+                return n;
+            }
         }
         private void _UpdateFromConfiguration(KraftGlobalConfigurationSettings global) {
             if (global != null) {
@@ -81,7 +111,7 @@ namespace Ccf.Ck.Web.Middleware
         #region Scheduler
         public Task StartAsync(CancellationToken cancellationToken) {
             KraftLogger.LogInformation("IndirectCallService: StartAsync executed.");
-            _SchedulerThread.Start();
+            _SchedulerThreads.ForEach(th => th.Start());
             return Task.FromResult(0);
         }
 
@@ -89,7 +119,10 @@ namespace Ccf.Ck.Web.Middleware
             _Continue = false;
             _ThreadSignal.Set();
             KraftLogger.LogInformation("IndirectCallService:StopAsync executed");
-            _SchedulerThread.Join();
+            _SchedulerThreads.ForEach(th => {
+                th.Join();
+                _ThreadSignal.Set();
+            });
             return Task.FromResult(0);
         }
         private void Scheduler() {
@@ -337,21 +370,26 @@ namespace Ccf.Ck.Web.Middleware
         #region Control interface
 
         public IIndirectCallerInfo GetIndirectServiceInfo() {
-            var waiting = _Waiting.Select(qt => new IndirectCallInfoEx(qt.task.guid,
-                                                        IndirectCallStatus.Queued,
-                                                        qt.task.input,
-                                                        qt.task.result,
-                                                        null,
-                                                        null,
-                                                        qt.queued));
-            var finished = _Finished.Select(kv => new IndirectCallInfoEx(
-                kv.Value.guid,
-                kv.Value.status,
-                kv.Value.input,
-                kv.Value.result,
-                kv.Value.started,
-                kv.Value.finished
-            ));
+            IEnumerable<IIndirectCallInfoEx> waiting = null, finished = null;
+            lock (_Waiting) {
+                waiting = _Waiting.Select(qt => new IndirectCallInfoEx(qt.task.guid,
+                                                            IndirectCallStatus.Queued,
+                                                            qt.task.input,
+                                                            qt.task.result,
+                                                            null,
+                                                            null,
+                                                            qt.queued));
+            }
+            lock (_Finished) {
+                finished = _Finished.Select(kv => new IndirectCallInfoEx(
+                    kv.Value.guid,
+                    kv.Value.status,
+                    kv.Value.input,
+                    kv.Value.result,
+                    kv.Value.started,
+                    kv.Value.finished
+                ));
+            }
             return new IndirectCallerInfo(waiting, finished);
 
         }
