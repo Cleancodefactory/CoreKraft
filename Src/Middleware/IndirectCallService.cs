@@ -419,11 +419,16 @@ namespace Ccf.Ck.Web.Middleware
 
         }
 
-        #endregion
+        public IIndirectCallerThreads GetIndirectServiceThreadInfo() {
+            var info = new IndirectCallThreadInfo(_ThreadInfos);
+            return info;
+        }
+
+            #endregion
 
 
 
-    }
+        }
 
 
 }

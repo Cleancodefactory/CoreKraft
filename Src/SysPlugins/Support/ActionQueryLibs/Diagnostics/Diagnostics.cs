@@ -29,6 +29,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             {
                 case nameof(CallSchedulerInfo):
                     return CallSchedulerInfo;
+                case nameof(CallSchedulerThreads):
+                    return CallSchedulerThreads;
             }
             return null;
         }
@@ -62,7 +64,36 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         #endregion
 
         #region Functions
-
+        public ParameterResolverValue CallSchedulerThreads(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is ISupportsPluginServiceManager services) {
+                var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));
+                if (idc is IIndirectCallerControl callcontrol) {
+                    var info = callcontrol.GetIndirectServiceThreadInfo();
+                    if (info.Threads != null) {
+                        var data = new List<ParameterResolverValue>();
+                        var count = info.Threads.Count();
+                        foreach (var ti in info.Threads) {
+                            var dict = new Dictionary<string, ParameterResolverValue>();
+                            dict["DirectCallAvailable"] = new ParameterResolverValue(ti.DirectCallAvailable);
+                            dict["LastTaskCompleted"] = new ParameterResolverValue(ti.LastTaskCompleted);
+                            dict["LastTaskPickedAt"] = new ParameterResolverValue(ti.LastTaskPickedAt);
+                            dict["TaskPicked"] = new ParameterResolverValue(ti.TaskPicked);
+                            dict["Executing"] = new ParameterResolverValue(ti.Executing);
+                            dict["FinishHandler"] = new ParameterResolverValue(ti.FinishtHandler);
+                            dict["LastTaskCompleted"] = new ParameterResolverValue(ti.LastTaskCompleted);
+                            dict["LastTaskFinishedAt"] = new ParameterResolverValue(ti.LastTaskFinishedAt);
+                            dict["Looping"] = new ParameterResolverValue(ti.Looping);
+                            dict["LoopingEnded"] = new ParameterResolverValue(ti.LoopingEnded);
+                            dict["StartHandler"] = new ParameterResolverValue(ti.StartHandler);
+                            dict["ThreadIndex"] = new ParameterResolverValue(ti.ThreadIndex);
+                            data.Add(new ParameterResolverValue(dict));
+                        }
+                        return new ParameterResolverValue(data);
+                    }
+                }
+            }
+            return new ParameterResolverValue(null);
+        }
         public ParameterResolverValue CallSchedulerInfo(HostInterface ctx, ParameterResolverValue[] args) {
             bool bIncludeData = false;
             if (args.Length > 0) {

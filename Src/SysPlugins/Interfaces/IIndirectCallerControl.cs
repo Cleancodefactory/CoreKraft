@@ -8,5 +8,6 @@ using DirectCall = Ccf.Ck.Models.DirectCall;
 namespace Ccf.Ck.SysPlugins.Interfaces {
     public interface IIndirectCallerControl {
         IIndirectCallerInfo GetIndirectServiceInfo();
+        IIndirectCallerThreads GetIndirectServiceThreadInfo();
     }
 }
