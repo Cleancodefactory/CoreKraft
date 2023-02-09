@@ -48,6 +48,8 @@ namespace Ccf.Ck.Web.Middleware
         private AutoResetEvent _ThreadSignal = new AutoResetEvent(true);
 
         private List<Thread> _SchedulerThreads = new List<Thread>();
+        private List<ThreadInfo> _ThreadInfos= new List<ThreadInfo>();
+        private int _threadIndexCounter = 0;
         
         private bool _Continue = true;
         // TODO: With multiple threads we will need synchronization, put the neccessary stuff here
@@ -64,6 +66,7 @@ namespace Ccf.Ck.Web.Middleware
             for (var i = 0; i < nThreads; i++) {
                 th = new Thread(new ThreadStart(new ThreadStart(this.Scheduler)));
                 th.IsBackground = true;
+                _ThreadInfos.Add(new ThreadInfo());
                 _SchedulerThreads.Add(th);
             }
             // Update from configuration
@@ -126,9 +129,18 @@ namespace Ccf.Ck.Web.Middleware
             return Task.FromResult(0);
         }
         private void Scheduler() {
+            int threadIndex = Interlocked.Increment(ref _threadIndexCounter) - 1;
+            ThreadInfo info = new ThreadInfo(); // Empty vessel to avoid checks
+            if (threadIndex >= 0 && threadIndex < ConfiguredTaskThreads) {
+                info = _ThreadInfos[threadIndex]; // Replace it with the right one
+            }
+            info.ThreadIndex = threadIndex;
             var _timeout_seconds = STARTUP_DELAY; // 
             while (_Continue) {
+                info.Looping= true;
                 if (_started) {
+                    info.DirectCallAvailable = true;
+                    info.TaskPicked = false;
                     QueuedTask waiting = null;
                     lock (_Waiting) {
                         if (!_Waiting.TryDequeue(out waiting)) {
@@ -136,6 +148,8 @@ namespace Ccf.Ck.Web.Middleware
                         };
                     }
                     if (waiting != null) {
+                        info.TaskPicked= true;
+                        info.LastTaskPickedAt = DateTime.Now;
                         try
                         {
                             // Discard timeouted tasks
@@ -147,6 +161,7 @@ namespace Ccf.Ck.Web.Middleware
                                 {
                                     _Finished.Add(waiting.task.guid, waiting.task);
                                 }
+                                info.LastTaskFinishedAt = DateTime.Now;
                                 continue;
                             }
                             var result = waiting.task;
@@ -158,13 +173,22 @@ namespace Ccf.Ck.Web.Middleware
                             }
                             // Mark call as indirect call
                             if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
+                            info.Executing = $"{result.input.Module}/{result.input.Nodeset}/{result.input.Nodepath}";
+                            info.StartHandler = true;
                             var callbackReturn = CallHandler(HandlerType.started, result.input);
+                            info.StartHandler = false;
+                           
                             // We depend on the DirectCall to indicate the success in the ReturnModel
                             var returnModel = DirectCallService.Instance.Call(result.input);
+                            info.LastTaskFinishedAt = DateTime.Now;
                             result.result = returnModel;
                             result.finished = DateTime.Now;
                             result.status = IndirectCallStatus.Finished;
+                            info.FinishtHandler = true;
                             CallHandler(HandlerType.finished, result.input, result.result, callbackReturn);
+                            info.FinishtHandler = false;
+                            info.LastTaskCompleted = info.Executing;
+                            info.Executing = null;
                             continue; // Check for more tasks before waiting
                         }
                         catch (Exception ex)
@@ -187,6 +211,7 @@ namespace Ccf.Ck.Web.Middleware
                 // Clean up old results
                 CleanUpResults();
             }
+            info.LoopingEnded = true;
         }
         private void CleanUpResults() {
             lock (_Finished) {
