@@ -124,7 +124,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                         }
                         dinfo["finished"] = new ParameterResolverValue(null);
                         if (info.Finished != null) {
-                            dinfo["finished"] = new ParameterResolverValue(info.Waiting.Select(ti => {
+                            dinfo["finished"] = new ParameterResolverValue(info.Finished.Select(ti => {
                                 var tinfo = new Dictionary<string, ParameterResolverValue>();
                                 tinfo["scheduleid"] = new ParameterResolverValue(ti.ScheduleId.ToString());
                                 tinfo["call"] = new ParameterResolverValue(FormatCallAddress(ti.Input));
