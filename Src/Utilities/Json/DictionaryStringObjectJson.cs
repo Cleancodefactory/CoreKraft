@@ -75,7 +75,9 @@ namespace Ccf.Ck.Utilities.Json
 
                                 if (reader.TryGetDateTime(out var date))
                                 {
-                                    result.Add(name, date);
+                                    // Enforce marking the date as UTC
+                                    // TODO This requires support for local/unmarked and UTC, but Utc is most important
+                                    result.Add(name, DateTime.SpecifyKind(date,DateTimeKind.Utc));
                                     break;
                                 }
                                 result.Add(name, reader.GetString());
@@ -136,7 +138,8 @@ namespace Ccf.Ck.Utilities.Json
                     case JsonTokenType.String:
                         if (reader.TryGetDateTime(out var date))
                         {
-                            result.Add(date);
+                            // TODO Requires support for all kinds of dates, but Utc is the most important
+                            result.Add(DateTime.SpecifyKind(date,DateTimeKind.Utc));
                             break;
                         }
                         result.Add(reader.GetString());

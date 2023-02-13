@@ -60,6 +60,10 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
         const string T_DBL = "double";
         const string T_STR = "string";
         const string T_NULL = "null";
+        const string T_BOOLEAN = "boolean";
+        const string T_DATETIME = "datetime";
+        const string T_DATETIMEUTC = "datetimeutc";
+        const string T_DATETIMEASUTC = "datetimeasutc";
 
         readonly List<string> T_TYPEORDER = new List<string>() { T_UINT, T_INT, T_DBL };
 
@@ -735,6 +739,22 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                 return new ParameterResolverValue("", EResolverValueType.ContentType);
             }
         }
+        public ParameterResolverValue To8601String(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (args.Count != 1) throw new ArgumentException("To8601String accepts one argument");
+            var dt = args[0].Value;
+            if (dt == null) return new ParameterResolverValue(null);
+            if (!(dt is DateTime)) {
+                try { 
+                    dt = Convert.ToDateTime(dt);
+                } catch {
+                    return new ParameterResolverValue(null);
+                }
+            }
+            if (dt is DateTime vdt) {
+                return new ParameterResolverValue(vdt.ToUniversalTime().ToString("u").Replace(" ", "T"));
+            }
+            return new ParameterResolverValue(null); // This should not happen
+        }
         /// <summary>
         /// CastAs(type, value)
         /// Casts the input value to the specified type. The available types are: uint, double, string, null and int.
@@ -745,12 +765,68 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
         public ParameterResolverValue CastAs(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             string stype = args[0].Value as string;
             object v = args[1].Value;
-            if (v == null) return new ParameterResolverValue(null);
+            if (v == null) {
+                if (stype == T_BOOLEAN) {
+                    return new ParameterResolverValue(false);
+                }
+                return new ParameterResolverValue(null);
+            }
 
+            if (stype == T_DATETIME) {
+                if (v is DateTime) {
+                    return new ParameterResolverValue(v);
+                } else if (v is string) {
+                    if (DateTime.TryParse(v as string, out DateTime dtr)) {
+                        return new ParameterResolverValue(dtr);
+                    }
+                }
+                try {
+                    v = Convert.ToDateTime(v);
+                    return new ParameterResolverValue(v);
+                } catch {
+                    return new ParameterResolverValue(null);
+                }
+            }
+            if (stype == T_DATETIMEUTC) {
+                if (v is DateTime vdt) {
+                    return new ParameterResolverValue(vdt.ToUniversalTime());
+                } else if (v is string) {
+                    if (DateTime.TryParse(v as string, out DateTime dtr)) {
+                        dtr = dtr.ToUniversalTime();
+                        return new ParameterResolverValue(dtr);
+                    }
+                }
+                try {
+                    v = Convert.ToDateTime(v).ToUniversalTime();
+                    return new ParameterResolverValue(v);
+                } catch {
+                    return new ParameterResolverValue(null);
+                }
+            }
+            if (stype == T_DATETIMEASUTC) {
+                if (v is DateTime vdt) {
+                    return new ParameterResolverValue(vdt.ToUniversalTime());
+                } else if (v is string) {
+                    if (DateTime.TryParse(v as string, out DateTime dtr)) {
+                        dtr = dtr.ToUniversalTime();
+                        return new ParameterResolverValue(dtr);
+                    }
+                }
+                try {
+                    v = Convert.ToDateTime(v).ToUniversalTime();
+                    return new ParameterResolverValue(v);
+                } catch {
+                    return new ParameterResolverValue(null);
+                }
+            }
             string sv = v.ToString();
             // If conversion is to string - just do it.
             if (stype == T_STR) return new ParameterResolverValue(sv, EValueDataType.Text);
             if (string.IsNullOrWhiteSpace(sv)) return new ParameterResolverValue(null);
+            if (stype == T_BOOLEAN) {
+                if (TrueLike(sv)) return new ParameterResolverValue(true);
+                return new ParameterResolverValue(false);
+            }
             // This has to be here to support legacy behavior
             Number_Formats fmt = DetectNumberFormat(sv, out string clean_string_value);
             if (fmt == Number_Formats.Unknown) {

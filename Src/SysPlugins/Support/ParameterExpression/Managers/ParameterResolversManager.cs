@@ -232,6 +232,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "To8601String",
+                                     Arguments = 1,
+                                     Name = "To8601String"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "Add",
                                      Arguments = 2,
                                      Name = "Add"

@@ -34,6 +34,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(Debug) => Debug,
                 nameof(IsEmpty) => IsEmpty,
                 nameof(TypeOf) => TypeOf,
+                nameof(To8601String) => To8601String,
                 nameof(IsNumeric) => IsNumeric,
                 nameof(Random) => Random,
                 nameof(Neg) => Neg,
@@ -936,11 +937,41 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return new ParameterResolverValue(Convert.ToInt64(args[1].Value));
                 case "double":
                     return new ParameterResolverValue(Convert.ToDouble(args[1].Value));
+                case "datetime":
+                    return new ParameterResolverValue(Convert.ToDateTime(args[1].Value));
+                case "datetimeutc":
+                    if (args[1].Value is DateTime vdt) {
+                        return new ParameterResolverValue(vdt.ToUniversalTime());
+                    }
+                    return new ParameterResolverValue(Convert.ToDateTime(args[1].Value).ToUniversalTime());
+                case "datetimeasutc":
+                    if (args[1].Value is DateTime cdt) {
+                        return new ParameterResolverValue(DateTime.SpecifyKind(cdt, DateTimeKind.Utc));
+                    }
+                    return new ParameterResolverValue(DateTime.SpecifyKind(Convert.ToDateTime(args[1].Value),DateTimeKind.Utc));
                 default:
                     throw new ArgumentException("Parameter 1 contains unrecognized type name valida types are: string,int,long, double,bool");
             }
         }
-
+        [Function(nameof(TypeOf), "Returns the name of the type contained in the argument. Recognizes only these types: null, string, int, long, double, short, byte, bool and everything else is unknown.")]
+        [Parameter(0, "Argument", "argument to convert to ISO8601 string. Preferably it should be datetime, if it is not the conversion may be invorrect.", TypeFlags.Varying)]
+        [Result("Returns the type as a ISO8601 string", TypeFlags.Varying)]
+        public ParameterResolverValue To8601String(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length != 1) throw new ArgumentException("To8601String requires one argument.");
+            var dt = args[0].Value;
+            if (dt == null) return new ParameterResolverValue(null);
+            if (!(dt is DateTime)) {
+                try {
+                    dt = Convert.ToDateTime(dt);
+                } catch {
+                    return new ParameterResolverValue(null);
+                }
+            }
+            if (dt is DateTime vdt) {
+                return new ParameterResolverValue(vdt.ToUniversalTime().ToString("u").Replace(" ", "T"));
+            }
+            return new ParameterResolverValue(null); // This should not happen
+        }
         [Function(nameof(TypeOf), "Returns the name of the type contained in the argument. Recognizes only these types: null, string, int, long, double, short, byte, bool and everything else is unknown.")]
         [Parameter(0, "Argument", "argument to check type", TypeFlags.Varying)]
         [Result("Returns the type as a string", TypeFlags.String)]
@@ -955,6 +986,14 @@ namespace Ccf.Ck.SysPlugins.Utilities
             if (tc == typeof(short) || tc == typeof(ushort)) return new ParameterResolverValue("short");
             if (tc == typeof(char) || tc == typeof(byte)) return new ParameterResolverValue("byte");
             if (tc == typeof(bool)) return new ParameterResolverValue("bool");
+            if (tc == typeof(DateTime)) {
+                DateTime cdt = (DateTime)args[0].Value;
+                if (cdt.Kind == DateTimeKind.Utc) {
+                    return new ParameterResolverValue("datetimeutc");
+                } else {
+                    return new ParameterResolverValue("datetime");
+                }
+            }
 
             return new ParameterResolverValue("unknown");
         }
