@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Settings;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
@@ -51,7 +52,7 @@ namespace Ccf.Ck.Processing.Web.Request.Utilities
             return new Dictionary<string, object>(collection?.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value.FirstOrDefault()));
         }
 
-        public static void KraftResult(HttpContext httpContext, HttpStatusCode statusCode, string error = null)
+        public static void KraftResult(HttpContext httpContext, HttpStatusCode statusCode, KraftGlobalConfigurationSettings settings, string error = null)
         {
             httpContext.Response.StatusCode = (int)statusCode;
             switch (statusCode)
@@ -63,9 +64,12 @@ namespace Ccf.Ck.Processing.Web.Request.Utilities
                             KraftLogger.LogCritical(error);
                         }
                         httpContext.Request.Headers.Clear();
-                        if (error != null)
+                        if (settings.EnvironmentSettings.IsDevelopment())//Show errors only in debug mode
                         {
-                            httpContext.Response.WriteAsync(error).Wait();
+                            if (error != null)
+                            {
+                                httpContext.Response.WriteAsync(error).Wait();
+                            }
                         }
                         break;
                     }

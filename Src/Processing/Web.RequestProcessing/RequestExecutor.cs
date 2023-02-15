@@ -42,7 +42,7 @@ namespace Ccf.Ck.Processing.Web.Request
         {
             if (_IsSystemInMaintenanceMode && !callInMaintenance)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.ServiceUnavailable, $"Currently the system is maintained. Please retry in few minutes.");
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.ServiceUnavailable, _KraftGlobalConfigurationSettings, $"Currently the system is maintained. Please retry in few minutes.");
                 return;
             }
             processingContext.InputModel.ProcessingContextRef = this;
@@ -79,7 +79,7 @@ namespace Ccf.Ck.Processing.Web.Request
             IProcessingContextCollection processingContexts = processor.GenerateProcessingContexts(_KraftGlobalConfigurationSettings.GeneralSettings.KraftRequestFlagsKey);
             if (processingContexts == null)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, $"ExecuteAsync.CreateProcessingContexts returned null.");
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, _KraftGlobalConfigurationSettings, $"ExecuteAsync.CreateProcessingContexts returned null.");
                 return;
             }
 
@@ -104,7 +104,7 @@ namespace Ccf.Ck.Processing.Web.Request
             catch(Exception ex)
             {
                 KraftLogger.LogError(ex);
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, $"Node configuration mismatch. Please check URL path and logged exceptions.");
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, _KraftGlobalConfigurationSettings, $"Node configuration mismatch. Please check URL path and logged exceptions.");
             }
         }
     }
