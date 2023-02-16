@@ -152,25 +152,25 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
         {
             if (processingContext.InputModel.LoaderType == ELoaderType.None)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, $"You have to specify a loader type.");
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, _KraftGlobalConfigurationSettings, $"You have to specify a loader type.");
                 return false;
             }
             if (module == null)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, $"Requested module: {processingContext.InputModel.Module} doesn't exist or not loaded.");
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, _KraftGlobalConfigurationSettings, $"Requested module: {processingContext.InputModel.Module} doesn't exist or not loaded.");
                 return false;
             }
 
             if (loadedNodeSet == null)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, $"Requested nodeset: {processingContext.InputModel.NodeSet} doesn't exist or not loaded.");
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, _KraftGlobalConfigurationSettings, $"Requested nodeset: {processingContext.InputModel.NodeSet} doesn't exist or not loaded.");
                 return false;
             }
             if (loadedNodeSet.StartNode == null)//Handle errors better and show when a node is addressed but missing.
             {
                 string error = $"Node: {processingContext.InputModel.Nodepath} from module: {processingContext.InputModel.Module}, nodeset: {processingContext.InputModel.NodeSet} is missing!";
                 KraftLogger.LogError(error);
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, error);
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, _KraftGlobalConfigurationSettings, error);
                 return false;
             }
             var startSec = loadedNodeSet.GetStartSecurity();
