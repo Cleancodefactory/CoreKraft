@@ -46,6 +46,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 case nameof(FileResponse): return FileResponse;
                 case nameof(FileExists): return FileExists;
                 case nameof(ReadFileAsText): return ReadFileAsText;
+                case nameof(UseUnixPathResults):return UseUnixPathResults;
                     // case nameof(CalcSpreadName): return CalcSpreadName;//TODO Under consideration
             }
             return null;
@@ -73,7 +74,21 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         }
         #endregion
 
+        #region Session data
+        public bool UnixPathResults = true; // By default true
+        #endregion  
+
         #region Functions
+        [Function(nameof(UseUnixPathResults),"Gets/sets the mode for returned paths - ture=unix slashes, false=local OS decided slashes")]
+        [Parameter(0,"mode", "Optional sets mode to: ture = unix slashes, false = local OS decided slashes",TypeFlags.Bool | TypeFlags.Optional)]
+        [Result("The current mode", TypeFlags.Bool)]
+        public ParameterResolverValue UseUnixPathResults(HostInterface ctx, ParameterResolverValue[] args) {
+            if (args.Length > 0) {
+                UnixPathResults = Convert.ToBoolean(args[0].Value);
+            }
+            return new ParameterResolverValue(UnixPathResults);
+        }
+
         [Function(nameof(IsPostedFile), "Check if the argument is a PostedFile object")]
         [Parameter(0, "postedfile", "a value to check", TypeFlags.Varying)]
         [Result("true if the argument is a PostedFile and false otherwise", TypeFlags.Bool)]
@@ -117,8 +132,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             var path = args[0].Value as string;
             var file = args[1].Value as string;
             if (path == null || file == null) throw new ArgumentException("CombinePaths one or both of the parameters cannot convert to string.");
+            path = ModeArgument(args[0]);
+            file = ModeArgument(args[1]);
             if (Path.IsPathFullyQualified(file)) throw new ArgumentException("CombinePaths allows only partial paths for the second argument");
-            return new ParameterResolverValue(Path.Combine(path, file));
+            return ApplySlashes(Path.Combine(path, file));
         }
         /// <summary>
         /// 
@@ -135,6 +152,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             IPostedFile file = args[0].Value as IPostedFile;
             string savepath = args[1].Value as string;
             if (savepath == null || file == null) throw new ArgumentException("SaveFile: either file, path or both are null");
+            savepath = ModeArgument(args[1]);
             if (!Path.IsPathFullyQualified(savepath)) throw new ArgumentException("SaveFile the specified path is not fully qualified. Did you forget to combine paths?");
             using var stream = new FileStream(savepath, FileMode.Create);
             using var source = file.OpenReadStream();
@@ -155,6 +173,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             if (args.Length != 1) throw new ArgumentException("DeleteFile takes single argument: filepath");
             string savepath = args[0].Value as string;
             if (savepath == null) throw new ArgumentException("DeleteFile: filepath is null or not a string");
+            savepath = ModeArgument(args[0]);
             if (!Path.IsPathFullyQualified(savepath)) throw new ArgumentException("DeleteFile the specified path is not fully qualified. Did you forget to combine paths?");
 
             if (File.Exists(savepath))
@@ -179,6 +198,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             if (args[0].Value == null) throw new ArgumentException("PrependFileName prefix argument is null");
             var prefix = args[0].Value.ToString();
             var filename = args[1].Value as string;
+            if (filename != null) filename = ModeArgument(args[1]);
             if (filename == null) throw new ArgumentException("PrependFileName filename is null or not a string");
 
             var name = $"{prefix}-{Path.GetFileNameWithoutExtension(filename)}{Path.GetExtension(filename)}";
@@ -190,12 +210,13 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         {
             if (args.Length != 1) throw new ArgumentException("CreateDirectory requires single parameter");
             var path = args[0].Value as string;
+            if (path != null) path = ModeArgument(args[0]);
             if (path == null) throw new ArgumentNullException("CreateDirectory argument is null or not a string");
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
-            return new ParameterResolverValue(path);
+            return ApplySlashes(path);
         }
 
         // TODO Consider the need of this
@@ -209,6 +230,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             try
             {
                 basedir = args[0].Value as string;
+                if (basedir != null) basedir = ModeArgument(args[0]);
                 spread = Convert.ToInt32(args[1].Value);
                 id = Convert.ToInt64(args[2].Value);
                 file = args[3].Value as IPostedFile;
@@ -231,7 +253,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             string filespreaddir = Path.Combine(subdir, $"{id}-{file.FileName}");
             _ = Path.Combine(basedir, filespreaddir);
 
-            return new ParameterResolverValue(filespreaddir);
+            return ApplySlashes(filespreaddir);
         }
 
         /// <summary>
@@ -251,6 +273,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             try
             {
                 basedir = args[0].Value as string;
+                if (basedir != null) basedir = ModeArgument(args[0]);
                 spread = Convert.ToInt32(args[1].Value);
                 id = Convert.ToInt64(args[2].Value);
                 file = args[3].Value as IPostedFile;
@@ -282,13 +305,13 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             {
                 fts.DeleteOnRollback(filefullpath);
             }
-            return new ParameterResolverValue(filespreaddir);
+            return ApplySlashes(filespreaddir);
         }
 
         [Function(nameof(ForkFile), "Clones the posted file into two PostedFiles in a List, the original is disposed")]
         [Parameter(0, "postedfile", "Posteed file to fork", TypeFlags.PostedFile)]
         [Parameter(1, "forkparts", "In how many parts the file should be forked to. If not supplied the Postedfile will be forked to 2.", TypeFlags.Int)]
-        [Result("List with 2 or if the second parameter supplied into X forged Posted files (as memory streams)", TypeFlags.List)]
+        [Result("List with 2 or if the second parameter supplied into X forked Posted files (as memory streams)", TypeFlags.List)]
         public ParameterResolverValue ForkFile(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1 || args.Length > 2)
@@ -384,6 +407,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         {
             if (args.Length < 1) throw new ArgumentException("PostedFile accepts 1 or 2 arguments (filepath[, contentType])");
             var filepath = args[0].Value as string;
+            if (filepath != null) filepath = ModeArgument(args[0]);
             string contentType = null;
             if (args.Length > 1)
             {
@@ -448,8 +472,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         [Function(nameof(FileExists), "")]
         public ParameterResolverValue FileExists(HostInterface ctx, ParameterResolverValue[] args)
         {
+            
             if (args.Length != 1) throw new ArgumentException("FileExists requies one argument - the path to the file");
-            var path = Convert.ToString(args[0].Value);
+            var path = ModeArgument(args[0]);
 
             return new ParameterResolverValue(File.Exists(path));
         }
@@ -459,6 +484,23 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
 
 
         #region Internal helpers
+        private ParameterResolverValue ApplySlashes(string str) {
+            if (string.IsNullOrWhiteSpace(str)) return new ParameterResolverValue(str);
+            if (UnixPathResults) {
+                return new ParameterResolverValue(str.Replace("\\", "/"));
+            } else {
+                return new ParameterResolverValue(str);
+            }
+        }
+        private string ModeArgument(ParameterResolverValue v) {
+            var str = Convert.ToString(v.Value);
+            if (string.IsNullOrWhiteSpace(str)) return str;
+            if (UnixPathResults) {
+                return str.Replace("\\", "/");
+            } else {
+                return str;
+            }
+        }
         private static IPluginsSynchronizeContextScoped Scope(HostInterface ctx)
         {
             if (ctx is IDataLoaderContext ldrctx)
