@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Ccf.Ck.Utilities.Json
 {
@@ -17,7 +18,10 @@ namespace Ccf.Ck.Utilities.Json
             }
             return result;
         }
-
+        public static Regex _re8601 = new Regex(@"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,})?Z", RegexOptions.CultureInvariant);
+        public static bool IsFull8601UtcString(string input) {
+            return _re8601.IsMatch(input);
+        }
         private static object Traverse(ref Utf8JsonReader reader)
         {
             reader.Read();
@@ -45,6 +49,7 @@ namespace Ccf.Ck.Utilities.Json
 
         private static object TraverseObject(ref Utf8JsonReader reader)
         {
+            string strVal;
             Dictionary<string, object> result = new Dictionary<string, object>();
             while (reader.Read())
             {
@@ -72,15 +77,16 @@ namespace Ccf.Ck.Utilities.Json
                             case JsonTokenType.Comment:
                                 continue;
                             case JsonTokenType.String:
-
-                                if (reader.TryGetDateTime(out var date))
-                                {
-                                    // Enforce marking the date as UTC
-                                    // TODO This requires support for local/unmarked and UTC, but Utc is most important
-                                    result.Add(name, DateTime.SpecifyKind(date,DateTimeKind.Utc));
-                                    break;
+                                strVal= reader.GetString();
+                                if (IsFull8601UtcString(strVal)) {
+                                    if (reader.TryGetDateTime(out var date)) {
+                                        // Enforce marking the date as UTC
+                                        // TODO This requires support for local/unmarked and UTC, but Utc is most important
+                                        result.Add(name, DateTime.SpecifyKind(date, DateTimeKind.Utc));
+                                        break;
+                                    }
                                 }
-                                result.Add(name, reader.GetString());
+                                result.Add(name, strVal);
                                 break;
                             case JsonTokenType.Number:
                                 ParseNumber(result, ref reader, name);
@@ -119,6 +125,7 @@ namespace Ccf.Ck.Utilities.Json
         private static object TraverseArray(ref Utf8JsonReader reader)
         {
             List<object> result = new List<object>();
+            string strVal;
             while (reader.Read())
             {
                 switch (reader.TokenType)
@@ -136,12 +143,15 @@ namespace Ccf.Ck.Utilities.Json
                     case JsonTokenType.Comment:
                         continue;
                     case JsonTokenType.String:
-                        if (reader.TryGetDateTime(out var date))
-                        {
-                            // TODO Requires support for all kinds of dates, but Utc is the most important
-                            result.Add(DateTime.SpecifyKind(date,DateTimeKind.Utc));
-                            break;
+                        strVal= reader.GetString();
+                        if (IsFull8601UtcString(strVal)) {
+                            if (reader.TryGetDateTime(out var date)) {
+                                // TODO Requires support for all kinds of dates, but Utc is the most important
+                                result.Add(DateTime.SpecifyKind(date, DateTimeKind.Utc));
+                                break;
+                            }
                         }
+                        // Treat as string if cannot be used as datetime
                         result.Add(reader.GetString());
                         break;
                     case JsonTokenType.Number:
