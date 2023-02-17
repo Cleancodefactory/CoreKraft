@@ -53,19 +53,17 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
                                                 processingContext.InputModel.NodeSet,
                                                 processingContext.InputModel.Nodepath,
                                                 loadedModule);
-            if (CheckValidity(processingContext, loadedModule, loadedNodeSet)) //also redirects if require authorization is true
+            CheckValidity(processingContext, loadedModule, loadedNodeSet);
+            // {Security} Check security on nodeset level
+            var security = loadedNodeSet.GetNodeSetSecurity();
+            if (!processingContext.CheckSecurity(security))
             {
-                // {Security} Check security on nodeset level
-                var security = loadedNodeSet.GetNodeSetSecurity();
-                if (!processingContext.CheckSecurity(security))
-                {
-                    throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
-                }
-                PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
-                PluginAccessorImp<INodePlugin> customService = new PluginAccessorImp<INodePlugin>(transactionScopeContext, loadedModule.ModuleSettings);
-                INodeTaskExecutor taskExecutor = new NodeTaskExecutor(transactionScopeContext, loadedModule.ModuleSettings);
-                taskExecutor.Execute(loadedNodeSet, processingContext, externalService, customService);
+                throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
             }
+            PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
+            PluginAccessorImp<INodePlugin> customService = new PluginAccessorImp<INodePlugin>(transactionScopeContext, loadedModule.ModuleSettings);
+            INodeTaskExecutor taskExecutor = new NodeTaskExecutor(transactionScopeContext, loadedModule.ModuleSettings);
+            taskExecutor.Execute(loadedNodeSet, processingContext, externalService, customService);
         }
 
         public override void GenerateResponse()
@@ -148,36 +146,29 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             return loaderType;
         }
 
-        protected bool CheckValidity(IProcessingContext processingContext, KraftModule module, LoadedNodeSet loadedNodeSet)
+        protected void CheckValidity(IProcessingContext processingContext, KraftModule module, LoadedNodeSet loadedNodeSet)
         {
+            processingContext.ReturnModel.Status.IsSuccessful = false;
             if (processingContext.InputModel.LoaderType == ELoaderType.None)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, _KraftGlobalConfigurationSettings, $"You have to specify a loader type.");
-                return false;
+                throw new NotImplementedException($"You have to specify a loader type.");
             }
             if (module == null)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, _KraftGlobalConfigurationSettings, $"Requested module: {processingContext.InputModel.Module} doesn't exist or not loaded.");
-                return false;
+                throw new NotImplementedException($"Requested module: {processingContext.InputModel.Module} doesn't exist or not loaded.");
             }
-
             if (loadedNodeSet == null)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, _KraftGlobalConfigurationSettings, $"Requested nodeset: {processingContext.InputModel.NodeSet} doesn't exist or not loaded.");
-                return false;
+                throw new NotImplementedException($"Requested nodeset: {processingContext.InputModel.NodeSet} doesn't exist or not loaded.");
             }
-            if (loadedNodeSet.StartNode == null)//Handle errors better and show when a node is addressed but missing.
+            if (loadedNodeSet.StartNode == null)
             {
-                string error = $"Node: {processingContext.InputModel.Nodepath} from module: {processingContext.InputModel.Module}, nodeset: {processingContext.InputModel.NodeSet} is missing!";
-                KraftLogger.LogError(error);
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, _KraftGlobalConfigurationSettings, error);
-                return false;
+                throw new NotImplementedException($"Node: {processingContext.InputModel.Nodepath} from module: {processingContext.InputModel.Module}, nodeset: {processingContext.InputModel.NodeSet} is missing!");
             }
             var startSec = loadedNodeSet.GetStartSecurity();
             if (processingContext.NeedsAuthentication(startSec))
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.Unauthorized, null);
-                return false;
+                throw new UnauthorizedAccessException($"Loaded nodeset: {loadedNodeSet.StartNode.NodeKey} requires authentication!");
             }
             //If authentication is required but the user is not logged in redirect to authentication
             //or if RequireAuthorizationAnyEndpoint is enabled
@@ -186,12 +177,12 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             {
                 if (!processingContext.InputModel.SecurityModel.IsAuthenticated)
                 {
-                    Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.Unauthorized, null);
-                    return false;
+                  throw new UnauthorizedAccessException($"Loaded nodeset: {loadedNodeSet.StartNode.NodeKey} requires authentication!");
                 }
             }
-            return true;
+            processingContext.ReturnModel.Status.IsSuccessful = true;
         }
+
         protected RouteDataPrimitives GetRouteData()
         {
             RouteData routeData = _HttpContext.GetRouteData();

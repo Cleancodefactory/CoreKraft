@@ -1,8 +1,10 @@
 ﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.NodeRequest;
+using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Processing.Execution;
 using Ccf.Ck.Processing.Web.Request.BaseClasses;
@@ -13,7 +15,9 @@ using Ccf.Ck.Utilities.NodeSetService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Processing.Web.Request
@@ -42,7 +46,7 @@ namespace Ccf.Ck.Processing.Web.Request
         {
             if (_IsSystemInMaintenanceMode && !callInMaintenance)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.ServiceUnavailable, _KraftGlobalConfigurationSettings, $"Currently the system is maintained. Please retry in few minutes.");
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.ServiceUnavailable, _KraftGlobalConfigurationSettings, PrepareError(new Exception($"Currently the system is maintained. Please retry in few minutes.")));
                 return;
             }
             processingContext.InputModel.ProcessingContextRef = this;
@@ -79,7 +83,7 @@ namespace Ccf.Ck.Processing.Web.Request
             IProcessingContextCollection processingContexts = processor.GenerateProcessingContexts(_KraftGlobalConfigurationSettings.GeneralSettings.KraftRequestFlagsKey);
             if (processingContexts == null)
             {
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, _KraftGlobalConfigurationSettings, $"ExecuteAsync.CreateProcessingContexts returned null.");
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, _KraftGlobalConfigurationSettings, PrepareError(new Exception("ExecuteAsync.GenerateProcessingContexts returned null.")));
                 return;
             }
 
@@ -101,10 +105,31 @@ namespace Ccf.Ck.Processing.Web.Request
                 _IsSystemInMaintenanceMode = false;
                 processor.GenerateResponse();
             }
-            catch(Exception ex)
+            catch (NotImplementedException ex)
             {
-                KraftLogger.LogError(ex);
-                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, _KraftGlobalConfigurationSettings, $"Node configuration mismatch. Please check URL path and logged exceptions.");
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.NotFound, _KraftGlobalConfigurationSettings, PrepareError(ex));
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.Unauthorized, _KraftGlobalConfigurationSettings, PrepareError(ex));
+            }
+            catch (Exception ex)
+            {
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, _KraftGlobalConfigurationSettings, PrepareError(ex));
+            }
+        }
+
+        private string PrepareError(Exception ex)
+        {
+            KraftLogger.LogError(ex);
+            if (_KraftGlobalConfigurationSettings.EnvironmentSettings.IsDevelopment())//Show errors only in debug mode
+            {
+                Console.WriteLine($"Nodeset call has an error: {ex.Message}");
+                return ex.Message;
+            }
+            else
+            {
+                return "Error occurred, please review the logs for more information";
             }
         }
     }
