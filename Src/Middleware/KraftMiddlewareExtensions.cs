@@ -5,6 +5,7 @@ using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Models.Web.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.Packet;
 using Ccf.Ck.SysPlugins.Recorders.Store;
 using Ccf.Ck.Utilities.DependencyContainer;
 using Ccf.Ck.Utilities.Generic.Topologies;
@@ -41,6 +42,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security;
+using System.Text;
 using System.Threading.Tasks;
 using static Ccf.Ck.Utilities.Generic.Utilities;
 
@@ -667,6 +669,23 @@ namespace Ccf.Ck.Web.Middleware
                     "_PluginsReferences",
                     fileName, args.RequestingAssembly.FullName);
         }
+        #region Small helpers
+        public static string CobinedMessageFromStatusResults(this IReturnStatus status) { 
+            if (status != null && status.StatusResults != null) {
+                StringBuilder sb = new StringBuilder();
+                foreach (var sr in status.StatusResults) {
+                    if (sr != null && sr.Message!= null) {
+                        if (sb.Length > 0) {
+                            sb.Append(", ");
+                        }
+                        sb.Append(sr.Message);
+                    }
+                }
+                return sb.ToString();
+            }
+            return null;
+        }
+        #endregion
     }
 }
 

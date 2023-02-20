@@ -59,11 +59,11 @@ namespace Ccf.Ck.Web.Middleware
                     foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
                     {
                         dcHandler.Execute(processingContext, transactionScope);
-                        returnModel = new Models.DirectCall.ReturnModel
-                        {
+                        returnModel = new Models.DirectCall.ReturnModel {
                             Data = processingContext.ReturnModel.Data,
                             BinaryData = processingContext.ReturnModel.BinaryData,
-                            IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful
+                            IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful,
+                            ErrorMessage = processingContext.ReturnModel.Status.CobinedMessageFromStatusResults()
                         };
                         if (stopWatch != null)
                         {
