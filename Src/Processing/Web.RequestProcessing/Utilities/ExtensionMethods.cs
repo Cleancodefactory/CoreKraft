@@ -54,23 +54,16 @@ namespace Ccf.Ck.Processing.Web.Request.Utilities
 
         public static void KraftResult(HttpContext httpContext, HttpStatusCode statusCode, KraftGlobalConfigurationSettings settings, string error = null)
         {
-            httpContext.Response.StatusCode = (int)statusCode;
+            if (!httpContext.Response.HasStarted)
+            {
+                httpContext.Response.StatusCode = (int)statusCode;
+            }
+            
             switch (statusCode)
             {
                 case HttpStatusCode.InternalServerError:
                     {
-                        if (!string.IsNullOrEmpty(error))
-                        {
-                            KraftLogger.LogCritical(error);
-                        }
                         httpContext.Request.Headers.Clear();
-                        if (settings.EnvironmentSettings.IsDevelopment())//Show errors only in debug mode
-                        {
-                            if (error != null)
-                            {
-                                httpContext.Response.WriteAsync(error).Wait();
-                            }
-                        }
                         break;
                     }
                 case HttpStatusCode.Unauthorized:
@@ -89,10 +82,6 @@ namespace Ccf.Ck.Processing.Web.Request.Utilities
                     }
                 default:
                     {
-                        if (!string.IsNullOrEmpty(error))
-                        {
-                            KraftLogger.LogError(error);
-                        }
                         httpContext.Request.Headers.Clear();
                         break;
                     }

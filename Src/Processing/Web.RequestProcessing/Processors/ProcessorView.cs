@@ -34,18 +34,16 @@ namespace Ccf.Ck.Processing.Web.Request
                                                 processingContext.InputModel.NodeSet,
                                                 processingContext.InputModel.Nodepath,
                                                 loadedModule);
-            if (CheckValidity(processingContext, loadedModule, loadedNodeSet)) //also redirects if require authorization is true
+            CheckValidity(processingContext, loadedModule, loadedNodeSet);
+            var security = loadedNodeSet.GetNodeSetSecurity();
+            if (!processingContext.CheckSecurity(security))
             {
-                var security = loadedNodeSet.GetNodeSetSecurity();
-                if (!processingContext.CheckSecurity(security))
-                {
-                    throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
-                }
-                PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
-                PluginAccessorImp<INodePlugin> customService = new PluginAccessorImp<INodePlugin>(transactionScopeContext, loadedModule.ModuleSettings);
-                INodeTaskExecutor taskExecutor = new NodeTaskExecutor(transactionScopeContext, loadedModule.ModuleSettings);
-                taskExecutor.ExecuteNodeView(loadedNodeSet, processingContext);
+                throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
             }
+            PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
+            PluginAccessorImp<INodePlugin> customService = new PluginAccessorImp<INodePlugin>(transactionScopeContext, loadedModule.ModuleSettings);
+            INodeTaskExecutor taskExecutor = new NodeTaskExecutor(transactionScopeContext, loadedModule.ModuleSettings);
+            taskExecutor.ExecuteNodeView(loadedNodeSet, processingContext);
         }
 
         public override IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null)

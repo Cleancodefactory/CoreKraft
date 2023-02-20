@@ -383,11 +383,7 @@ namespace Ccf.Ck.Web.Middleware
                 AppDomain.CurrentDomain.AssemblyResolve += AppDomain_OnAssemblyResolve;
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps)
                 {
-                    //https://stackoverflow.com/questions/66733629/openiddict-issuer-validation-failed-on-linux-server
-                    app.UseForwardedHeaders(new ForwardedHeadersOptions
-                    {
-                        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-                    });
+                    app.UseForwardedHeaders();
                     app.UseHsts();
                     app.UseHttpsRedirection();
                 }
