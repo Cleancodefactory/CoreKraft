@@ -166,9 +166,9 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     foreach (string param in parameters) {
                         sb.AppendLine(param);
                     }
-
                     KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
                 }
+                metaReport.SetErrorInfo(ex, $"Prepare in action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
                 throw;
             }
         }
@@ -322,6 +322,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
                     KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
                 }
+                metaReport.SetErrorInfo(ex, $"Action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
                 throw;
             }
             return results; // TODO: Decide what behavior we want with empty statements. I for one prefer null result, effectively stopping the operation.
@@ -469,6 +470,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
                     KraftLogger.LogError($"Write(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
                 }
+                metaReport.SetErrorInfo(ex, $"Action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
                 throw;
             }
             return null; // if this is not null it should add new results in the data
