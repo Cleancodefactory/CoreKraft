@@ -12,6 +12,7 @@ using Ccf.Ck.Utilities.Generic.Topologies;
 using Ccf.Ck.Utilities.MemoryCache;
 using Ccf.Ck.Utilities.NodeSetService;
 using Ccf.Ck.Utilities.Profiling;
+using Ccf.Ck.Web.Middleware.Cookies;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -197,6 +198,10 @@ namespace Ccf.Ck.Web.Middleware
                     .AddCookie(options =>
                     {
                         options.LoginPath = new PathString("/account/signin");
+                        //Special cookie size reduction
+                        IDataProtectionProvider dataProtectionProvider = DataProtectionProvider.Create("CoreKraft");
+                        IDataProtector dataProtector = dataProtectionProvider.CreateProtector("Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware");
+                        options.TicketDataFormat = new OptimizedTicketDataFormat(loggerFactory, dataProtector);
                     })
 
                     .AddOpenIdConnect(options =>
