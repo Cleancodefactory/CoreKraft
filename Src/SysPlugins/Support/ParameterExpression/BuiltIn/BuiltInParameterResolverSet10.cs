@@ -150,6 +150,8 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
                         case SERVER:
                             val = GetParameterValue(inputModel.Server);
                             break;
+                        default:
+                            throw new InvalidOperationException($"{token} Unknown source location for parameter.");
                     }
                 }
                 return val;
