@@ -382,6 +382,14 @@ namespace Ccf.Ck.Web.Middleware
             {
                 ILoggerFactory loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
                 DiagnosticListener diagnosticListener = app.ApplicationServices.GetService<DiagnosticListener>();
+                //Case aware physical file provider
+                CaseAwarePhysicalFileProvider caseAwareContentRootPath = new CaseAwarePhysicalFileProvider(env.ContentRootPath);
+                caseAwareContentRootPath.CaseSensitive = true;
+                env.ContentRootFileProvider = caseAwareContentRootPath;
+                CaseAwarePhysicalFileProvider caseAwareWebRootPath = new CaseAwarePhysicalFileProvider(env.WebRootPath);
+                caseAwareWebRootPath.CaseSensitive = true;
+                env.WebRootFileProvider = caseAwareWebRootPath;
+                //Case aware physical file provider
                 //First statement to register Error handling !!!Keep at the top!!!
                 app.UseMiddleware<KraftExceptionHandlerMiddleware>(loggerFactory, new ExceptionHandlerOptions(), diagnosticListener);
                 AppDomain.CurrentDomain.UnhandledException += AppDomain_OnUnhandledException;
