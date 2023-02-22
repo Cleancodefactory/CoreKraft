@@ -211,6 +211,9 @@ What this means in practice:
 
 > Write - from an array of results (IsList is 1) some will be stored, others will not, but not because of the state of the particular result, but based on custom conditions.
 
+#### RequireEffect setting
+
+This setting is supported on `insert`, `update`, `delete` actions only. If true is set the action has to have effect (affect some records). If there is no effect an exception is thrown.
 
 TODO: Some concrete examples will help novices to learn useful CoreKraft techniques and how they can be simplified or extended with break/continue features.
 
