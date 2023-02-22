@@ -431,7 +431,7 @@ namespace Ccf.Ck.Web.Middleware
                     app.UseDeveloperExceptionPage();
                 }
 
-                string rootVirtualPath = "/modules";
+                string rootVirtualPath = "/Modules";
                 BundleCollection bundleCollection = app.UseBundling(env,
                     _KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders,
                     rootVirtualPath,

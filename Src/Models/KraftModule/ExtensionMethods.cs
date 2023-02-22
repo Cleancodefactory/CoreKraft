@@ -31,7 +31,7 @@ namespace Ccf.Ck.Models.KraftModule
         }
         #region Render Scripts and Css
         //Called from the Razor-Views or master page
-        public static Scripts KraftScripts(this Profile profile, string moduleDepStartFile = RESOURCEDEPENDENCY_FILE_NAME, string rootVirtualPath = "/modules")
+        public static Scripts KraftScripts(this Profile profile, string moduleDepStartFile = RESOURCEDEPENDENCY_FILE_NAME, string rootVirtualPath = "/Modules")
         {
             if (!profile.HasScriptBundle(profile.Key + "-scripts"))
             {
@@ -57,8 +57,7 @@ namespace Ccf.Ck.Models.KraftModule
                     {
                         using (KraftProfiler.Current.Step($"Time loading {kraftDepModule.Key}: "))
                         {
-                            scriptBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.ScriptKraftBundle, kraftDepModule.ModulePath, kraftDepModule.Key, rootVirtualPath, _Logger));
-                            scriptBundle.Transforms.Add(new JsCleanupTransformation());
+                            scriptBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.ScriptKraftBundle, kraftDepModule.ModulePath, kraftDepModule.Name, rootVirtualPath, _Logger));
                         }
                     }
 
@@ -77,7 +76,7 @@ namespace Ccf.Ck.Models.KraftModule
                         contentTemplates.Append(new KraftHtml2JsAssocArrayTransformation().Process(kraftDepModule.TemplateKraftBundle, minifyHtml, _Logger));
                     }
                 }
-
+                scriptBundle.Transforms.Add(new JsCleanupTransformation());
                 scriptBundle.IncludeContent("Registers.addRegister(new TemplateRegister(\"module_templates\")); Registers.getRegister(\"module_templates\").$collection= {" + contentTemplates.Append("}"));
 
                 profile.Add(scriptBundle);
@@ -90,7 +89,7 @@ namespace Ccf.Ck.Models.KraftModule
         }
 
         //Called from the Razor-Views or master page
-        public static Styles KraftStyles(this Profile profile, string moduleDepStartFile = RESOURCEDEPENDENCY_FILE_NAME, string rootVirtualPaht = "/modules")
+        public static Styles KraftStyles(this Profile profile, string moduleDepStartFile = RESOURCEDEPENDENCY_FILE_NAME, string rootVirtualPaht = "/Modules")
         {
             if (!profile.HasStyleBundle(profile.Key + "-css"))
             {
@@ -114,7 +113,7 @@ namespace Ccf.Ck.Models.KraftModule
                     kraftDepModule.ConstructResources(_CachingService, kraftDepModule.DirectoryName, moduleDepStartFile, false);
                     if (kraftDepModule.StyleKraftBundle != null)
                     {
-                        styleBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.StyleKraftBundle, kraftDepModule.ModulePath, kraftDepModule.Key, rootVirtualPaht, _Logger));
+                        styleBundle.Include(new KraftRequireTransformation().Process(kraftDepModule.StyleKraftBundle, kraftDepModule.ModulePath, kraftDepModule.Name, rootVirtualPaht, _Logger));
                     }
                 }
 

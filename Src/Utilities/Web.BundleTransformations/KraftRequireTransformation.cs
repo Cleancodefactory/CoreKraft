@@ -73,7 +73,7 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
                 pos = file.IndexOf(modulePath);
                 if (pos == 0)
                 {
-                    string fileVirtualName = "/modules/" + moduleName + file.Remove(pos, modulePath.Length);
+                    string fileVirtualName = "/Modules/" + moduleName + file.Remove(pos, modulePath.Length);
                     inputFiles[i] = new InputFile { PhysicalPath = file, VirtualPath = fileVirtualName.Replace(@"\", @"/") };
                 }
                 else
