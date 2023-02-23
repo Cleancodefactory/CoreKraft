@@ -168,7 +168,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             var startSec = loadedNodeSet.GetStartSecurity();
             if (processingContext.NeedsAuthentication(startSec))
             {
-                throw new UnauthorizedAccessException($"Loaded nodeset: {loadedNodeSet.StartNode.NodeKey} requires authentication!");
+                throw new UnauthorizedAccessException($"Loaded nodeset: {loadedNodeSet.NodeSet.Name}/{loadedNodeSet.StartNode.NodeKey} requires authentication!");
             }
             //If authentication is required but the user is not logged in redirect to authentication
             //or if RequireAuthorizationAnyEndpoint is enabled
@@ -177,7 +177,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             {
                 if (!processingContext.InputModel.SecurityModel.IsAuthenticated)
                 {
-                  throw new UnauthorizedAccessException($"Loaded nodeset: {loadedNodeSet.StartNode.NodeKey} requires authentication!");
+                  throw new UnauthorizedAccessException($"Loaded nodeset: {loadedNodeSet.NodeSet.Name}/{loadedNodeSet.StartNode.NodeKey} requires authentication!");
                 }
             }
             processingContext.ReturnModel.Status.IsSuccessful = true;
