@@ -12,19 +12,19 @@ namespace Ccf.Ck.Web.Middleware
     //https://copyprogramming.com/howto/make-asp-net-core-server-kestrel-case-sensitive-on-windows#make-aspnet-core-server-kestrel-case-sensitive-on-windows
     public class CaseAwarePhysicalFileProvider : IFileProvider
     {
-        private readonly PhysicalFileProvider _provider;
+        private readonly PhysicalFileProvider _Provider;
         //holds all of the actual paths to the required files
-        private static Dictionary<string, string> _paths;
+        private static Dictionary<string, string> _Paths;
         public bool CaseSensitive { get; set; } = false;
         public CaseAwarePhysicalFileProvider(string root)
         {
-            _provider = new PhysicalFileProvider(root);
-            _paths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            _Provider = new PhysicalFileProvider(root);
+            _Paths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
         public CaseAwarePhysicalFileProvider(string root, ExclusionFilters filters)
         {
-            _provider = new PhysicalFileProvider(root, filters);
-            _paths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            _Provider = new PhysicalFileProvider(root, filters);
+            _Paths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
         public IFileInfo GetFileInfo(string subpath)
         {
@@ -34,7 +34,7 @@ namespace Ccf.Ck.Web.Middleware
                 KraftLogger.LogError($"File or Directory not found: {subpath}. Please check casing!");
                 return new NotFoundFileInfo(subpath);
             }
-            return _provider.GetFileInfo(actualPath);
+            return _Provider.GetFileInfo(actualPath);
         }
         public IDirectoryContents GetDirectoryContents(string subpath)
         {
@@ -44,16 +44,16 @@ namespace Ccf.Ck.Web.Middleware
                 KraftLogger.LogError($"Directory not found: {subpath}. Please check casing!");
                 return NotFoundDirectoryContents.Singleton;
             }
-            return _provider.GetDirectoryContents(actualPath);
+            return _Provider.GetDirectoryContents(actualPath);
         }
-        public IChangeToken Watch(string filter) => _provider.Watch(filter);
+        public IChangeToken Watch(string filter) => _Provider.Watch(filter);
         // Determines (and caches) the actual path for a file
         private string GetActualFilePath(string path)
         {
             // Check if this has already been matched before
-            if (_paths.ContainsKey(path)) return _paths[path];
+            if (_Paths.ContainsKey(path)) return _Paths[path];
             // Break apart the path and get the root folder to work from
-            var currPath = _provider.Root;
+            var currPath = _Provider.Root;
             var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             // Start stepping up the folders to replace with the correct cased folder name
             for (var i = 0; i < segments.Length; i++)
@@ -72,7 +72,7 @@ namespace Ccf.Ck.Web.Middleware
             }
             // Save this path for later use
             var actualPath = string.Join(Path.DirectorySeparatorChar, segments);
-            _paths.Add(path, actualPath);
+            _Paths.Add(path, actualPath);
             return actualPath;
         }
         // Searches for a matching file name in the current directory regardless of case

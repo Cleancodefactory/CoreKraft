@@ -39,5 +39,7 @@ CoreKraft is a [.NET Foundation](https://dotnetfoundation.org/) project.
         * [Patch SQLite Databases](/Documentation/03.In_Depth/02.PatchSQLiteDb/patch-sqlite-databases.md)
     * Profiling Server Code    
         * [Profiling Server Code](/Documentation/03.In_Depth/03.Profiling_Server_Code/profiling-server-code.md)
+    * Case sensitivity    
+        * [Case sensitivity during debugging and on production](/Documentation/03.In_Depth/03.CaseSensitivity/case-sensitivity.md)
 * FAQ
 
