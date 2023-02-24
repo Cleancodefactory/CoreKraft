@@ -29,7 +29,7 @@ namespace Ccf.Ck.Web.Middleware
         public IFileInfo GetFileInfo(string subpath)
         {
             var actualPath = GetActualFilePath(subpath);
-            if (CaseSensitive && "/" + actualPath.Replace(Path.DirectorySeparatorChar, '/') != subpath)
+            if (CaseSensitive && actualPath.Replace(Path.DirectorySeparatorChar.ToString(), string.Empty) != subpath.Replace("/", string.Empty))
             {
                 KraftLogger.LogError($"File or Directory not found: {subpath}. Please check casing!");
                 return new NotFoundFileInfo(subpath);
