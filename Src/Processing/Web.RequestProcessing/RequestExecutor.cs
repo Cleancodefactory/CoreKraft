@@ -121,16 +121,24 @@ namespace Ccf.Ck.Processing.Web.Request
 
         private string PrepareError(Exception ex)
         {
-            KraftLogger.LogError(ex);
-            if (_KraftGlobalConfigurationSettings.EnvironmentSettings.IsDevelopment())//Show errors only in debug mode
+            if (ex is UnauthorizedAccessException)
             {
-                Console.WriteLine($"Nodeset call has an error: {ex.Message}");
-                return ex.Message;
+                //For now we are not logging the UnauthorizedAccessException but rather redirect to login
+                return string.Empty;
             }
             else
             {
-                return "Error occurred, please review the logs for more information";
-            }
+                KraftLogger.LogError(ex);
+                if (_KraftGlobalConfigurationSettings.EnvironmentSettings.IsDevelopment())//Show errors only in debug mode
+                {
+                    Console.WriteLine($"Nodeset call has an error: {ex.Message}");
+                    return ex.Message;
+                }
+                else
+                {
+                    return "Error occurred, please review the logs for more information";
+                }
+            }            
         }
     }
 }
