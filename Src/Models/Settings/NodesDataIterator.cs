@@ -12,5 +12,6 @@ namespace Ccf.Ck.Models.Settings
         public LoaderProperties NodesDataIteratorConf { get; set; }
 
         public List<LoaderProperties> NodesDataLoader { get; set; }
+        public List<LoaderProperties> ParameterResolvers { get; set; }
     }
 }

@@ -1,10 +1,10 @@
-﻿using Ccf.Ck.Utilities.MemoryCache;
-using Ccf.Ck.Utilities.DependencyContainer;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Utilities.MemoryCache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Ccf.Ck.Libs.Logging;
+using DependencyInjectionContainer = Ccf.Ck.Utilities.DependencyContainer.DependencyInjectionContainer;
 
 namespace Ccf.Ck.Models.Settings.Modules
 {
@@ -19,9 +19,9 @@ namespace Ccf.Ck.Models.Settings.Modules
             NodeSetSettings = new NodeSetSettings();
         }
 
-        public string ModuleName{ get; private set; }
+        public string ModuleName { get; private set; }
 
-        public KraftModuleConfigurationSettings(DependencyInjectionContainer dependencyInjectionContainer, ICachingService cachingService, 
+        public KraftModuleConfigurationSettings(DependencyInjectionContainer dependencyInjectionContainer, ICachingService cachingService,
             KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
             _DependencyInjectionContainer = dependencyInjectionContainer;
@@ -30,12 +30,18 @@ namespace Ccf.Ck.Models.Settings.Modules
             KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
         }
 
+        public T GetInstance<T>(Type type, string key) where T : class
+        {
+            return _DependencyInjectionContainer.Get(type, key) as T;
+        }
+
         public void LoadDefinedObjects(string moduleName, string configFile)
         {
             ModuleName = moduleName;
             ConsistencyCheck();
             LoadPropertiesInContainer(NodeSetSettings?.SourceLoaderMapping?.NodesDataIterator?.NodesDataIteratorConf, moduleName, configFile);
             LoadPropertiesInContainer(NodeSetSettings?.SourceLoaderMapping?.NodesDataIterator?.NodesDataLoader, moduleName, configFile);
+            LoadPropertiesInContainer(NodeSetSettings?.SourceLoaderMapping?.NodesDataIterator?.ParameterResolvers, moduleName, configFile);
             LoadPropertiesInContainer(NodeSetSettings?.SourceLoaderMapping?.ViewLoader, moduleName, configFile);
             LoadPropertiesInContainer(NodeSetSettings?.SourceLoaderMapping?.LookupLoader, moduleName, configFile);
             LoadPropertiesInContainer(NodeSetSettings?.SourceLoaderMapping?.ResourceLoader, moduleName, configFile);
@@ -113,7 +119,7 @@ namespace Ccf.Ck.Models.Settings.Modules
             {
                 KraftLogger.LogError($"void LoadPropertiesInContainer: Loaderproperty: {loaderProperty} || moduleName: {moduleName} || configFile: {configFile}", ex);
                 throw;
-            }            
+            }
         }
     }
 }

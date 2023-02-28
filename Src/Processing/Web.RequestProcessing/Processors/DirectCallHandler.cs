@@ -43,6 +43,7 @@ namespace Ccf.Ck.Processing.Web.Request
         public void Execute(IProcessingContext processingContext, ITransactionScopeContext transactionScopeContext)
         {
             KraftModule loadedModule = _KraftModuleCollection.GetModule(processingContext.InputModel.Module);
+            processingContext.KraftModule = loadedModule;
             LoadedNodeSet loadedNodeSet = default(LoadedNodeSet);
             if (loadedModule != null) {
                 loadedNodeSet = _NodesSetService.LoadNodeSet(

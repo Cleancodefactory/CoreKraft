@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.Settings;
+﻿using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Models.Settings.Modules;
 using Ccf.Ck.Utilities.DependencyContainer;
 using Ccf.Ck.Utilities.Generic.Topologies;
@@ -6,7 +7,6 @@ using Ccf.Ck.Utilities.MemoryCache;
 using Ccf.Ck.Utilities.Web.BundleTransformations.Primitives;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 using static Ccf.Ck.Utilities.Web.BundleTransformations.Primitives.TemplateKraftBundle;
@@ -41,6 +41,8 @@ namespace Ccf.Ck.Models.KraftModule
         public IDictionary<string, KraftModule> Dependencies { get; private set; }
 
         public Dictionary<string, string> NodeSetMappings { get; set; }
+
+        public IParameterResolverSetManager ParameterResolvers { get; set; }
 
         internal KraftModule(string directoryName, string moduleName,
             DependencyInjectionContainer dependencyInjectionContainer,

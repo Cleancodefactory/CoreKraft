@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.SysPlugins.Interfaces.Packet;
@@ -11,6 +12,8 @@ namespace Ccf.Ck.SysPlugins.Interfaces.ContextualBasket
         IProcessorHandler ProcessorHandler { get; }
         void Execute(ITransactionScopeContext transactionScopeContext);
         IReturnModel ReturnModel { get; set; }
+
+        KraftModule KraftModule { get; set; }
 
         /// <summary>
         /// // {Security}

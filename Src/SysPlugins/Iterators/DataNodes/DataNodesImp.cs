@@ -1,6 +1,13 @@
-﻿using Ccf.Ck.Models.NodeSet;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Iterators.DataNodes.CustomPluginsExecution;
+using Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses;
+using Ccf.Ck.SysPlugins.Support.ParameterExpression.Interfaces;
+using Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,9 +15,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
-using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
-using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 {
@@ -64,11 +68,34 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             var results = new List<Dictionary<string, object>>() { new Dictionary<string, object>() { } };
             EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
             dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = new MetaRoot(infoFlag); // TODO: Choose the flags from config
+            EnsureLoadResolvers(dataIteratorContext);
             object result = ExecuteReadNode(dataIteratorContext.LoadedNodeSet.StartNode, results, dataIteratorContext, dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta);
             dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta.SetFinished();
             if (dataIteratorContext.BailOut) return;
             dataIteratorContext.ProcessingContext.ReturnModel.Data = result;
-            
+                        
+        }
+
+        private void EnsureLoadResolvers(DataIteratorContext dataIteratorContext)
+        {
+            Models.KraftModule.KraftModule kraftModule = dataIteratorContext.ProcessingContext.KraftModule;
+            if (kraftModule != null)
+            {
+                if (kraftModule.ParameterResolvers == null)
+                {
+                    var parameterResolvers = kraftModule.ModuleSettings.NodeSetSettings.SourceLoaderMapping.NodesDataIterator?.ParameterResolvers;
+                    if (parameterResolvers != null && parameterResolvers.Count > 0)
+                    {
+                        ParameterResolversManager parameterResolversManager = new ParameterResolversManager();
+                        foreach (LoaderProperties loaderProperty in parameterResolvers)
+                        {
+                            IParameterResolversSource resolverSet = kraftModule.ModuleSettings.GetInstance<IParameterResolversSource>(loaderProperty.InterfaceAsType, kraftModule.ModuleSettings.ModuleName + loaderProperty.ImplementationAsString);
+                            parameterResolversManager.AddSet(resolverSet as ParameterResolverSet);
+                        }
+                        kraftModule.ParameterResolvers = parameterResolversManager;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -350,7 +377,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         private void BeginWriteOperation(DataIteratorContext dataIteratorContext)
         {
             EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
-            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = new MetaRoot(infoFlag); 
+            dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = new MetaRoot(infoFlag);
+            EnsureLoadResolvers(dataIteratorContext);
             object result = ExecuteWriteNode(dataIteratorContext.LoadedNodeSet.StartNode,
                                   dataIteratorContext.ProcessingContext.InputModel.Data,
                                   dataIteratorContext.LoadedNodeSet.StartNode.NodeKey.Trim(),

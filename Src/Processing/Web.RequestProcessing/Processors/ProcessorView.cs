@@ -29,6 +29,7 @@ namespace Ccf.Ck.Processing.Web.Request
         public override void Execute(IProcessingContext processingContext, ITransactionScopeContext transactionScopeContext)
         {
             KraftModule loadedModule = _KraftModuleCollection.GetModule(processingContext.InputModel.Module);
+            processingContext.KraftModule = loadedModule;
             LoadedNodeSet loadedNodeSet = _NodesSetService.LoadNodeSet(
                                                 processingContext.InputModel.Module,
                                                 processingContext.InputModel.NodeSet,
@@ -40,8 +41,8 @@ namespace Ccf.Ck.Processing.Web.Request
             {
                 throw new UnauthorizedAccessException($"Security requirements not met at NodeSet level: {processingContext.InputModel.Module}/{processingContext.InputModel.NodeSet}/...");
             }
-            PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
-            PluginAccessorImp<INodePlugin> customService = new PluginAccessorImp<INodePlugin>(transactionScopeContext, loadedModule.ModuleSettings);
+            //PluginAccessorImp<IDataLoaderPlugin> externalService = new PluginAccessorImp<IDataLoaderPlugin>(transactionScopeContext, loadedModule.ModuleSettings);
+            //PluginAccessorImp<INodePlugin> customService = new PluginAccessorImp<INodePlugin>(transactionScopeContext, loadedModule.ModuleSettings);
             INodeTaskExecutor taskExecutor = new NodeTaskExecutor(transactionScopeContext, loadedModule.ModuleSettings);
             taskExecutor.ExecuteNodeView(loadedNodeSet, processingContext);
         }

@@ -48,6 +48,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
         public override void Execute(IProcessingContext processingContext, ITransactionScopeContext transactionScopeContext)
         {
             KraftModule loadedModule = _KraftModuleCollection.GetModule(processingContext.InputModel.Module);
+            processingContext.KraftModule = loadedModule;
             LoadedNodeSet loadedNodeSet = _NodesSetService.LoadNodeSet(
                                                 processingContext.InputModel.Module,
                                                 processingContext.InputModel.NodeSet,

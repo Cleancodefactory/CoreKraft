@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Ccf.Ck.Libs.ResolverExpression;
+using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.Resolvers;
-using Ccf.Ck.Libs.ResolverExpression;
 using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.SysPlugins.Support.ParameterExpression.Interfaces;
 using Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses;
 using Ccf.Ck.SysPlugins.Support.ParameterExpression.BuiltIn;
 using Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn;
+using Ccf.Ck.SysPlugins.Support.ParameterExpression.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
 {
@@ -16,7 +17,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
     /// The delegates and the underlying methods are assumed to be immutable and once loaded they are cached.
     /// Any violation of tis immutability requirement will cause troubles.
     /// </summary>
-    public class ParameterResolversManager : IParameterResolversSource
+    public class ParameterResolversManager : IParameterResolversSource, IParameterResolverSetManager
     {
 
         #region Singleton - this will probably move to a DI
@@ -41,27 +42,23 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                         Name = "BuiltIn",
                         Resolvers = new List<Resolver>()
                         {
-                            {
-                                new Resolver()
+                            new Resolver()
                                 {
                                      Alias = "GetFrom",
                                      Arguments = 2,
                                      Name = "GetFrom"
-                                }
-                            },
-                            { 
-                                new Resolver() {
+                                },
+                            new Resolver() {
                                     Alias = "CombineSources",
                                     Arguments = 1,
                                     Name = "CombineSources"
-                                }
-                            },
+                                },
                             {
                                 new Resolver() {
                                     Alias = "NavGetFrom",
                                     Arguments= 2,
                                     Name = "NavGetFrom"
-                                } 
+                                }
                             },
                             {
                                 new Resolver() {
@@ -214,7 +211,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                      Name = "NumAsText"
                                 }
                             },
-                            { 
+                            {
                                 new Resolver() {
                                     Alias = "IsEmpty",
                                     Arguments = 1,
@@ -260,7 +257,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                     Name = "Random"
                                 }
                             },
-                            { 
+                            {
                                 new Resolver() {
                                     Alias = "Once",
                                     Arguments = 2,
@@ -307,7 +304,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                     Name = "AsContent"
                                 }
                             },
-                            { 
+                            {
                                   new Resolver() {
                                       Alias = "CheckedText",
                                       Arguments = 2,
@@ -545,7 +542,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
         /// </summary>
         private Dictionary<string, ResolverDelegate<ParameterResolverValue, IParameterResolverContext>> _delegates = new Dictionary<string, ResolverDelegate<ParameterResolverValue, IParameterResolverContext>>();
 
-        protected ParameterResolversManager(bool fullNames = false)
+        public ParameterResolversManager(bool fullNames = false)
         {
             FullChainNaming = fullNames;
         }

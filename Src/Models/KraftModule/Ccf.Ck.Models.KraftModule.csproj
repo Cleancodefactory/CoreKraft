@@ -17,6 +17,7 @@
     <ProjectReference Include="..\..\Utilities\Generic\Ccf.Ck.Utilities.Generic.csproj" />
     <ProjectReference Include="..\..\Utilities\Profiling\Ccf.Ck.Utilities.Profiling.csproj" />
     <ProjectReference Include="..\..\Utilities\Web.BundleTransformations\Ccf.Ck.Utilities.Web.BundleTransformations.csproj" />
+    <ProjectReference Include="..\Interfaces\Ccf.Ck.Models.Interfaces.csproj" />
     <ProjectReference Include="..\Settings\Ccf.Ck.Models.Settings.csproj" />
   </ItemGroup>
 

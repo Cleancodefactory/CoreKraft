@@ -33,6 +33,8 @@ namespace Ccf.Ck.Models.ContextBasket
             }
         }
 
+        public KraftModule.KraftModule KraftModule { get; set; }
+
         public void Execute(ITransactionScopeContext transactionScopeContext)
         {
             ProcessorHandler.Execute(this, transactionScopeContext);
