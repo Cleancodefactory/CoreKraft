@@ -14,6 +14,7 @@ using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using System.Security.AccessControl;
+using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 {
@@ -779,6 +780,8 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public string NodeKey => Context.NodeKey;
 
             public bool ParentAccessNotAllowed => Context.ParentAccessNotAllowed;
+
+            IParameterResolverSetManager ResolversManager => Context.ProcessingContext.KraftModule.ParameterResolvers;
 
             public ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null)
             {
