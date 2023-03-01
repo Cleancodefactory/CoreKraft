@@ -161,14 +161,17 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 if (Action(execContext) == null) {
                     throw new Exception($"Missing action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module})");
                 }
+                StringBuilder sbError = new StringBuilder(1000);
+                sbError.AppendLine($"Prepare in action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
                 if (!string.IsNullOrEmpty(sqlQuery)) {
                     StringBuilder sb = new StringBuilder();
                     foreach (string param in parameters) {
                         sb.AppendLine(param);
                     }
-                    KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
+                    sbError.AppendLine($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}");
                 }
-                metaReport.SetErrorInfo(ex, $"Prepare in action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
+                KraftLogger.LogError(sbError.ToString(), ex, execContext);
+                metaReport.SetErrorInfo(ex, sbError.ToString());
                 throw;
             }
         }
@@ -312,6 +315,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 {
                     throw new Exception($"Missing action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module})");
                 }
+                StringBuilder sbError = new StringBuilder(1000);
+                sbError.AppendLine($"Action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
                 if (!string.IsNullOrEmpty(sqlQuery))
                 {
                     StringBuilder sb = new StringBuilder();
@@ -319,10 +324,10 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     {
                         sb.AppendLine(param);
                     }
-
-                    KraftLogger.LogError($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
+                    sbError.AppendLine($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}");
                 }
-                metaReport.SetErrorInfo(ex, $"Action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
+                KraftLogger.LogError(sbError.ToString(), ex, execContext);
+                metaReport.SetErrorInfo(ex, sbError.ToString());
                 throw;
             }
             return results; // TODO: Decide what behavior we want with empty statements. I for one prefer null result, effectively stopping the operation.
@@ -460,6 +465,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             }
             catch (Exception ex)
             {
+                StringBuilder sbError = new StringBuilder(1000);
+                sbError.AppendLine($"Action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
                 if (!string.IsNullOrEmpty(sqlQuery))
                 {
                     StringBuilder sb = new StringBuilder();
@@ -467,10 +474,10 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     {
                         sb.AppendLine(param);
                     }
-
-                    KraftLogger.LogError($"Write(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}", ex, execContext);
+                    sbError.AppendLine($"Write(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}");
                 }
-                metaReport.SetErrorInfo(ex, $"Action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
+                KraftLogger.LogError(sbError.ToString(), ex, execContext);
+                metaReport.SetErrorInfo(ex, sbError.ToString());
                 throw;
             }
             return null; // if this is not null it should add new results in the data
