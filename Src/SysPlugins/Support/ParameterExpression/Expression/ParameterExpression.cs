@@ -12,9 +12,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Expression
 
         public const int MAX_RECURSIONS = 5;
 
-        protected override ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver(string name)
+        protected override ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver(string name, IResolverFinder<ParameterResolverValue, IParameterResolverContext> finder = null)
         {
-            return ParameterResolversManager.Instance.GetResolver(name);
+            // Built-in resolvers cannot be overloaded
+            ResolverDelegate <ParameterResolverValue, IParameterResolverContext> resolver = ParameterResolversManager.Instance.GetResolver(name);
+            if (resolver == null && finder != null) {
+                resolver = finder.GetResolver(name);
+            }
+            return resolver;
         }
 
 

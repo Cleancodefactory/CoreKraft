@@ -477,6 +477,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             if (string.IsNullOrWhiteSpace(expressionName)) throw new ArgumentNullException($"{nameof(expressionName)} canot be null");
             neverCache = false; // TODO: Add a property to the Parameter to specify this
             isdefault = false;
+            IResolverFinder<ParameterResolverValue, IParameterResolverContext> finder = ProcessingContext.KraftModule.ParameterResolvers as IResolverFinder<ParameterResolverValue, IParameterResolverContext>;
             if (CompiledParameterExpressions.ContainsKey(expressionName)) return CompiledParameterExpressions[expressionName];
             // Not compiled - compile it
             var param = GetParameterByName(expressionName);
@@ -486,7 +487,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 if (!string.IsNullOrWhiteSpace(param.Expression))
                 {
                     // just try to compile it
-                    var runner = ParameterResolversManager.Instance.Compiler.CompileResolverExpression(param.Expression);
+                    var runner = ParameterResolversManager.Instance.Compiler.CompileResolverExpression(param.Expression, finder);
                     if (runner == null) throw new Exception("Not a valid expression.");
                     if (!runner.IsValid) throw new Exception($"Error while compiling expression: {runner.ErrorText}");
                     // If we are here - it is valid runner
@@ -781,7 +782,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
             public bool ParentAccessNotAllowed => Context.ParentAccessNotAllowed;
 
-            IParameterResolverSetManager ResolversManager => Context.ProcessingContext.KraftModule.ParameterResolvers;
+            public IParameterResolverSetManager ResolversManager => Context.ProcessingContext.KraftModule.ParameterResolvers;
 
             public ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null)
             {

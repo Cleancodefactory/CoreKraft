@@ -89,8 +89,15 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                         ParameterResolversManager parameterResolversManager = new ParameterResolversManager();
                         foreach (LoaderProperties loaderProperty in parameterResolvers)
                         {
-                            IParameterResolversSource resolverSet = kraftModule.ModuleSettings.GetInstance<IParameterResolversSource>(loaderProperty.InterfaceAsType, kraftModule.ModuleSettings.ModuleName + loaderProperty.ImplementationAsString);
-                            parameterResolversManager.AddSet(resolverSet as ParameterResolverSet);
+                            IParameterResolversSource _resolverSet = kraftModule.ModuleSettings.GetInstance<IParameterResolversSource>(loaderProperty.InterfaceAsType, kraftModule.ModuleSettings.ModuleName + loaderProperty.ImplementationAsString);
+                            ParameterResolverSet resolverSet = _resolverSet as ParameterResolverSet;
+                            if (resolverSet != null) {
+                                resolverSet.Name = loaderProperty.Name; // Name can be null or empty for no prefix
+                                parameterResolversManager.AddSet(resolverSet);
+                            } else {
+                                // TODO - may be an exception
+                            }
+                            
                         }
                         kraftModule.ParameterResolvers = parameterResolversManager;
                     }

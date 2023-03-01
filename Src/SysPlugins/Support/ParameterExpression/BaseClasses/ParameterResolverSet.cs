@@ -30,7 +30,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses
         {
             Name = name;
         }
-        public string Name { get; protected set; }
+        public string Name { get; set; }
         private ResolverSet _configuration;
         /// <summary>
         /// This property can be set only once!
@@ -165,6 +165,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses
             catch
             {
                 // Nothing for now
+                throw; // TODO: Be more specific if possible?
             }
             return false;
         }
@@ -172,7 +173,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses
         public ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver(string name)
         {
             var r =  GetResolverEx(name);
-            if (r == null) throw new Exception($"Cannot find the resolver with alias: {name}");
+            //if (r == null) throw new Exception($"Cannot find the resolver with alias: {name}");
             return r;
         }
         public ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolverEx(string alias, string name = null, int numargs = 0)
