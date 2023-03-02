@@ -620,7 +620,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                 }
                 return resolver;
             }
-            throw new Exception($"Cannot find the resolver with alias: {name}");
+            return null;
         }
         #region Old code for information - no longer needed
         //public ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver_old(string name)
