@@ -7,7 +7,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterValidation
 {
     public class ValidationExpression : ResolverExpression<ParameterResolverValue, IParameterResolverContext>
     {
-        protected override ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver(string name)
+        protected override ResolverDelegate<ParameterResolverValue, IParameterResolverContext> GetResolver(string name, IResolverFinder<ParameterResolverValue, IParameterResolverContext> finder = null)
         {
             throw new NotImplementedException();
         }

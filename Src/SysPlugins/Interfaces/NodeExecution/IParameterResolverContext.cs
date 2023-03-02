@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
@@ -38,6 +39,8 @@ namespace Ccf.Ck.SysPlugins.Interfaces
         string NodeKey { get; }
 
         bool ParentAccessNotAllowed { get { return false; } }
+
+        IParameterResolverSetManager ResolversManager { get; }
 
         ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null);
     }
