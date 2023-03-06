@@ -338,7 +338,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                     if (idc != null) {
                         dcall.ReturnModel ret = idc.GetResult(guid);
 
-                        ret.Data = idc.GetMeta(guid);
+                        ret.ExecutionMeta = idc.GetMeta(guid);
+
+
+
+
                         if (ret.IsSuccessful) {
                             if (ret.BinaryData is IPostedFile pf) {
                                 return new ParameterResolverValue(pf);
