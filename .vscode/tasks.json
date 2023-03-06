@@ -15,27 +15,6 @@
                 "${workspaceFolder}/CoreKraft.sln"
             ],
             "problemMatcher": "$tsc"
-        },
-        {
-            "label": "publish",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/Src/Launcher/Ccf.Ck.Launcher.Intro.csproj"
-            ],
-            "problemMatcher": "$tsc"
-        },
-        {
-            "label": "watch",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "watch",
-                "run",
-                "${workspaceFolder}/Src/Launcher/Ccf.Ck.Launcher.Intro.csproj"
-            ],
-            "problemMatcher": "$tsc"
         }
     ]
 }
