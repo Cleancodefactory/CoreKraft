@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ccf.Ck.Models.NodeSet;
+using System;
 using DirectCall = Ccf.Ck.Models.DirectCall;
 
 namespace Ccf.Ck.SysPlugins.Interfaces {
@@ -23,5 +24,7 @@ namespace Ccf.Ck.SysPlugins.Interfaces {
 
         public IndirectCallStatus CallStatus(Guid guid);
         public DirectCall.ReturnModel GetResult(Guid guid);
+
+        public MetaRoot GetMeta(Guid guid);
     }
 }

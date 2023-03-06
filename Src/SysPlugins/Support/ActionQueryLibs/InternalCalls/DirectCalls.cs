@@ -323,7 +323,44 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             }
             return new ParameterResolverValue(null);
         }
+        [Function(nameof(ScheduledCallMeta), "Attempts to obtain the execution mrta of a finished scheduled task")]
+        [Parameter(0, "taskid", "A guid as string", TypeFlags.String)]
+        [Result("Meta info converted to script usable List or Dict depending on what the task result is (the same as CallRead), null is returned if the result is not available. It is recommended to check status first.", TypeFlags.Dict | TypeFlags.List | TypeFlags.PostedFile | TypeFlags.Error | TypeFlags.Null)]
+        public ParameterResolverValue ScheduledCallMeta(HostInterface ctx, ParameterResolverValue[] args) {
+            if (ctx is ISupportsPluginServiceManager services) {
+                if (args.Length != 1) {
+                    throw new ArgumentException("ScheduledCallStatus requires one argument - the id of the task");
+                }
+                string sid = Convert.ToString(args[0].Value);
 
+                if (Guid.TryParse(sid, out Guid guid)) {
+                    var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));
+                    if (idc != null) {
+                        dcall.ReturnModel ret = idc.GetResult(guid);
+
+                        ret.Data = idc.GetMeta(guid);
+                        if (ret.IsSuccessful) {
+                            if (ret.BinaryData is IPostedFile pf) {
+                                return new ParameterResolverValue(pf);
+                            } else if (ret.Data != null) {
+                                return ret.Data switch {
+                                    Dictionary<string, object> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
+                                    List<Dictionary<string, object>> => DefaultLibraryBase<HostInterface>.ConvertFromGenericData(ret.Data),
+                                    _ => new ParameterResolverValue(null)
+                                };
+                            } else {
+                                return new ParameterResolverValue(null);
+                            }
+                        } else {
+                            return Error.Create(ret.ErrorMessage);
+                        }
+                    }
+                }
+            } else {
+                throw new Exception("The context of the Function does not have access to the IndirectCalls service");
+            }
+            return new ParameterResolverValue(null);
+        }
         private ParameterResolverValue OnCallback(Action<CallSchedulerCallHandlers,CallSchedulerHandler> _set, ParameterResolverValue[] args) {
             CallSchedulerHandler handler;
             string address = null;

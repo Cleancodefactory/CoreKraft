@@ -1,6 +1,7 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -369,6 +370,15 @@ namespace Ccf.Ck.Web.Middleware
             lock (_Finished) {
                 if (_Finished.TryGetValue(guid, out task)) {
                     return task.result;
+                }
+            }
+            return null;
+        }
+        public MetaRoot GetMeta(Guid guid) {
+            TaskHolder task = null;
+            lock (_Finished) {
+                if (_Finished.TryGetValue(guid, out task)) {
+                    return task.result.ExecutionMeta;
                 }
             }
             return null;
