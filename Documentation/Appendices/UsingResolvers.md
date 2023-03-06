@@ -1,0 +1,7 @@
+
+# Using resolvers - defining parameter
+
+
+The Nodesets' Definition.json defines the nodeset by defining nodes. Defining nodes is based on a few critical features. Among then are the parameters - define what can be passed to the main node plugin (Loader or also called - DataLoader) and any of the custom plugin (called custom or node plugins). The plugins can get access to various pieces of data coming with the request or internal call. To make possible to make these pieces of data more convenient for the plugins, they are typically not consumed directly, but through an arbitrary set of named parameters, defined as short expressions that can fetch data from any part of the request or calculate it from other accessible data.
+
+- To keep the plugins unaware of where and in what form the data is coming - the parameter expression fetch and process the incoming data and provide it to the plugins as the set of named parameters - each calculated or fetched through simple expression composed of something like function calls where the functions are built-in in the CoreKraft or can be made available in specific module trough its configuration. These functions are called `resolvers` and while CoreKraft provides many standard ones some more are needed - ones spe....
