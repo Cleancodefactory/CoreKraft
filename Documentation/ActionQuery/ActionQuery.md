@@ -138,6 +138,8 @@ ActionQuery does not have any functions built into it. All the functions that en
 
 [internalcalls](Libs/internalcalls.md)
 
+[diagnostics](Libs/diagnostics.md)
+
 To use any or all of the libraries specify their names (see above) as a comma separated list in the plugin configuration in configuration.json. E.g.
 
 ```JSON
