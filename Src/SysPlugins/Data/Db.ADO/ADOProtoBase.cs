@@ -300,6 +300,14 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                     metaReport.AddResult(n_rows, reader.FieldCount);
                                 }
                             } while (reader.NextResult());
+                            if (Action(execContext) != null && Action(execContext).RequireEffect)
+                            {
+                                if (reader.RecordsAffected == 0)
+                                {
+                                    reader.Close();
+                                    throw new OperationCanceledException("Read operation requires effect, but there was none (rows affected was 0 while expected to be greater). Operation was cancelled. Note that, while supported, usage of RequireEffect in select is error prone.");
+                                }
+                            }
                             reader.Close();
                             if (metaReport != null)
                             {
