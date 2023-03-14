@@ -90,7 +90,6 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 metaReport = helper.NodeMeta.CreateInfo<ADOInfo>();
             }
             // TODO Review the meta dara - we may want to add Prepare specific entry
-            var metaNode = execContext as IActionHelpers;
 
             // TODO: What to return if there is no statement:
             //  I think we should have two policies - empty object which enables children extraction if logically possible and

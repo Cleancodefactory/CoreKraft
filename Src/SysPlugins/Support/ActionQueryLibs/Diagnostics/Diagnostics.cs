@@ -1,18 +1,11 @@
-﻿using Ccf.Ck.Models.DirectCall;
-using dcall = Ccf.Ck.Models.DirectCall;
-using Ccf.Ck.Models.Resolvers;
+﻿using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Linq;
-using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.Models.Enumerations;
 
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
@@ -21,7 +14,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
     public class DiagnosticsLib<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
         
-        private object _LockObject = new Object();
+        private readonly object _LockObject = new Object();
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
         {
@@ -40,25 +33,25 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             return new SymbolSet("Internal calls library (no symbols)", null);
         }
 
-        private List<object> _disposables = new List<object>();
+        private readonly List<object> _Disposables = new List<object>();
         public void ClearDisposables()
         {
             lock (_LockObject)
             {
-                for (int i = 0; i < _disposables.Count; i++)
+                for (int i = 0; i < _Disposables.Count; i++)
                 {
-                    if (_disposables[i] is IDisposable disp)
+                    if (_Disposables[i] is IDisposable disp)
                     {
                         disp.Dispose();
                     }
                 }
-                _disposables.Clear();
+                _Disposables.Clear();
             }
         }
         #endregion
 
         #region Helpers
-        private string FormatCallAddress(dcall.InputModel im) {
+        private static string FormatCallAddress(Ccf.Ck.Models.DirectCall.InputModel im) {
             return string.Format("{0}/{1}/{2}", im.Module, im.Nodeset, im.Nodepath);
         }
         #endregion
@@ -71,7 +64,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                     var info = callcontrol.GetIndirectServiceThreadInfo();
                     if (info.Threads != null) {
                         var data = new List<ParameterResolverValue>();
-                        var count = info.Threads.Count();
+                        //var count = info.Threads.Count();
                         foreach (var ti in info.Threads) {
                             var dict = new Dictionary<string, ParameterResolverValue>();
                             dict["DirectCallAvailable"] = new ParameterResolverValue(ti.DirectCallAvailable);
