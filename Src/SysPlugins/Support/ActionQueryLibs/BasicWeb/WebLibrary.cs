@@ -1,35 +1,39 @@
-﻿using Ccf.Ck.Models.NodeRequest;
+﻿using Ccf.Ck.Models.DirectCall;
+using dcall = Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Utilities;
-using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
-using Ccf.Ck.Utilities.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Linq;
+using Ccf.Ck.Models.NodeRequest;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web;
+using Ccf.Ck.Utilities.Json;
+using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
+using Ccf.Ck.Libs.Logging;
+using System.IO;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 {
     [Library("basicweb",LibraryContextFlags.MainNode)]
     public class WebLibrary<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
-        private readonly object _LockObject = new Object();
-        private readonly HttpClient _Http = null;
-        private readonly HttpClientHandler _Handler = null;
+        private object _LockObject = new Object();
+        private HttpClient _Http = null;
+        private HttpClientHandler _Handler = null;
 
         public WebLibrary() {
             var handler = new HttpClientHandler();
             _Handler = handler;
             handler.UseProxy = false; 
             _Http = new HttpClient(handler, true);
-            _Disposables.Add(_Http);
+            _disposables.Add(_Http);
         }
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
@@ -57,22 +61,24 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             return new SymbolSet("Basic Web requests library (no symbols)", null);
         }
 
-        private readonly List<object> _Disposables = new List<object>();
+        private List<object> _disposables = new List<object>();
         public void ClearDisposables()
         {
             lock (_LockObject)
             {
-                for (int i = 0; i < _Disposables.Count; i++)
+                for (int i = 0; i < _disposables.Count; i++)
                 {
-                    if (_Disposables[i] is IDisposable disp)
+                    if (_disposables[i] is IDisposable disp)
                     {
                         disp.Dispose();
                     }
                 }
-                _Disposables.Clear();
+                _disposables.Clear();
             }
         }
         #endregion
+
+
 
         #region Functions
         [Function(nameof(BuildQueryString), "Converts key/value pair of parameters to query string")]
@@ -193,7 +199,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
         }
 
-        private readonly Regex _ReJSONMedia = new Regex("^.+/json.*$");
+        private Regex reJSONMedia = new Regex("^.+/json.*$");
         /// <summary>
         /// WGetJson(url, Dict of queryparams): dict
         /// </summary>
@@ -223,7 +229,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
                 var mt = respose.Content.Headers.ContentType?.MediaType;
-                if (mt != null && _ReJSONMedia.IsMatch(mt)) {
+                if (mt != null && reJSONMedia.IsMatch(mt)) {
                     var jsonstring = respose.Content.ReadAsStringAsync().Result;
                     try {
                         JsonReaderOptions options = new JsonReaderOptions
@@ -310,7 +316,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
                 var mt = respose.Content.Headers.ContentType?.MediaType;
-                if (mt != null && _ReJSONMedia.IsMatch(mt)) {
+                if (mt != null && reJSONMedia.IsMatch(mt)) {
                     var jsonstring = respose.Content.ReadAsStringAsync().Result;
                     try {
                         JsonReaderOptions options = new JsonReaderOptions
@@ -331,5 +337,6 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
         }
         #endregion
+
     }
 }

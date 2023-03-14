@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net6.0</TargetFramework>
 	</PropertyGroup>
 
 	<!-- Nuget specific tags -->
@@ -73,7 +73,6 @@
 			- Version 6.0.11: Implement schedular callbacks for start and finish for the scheduled tasks
 			- Version 6.0.12: OnEmptyQueue is an array of callbacks
 			- Version 6.0.13: Adding new cookie serialization provider
-			- Version 7.0.0: Updated to net7.0
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>

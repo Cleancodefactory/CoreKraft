@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using dcall = Ccf.Ck.Models.DirectCall;
 
-namespace Ccf.Ck.Launchers.Main.Controllers
-{
+namespace Ccf.Ck.Launchers.Main.Controllers {
     public class RedirectController : Controller
     {
         private const string NODE_ADDRESS_NAME = "$node_address"; // <module>/<nodeset>[/<node_path1.nodepath2....>]
@@ -25,10 +25,10 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             return View("Home/Error");
         }
 
-        private static readonly Regex _NodeExpr = new Regex(@"^([a-zA-Z0-9_\-]+)/([a-zA-Z0-9_\-]+)(?:/([a-zA-Z0-9_\-\.]+))?$");
-        private static Regex _ReJSONMedia = new Regex("^.+/json.*$");
+        private static Regex _nodeExpr = new Regex(@"^([a-zA-Z0-9_\-]+)/([a-zA-Z0-9_\-]+)(?:/([a-zA-Z0-9_\-\.]+))?$");
+        private static Regex reJSONMedia = new Regex("^.+/json.*$");
         private static bool _ParseNodeAddress(string addr, InputModel model) {
-            var match = _NodeExpr.Match(addr);
+            var match = _nodeExpr.Match(addr);
             if (match.Success) {
                 model.Module = match.Groups[1].Value;
                 model.Nodeset = match.Groups[2].Value;
@@ -45,7 +45,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
         [HttpGet,HttpPost]
         public IActionResult Return() {
             // TODO: Consider if we need to accept answers only for authenticated users when required by _KraftGlobalConfigurationSettings
-            Ccf.Ck.Models.DirectCall.InputModel inpModel = new InputModel() {
+            dcall.InputModel inpModel = new InputModel() {
                 IsWriteOperation = true,
                 QueryCollection = new Dictionary<string, object>()
             };
@@ -79,7 +79,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
                             inpModel.Data.Add(kv.Key, kv.Value[0]);
                         }
                     }
-                } else if (_ReJSONMedia.IsMatch(HttpContext.Request.ContentType)) {
+                } else if (reJSONMedia.IsMatch(HttpContext.Request.ContentType)) {
                     // TODO REad json into data
                     throw new NotImplementedException();
                 }

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
+using dcall = Ccf.Ck.Models.DirectCall;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 {
@@ -20,8 +21,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
     public class DirectCallLib<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
         
-        private readonly object _LockObject = new Object();
-        private readonly CallSchedulerCallHandlers _Handlers = new CallSchedulerCallHandlers();
+        private object _LockObject = new Object();
+        private CallSchedulerCallHandlers _handlers = new CallSchedulerCallHandlers();
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
         {
@@ -56,29 +57,29 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
             return new SymbolSet("Internal calls library (no symbols)", null);
         }
 
-        private readonly List<object> _Disposables = new List<object>();
+        private List<object> _disposables = new List<object>();
         public void ClearDisposables()
         {
             lock (_LockObject)
             {
-                for (int i = 0; i < _Disposables.Count; i++)
+                for (int i = 0; i < _disposables.Count; i++)
                 {
-                    if (_Disposables[i] is IDisposable disp)
+                    if (_disposables[i] is IDisposable disp)
                     {
                         disp.Dispose();
                     }
                 }
-                _Disposables.Clear();
+                _disposables.Clear();
             }
         }
         #endregion
 
         #region Helpers
-        private void SetSchedulerHandling(Ccf.Ck.Models.DirectCall.InputModel input) {
-            input.SchedulerCallHandlers = _Handlers.CloneOrNull();
+        private void SetSchedulerHandling(dcall.InputModel input) {
+            input.SchedulerCallHandlers = _handlers.CloneOrNull();
         }
 
-        private static readonly Regex _ReAddress = new Regex(@"^([a-zA-Z][a-zA-Z0-9\-\._]*)/([a-zA-Z][a-zA-Z0-9\-\._]*)(?:/([a-zA-Z][a-zA-Z0-9\-\._]*))?$", RegexOptions.Compiled);
+        private static Regex reAddress = new Regex(@"^([a-zA-Z][a-zA-Z0-9\-\._]*)/([a-zA-Z][a-zA-Z0-9\-\._]*)(?:/([a-zA-Z][a-zA-Z0-9\-\._]*))?$", RegexOptions.Compiled);
         /// <summary>
         /// Parses the address into module, nodeset, nodepath
         /// 
@@ -86,9 +87,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         /// <param name="address">Syntax is: module/nodeset/nodepath</param>
         /// <param name="input"></param>
         /// <returns></returns>
-        private bool ParseCallAddress(string address, Ccf.Ck.Models.DirectCall.InputModel input)
+        private bool ParseCallAddress(string address, dcall.InputModel input)
         {
-            Match m = _ReAddress.Match(address);
+            Match m = reAddress.Match(address);
             if (m.Success)
             {
                 if (m.Groups[0].Success)
@@ -120,14 +121,14 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
         private ParameterResolverValue _Call(bool isWrite,HostInterface ctx, ParameterResolverValue[] args,bool isIndirect = false, EReadAction readAction = EReadAction.Default)
         {
 
-            Ccf.Ck.Models.DirectCall.InputModel inp;
+            dcall.InputModel inp;
             if (args.Length > 3 && !string.IsNullOrEmpty(args[3].Value as string)) {
                 if (ctx is IDataLoaderContext lctx) {
                     inp = lctx.PrepareCallModelAs(runas: args[3].Value as string ,isWriteOperation: isWrite, readAction: readAction);
                 } else if (ctx is INodePluginContext cctx) {
                     inp = cctx.PrepareCallModelAs(runas: args[3].Value as string, isWriteOperation: isWrite, readAction: readAction);
                 } else {
-                    inp = new Ccf.Ck.Models.DirectCall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
+                    inp = new dcall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
                 }
             } else {
                 if (ctx is IDataLoaderContext lctx) {
@@ -135,7 +136,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                 } else if (ctx is INodePluginContext cctx) {
                     inp = cctx.PrepareCallModel(isWriteOperation: isWrite, readAction: readAction);
                 } else {
-                    inp = new Ccf.Ck.Models.DirectCall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
+                    inp = new dcall.InputModel() { IsWriteOperation = isWrite, ReadAction = readAction };
                 }
             }
             ReturnModel ret = null;
@@ -299,7 +300,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                 if (Guid.TryParse(sid, out Guid guid)) {
                     var idc = services.PluginServiceManager.GetService<IIndirectCallService>(typeof(IIndirectCallService));
                     if (idc != null) {
-                        Ccf.Ck.Models.DirectCall.ReturnModel ret = idc.GetResult(guid);
+                        dcall.ReturnModel ret = idc.GetResult(guid);
                         if (ret.IsSuccessful) {
                             if (ret.BinaryData is IPostedFile pf) {
                                 return new ParameterResolverValue(pf);
@@ -325,10 +326,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
 
         private ParameterResolverValue OnCallback(Action<CallSchedulerCallHandlers,CallSchedulerHandler> _set, ParameterResolverValue[] args) {
             CallSchedulerHandler handler;
+            string address = null;
             if (args.Length > 0) {
-                string address = Convert.ToString(args[0].Value);
+                address = Convert.ToString(args[0].Value);
                 if (string.IsNullOrEmpty(address)) {
-                    _set(_Handlers, null);
+                    _set(_handlers, null);
                     return new ParameterResolverValue(null);
                 }
                 handler = new CallSchedulerHandler() { Address = address, RunAs = null, IsWriteOperation = false }; // For clarity
@@ -346,7 +348,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                     }
                     
                 }
-                _set(_Handlers, handler);
+                _set(_handlers, handler);
                 return new ParameterResolverValue(address);
             }
             throw new ArgumentException("The address argument is required. Pass null if you want to remove handler");
