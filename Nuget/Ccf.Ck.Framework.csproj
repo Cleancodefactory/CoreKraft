@@ -106,5 +106,6 @@
 		<ProjectReference Include="..\Src\SysPlugins\Support\ActionQueryLibs\Files\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files.csproj" />
 		<ProjectReference Include="..\Src\SysPlugins\Support\ActionQueryLibs\Images\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images.csproj" />
 		<ProjectReference Include="..\Src\SysPlugins\Support\ActionQueryLibs\InternalCalls\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls.csproj" />
+		<ProjectReference Include="..\Src\SysPlugins\Support\ActionQueryLibs\Diagnostics\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Diagnostics.csproj" />
 	</ItemGroup>
 </Project>
