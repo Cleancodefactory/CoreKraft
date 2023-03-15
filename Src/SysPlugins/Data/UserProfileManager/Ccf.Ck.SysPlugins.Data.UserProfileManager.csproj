@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Ccf.Ck.SysPlugins.Data.UserProfileManager</AssemblyName>
     <RootNamespace>Ccf.Ck.SysPlugins.Data.UserProfileManager</RootNamespace>
   </PropertyGroup>
