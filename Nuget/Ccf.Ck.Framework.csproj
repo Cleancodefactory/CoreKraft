@@ -74,6 +74,7 @@
 			- Version 6.0.12: OnEmptyQueue is an array of callbacks
 			- Version 6.0.13: Adding new cookie serialization provider
 			- Version 7.0.0: Updated to net7.0
+			- Version 7.0.1: Updated logging and reference to Diagnostics
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
