@@ -357,6 +357,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 KraftLogger.LogError("Method: ConfigureServices ", ex);
                 KraftExceptionHandlerMiddleware.Exceptions[KraftExceptionHandlerMiddleware.EXCEPTIONSONCONFIGURESERVICES].Add(ex);
+                throw;
             }
 
             return services.BuildServiceProvider();
