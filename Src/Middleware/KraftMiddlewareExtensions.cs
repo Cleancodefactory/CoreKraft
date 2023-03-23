@@ -44,6 +44,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static Ccf.Ck.Utilities.Generic.Utilities;
 
@@ -245,6 +246,7 @@ namespace Ccf.Ck.Web.Middleware
                                     {
                                         context.ProtocolMessage.SetParameter("returnurl", returnUrl);
                                     }
+                                    context.ProtocolMessage.SetParameter("lang", Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName);
                                 }
                                 return Task.CompletedTask;
                             },

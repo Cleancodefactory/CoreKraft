@@ -31,8 +31,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             }
             AuthenticationProperties authenticationProperties = new AuthenticationProperties
             {
-                RedirectUri = returnUrl
-                
+                RedirectUri = returnUrl                
             };
             return Challenge(authenticationProperties, OpenIdConnectDefaults.AuthenticationScheme);
         }
