@@ -13,6 +13,7 @@ using Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images;
 using Microsoft.AspNetCore.StaticFiles;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.Processing.Web.ResponseBuilder;
+using System.Text.RegularExpressions;
 
 namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
 {
@@ -51,7 +52,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                         { nameof(PostedFileSize), PostedFileSize },
                         { nameof(PostedFileName), PostedFileName },
                         { nameof(PostedFileType), PostedFileType },
-                        { nameof (CombinePaths), CombinePaths },
+                        { nameof(CombinePaths), CombinePaths },
                         { nameof(DeleteFile), DeleteFile },
                         { nameof(SaveFile), SaveFile },
                         { nameof(PrependFileName), PrependFileName },
@@ -299,7 +300,8 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
             }
             var scope = Scope(ctx);
             scope.DeleteOnRollback(filefullpath);
-            return new ParameterResolverValue(filespreaddir);
+            Regex regex = new Regex(@"\.*", RegexOptions.Singleline);
+            return new ParameterResolverValue(regex.Replace(filespreaddir, "."));
         }
         
         /// <summary>

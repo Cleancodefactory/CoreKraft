@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
@@ -305,7 +306,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             {
                 fts.DeleteOnRollback(filefullpath);
             }
-            return ApplySlashes(filespreaddir);
+            Regex regex = new Regex(@"\.*", RegexOptions.Singleline);
+            return ApplySlashes(regex.Replace(filespreaddir, "."));
         }
 
         [Function(nameof(ForkFile), "Clones the posted file into two PostedFiles in a List, the original is disposed")]
