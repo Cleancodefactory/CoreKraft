@@ -53,7 +53,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuiltIn
                 throw new InvalidOperationException("GetPermissions missing required parameter - username of the logged user.");
             }
 
-            resultBuilder.Append($"exists (select * from users where usermail = {username} and is_deleted = 0 and rights >= {permission})");
+            resultBuilder.Append($"exists (select * from users where (usermail = {username} or username = {username}) and is_deleted = 0 and rights >= {permission})");
 
             return resultBuilder.ToString();
         }
