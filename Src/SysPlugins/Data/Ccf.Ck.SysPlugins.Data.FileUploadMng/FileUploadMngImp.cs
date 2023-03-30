@@ -300,7 +300,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
             }
             var scope = Scope(ctx);
             scope.DeleteOnRollback(filefullpath);
-            Regex regex = new Regex(@"\.*", RegexOptions.Singleline);
+            Regex regex = new Regex(@"\.\.+", RegexOptions.Singleline);
             return new ParameterResolverValue(regex.Replace(filespreaddir, "."));
         }
         

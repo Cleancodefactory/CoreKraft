@@ -306,7 +306,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             {
                 fts.DeleteOnRollback(filefullpath);
             }
-            Regex regex = new Regex(@"\.*", RegexOptions.Singleline);
+            Regex regex = new Regex(@"\.\.+", RegexOptions.Singleline);
             return ApplySlashes(regex.Replace(filespreaddir, "."));
         }
 
