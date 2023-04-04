@@ -21,6 +21,7 @@ namespace Ccf.Ck.Models.Settings
             AuthorizationSection = new AuthorizationSection();
             SignalRSettings = new SignalRSettings();
             RazorAreaAssembly = new RazorAreaAssemblySettings();
+            SlaveConfiguration = new SlaveConfigurationSettings();
             SupportedLanguages = new List<string>();
             Theme = "Module";
             ToolsSettings = new ToolsSettings();
@@ -83,6 +84,7 @@ namespace Ccf.Ck.Models.Settings
         public List<string> MetaTags { get; set; }
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
+        public SlaveConfigurationSettings SlaveConfiguration { get; set; }
         public List<string> SupportedLanguages { get; set; }
         public List<string> WatchSubFoldersForRestart { get; set; }
 

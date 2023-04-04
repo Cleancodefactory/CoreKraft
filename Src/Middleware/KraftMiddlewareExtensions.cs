@@ -80,9 +80,15 @@ namespace Ccf.Ck.Web.Middleware
                 });
                 _KraftGlobalConfigurationSettings = new KraftGlobalConfigurationSettings();
                 configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
+                List<IConfigurationSection> slaveConfigSections = new List<IConfigurationSection>();
+                foreach (string sectionName in _KraftGlobalConfigurationSettings.GeneralSettings.SlaveConfiguration.Sections)
+                {
+                    slaveConfigSections.Add(configuration.GetSection(sectionName));
+                }
                 _Configuration = configuration;
 
                 services.AddSingleton(_KraftGlobalConfigurationSettings);
+                services.AddSingleton(slaveConfigSections);
 
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps)
                 {
