@@ -404,6 +404,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                         cmd.Transaction = trans;
                         cmd.Parameters.Clear();
                         sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext, out parameters);
+                        //TODO need refinement (Robert)
+                        //string commandWithParamValues = DbCommandDumper.GetCommandText(cmd);
                         if (metaReport != null) {
                             metaReport.ReportSQL(sqlQuery);
                             metaReport.ReportParameters(cmd.Parameters);
