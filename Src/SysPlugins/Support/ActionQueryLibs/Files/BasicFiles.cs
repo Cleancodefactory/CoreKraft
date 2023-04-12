@@ -295,6 +295,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 Directory.CreateDirectory(filedir);
             }
             string filespreaddir = Path.Combine(subdir, $"{id}-{file.FileName}");
+            Regex regex = new Regex(@"\.\.+", RegexOptions.Singleline);
+            filespreaddir = regex.Replace(filespreaddir, ".");
             string filefullpath = Path.Combine(basedir, filespreaddir);
             // Saving
             using var stream = new FileStream(filefullpath, FileMode.Create);
@@ -307,7 +309,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 fts.DeleteOnRollback(filefullpath);
             }
             Regex regex = new Regex(@"\.\.+", RegexOptions.Singleline);
-            return ApplySlashes(regex.Replace(filespreaddir, "."));
+            return ApplySlashes(filespreaddir);
         }
 
         [Function(nameof(ForkFile), "Clones the posted file into two PostedFiles in a List, the original is disposed")]

@@ -292,6 +292,8 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
                 Directory.CreateDirectory(filedir);
             }
             string filespreaddir = Path.Combine(subdir, $"{id}-{file.FileName}");
+            Regex regex = new Regex(@"\.\.+", RegexOptions.Singleline);
+            filespreaddir = regex.Replace(filespreaddir, ".");
             string filefullpath = Path.Combine(basedir, filespreaddir);
             // Saving
             using (var stream = new FileStream(filefullpath, FileMode.Create))
@@ -300,8 +302,8 @@ namespace Ccf.Ck.SysPlugins.Data.FileUploadMng
             }
             var scope = Scope(ctx);
             scope.DeleteOnRollback(filefullpath);
-            Regex regex = new Regex(@"\.\.+", RegexOptions.Singleline);
-            return new ParameterResolverValue(regex.Replace(filespreaddir, "."));
+            
+            return new ParameterResolverValue(filespreaddir);
         }
         
         /// <summary>
