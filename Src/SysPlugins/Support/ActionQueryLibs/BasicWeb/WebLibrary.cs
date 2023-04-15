@@ -23,7 +23,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         private readonly object _LockObject = new Object();
         private readonly HttpClient _Http = null;
         private readonly HttpClientHandler _Handler = null;
-        private readonly Dictionary<string,string> outgoimgHeaders = new Dictionary<string,string>();
+        private readonly Dictionary<string,string> requestHeaders = new Dictionary<string,string>();
 
         public WebLibrary() {
             var handler = new HttpClientHandler();
@@ -83,7 +83,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         {
             if (args.Length == 0) throw new ArgumentException("No arguments passed to SetRequestHeader");
             if (args.Length == 1 && args[0].Value is Dictionary<string, ParameterResolverValue> hdrs) {
-
+                foreach (var kv in hdrs)
+                {
+                    requestHe
+                }
             } else if (args.Length % 2 == 0) {
 
             } else {
