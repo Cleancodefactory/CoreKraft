@@ -50,6 +50,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                     return BuildQueryString;
                 case nameof(UnbuildQueryString):
                     return UnbuildQueryString;
+                case nameof(SetRequestHeader):
+                    return SetRequestHeader;
+                case nameof(ClearRequestHeaders):
+                    return ClearRequestHeaders;
+
             }
             return null;
         }
@@ -79,38 +84,57 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 
 
         #region Functions
-        [Function()]
+        [Function(nameof(SetRequestHeader),"Sets one or more requst headers")]
         public ParameterResolverValue SetRequestHeader(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length == 0) throw new ArgumentException("No arguments passed to SetRequestHeader");
-            if (args.Length == 1 && args[0].Value is Dictionary<string, ParameterResolverValue> hdrs) {
-                if (hdrs.Values.Any(v => v is not string || v is string))
+            int ncount = 0;
+            if (args.Length == 1 && args[0].Value is Dictionary<string, ParameterResolverValue> hdrs)
+            {
                 foreach (var kv in hdrs)
                 {
                     if (requestHeaders.ContainsKey(kv.Key))
                     {
-                        if (kv.Value.Value == null) {
+                        if (kv.Value.Value == null)
+                        {
                             // Remove header
                             requestHeaders.Remove(kv.Key);
                         }
 
                     }
-                    if (kv.Value.Value is string) {
-                            if (string.IsNullOrWhiteSpace(kv.Value.Value)    requestHeaders
-                            }
+                    if (kv.Value.Value is string strVal)
+                    {
+                        requestHeaders[kv.Key] = strVal;
                     }
-                        
-                        if (string.IsNullOrWhiteSpace(kv.Value.Value))
+                }
+            }
+            else if (args.Length > 0 && args.Length % 2 == 0)
+            {
+                for (int i = 0; i < (args.Length / 2); i++)
+                {
+                    if (args[i*2].Value is string skey)
+                    {
+                        if (!string.IsNullOrWhiteSpace(skey))
                         {
-
+                            if (args[i * 2 + 1].Value is string sval) {
+                                requestHeaders[skey] = sval;
+                            } else if (args[i * 2 + 1].Value == null) {
+                                requestHeaders.Remove(skey);
+                            }
                         }
                     }
                 }
-            } else if (args.Length % 2 == 0) {
-
-            } else {
+            } else { 
                 throw new ArgumentException("Wrong number of arguments. Either single dictionary or pairs headerName/HeaderValue are required.");
             }
+            return new ParameterResolverValue(requestHeaders.Count);
+        }
+        [Function(nameof(ClearRequestHeaders),"Clears any configured request headers")]
+        public ParameterResolverValue ClearRequestHeaders(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 0) throw new ArgumentException("Clear RequestHeaders does not accept argumente");
+            requestHeaders.Clear();
+            return new ParameterResolverValue(true);
         }
 
         [Function(nameof(BuildQueryString), "Converts key/value pair of parameters to query string")]
@@ -158,6 +182,19 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             return new ParameterResolverValue(dic);
         }
 
+
+        private void AddMessageHeaders(HttpRequestMessage msg)
+        {
+            if (requestHeaders.Count > 0)
+            {
+                foreach (var kv  in requestHeaders)
+                {
+                    msg.Headers.Add(kv.Key, kv.Value);
+                }
+                
+            }
+            
+        }
         /// <summary>
         /// WGetJson(url, Dict of queryparams): dict
         /// </summary>
