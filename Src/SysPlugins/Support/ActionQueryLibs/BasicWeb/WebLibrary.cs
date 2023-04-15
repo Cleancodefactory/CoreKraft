@@ -6,6 +6,7 @@ using Ccf.Ck.Utilities.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -83,9 +84,27 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         {
             if (args.Length == 0) throw new ArgumentException("No arguments passed to SetRequestHeader");
             if (args.Length == 1 && args[0].Value is Dictionary<string, ParameterResolverValue> hdrs) {
+                if (hdrs.Values.Any(v => v is not string || v is string))
                 foreach (var kv in hdrs)
                 {
-                    requestHe
+                    if (requestHeaders.ContainsKey(kv.Key))
+                    {
+                        if (kv.Value.Value == null) {
+                            // Remove header
+                            requestHeaders.Remove(kv.Key);
+                        }
+
+                    }
+                    if (kv.Value.Value is string) {
+                            if (string.IsNullOrWhiteSpace(kv.Value.Value)    requestHeaders
+                            }
+                    }
+                        
+                        if (string.IsNullOrWhiteSpace(kv.Value.Value))
+                        {
+
+                        }
+                    }
                 }
             } else if (args.Length % 2 == 0) {
 
