@@ -23,6 +23,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         private readonly object _LockObject = new Object();
         private readonly HttpClient _Http = null;
         private readonly HttpClientHandler _Handler = null;
+        private readonly Dictionary<string,string> outgoimgHeaders = new Dictionary<string,string>();
 
         public WebLibrary() {
             var handler = new HttpClientHandler();
@@ -74,7 +75,22 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         }
         #endregion
 
+
+
         #region Functions
+        [Function()]
+        public ParameterResolverValue SetRequestHeader(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length == 0) throw new ArgumentException("No arguments passed to SetRequestHeader");
+            if (args.Length == 1 && args[0].Value is Dictionary<string, ParameterResolverValue> hdrs) {
+
+            } else if (args.Length % 2 == 0) {
+
+            } else {
+                throw new ArgumentException("Wrong number of arguments. Either single dictionary or pairs headerName/HeaderValue are required.");
+            }
+        }
+
         [Function(nameof(BuildQueryString), "Converts key/value pair of parameters to query string")]
         [ParameterPattern(1, "dict", "Contains the query parameters as key/value pairs", TypeFlags.String, TypeFlags.Object)]
         [Result("Returns the url encoded string", TypeFlags.String| TypeFlags.Bool)]
