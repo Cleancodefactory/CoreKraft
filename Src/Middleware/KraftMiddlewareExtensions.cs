@@ -65,6 +65,9 @@ namespace Ccf.Ck.Web.Middleware
             KraftLogger.LogInformation($"IServiceProvider UseBindKraft: executed");
             try
             {
+                //Register as early as possible
+                AppDomain.CurrentDomain.UnhandledException += AppDomain_OnUnhandledException;
+                AppDomain.CurrentDomain.AssemblyResolve += AppDomain_OnAssemblyResolve;
                 services.AddDistributedMemoryCache();
                 services.UseBindKraftLogger();
                 // If using Kestrel:
@@ -401,8 +404,6 @@ namespace Ccf.Ck.Web.Middleware
                 //Case aware physical file provider
                 //First statement to register Error handling !!!Keep at the top!!!
                 app.UseMiddleware<KraftExceptionHandlerMiddleware>(loggerFactory, new ExceptionHandlerOptions(), diagnosticListener);
-                AppDomain.CurrentDomain.UnhandledException += AppDomain_OnUnhandledException;
-                AppDomain.CurrentDomain.AssemblyResolve += AppDomain_OnAssemblyResolve;
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps)
                 {
                     app.UseForwardedHeaders();
