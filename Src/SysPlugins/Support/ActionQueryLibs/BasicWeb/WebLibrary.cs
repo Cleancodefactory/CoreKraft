@@ -308,7 +308,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                             AllowTrailingCommas = true,
                             CommentHandling = JsonCommentHandling.Skip
                         };
-                        var kirech = new Dictionary<string, object>((Dictionary<string, object>)DictionaryStringObjectJson.Deserialize(jsonstring, options));
+                        var kirech = DictionaryStringObjectJson.Deserialize(jsonstring, options);
+                        
                         return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(kirech);
                     } catch (Exception) {
                         return Error.Create("Cannot parse the returned content.");
