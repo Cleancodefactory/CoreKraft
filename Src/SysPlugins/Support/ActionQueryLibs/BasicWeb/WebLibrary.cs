@@ -6,6 +6,7 @@ using Ccf.Ck.Utilities.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -23,6 +24,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         private readonly object _LockObject = new Object();
         private readonly HttpClient _Http = null;
         private readonly HttpClientHandler _Handler = null;
+        private readonly Dictionary<string,string> requestHeaders = new Dictionary<string,string>();
 
         public WebLibrary() {
             var handler = new HttpClientHandler();
@@ -48,6 +50,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                     return BuildQueryString;
                 case nameof(UnbuildQueryString):
                     return UnbuildQueryString;
+                case nameof(SetRequestHeader):
+                    return SetRequestHeader;
+                case nameof(ClearRequestHeaders):
+                    return ClearRequestHeaders;
+
             }
             return null;
         }
@@ -74,7 +81,62 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         }
         #endregion
 
+
+
         #region Functions
+        [Function(nameof(SetRequestHeader),"Sets one or more requst headers")]
+        public ParameterResolverValue SetRequestHeader(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length == 0) throw new ArgumentException("No arguments passed to SetRequestHeader");
+            int ncount = 0;
+            if (args.Length == 1 && args[0].Value is Dictionary<string, ParameterResolverValue> hdrs)
+            {
+                foreach (var kv in hdrs)
+                {
+                    if (requestHeaders.ContainsKey(kv.Key))
+                    {
+                        if (kv.Value.Value == null)
+                        {
+                            // Remove header
+                            requestHeaders.Remove(kv.Key);
+                        }
+
+                    }
+                    if (kv.Value.Value is string strVal)
+                    {
+                        requestHeaders[kv.Key] = strVal;
+                    }
+                }
+            }
+            else if (args.Length > 0 && args.Length % 2 == 0)
+            {
+                for (int i = 0; i < (args.Length / 2); i++)
+                {
+                    if (args[i*2].Value is string skey)
+                    {
+                        if (!string.IsNullOrWhiteSpace(skey))
+                        {
+                            if (args[i * 2 + 1].Value is string sval) {
+                                requestHeaders[skey] = sval;
+                            } else if (args[i * 2 + 1].Value == null) {
+                                requestHeaders.Remove(skey);
+                            }
+                        }
+                    }
+                }
+            } else { 
+                throw new ArgumentException("Wrong number of arguments. Either single dictionary or pairs headerName/HeaderValue are required.");
+            }
+            return new ParameterResolverValue(requestHeaders.Count);
+        }
+        [Function(nameof(ClearRequestHeaders),"Clears any configured request headers")]
+        public ParameterResolverValue ClearRequestHeaders(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 0) throw new ArgumentException("Clear RequestHeaders does not accept argumente");
+            requestHeaders.Clear();
+            return new ParameterResolverValue(true);
+        }
+
         [Function(nameof(BuildQueryString), "Converts key/value pair of parameters to query string")]
         [ParameterPattern(1, "dict", "Contains the query parameters as key/value pairs", TypeFlags.String, TypeFlags.Object)]
         [Result("Returns the url encoded string", TypeFlags.String| TypeFlags.Bool)]
@@ -120,6 +182,19 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             return new ParameterResolverValue(dic);
         }
 
+
+        private void AddMessageHeaders(HttpRequestMessage msg)
+        {
+            if (requestHeaders.Count > 0)
+            {
+                foreach (var kv  in requestHeaders)
+                {
+                    msg.Headers.Add(kv.Key, kv.Value);
+                }
+                
+            }
+            
+        }
         /// <summary>
         /// WGetJson(url, Dict of queryparams): dict
         /// </summary>
@@ -156,6 +231,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
             string str;
+            AddMessageHeaders(msg);
             if (args.Length > 3)
             {
                 if (args[3].Value is List<ParameterResolverValue> acceptTypes)
@@ -219,6 +295,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
             var accpets = new MediaTypeWithQualityHeaderValue("application/json");
+            AddMessageHeaders(msg);
             msg.Headers.Accept.Add(accpets);
             using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
@@ -263,6 +340,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
             var accpets = new MediaTypeWithQualityHeaderValue("application/octet-stream");
+            AddMessageHeaders(msg);
             msg.Headers.Accept.Add(accpets);
             using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
@@ -304,6 +382,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                 }
             }
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Post, uri.Uri);
+            AddMessageHeaders(msg);
             if (sc != null) msg.Content = sc;
             var accpets = new MediaTypeWithQualityHeaderValue("application/json");
             msg.Headers.Accept.Add(accpets);
