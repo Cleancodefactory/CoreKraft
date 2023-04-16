@@ -231,6 +231,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
             string str;
+            AddMessageHeaders(msg);
             if (args.Length > 3)
             {
                 if (args[3].Value is List<ParameterResolverValue> acceptTypes)
@@ -294,6 +295,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
             var accpets = new MediaTypeWithQualityHeaderValue("application/json");
+            AddMessageHeaders(msg);
             msg.Headers.Accept.Add(accpets);
             using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
@@ -338,6 +340,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             }
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, uri.Uri);
             var accpets = new MediaTypeWithQualityHeaderValue("application/octet-stream");
+            AddMessageHeaders(msg);
             msg.Headers.Accept.Add(accpets);
             using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
@@ -379,6 +382,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
                 }
             }
             HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Post, uri.Uri);
+            AddMessageHeaders(msg);
             if (sc != null) msg.Content = sc;
             var accpets = new MediaTypeWithQualityHeaderValue("application/json");
             msg.Headers.Accept.Add(accpets);
