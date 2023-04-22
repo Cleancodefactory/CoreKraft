@@ -18,9 +18,9 @@ namespace Ccf.Ck.Utilities.Json
             }
             return result;
         }
-        public static Regex _re8601 = new Regex(@"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,})?Z", RegexOptions.CultureInvariant);
-        public static bool IsFull8601UtcString(string input) {
-            return _re8601.IsMatch(input);
+        private static Regex _Re8601 = new Regex(@"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,})?Z", RegexOptions.CultureInvariant);
+        private static bool IsFull8601UtcString(string input) {
+            return _Re8601.IsMatch(input);
         }
         private static object Traverse(ref Utf8JsonReader reader)
         {

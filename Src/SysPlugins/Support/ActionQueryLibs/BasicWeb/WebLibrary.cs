@@ -88,7 +88,6 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
         public ParameterResolverValue SetRequestHeader(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length == 0) throw new ArgumentException("No arguments passed to SetRequestHeader");
-            int ncount = 0;
             if (args.Length == 1 && args[0].Value is Dictionary<string, ParameterResolverValue> hdrs)
             {
                 foreach (var kv in hdrs)
