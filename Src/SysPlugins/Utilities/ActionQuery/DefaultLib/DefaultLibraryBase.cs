@@ -32,6 +32,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(GSetting) => GSetting,
                 nameof(Throw) => Throw,
                 nameof(Debug) => Debug,
+                nameof(NType) => NType,
                 nameof(IsEmpty) => IsEmpty,
                 nameof(TypeOf) => TypeOf,
                 nameof(To8601String) => To8601String,
@@ -1099,6 +1100,23 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
+        public ParameterResolverValue NType(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length > 2) throw new ArgumentException("NType acceptes up to two arguments");
+            var bfull = true;
+            if (args.Length > 1)
+            {
+                if (args[1].IsFalsy()) bfull = false;
+            }
+            var val = args[0].Value;
+            if (val == null) return new ParameterResolverValue("null");
+            if (bfull) {
+                return new ParameterResolverValue(val.GetType().FullName);
+            } else {
+                return new ParameterResolverValue(val.GetType().Name);
+            }
+            
+        }
         #region MetaInfo
         private MetaNode _NavMetaNodes(MetaNode current, int level) {
             MetaNode result = current;
