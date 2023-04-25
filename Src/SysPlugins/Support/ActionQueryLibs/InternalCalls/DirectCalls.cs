@@ -171,10 +171,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                 else if (args[1].Value is Dictionary<string, object> rawdict)
                 {
                     inp.Data = rawdict;
-                }else if (args[1].Value == null)
-                {
-                    inp.Data = null;
                 }
+                else if (args[1].Value == null)
+                {
+                    inp.Data = new Dictionary<String,object>();
+                
                 } else {
                     throw new ArgumentException("Main arguments are currently supported only as a internal AC Dictionary (Dictionary<string, ParameterResolverValue>). Use Dict and related functions from the default library to create one.");
                 }
@@ -183,6 +184,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                         inp.QueryCollection = qdict.ToDictionary(kv => kv.Key, kv => kv.Value.Value);
                     } else if (args[2].Value is Dictionary<string, object> rawdict) {
                         inp.QueryCollection = rawdict;
+                    } else if (args[2].Value == null)  {
+                        // leave it empty  or null or whatever
                     } else {
                         throw new ArgumentException("Query collection arguments are currently supported only as a Dictionary. Use Dict and related functions from the default library to create one.");
                     }
