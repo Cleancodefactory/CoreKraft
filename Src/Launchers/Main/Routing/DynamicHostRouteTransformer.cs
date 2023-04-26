@@ -21,6 +21,16 @@ namespace Ccf.Ck.Launchers.Main.Routing
 
         public override ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
+            if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorizationAnyEndpoint 
+                && _KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
+            {
+                if (!httpContext.User.Identity.IsAuthenticated)
+                {
+                    values["controller"] = "account";
+                    values["action"] = "signin";
+                    return new ValueTask<RouteValueDictionary>(values);
+                }
+            }
             foreach (RouteMapping routing in _KraftGlobalConfigurationSettings.GeneralSettings.RazorAreaAssembly.RouteMappings)
             {
                 if (!string.IsNullOrEmpty(routing.SlugExpression))
@@ -41,7 +51,7 @@ namespace Ccf.Ck.Launchers.Main.Routing
                         }
                         break;
                     }
-                }                
+                }
             }
             return new ValueTask<RouteValueDictionary>(values);
         }
