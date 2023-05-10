@@ -4,6 +4,7 @@ using Ccf.Ck.Launchers.Main.Utils;
 using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.EmailSettings;
 using Ccf.Ck.Models.Settings;
+using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Web.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Ccf.Ck.Launchers.Main
@@ -114,6 +116,25 @@ namespace Ccf.Ck.Launchers.Main
             }
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            if (_KraftGlobalConfiguration.GeneralSettings.MiddleWares.Count > 0)
+            {
+                foreach (MiddleWareSettings middleWare in _KraftGlobalConfiguration.GeneralSettings.MiddleWares)
+                {
+                    Type ImplementationAsType = Type.GetType(middleWare.ImplementationAsString, true);
+                    Type InterfaceAsType = Type.GetType(middleWare.InterfaceAsString);
+
+                    TypeInfo typeInfo = ImplementationAsType.GetTypeInfo();
+                    if (typeInfo.ImplementedInterfaces.Contains(InterfaceAsType))
+                    {
+                        IUseMiddleWare instance = Activator.CreateInstance(ImplementationAsType) as IUseMiddleWare;
+                        instance.Use(app);
+                    }
+                    else
+                    {
+                        //Error type does not implement interface
+                    }
+                }
+            }
 
             if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
             {

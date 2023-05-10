@@ -1,10 +1,8 @@
 ﻿using Ccf.Ck.Models.Enumerations;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -30,6 +28,7 @@ namespace Ccf.Ck.Models.Settings
             SpaSettings = new SpaSettings();
             HistoryNavSettings = new HistoryNavSettings();
             HostingServiceSettings = new List<HostingServiceSetting>();
+            MiddleWares = new List<MiddleWareSettings>();
         }
         public int TaskThreads { get; set; } = 0; // auto by default
         public int MaxAutoTaskThreads { get; set; } = 4; // has effect only if auto is set
@@ -81,6 +80,7 @@ namespace Ccf.Ck.Models.Settings
         public SpaSettings SpaSettings { get; set; }
         public HistoryNavSettings HistoryNavSettings { get; set; }
         public List<HostingServiceSetting> HostingServiceSettings { get; set; }
+        public List<MiddleWareSettings> MiddleWares { get; set; }
         public List<string> MetaTags { get; set; }
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
