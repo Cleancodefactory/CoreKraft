@@ -1,38 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Ccf.Ck.Libs.ResolverExpression;
+﻿using Ccf.Ck.Libs.ResolverExpression;
+using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.Models.Settings;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses;
 using Ccf.Ck.Utilities.Generic;
-using System.Text.RegularExpressions;
-using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Newtonsoft.Json;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
-using static Ccf.Ck.Models.ContextBasket.ModelConstants;
-using Ccf.Ck.Models.Settings;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using System.Threading.Tasks;
-using System.Net;
-using Newtonsoft.Json;
-using System.IO;
-using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
-using Ccf.Ck.Models.NodeSet;
-using Ccf.Ck.Models.Interfaces;
 using System.Security.Cryptography;
-using Org.BouncyCastle.Crypto.Modes;
-using Ccf.Ck.Models.DirectCall;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 using InputModel = Ccf.Ck.Models.NodeRequest.InputModel;
 
-namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
+namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
+{
     /// <summary>
     /// This class contains the built-in standard set of resolvers for parameter resolution expressions.
     /// This is the set 1, marked with ending 1_X in the class name. The naming for the standard built in sets of resolvers
