@@ -142,6 +142,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "GetAuthBearerToken",
+                                     Arguments = 0,
+                                     Name = "GetAuthBearerToken"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "GetUserEmail",
                                      Arguments = 0,
                                      Name = "GetUserEmail"

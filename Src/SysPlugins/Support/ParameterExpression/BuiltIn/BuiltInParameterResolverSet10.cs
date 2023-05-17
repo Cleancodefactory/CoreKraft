@@ -29,6 +29,8 @@ using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Interfaces;
 using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto.Modes;
+using Ccf.Ck.Models.DirectCall;
+using InputModel = Ccf.Ck.Models.NodeRequest.InputModel;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
     /// <summary>
@@ -508,6 +510,18 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn {
         public ParameterResolverValue GetUserId(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             InputModel inputModel = ctx.ProcessingContext.InputModel;
             return new ParameterResolverValue(inputModel.SecurityModel?.UserName);
+        }
+
+        public ParameterResolverValue GetAuthBearerToken(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            IHttpContextAccessor httpContextAccessor = ctx.PluginServiceManager.GetService<IHttpContextAccessor>(typeof(HttpContextAccessor));
+
+            Task<string> accessTokenTask = httpContextAccessor.HttpContext.GetTokenAsync(OpenIdConnectDefaults.AuthenticationScheme, OpenIdConnectParameterNames.AccessToken);
+            if (accessTokenTask.IsFaulted)//occurs when no authentication is included
+            {
+                return new ParameterResolverValue(null);
+            }
+            return new ParameterResolverValue(accessTokenTask.Result);
         }
 
         public ParameterResolverValue GetUserEmail(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
