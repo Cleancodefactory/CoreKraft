@@ -31,7 +31,9 @@ namespace Ccf.Ck.Web.Middleware
             var actualPath = GetActualFilePath(subpath);
             if (CaseSensitive && actualPath.Replace(Path.DirectorySeparatorChar.ToString(), string.Empty) != subpath.Replace("/", string.Empty))
             {
-                KraftLogger.LogError($"File or Directory not found: {subpath}. Please check casing!");
+                if (subpath != null && !subpath.Contains("favicon.ico")) {
+                    KraftLogger.LogError($"File or Directory not found: {subpath}. Please check casing!");
+                }
                 return new NotFoundFileInfo(subpath);
             }
             return _Provider.GetFileInfo(actualPath);
@@ -41,7 +43,10 @@ namespace Ccf.Ck.Web.Middleware
             var actualPath = GetActualFilePath(subpath);
             if (CaseSensitive && actualPath != subpath)
             {
-                KraftLogger.LogError($"Directory not found: {subpath}. Please check casing!");
+                if (subpath != null && !subpath.Contains("favicon.ico"))
+                {
+                    KraftLogger.LogError($"Directory not found: {subpath}. Please check casing!");
+                }
                 return NotFoundDirectoryContents.Singleton;
             }
             return _Provider.GetDirectoryContents(actualPath);
