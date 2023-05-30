@@ -31,21 +31,35 @@ namespace Ccf.Ck.Models.KraftModule
             Dictionary<string, ModuleProps> allReferencedModules = new Dictionary<string, ModuleProps>();
             foreach (string dir in modulesRootFolders)
             {
-                string[] moduleDirectories = Directory.GetDirectories(dir);
-                foreach (string subdirectory in moduleDirectories)
+                DirectoryInfo moduleDirectory = new DirectoryInfo(dir);
+                if (KraftModule.IsValidKraftModule(moduleDirectory.FullName))
                 {
-                    DirectoryInfo moduleDirectory = new DirectoryInfo(subdirectory);
-                    if (moduleDirectory.Exists && KraftModule.IsValidKraftModule(moduleDirectory.FullName))
+                    allReferencedModules = CollectModule(moduleDirectory, allReferencedModules);
+                }
+                else //step inside
+                {
+                    string[] moduleDirectories = Directory.GetDirectories(dir);
+                    foreach (string subdirectory in moduleDirectories)
                     {
-                        if (!allReferencedModules.ContainsKey(moduleDirectory.Name.ToLower()))
-                        {
-                            ModuleProps moduleProps = new ModuleProps();
-                            moduleProps.Key = moduleDirectory.Name.ToLower();
-                            moduleProps.Name = moduleDirectory.Name;
-                            moduleProps.Path = moduleDirectory.FullName;
-                            allReferencedModules.Add(moduleProps.Key, moduleProps);
-                        }
+                        moduleDirectory = new DirectoryInfo(subdirectory);
+                        allReferencedModules = CollectModule(moduleDirectory, allReferencedModules);
                     }
+                }                
+            }
+            return allReferencedModules;
+        }
+
+        private Dictionary<string, ModuleProps> CollectModule(DirectoryInfo moduleDirectory, Dictionary<string, ModuleProps> allReferencedModules)
+        {
+            if (moduleDirectory.Exists && KraftModule.IsValidKraftModule(moduleDirectory.FullName))
+            {
+                if (!allReferencedModules.ContainsKey(moduleDirectory.Name.ToLower()))
+                {
+                    ModuleProps moduleProps = new ModuleProps();
+                    moduleProps.Key = moduleDirectory.Name.ToLower();
+                    moduleProps.Name = moduleDirectory.Name;
+                    moduleProps.Path = moduleDirectory.FullName;
+                    allReferencedModules.Add(moduleProps.Key, moduleProps);
                 }
             }
             return allReferencedModules;

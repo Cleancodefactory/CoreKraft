@@ -92,6 +92,10 @@ namespace Ccf.Ck.Models.KraftModule
             if (isScript)
             {
                 //process Scripts folder
+                if (!File.Exists(Path.Combine(ModulePath, JS_FOLDER_NAME, startDepFile)))
+                {
+                    startDepFile = RESOURCEDEPENDENCY_FILE_NAME;
+                }
                 ScriptKraftBundle = ConstructScriptsBundle(rootPath, Path.Combine(ModulePath, JS_FOLDER_NAME), startDepFile);
 
                 //process Template folder               
@@ -100,6 +104,10 @@ namespace Ccf.Ck.Models.KraftModule
             else
             {
                 //process CSS folder
+                if (!File.Exists(Path.Combine(ModulePath, CSS_FOLDER_NAME, startDepFile)))
+                {
+                    startDepFile = RESOURCEDEPENDENCY_FILE_NAME;
+                }
                 StyleKraftBundle = ConstructStyleBundle(rootPath, Path.Combine(ModulePath, CSS_FOLDER_NAME), startDepFile);
             }
         }
