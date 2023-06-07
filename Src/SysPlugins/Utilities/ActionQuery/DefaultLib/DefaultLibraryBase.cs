@@ -1063,6 +1063,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     "ModulePublic" => kgcf?.GeneralSettings?.KraftUrlModulePublic,
                     "Theme" => kgcf?.GeneralSettings?.Theme,
                     "HostKey" => kgcf?.GeneralSettings?.ServerHostKey,
+                    "Authority" => kgcf?.GeneralSettings?.Authority,
                     "SignalRHub" => kgcf?.GeneralSettings?.SignalRSettings?.HubRoute,
                     _ => null
                 }
