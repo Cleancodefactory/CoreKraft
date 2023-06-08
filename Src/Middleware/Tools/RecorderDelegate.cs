@@ -20,7 +20,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                 httpContext.Request.RouteValues.TryGetValue("p", out object val);
                 ISecurityModel securityModel = new SecurityModelMock(kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
                 const string contentType = "text/html; charset=UTF-8";
-                int statusCode = 200;
+                int statusCode = (int)HttpStatusCode.OK;
                 string message = string.Empty;
                 if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                 {
@@ -31,7 +31,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                 }
                 switch (val)
                 {
-                    case "0":
+                    case "0": //Pause
                         {
                             if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                             {
@@ -48,20 +48,22 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                     {
                                         message = "The Recorder is not running.";
                                     }
+                                    statusCode = (int)HttpStatusCode.OK;
                                 }
                                 else
                                 {
                                     message = "Please login because the recorder can't be run for anonymous users.";
+                                    statusCode = (int)HttpStatusCode.Unauthorized;
                                 }
                             }
                             else
                             {
-                                statusCode = (int)HttpStatusCode.NotFound;
                                 message = "Recorder is not configured and can't be started.";
+                                statusCode = (int)HttpStatusCode.NotFound;
                             }
                             break;
                         }
-                    case "1":
+                    case "1"://Start
                         {
                             if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                             {
@@ -73,21 +75,22 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                     recordersStoreImp.Set(requestRecorder, securityModel.UserName);
                                     requestRecorder.IsRunning = true;
                                     message = "Recorder is enabled";
+                                    statusCode = (int)HttpStatusCode.OK;
                                 }
                                 else
                                 {
-                                    statusCode = (int)HttpStatusCode.Unauthorized;
                                     message = "Please login because the recorder can't be run for anonymous users.";
+                                    statusCode = (int)HttpStatusCode.Unauthorized;
                                 }
                             }
                             else
                             {
-                                statusCode = (int)HttpStatusCode.NotFound;
                                 message = "Recorder is not configured and can't be started.";
+                                statusCode = (int)HttpStatusCode.NotFound;
                             }
                             break;
                         }
-                    case "2":
+                    case "2"://Download
                         {
                             if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                             {
@@ -104,26 +107,29 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                         httpContext.Response.Clear();
                                         httpContext.Response.Headers.Add("Content-Length", message.Length.ToString());
                                         httpContext.Response.Headers.Add("Content-Disposition", "attachment;filename=RecordedSession.json");
+                                        statusCode = (int)HttpStatusCode.OK;
                                     }
                                     else
                                     {
                                         message = "The Recorder is not enabled and no data is available.";
+                                        statusCode = (int)HttpStatusCode.OK;
                                     }
+                                    
                                 }
                                 else
                                 {
-                                    statusCode = (int)HttpStatusCode.Unauthorized;
                                     message = "Please login because the recorder can't be run for anonymous users.";
+                                    statusCode = (int)HttpStatusCode.Unauthorized;
                                 }
                             }
                             else
                             {
-                                statusCode = (int)HttpStatusCode.NotFound;
                                 message = "Recorder is not configured and can't be started.";
+                                statusCode = (int)HttpStatusCode.NotFound;
                             }
                             break;
                         }
-                    case "3":
+                    case "3"://Delete information
                         {
                             if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                             {
@@ -140,20 +146,38 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                     {
                                         message = "The Recorder is not running.";
                                     }
+                                    statusCode = (int)HttpStatusCode.OK;
                                 }
                                 else
                                 {
-                                    statusCode = (int)HttpStatusCode.Unauthorized;
                                     message = "Please login because the recorder can't be used for anonymous users.";
+                                    statusCode = (int)HttpStatusCode.Unauthorized;
                                 }
                             }
                             else
                             {
-                                statusCode = (int)HttpStatusCode.NotFound;
                                 message = "Recorder is not configured and can't be started.";
+                                statusCode = (int)HttpStatusCode.NotFound;
                             }
                             break;
                         }
+                    case "4": //Check
+                        if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
+                        {
+                            if (securityModel.IsAuthenticated)
+                            {
+                                statusCode = (int)HttpStatusCode.OK;
+                            }
+                            else
+                            {
+                                statusCode = (int)HttpStatusCode.Unauthorized;
+                            }
+                        }
+                        else
+                        {
+                            statusCode = (int)HttpStatusCode.NotFound;
+                        }
+                        break;
                     default:
                         break;
                 }
