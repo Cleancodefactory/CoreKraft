@@ -732,7 +732,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 return null; // TODO: May be empty object? Can we be here at all if anything was wrong?
             }
             else
-            {
+            { // De facto this branch returns list of dictionaries always
                 return currentNode;
             }
         }

@@ -57,7 +57,7 @@ A C# library project is required and at least one class in it that inherits from
 ```CSharp
 public class MyResloverLib : ParameterResolverSet
 {
-    public DbNameResolverImp() : base(new ResolverSet
+    public MyResloverLib() : base(new ResolverSet
     {
         Resolvers = new List<Resolver>()
         {
