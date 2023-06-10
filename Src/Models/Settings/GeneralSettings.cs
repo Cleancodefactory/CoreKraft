@@ -30,6 +30,7 @@ namespace Ccf.Ck.Models.Settings
             HostingServiceSettings = new List<HostingServiceSetting>();
             MiddleWares = new List<MiddleWareSettings>();
         }
+        public string DataStatePropertyName { get; set; } = null; // if missing the default value 'state' is used
         public int TaskThreads { get; set; } = 0; // auto by default
         public int MaxAutoTaskThreads { get; set; } = 4; // has effect only if auto is set
         public string ServerHostKey { get; set; }

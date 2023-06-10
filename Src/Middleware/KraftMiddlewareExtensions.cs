@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Libs.Web.Bundling;
+using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.Settings;
@@ -82,6 +83,10 @@ namespace Ccf.Ck.Web.Middleware
                     options.AllowSynchronousIO = true;
                 });
                 _KraftGlobalConfigurationSettings = new KraftGlobalConfigurationSettings();
+                if (!string.IsNullOrWhiteSpace(_KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName))
+                {
+                    ModelConstants._STATE_PROPERTY_NAME = _KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName;
+                }
                 configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
                 List<IConfigurationSection> slaveConfigSections = new List<IConfigurationSection>();
                 foreach (string sectionName in _KraftGlobalConfigurationSettings.GeneralSettings.SlaveConfiguration.Sections)
@@ -389,7 +394,7 @@ namespace Ccf.Ck.Web.Middleware
             //});
 
             _KraftGlobalConfigurationSettings.EnvironmentSettings = new KraftEnvironmentSettings(env.ApplicationName, env.ContentRootPath, env.EnvironmentName, env.WebRootPath);
-
+            
             try
             {
                 ILoggerFactory loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
