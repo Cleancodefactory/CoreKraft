@@ -83,11 +83,11 @@ namespace Ccf.Ck.Web.Middleware
                     options.AllowSynchronousIO = true;
                 });
                 _KraftGlobalConfigurationSettings = new KraftGlobalConfigurationSettings();
+                configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
                 if (!string.IsNullOrWhiteSpace(_KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName))
                 {
                     ModelConstants._STATE_PROPERTY_NAME = _KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName;
                 }
-                configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
                 List<IConfigurationSection> slaveConfigSections = new List<IConfigurationSection>();
                 foreach (string sectionName in _KraftGlobalConfigurationSettings.GeneralSettings.SlaveConfiguration.Sections)
                 {

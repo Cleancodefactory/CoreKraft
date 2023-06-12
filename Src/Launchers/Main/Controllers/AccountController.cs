@@ -1,7 +1,9 @@
 ﻿using Ccf.Ck.Models.Settings;
+using dotless.Core.Parser.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ccf.Ck.Launchers.Main.Controllers
@@ -22,7 +24,8 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             if (string.IsNullOrEmpty(returnUrl))
             {
                 string redirAfterLogin = _KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RedirectAfterLogin;
-                returnUrl = Url.Action("Index", "Home");
+                //Return the absolute redirect url
+                returnUrl = Url.Action("Index", "Home", values: null, protocol: Request.Scheme);
                 if (!string.IsNullOrWhiteSpace(redirAfterLogin) && !string.IsNullOrEmpty(returnUrl)) {
                     if (!returnUrl.EndsWith('/')) returnUrl += '/';
                     if (redirAfterLogin.StartsWith('/')) redirAfterLogin = redirAfterLogin.TrimStart('/');
