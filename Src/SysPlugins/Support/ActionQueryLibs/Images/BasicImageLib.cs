@@ -202,7 +202,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             return new ParameterResolverValue(null);
         }
 
-        [Function(nameof(WaterMarkImage), "")]
+        [Function(nameof(WaterMarkImage), "Updates an image with a text as watermark")]
         public ParameterResolverValue WaterMarkImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 5) throw new ArgumentException("WaterMarkImage requires 5 arguments");
@@ -222,7 +222,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
 
         }
 
-        [Function(nameof(GetFont), "")]
+        [Function(nameof(GetFont), "Font family name: e.g. Open Sans ExtraBold, Rubik ")]
         public ParameterResolverValue GetFont(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 2) throw new ArgumentException("GetFont requires 3 arguments");
