@@ -14,12 +14,12 @@
 
 	<ItemGroup>
 		<None Remove="fonts\OpenSans-ExtraBold.ttf" />
+		<None Remove="fonts\Rubik-Regular.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="fonts\OpenSans-ExtraBold.ttf">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</EmbeddedResource>
+		<EmbeddedResource Include="fonts\OpenSans-ExtraBold.ttf" />
+		<EmbeddedResource Include="fonts\Rubik-Regular.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>
