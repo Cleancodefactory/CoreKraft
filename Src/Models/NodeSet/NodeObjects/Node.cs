@@ -113,10 +113,13 @@ namespace Ccf.Ck.Models.NodeSet
 
         public bool HasLookup() => (Lookups != null && Lookups.Count > 0);
 
-
+        /// <summary>
+        /// Collected at first nodeexecutiooncontext execution following the "inheritance" rules
+        /// </summary>
         public List<Parameter> CollectedReadParameters { get; set; }
+        public object ReadCache { get; set; }
         public List<Parameter> CollectedWriteParameters { get; set; }
-
+        public object WriteCache { get; set; }
         public bool HasValidDataSection(bool iswriteoperation)
         {
             return
