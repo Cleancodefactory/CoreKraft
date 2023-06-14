@@ -42,6 +42,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     return ThumbImage;
                 case nameof(WaterMarkImage):
                     return WaterMarkImage;
+                case nameof(WaterMarkImageWithLogo):
+                    return WaterMarkImageWithLogo;
                 case nameof(GetFont):
                     return GetFont;
                 case nameof(SaveImage):
@@ -206,7 +208,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         public ParameterResolverValue WaterMarkImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 5) throw new ArgumentException("WaterMarkImage requires 5 arguments");
-            var image = args[0].Value as Image;
+            Image image = args[0].Value as Image;
             if (image != null)
             {
                 string drawText = Convert.ToString(args[1].Value);
@@ -219,7 +221,44 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 return new ParameterResolverValue(image);
             }
             return new ParameterResolverValue(null);
+        }
 
+        [Function(nameof(WaterMarkImageWithLogo), "Updates an image with another image as watermark")]
+        public ParameterResolverValue WaterMarkImageWithLogo(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 3) throw new ArgumentException("WaterMarkImageWithLogo requires 3 arguments");
+            Image image = args[0].Value as Image;
+            if (image != null)
+            {
+                Image logo = args[1].Value as Image;
+                if (logo == null)
+                {
+                    throw new ArgumentException("Logo for WaterMarkImageWithLogo doesn't contain valid image. Please create one with CreateImage(...)");
+                }
+                float alpha = (float)Convert.ToDouble(args[2].Value);
+                if (alpha < 0 || alpha > 1)
+                {
+                    alpha = 1f;
+                }
+                image = image.Clone(ctx => ApplyScalingWaterMarkWithLogo(ctx, logo, 10, alpha));
+                return new ParameterResolverValue(image);
+            }
+            return new ParameterResolverValue(null);
+
+        }
+
+        private IImageProcessingContext ApplyScalingWaterMarkWithLogo(IImageProcessingContext processingContext,
+            Image logo,
+            float padding,
+            float alpha = 1f
+          )
+        {
+            Size imgSize = processingContext.GetCurrentSize();
+            Point center = new SixLabors.ImageSharp.Point((int)padding, imgSize.Height / 2);
+            Size logoSize = logo.Size;
+            int x = imgSize.Width / 2 - logo.Size.Width / 2;
+            int y = imgSize.Height / 2 - logo.Size.Height / 2;
+            return processingContext.DrawImage(logo, new Point(x, y), alpha);
         }
 
         [Function(nameof(GetFont), "Font family name: e.g. Open Sans ExtraBold, Rubik ")]
