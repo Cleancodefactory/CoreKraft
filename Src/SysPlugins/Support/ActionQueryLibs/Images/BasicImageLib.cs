@@ -263,6 +263,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             }
             else                        //decrease logo size
             {
+                //It is not a bug: widthDifference comes negative and that's why again plus
                 newLogoWidth = Convert.ToInt32((logo.Size.Width + widthDifference) * 0.7);
             }
 
