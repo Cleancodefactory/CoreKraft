@@ -254,10 +254,27 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
           )
         {
             Size imgSize = processingContext.GetCurrentSize();
+
+            int widthDifference = (int)(imgSize.Width - logo.Width);
+            int newLogoWidth;
+            if (widthDifference >= 0)   //increase logo size
+            {
+                newLogoWidth = Convert.ToInt32((logo.Size.Width + widthDifference) * 0.7);
+            }
+            else                        //decrease logo size
+            {
+                newLogoWidth = Convert.ToInt32((logo.Size.Width + widthDifference) * 0.7);
+            }
+
+            logo.Mutate(x => x.Resize(new ResizeOptions()
+            {
+                Mode = ResizeMode.Max,
+                Size = new Size() { Width = newLogoWidth }
+            }));
+
             Point center = new SixLabors.ImageSharp.Point((int)padding, imgSize.Height / 2);
-            Size logoSize = logo.Size;
-            int x = imgSize.Width / 2 - logo.Size.Width / 2;
-            int y = imgSize.Height / 2 - logo.Size.Height / 2;
+            int x = imgSize.Width / 2 - logo.Width / 2;
+            int y = imgSize.Height / 2 - logo.Height / 2;
             return processingContext.DrawImage(logo, new Point(x, y), alpha);
         }
 
@@ -301,7 +318,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 _FontCollection = new FontCollection();
                 var assembly = Assembly.GetExecutingAssembly();
                 string[] names = assembly.GetManifestResourceNames();
-                
+
                 foreach (string fontName in names)
                 {
                     //we accept only font files (.ttf in folder fonts)
@@ -324,7 +341,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             int penWidth,
             float padding,
             byte brushTransparency,
-            byte penTransparency            
+            byte penTransparency
           )
         {
             Size imgSize = processingContext.GetCurrentSize();
