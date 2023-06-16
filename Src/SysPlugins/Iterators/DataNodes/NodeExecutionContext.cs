@@ -356,9 +356,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// <summary>
         /// When called the evaluator will look here and if the expression is not yet compilled it will find it in Parameters and compile it here
         /// </summary>
-        private readonly Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>> CompiledParameterExpressions = new Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>>();
+        // private readonly Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>> CompiledParameterExpressions = new Dictionary<string, ResolverRunner<ParameterResolverValue, IParameterResolverContext>>();
 
-        private readonly Dictionary<string, ParameterResolverValue> CompiledParameterExpressionsCache = new Dictionary<string, ParameterResolverValue>();
+        // private readonly Dictionary<string, ParameterResolverValue> CompiledParameterExpressionsCache = new Dictionary<string, ParameterResolverValue>();
 
 
         #endregion
@@ -458,18 +458,18 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// Clears the cache and turns caching on or off
         /// </summary>
         /// <param name="enableAndClear"></param>
-        public void CacheParameters(bool enableAndClear)
-        {
-            CompiledParameterExpressionsCache.Clear();
-            _cacheParameters = enableAndClear;
-        }
+        //public void CacheParameters(bool enableAndClear)
+        //{
+        //    CompiledParameterExpressionsCache.Clear();
+        //    _cacheParameters = enableAndClear;
+        //}
         /// <summary>
         /// Clears the cache.
         /// </summary>
-        public void ClearCache()
-        {
-            CompiledParameterExpressionsCache.Clear();
-        }
+        //public void ClearCache()
+        //{
+        //    CompiledParameterExpressionsCache.Clear();
+        //}
         #endregion values cache
 
         private ResolverRunner<ParameterResolverValue, IParameterResolverContext> GetParameterRunner(string expressionName, out bool isdefault, out bool neverCache, bool noDefault = false, string initialExpressionName = null)
@@ -478,7 +478,9 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             neverCache = false; // TODO: Add a property to the Parameter to specify this
             isdefault = false;
             IResolverFinder<ParameterResolverValue, IParameterResolverContext> finder = ProcessingContext.KraftModule.ParameterResolvers as IResolverFinder<ParameterResolverValue, IParameterResolverContext>;
-            if (CompiledParameterExpressions.ContainsKey(expressionName)) return CompiledParameterExpressions[expressionName];
+            var runner = CurrentNode.GetParameterRunner(this, expressionName);
+            if (runner != null) return runner;
+            //if (CompiledParameterExpressions.ContainsKey(expressionName)) return CompiledParameterExpressions[expressionName];
             // Not compiled - compile it
             var param = GetParameterByName(expressionName);
             bool dummy;
@@ -487,11 +489,12 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 if (!string.IsNullOrWhiteSpace(param.Expression))
                 {
                     // just try to compile it
-                    var runner = ParameterResolversManager.Instance.Compiler.CompileResolverExpression(param.Expression, finder);
+                    runner = ParameterResolversManager.Instance.Compiler.CompileResolverExpression(param.Expression, finder);
                     if (runner == null) throw new Exception("Not a valid expression.");
                     if (!runner.IsValid) throw new Exception($"Error while compiling expression: {runner.ErrorText}");
                     // If we are here - it is valid runner
-                    CompiledParameterExpressions[expressionName] = runner;
+                    CurrentNode.SetParameterRunner(this, expressionName, runner);
+                    //CompiledParameterExpressions[expressionName] = runner;
                     return runner;
                 }
                 else
@@ -506,7 +509,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                     var defrunner = GetParameterRunner(DEFAULT_PARAMETER_NAME, out dummy, out neverCache, false, expressionName);
                     isdefault = true;
                     // The check here is paranoic - exceptions should be already thrown if the ocndition fails.
-                    if (defrunner != null && defrunner.IsValid) return defrunner;
+                    if (defrunner != null && defrunner.IsValid)
+                    {
+                        CurrentNode.SetParameterRunner(this, DEFAULT_PARAMETER_NAME, defrunner);
+                        return defrunner;
+                    }
                     throw new Exception($"Expression: '{expressionName}' or '{initialExpressionName}' can't be resolved. Check capital letter because the search is case sensitive."); // should never happen
                 }
             }
@@ -562,10 +569,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 if (ex == null)
                 {
                     //if (ex != null) throw ex;
-                    if ((_cacheParameters && !neverCache) && expressionName != DEFAULT_PARAMETER_NAME)
-                    {
-                        CompiledParameterExpressionsCache[expressionName] = result;
-                    }
+                    //if ((_cacheParameters && !neverCache) && expressionName != DEFAULT_PARAMETER_NAME)
+                    //{
+                    //    CompiledParameterExpressionsCache[expressionName] = result;
+                    //}
                     return result;
                 }
                 else

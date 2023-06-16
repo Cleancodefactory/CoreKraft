@@ -1,5 +1,10 @@
-﻿using Ccf.Ck.Models.Enumerations;
+﻿using Ccf.Ck.Libs.ResolverExpression;
+using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ck.SysPlugins.Iterators.DataNodes;
+using NUglify.JavaScript.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,6 +82,88 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
                 };
             }
             return ord;
+        }
+        #endregion
+
+        #region Resolver Cachiing extensions
+
+        public static CompiledParameter GetReadCachedParameter(this Node node, string name)
+        {
+            if (node == null) return null;
+            return node.ReadCache as CompiledParameter;
+        }
+        public static CompiledParameter GetWriteCachedParameter(this Node node, string name)
+        {
+            if (node == null) return null;
+            return node.WriteCache as CompiledParameter;
+        }
+        public static  ResolverRunner<ParameterResolverValue, IParameterResolverContext> GetReadParameterRunner(this Node node, string name)
+        {
+            if (node == null) return null;
+            CompiledParameter cparam = node.GetReadCachedParameter(name);
+            if (cparam == null) return null;
+            return cparam.Resolver;
+        }
+        public static ResolverRunner<ParameterResolverValue, IParameterResolverContext> GetWriteParameterRunner(this Node node, string name)
+        {
+            if (node == null) return null;
+            CompiledParameter cparam = node.GetWriteCachedParameter(name);
+            if (cparam == null) return null;
+            return cparam.Resolver;
+        }
+        public static ResolverRunner<ParameterResolverValue,IParameterResolverContext> GetParameterRunner(this Node node, NodeExecutionContext execCtx, string name)
+        {
+            if (node == null) return null;
+            if (execCtx == null) return null;
+            if(execCtx.Action.Equals(ACTION_READ))
+            {
+                return node.GetReadParameterRunner(name);
+            } else if (execCtx.Action.Equals(ACTION_WRITE))
+            {
+                return node.GetWriteParameterRunner(name);
+            } else
+            {
+                return null;
+            }
+        }
+        public static void SetReadParameterRunner(this Node node, string name, ResolverRunner<ParameterResolverValue, IParameterResolverContext> runner)
+        {
+            if (node == null) return;
+            CompiledParameter cparam = node.GetReadCachedParameter(name);
+            if (cparam == null)
+            {
+                cparam = new CompiledParameter(name);
+                node.ReadCache = cparam;
+            };
+            
+            cparam.Resolver = runner;
+        }
+        public static void SetWriteParameterRunner(this Node node, string name, ResolverRunner<ParameterResolverValue, IParameterResolverContext> runner)
+        {
+            if (node == null) return;
+            CompiledParameter cparam = node.GetWriteCachedParameter(name);
+            if (cparam == null)
+            {
+                cparam = new CompiledParameter(name);
+                node.WriteCache = cparam;
+            };
+
+            cparam.Resolver = runner;
+        }
+        public static void SetParameterRunner(this Node node,NodeExecutionContext execCtx, string name, ResolverRunner<ParameterResolverValue, IParameterResolverContext> runner)
+        {
+            if (node == null) return;
+            if (execCtx == null) return;
+            if (execCtx.Action.Equals(ACTION_READ))
+            {
+                node.SetReadParameterRunner(name, runner);
+            } else if (execCtx.Action.Equals(ACTION_WRITE))
+            {
+                node.SetWriteParameterRunner(name, runner);
+            } else
+            {
+                return;
+            }
         }
         #endregion
     }
