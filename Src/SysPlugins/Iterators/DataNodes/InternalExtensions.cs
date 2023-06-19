@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
@@ -86,16 +87,34 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
         #endregion
 
         #region Resolver Cachiing extensions
-
+        private static object _lockObject = new object();
         public static CompiledParameter GetReadCachedParameter(this Node node, string name)
         {
-            if (node == null) return null;
-            return node.ReadCache as CompiledParameter;
+            lock (_lockObject)
+            {
+                if (node == null) return null;
+                var coll = node.ReadCache as Dictionary<string, CompiledParameter>;
+                if (coll == null) return null;
+                if (coll.ContainsKey(name))
+                {
+                    return coll[name];
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
         public static CompiledParameter GetWriteCachedParameter(this Node node, string name)
         {
-            if (node == null) return null;
-            return node.WriteCache as CompiledParameter;
+            lock (_lockObject)
+            {
+                if (node == null) return null;
+                var coll = node.WriteCache as Dictionary<string, CompiledParameter>;
+                if (coll == null) return null;
+                if (!coll.ContainsKey(name)) return null;
+                return coll[name];
+            }
         }
         public static  ResolverRunner<ParameterResolverValue, IParameterResolverContext> GetReadParameterRunner(this Node node, string name)
         {
@@ -111,6 +130,13 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
             if (cparam == null) return null;
             return cparam.Resolver;
         }
+        /// <summary>
+        /// Depending the action returns the cached runner  from thedictionary in the read or write cache
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="execCtx"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static ResolverRunner<ParameterResolverValue,IParameterResolverContext> GetParameterRunner(this Node node, NodeExecutionContext execCtx, string name)
         {
             if (node == null) return null;
@@ -128,27 +154,52 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
         }
         public static void SetReadParameterRunner(this Node node, string name, ResolverRunner<ParameterResolverValue, IParameterResolverContext> runner)
         {
-            if (node == null) return;
-            CompiledParameter cparam = node.GetReadCachedParameter(name);
-            if (cparam == null)
+            lock (_lockObject)
             {
-                cparam = new CompiledParameter(name);
-                node.ReadCache = cparam;
-            };
-            
-            cparam.Resolver = runner;
+                if (node == null) return;
+                Dictionary<string, CompiledParameter> cache = node.ReadCache as Dictionary<string, CompiledParameter>;
+                if (cache == null)
+                {
+                    cache = new Dictionary<string, CompiledParameter>();
+                    node.ReadCache = cache;
+                }
+                CompiledParameter cparam = null;
+                if (!cache.ContainsKey(name))
+                {
+                    cparam = new CompiledParameter(name);
+                    cache.TryAdd(cparam.Name, cparam);
+                }
+                else
+                {
+                    cparam = cache[name];
+                }
+                cparam.Resolver = runner;
+            }
         }
         public static void SetWriteParameterRunner(this Node node, string name, ResolverRunner<ParameterResolverValue, IParameterResolverContext> runner)
         {
-            if (node == null) return;
-            CompiledParameter cparam = node.GetWriteCachedParameter(name);
-            if (cparam == null)
+            lock (_lockObject)
             {
-                cparam = new CompiledParameter(name);
-                node.WriteCache = cparam;
-            };
-
-            cparam.Resolver = runner;
+                if (node == null) return;
+                Dictionary<string, CompiledParameter> cache = node.WriteCache as Dictionary<string, CompiledParameter>;
+                if (cache == null)
+                {
+                    cache = new Dictionary<string, CompiledParameter>();
+                    node.WriteCache = cache;
+                }
+                CompiledParameter cparam = null;
+                if (!cache.ContainsKey(name))
+                {
+                    cparam = new CompiledParameter(name);
+                    cache.TryAdd(cparam.Name, cparam);
+                }
+                else
+                {
+                    cparam = cache[name];
+                }
+                cparam.Resolver = runner;
+            }
+            
         }
         public static void SetParameterRunner(this Node node,NodeExecutionContext execCtx, string name, ResolverRunner<ParameterResolverValue, IParameterResolverContext> runner)
         {
