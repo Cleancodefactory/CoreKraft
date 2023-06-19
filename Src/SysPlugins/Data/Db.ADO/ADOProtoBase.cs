@@ -1,10 +1,12 @@
 ﻿using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Resolvers;
-using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.SysPlugins.Data.Base;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
+using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,8 +14,6 @@ using System.Data.Common;
 using System.Text;
 using System.Text.RegularExpressions;
 using static Ccf.Ck.Models.ContextBasket.ModelConstants;
-using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 {
@@ -485,7 +485,17 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     }
                     sbError.AppendLine($"Write(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}");
                 }
-                KraftLogger.LogError(sbError.ToString(), ex, execContext);
+                if (ex is SqliteException sqliteException)
+                {
+                    if (sqliteException.SqliteErrorCode != 19 || !sqliteException.Message.Contains("Cannot set the update counter to -1."))
+                    {
+                        KraftLogger.LogError(sbError.ToString(), ex, execContext);
+                    }
+                }
+                else
+                {
+                    KraftLogger.LogError(sbError.ToString(), ex, execContext);
+                }                
                 metaReport.SetErrorInfo(ex, sbError.ToString());
                 throw;
             }

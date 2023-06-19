@@ -25,6 +25,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
         // Holds static information about the Authentication and Postman shema version
         // Contains array with every request passed through the API
         private static PostmanRunnerModel _RunnerModel = new PostmanRunnerModel();
+        private const string BASE_HOST = "{{base_host}}";
 
         public bool IsRunning { get; set; }
 
@@ -47,7 +48,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
 
 
             string url = request.GetEncodedUrl();
-            List<string> hostSegments = request.Host.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
+            List<string> hostSegments = new List<string>{BASE_HOST};//request.Host.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
             List<string> pathSegments = request.Path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
             List<PostmanQuerySection> queries = request.Query.Select(k => new PostmanQuerySection
             {

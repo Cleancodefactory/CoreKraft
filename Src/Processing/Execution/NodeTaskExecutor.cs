@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Packet;
 using Ccf.Ck.Models.Settings.Modules;
-using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Utilities.Profiling;
-using GenericUtilities = Ccf.Ck.Utilities.Generic.Utilities;
-using Ccf.Ck.Libs.Logging;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
-using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
-using System.Threading.Tasks;
-using System.Text;
+using Ccf.Ck.Utilities.Profiling;
+using Microsoft.Data.Sqlite;
+using System;
 using System.Linq;
+using System.Text;
+using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
+using GenericUtilities = Ccf.Ck.Utilities.Generic.Utilities;
 
 namespace Ccf.Ck.Processing.Execution
 {
@@ -171,7 +171,17 @@ namespace Ccf.Ck.Processing.Execution
                 errMsg.AppendLine($"DataPluginName: {loaderContextDefinition.StartNode.DataPluginName}");
                 errMsg.AppendLine($"RequireAuthentication: {loaderContextDefinition.StartNode.RequireAuthentication}");
                 errMsg.AppendLine($"Error.Message: {ex.Message}");
-                KraftLogger.LogError(errMsg.ToString(), ex);
+                if (ex != null && ex.InnerException is SqliteException sqliteException)
+                {
+                    if (sqliteException.SqliteErrorCode != 19 || !sqliteException.Message.Contains("Cannot set the update counter to -1."))
+                    {
+                        KraftLogger.LogError(errMsg.ToString(), ex);
+                    }
+                }
+                else
+                {
+                    KraftLogger.LogError(errMsg.ToString(), ex);
+                }
             }
             finally
             {
