@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net;
+using System.Text;
 
 namespace Ccf.Ck.Web.Middleware.Tools
 {
@@ -105,7 +106,8 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                         requestRecorder = Activator.CreateInstance(typeRecorder) as IRequestRecorder;
                                         recordersStoreImp.Set(requestRecorder, securityModel.UserName);
                                         httpContext.Response.Clear();
-                                        httpContext.Response.Headers.Add("Content-Length", message.Length.ToString());
+                                        //Don't calculate the response length!
+                                        //httpContext.Response.Headers.Add("Content-Length", message.Length.ToString());
                                         httpContext.Response.Headers.Add("Content-Disposition", "attachment;filename=RecordedSession.json");
                                         statusCode = (int)HttpStatusCode.OK;
                                     }
@@ -114,7 +116,6 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                         message = "The Recorder is not enabled and no data is available.";
                                         statusCode = (int)HttpStatusCode.OK;
                                     }
-                                    
                                 }
                                 else
                                 {
@@ -183,7 +184,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                 }
                 httpContext.Response.StatusCode = statusCode;
                 httpContext.Response.ContentType = contentType;
-                await httpContext.Response.WriteAsync(message);
+                await httpContext.Response.WriteAsync(message, Encoding.UTF8);
             };
             return requestDelegate;
         }

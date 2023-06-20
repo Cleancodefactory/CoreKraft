@@ -24,13 +24,19 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
     {
         // Holds static information about the Authentication and Postman shema version
         // Contains array with every request passed through the API
-        private static PostmanRunnerModel _RunnerModel = new PostmanRunnerModel();
-        private const string BASE_HOST = "{{base_host}}";
+        private PostmanRunnerModel _RunnerModel = new PostmanRunnerModel();
+        public const string BASE_HOST = "{{base_host}}";
+        public const string COOKIE = "{{cookie}}";
+        private string _CookieValue;
 
         public bool IsRunning { get; set; }
 
         public Task<string> GetFinalResult()
         {
+            if (_CookieValue != null)
+            {
+                _RunnerModel.UpdatePreRequestEvents(_CookieValue);
+            }
             string result = GetJsonString(_RunnerModel);
             _RunnerModel = new PostmanRunnerModel();
             return Task.FromResult(result);
@@ -58,10 +64,21 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
 
             foreach (var header in headers)
             {
+                string key = header.Key.StartsWith(':') ? header.Key.TrimStart(':') : header.Key;
+                string value = header.Value.First.ToString();
+                if (key != null && key.Equals("host", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = PostmanImp.BASE_HOST;
+                }
+                else if (key != null && key.Equals("cookie", StringComparison.OrdinalIgnoreCase))
+                {
+                    _CookieValue = value;
+                    value = PostmanImp.COOKIE;
+                }
                 pHeaders.Add(new PostmanHeaderSection
                 {
-                    Key = header.Key.StartsWith(':') ? header.Key.TrimStart(':') : header.Key,
-                    Value = header.Value.First.ToString()
+                    Key = key,
+                    Value = value
                 });
             }
             #endregion

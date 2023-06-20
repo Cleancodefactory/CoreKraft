@@ -53,8 +53,20 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman.Models
 
         private void SetPreRequestEvents(string preRequestEvent)
         {
-            var events = JsonConvert.DeserializeObject<List<Event>>(preRequestEvent);
+            List<Event> events = JsonConvert.DeserializeObject<List<Event>>(preRequestEvent);
             this.PreRequestEvent = events;
+        }
+
+        public void UpdatePreRequestEvents(string cookie)
+        {
+            for (int i = 0; i < this.PreRequestEvent.Count; i++)
+            {
+                var preEvent = this.PreRequestEvent[i];
+                for (int j = 0; j < preEvent.ScriptObject.Executions.Count; j++)
+                {
+                    preEvent.ScriptObject.Executions[j] = preEvent.ScriptObject.Executions[j].Replace(PostmanImp.COOKIE, "'" + cookie + "'");
+                }
+            }
         }
     }
 }

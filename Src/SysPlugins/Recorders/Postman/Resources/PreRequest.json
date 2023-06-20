@@ -5,7 +5,7 @@
       "id": "841ed9f6-01de-4a23-8a1f-c132ab6e8a72",
       "type": "text/javascript",
       "exec": [
-        ""
+        "pm.environment.set('cookie', {{cookie}});"
       ]
     }
   },
@@ -20,10 +20,14 @@
         "        pm.response.to.have.status(200);",
         "    }",
         "});",
-        "var XMLCDataResponse = xml2Json(pm.response.text());",
-        "pm.test(\"Expect to have successful result(1)\", function () {",
+        "const contentType = pm.response.headers.get(\"Content-Type\");",
+        "if (contentType == \"text/xml\")",
+        "{",
+        "  var XMLCDataResponse = xml2Json(pm.response.text());",
+        "  pm.test(\"Expect to have successful result(1)\", function () {",
         "  pm.expect(XMLCDataResponse.packet.status.$.issuccessful).to.eql(\"1\", \"Error: \" + XMLCDataResponse.packet.status.message);",
-        "});"
+        " });",
+        "}"
       ]
     }
   }
