@@ -442,13 +442,7 @@ namespace Ccf.Ck.Web.Middleware
                 });
 
                 ExtensionMethods.Init(app, _Logger);
-                ToolSettings tool = KraftToolsRouteBuilder.GetTool(_KraftGlobalConfigurationSettings, "errors");
-                string segment = null;
-                if (tool != null && tool.Enabled)//Errors enabled from configuration
-                {
-                    segment = tool.Url;
-                }
-                app.UseBindKraftLogger(env, loggerFactory, segment);
+                                
                 if (env.IsDevelopment())
                 {
                     app.UseDeveloperExceptionPage();
@@ -549,6 +543,13 @@ namespace Ccf.Ck.Web.Middleware
                 app.UseRouter(KraftRouteBuilder.MakeRouter(app, kraftRoutesHandler, kraftUrlSegment));
 
                 #region Tools routing
+                ToolSettings tool = KraftToolsRouteBuilder.GetTool(_KraftGlobalConfigurationSettings, "errors");
+                string segment = null;
+                if (tool != null && tool.Enabled)//Errors enabled from configuration
+                {
+                    segment = tool.Url;
+                    app.UseBindKraftLogger(env, loggerFactory, segment);
+                }
                 KraftToolsRouteBuilder.MakeRouters(app, _KraftGlobalConfigurationSettings);
                 #endregion Tools routing
 

@@ -27,7 +27,10 @@
         "  pm.test(\"Expect to have successful result(1)\", function () {",
         "  pm.expect(XMLCDataResponse.packet.status.$.issuccessful).to.eql(\"1\", \"Error: \" + XMLCDataResponse.packet.status.message);",
         " });",
-        "}"
+        "}",
+        "pm.test(\"Response time is less than 500ms\", function () {",
+        "   pm.expect(pm.response.responseTime).to.be.below(500);",
+        "});"
       ]
     }
   }

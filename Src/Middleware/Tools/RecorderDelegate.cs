@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 
 namespace Ccf.Ck.Web.Middleware.Tools
 {
@@ -20,9 +21,9 @@ namespace Ccf.Ck.Web.Middleware.Tools
             {
                 httpContext.Request.RouteValues.TryGetValue("p", out object val);
                 ISecurityModel securityModel = new SecurityModelMock(kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
-                const string contentType = "text/html; charset=UTF-8";
+                const string contentType = "application/json";
                 int statusCode = (int)HttpStatusCode.OK;
-                string message = string.Empty;
+                JsonMessage jsonMessage = new JsonMessage();
                 if (kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.IsEnabled)
                 {
                     if (kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
@@ -43,23 +44,26 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                     if (requestRecorder != null)
                                     {
                                         requestRecorder.IsRunning = false;
-                                        message = "Recorder is paused.";
+                                        jsonMessage.Message = "Recorder is paused.";
                                     }
                                     else
                                     {
-                                        message = "The Recorder is not running.";
+                                        jsonMessage.Message = "The Recorder is not running.";
                                     }
+                                    jsonMessage.Success = true;
                                     statusCode = (int)HttpStatusCode.OK;
                                 }
                                 else
                                 {
-                                    message = "Please login because the recorder can't be run for anonymous users.";
+                                    jsonMessage.Message = "Please login because the recorder can't be run for anonymous users.";
+                                    jsonMessage.Success = false;
                                     statusCode = (int)HttpStatusCode.Unauthorized;
                                 }
                             }
                             else
                             {
-                                message = "Recorder is not configured and can't be started.";
+                                jsonMessage.Message = "Recorder is not configured and can't be started.";
+                                jsonMessage.Success = false;
                                 statusCode = (int)HttpStatusCode.NotFound;
                             }
                             break;
@@ -75,18 +79,21 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                     RecordersStoreImp recordersStoreImp = app.ApplicationServices.GetRequiredService<RecordersStoreImp>();
                                     recordersStoreImp.Set(requestRecorder, securityModel.UserName);
                                     requestRecorder.IsRunning = true;
-                                    message = "Recorder is enabled";
+                                    jsonMessage.Message = "Recorder is enabled";
+                                    jsonMessage.Success = true;
                                     statusCode = (int)HttpStatusCode.OK;
                                 }
                                 else
                                 {
-                                    message = "Please login because the recorder can't be run for anonymous users.";
+                                    jsonMessage.Message = "Please login because the recorder can't be run for anonymous users.";
+                                    jsonMessage.Success = false;
                                     statusCode = (int)HttpStatusCode.Unauthorized;
                                 }
                             }
                             else
                             {
-                                message = "Recorder is not configured and can't be started.";
+                                jsonMessage.Message = "Recorder is not configured and can't be started.";
+                                jsonMessage.Success = false;
                                 statusCode = (int)HttpStatusCode.NotFound;
                             }
                             break;
@@ -101,7 +108,8 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                     IRequestRecorder requestRecorder = recordersStoreImp.Get(securityModel.UserName);
                                     if (requestRecorder != null)
                                     {
-                                        message = requestRecorder.GetFinalResult()?.Result ?? string.Empty;
+                                        jsonMessage.Message = requestRecorder.GetFinalResult()?.Result ?? string.Empty;
+                                        jsonMessage.Success = true;
                                         Type typeRecorder = Type.GetType(kraftGlobalConfigurationSettings.GeneralSettings.ToolsSettings.RequestRecorder.ImplementationAsString, true);
                                         requestRecorder = Activator.CreateInstance(typeRecorder) as IRequestRecorder;
                                         recordersStoreImp.Set(requestRecorder, securityModel.UserName);
@@ -110,22 +118,29 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                         //httpContext.Response.Headers.Add("Content-Length", message.Length.ToString());
                                         httpContext.Response.Headers.Add("Content-Disposition", "attachment;filename=RecordedSession.json");
                                         statusCode = (int)HttpStatusCode.OK;
+                                        httpContext.Response.StatusCode = statusCode;
+                                        httpContext.Response.ContentType = "text/html; charset=UTF-8";
+                                        await httpContext.Response.WriteAsync(jsonMessage.Message, Encoding.UTF8);
+                                        return;
                                     }
                                     else
                                     {
-                                        message = "The Recorder is not enabled and no data is available.";
+                                        jsonMessage.Message = "The Recorder is not enabled and no data is available.";
+                                        jsonMessage.Success = false;
                                         statusCode = (int)HttpStatusCode.OK;
                                     }
                                 }
                                 else
                                 {
-                                    message = "Please login because the recorder can't be run for anonymous users.";
+                                    jsonMessage.Message = "Please login because the recorder can't be run for anonymous users.";
+                                    jsonMessage.Success = false;
                                     statusCode = (int)HttpStatusCode.Unauthorized;
                                 }
                             }
                             else
                             {
-                                message = "Recorder is not configured and can't be started.";
+                                jsonMessage.Message = "Recorder is not configured and can't be started.";
+                                jsonMessage.Success = false;
                                 statusCode = (int)HttpStatusCode.NotFound;
                             }
                             break;
@@ -141,23 +156,26 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                     if (requestRecorder != null)
                                     {
                                         recordersStoreImp.Remove(securityModel.UserName);
-                                        message = "Recorder is destroyed.";
+                                        jsonMessage.Message = "Recorder is destroyed.";
                                     }
                                     else
                                     {
-                                        message = "The Recorder is not running.";
+                                        jsonMessage.Message = "The Recorder is not running.";
                                     }
+                                    jsonMessage.Success = true;
                                     statusCode = (int)HttpStatusCode.OK;
                                 }
                                 else
                                 {
-                                    message = "Please login because the recorder can't be used for anonymous users.";
+                                    jsonMessage.Message = "Please login because the recorder can't be used for anonymous users.";
+                                    jsonMessage.Success = false;
                                     statusCode = (int)HttpStatusCode.Unauthorized;
                                 }
                             }
                             else
                             {
-                                message = "Recorder is not configured and can't be started.";
+                                jsonMessage.Message = "Recorder is not configured and can't be started.";
+                                jsonMessage.Success = false;
                                 statusCode = (int)HttpStatusCode.NotFound;
                             }
                             break;
@@ -167,15 +185,21 @@ namespace Ccf.Ck.Web.Middleware.Tools
                         {
                             if (securityModel.IsAuthenticated)
                             {
+                                jsonMessage.Message = "Recorder is enabled and you are all set up.";
+                                jsonMessage.Success = true;
                                 statusCode = (int)HttpStatusCode.OK;
                             }
                             else
                             {
+                                jsonMessage.Message = "Please login and try again.";
+                                jsonMessage.Success = false;
                                 statusCode = (int)HttpStatusCode.Unauthorized;
                             }
                         }
                         else
                         {
+                            jsonMessage.Message = "Recorder is not configured and can't be started.";
+                            jsonMessage.Success = false;
                             statusCode = (int)HttpStatusCode.NotFound;
                         }
                         break;
@@ -184,7 +208,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                 }
                 httpContext.Response.StatusCode = statusCode;
                 httpContext.Response.ContentType = contentType;
-                await httpContext.Response.WriteAsync(message, Encoding.UTF8);
+                await httpContext.Response.WriteAsync(JsonSerializer.Serialize(jsonMessage), Encoding.UTF8);
             };
             return requestDelegate;
         }

@@ -1,4 +1,6 @@
-﻿using Ccf.Ck.Models.KraftModule;
+﻿using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Models.Settings.Modules;
@@ -8,6 +10,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Text;
 using System.Text.Json;
 
 namespace Ccf.Ck.Web.Middleware.Tools
@@ -22,21 +26,43 @@ namespace Ccf.Ck.Web.Middleware.Tools
 
         internal static RequestDelegate ExecutionDelegate(IApplicationBuilder app, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
         {
-            INodeSetService nodeSetService = app.ApplicationServices.GetService<INodeSetService>();
-            _KraftModuleCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
-            SignalsResponse signalsResponse = GenerateSignalResponse(kraftGlobalConfigurationSettings, _KraftModuleCollection, nodeSetService);
-            string message = JsonSerializer.Serialize<SignalsResponse>(signalsResponse);
-            if (!string.IsNullOrEmpty(message))
-            {
-                message = message.Replace(@"\u0027", "'");
-            }            
             RequestDelegate requestDelegate = async httpContext =>
             {
                 const string contentType = "application/json";
-                int statusCode = 200;
-                httpContext.Response.StatusCode = statusCode;
-                httpContext.Response.ContentType = contentType;
-                await httpContext.Response.WriteAsync(message);
+                ISecurityModel securityModel = new SecurityModelMock(kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection);
+                if (kraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
+                {
+                    securityModel = new SecurityModel(httpContext);
+                }
+                ToolSettings signals = KraftToolsRouteBuilder.GetTool(kraftGlobalConfigurationSettings, "signals");
+                JsonMessage jsonMessage = new JsonMessage();
+                jsonMessage.Message = "You are not allowed to see signals.";
+                
+                if (signals != null && signals.Enabled)
+                {
+                    if (securityModel.IsAuthenticated)
+                    {
+                        INodeSetService nodeSetService = app.ApplicationServices.GetService<INodeSetService>();
+                        _KraftModuleCollection = app.ApplicationServices.GetService<KraftModuleCollection>();
+                        SignalsResponse signalsResponse = GenerateSignalResponse(kraftGlobalConfigurationSettings, _KraftModuleCollection, nodeSetService);
+                        string message = JsonSerializer.Serialize<SignalsResponse>(signalsResponse);
+                        if (!string.IsNullOrEmpty(message))
+                        {
+                            message = message.Replace(@"\u0027", "'");
+                        }
+                        jsonMessage.Success = true;
+                        jsonMessage.Message = message;
+                        httpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+                        httpContext.Response.ContentType = contentType;
+                    }
+                }
+                else
+                {
+                    jsonMessage.Success = false;
+                    httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    httpContext.Response.ContentType = contentType;
+                }
+                await httpContext.Response.WriteAsync(JsonSerializer.Serialize(jsonMessage), Encoding.UTF8);
             };
             return requestDelegate;
         }
