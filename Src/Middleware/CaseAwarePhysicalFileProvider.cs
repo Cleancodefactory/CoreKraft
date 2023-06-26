@@ -32,7 +32,7 @@ namespace Ccf.Ck.Web.Middleware
             if (CaseSensitive && actualPath.Replace(Path.DirectorySeparatorChar.ToString(), string.Empty) != subpath.Replace("/", string.Empty))
             {
                 if (subpath != null && !subpath.Contains("favicon.ico")) {
-                    KraftLogger.LogError($"File or Directory not found: {subpath}. Please check casing!");
+                    KraftLogger.LogInformation($"File or Directory not found: {subpath}. Please check casing!");
                 }
                 return new NotFoundFileInfo(subpath);
             }
@@ -45,7 +45,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 if (subpath != null && !subpath.Contains("favicon.ico"))
                 {
-                    KraftLogger.LogError($"Directory not found: {subpath}. Please check casing!");
+                    KraftLogger.LogInformation($"Directory not found: {subpath}. Please check casing!");
                 }
                 return NotFoundDirectoryContents.Singleton;
             }
