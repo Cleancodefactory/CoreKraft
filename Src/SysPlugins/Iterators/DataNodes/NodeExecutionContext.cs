@@ -45,9 +45,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
     /// </summary>
     public class NodeExecutionContext : INodeExecutionContext, IDataStateHelperProvider<IDictionary<string, object>>
     {
-
         #region Modes of operation
-        private bool _cacheParameters = true;
         /// <summary>
         /// Not currently settable and fully supported yet - for future use
         /// When set disables throwing of exceptions during compilation, evaluation and related code.
