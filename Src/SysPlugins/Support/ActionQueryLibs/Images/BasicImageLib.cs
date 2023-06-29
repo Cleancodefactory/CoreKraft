@@ -40,6 +40,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     return ResizeImage;
                 case nameof(ThumbImage):
                     return ThumbImage;
+                case nameof(LimitSizeImage):
+                    return LimitSizeImage;
                 case nameof(WaterMarkImage):
                     return WaterMarkImage;
                 case nameof(WaterMarkImageWithLogo):
@@ -101,11 +103,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             var file = args[0].Value as IPostedFile;
             if (file != null)
             {
-
                 using var strm = file.OpenReadStream();
                 try
                 {
                     var image = Image.Load(strm);
+                    // If you want to auto rotate the image by EXIF information with ImageSharp, use the following:
+                    image.Mutate(img => img.AutoOrient());
                     lock (_LockObject)
                     {
                         _disposables.Add(image);
@@ -170,6 +173,44 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     image.Mutate(pc => pc.Resize(width, height));
                 }
                 return new ParameterResolverValue(image);
+            }
+            return new ParameterResolverValue(null);
+        }
+
+        [Function(nameof(LimitSizeImage), "Resizing the image by keeping the aspect ratio if any side is bigger than the specified size")]
+        public ParameterResolverValue LimitSizeImage(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length < 2) throw new ArgumentException("LimitSizeImage requires 2 arguments");
+            var image = args[0].Value as Image;
+            if (image != null)
+            {
+                var size = Convert.ToInt32(args[1].Value);
+                var width = 0;
+                var height = 0;
+                if (size < 32 || size > 2048) size = 256;
+                if (image.Width >= image.Height)
+                {
+                    if (image.Width < size)
+                    {
+                        return new ParameterResolverValue(image);
+                    }
+                    width = size;
+                    height = size * image.Height / image.Width;
+                }
+                else
+                {
+                    if (image.Height < size)
+                    {
+                        return new ParameterResolverValue(image);
+                    }
+                    height = size;
+                    width = size * image.Width / image.Height;
+                }
+                if (width > 0 && height > 0)
+                {
+                    image.Mutate(pc => pc.Resize(width, height));
+                    return new ParameterResolverValue(image);
+                }
             }
             return new ParameterResolverValue(null);
         }
@@ -267,10 +308,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 newLogoWidth = Convert.ToInt32((logo.Size.Width + widthDifference) * 0.7);
             }
 
-            logo.Mutate(x => x.Resize(new ResizeOptions()
-            {
-                Mode = ResizeMode.Max,
-                Size = new Size() { Width = newLogoWidth }
+            logo.Mutate(x => x
+                .Resize(new ResizeOptions()
+                {
+                    Mode = ResizeMode.Max,
+                    Size = new Size() { Width = newLogoWidth }
             }));
 
             Point center = new SixLabors.ImageSharp.Point((int)padding, imgSize.Height / 2);
