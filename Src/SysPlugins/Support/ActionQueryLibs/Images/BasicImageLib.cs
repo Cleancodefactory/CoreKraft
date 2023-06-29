@@ -440,6 +440,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             if (path == null) throw new ArgumentException("LoadImage has a null path argument");
             if (!Path.IsPathFullyQualified(path)) throw new ArgumentException("LoadImage has a non-fully qualified path argument");
             var image = Image.Load(path);
+            // If you want to auto rotate the image by EXIF information with ImageSharp, use the following:
+            image.Mutate(img => img.AutoOrient());
             lock (_LockObject)
             {
                 _disposables.Add(image);
