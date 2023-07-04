@@ -52,8 +52,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
             List<PostmanHeaderSection> pHeaders = new List<PostmanHeaderSection>();
             JObject headers = JObject.Parse(GetJsonString(request.Headers));
 
-
-            string url = request.GetEncodedUrl();
+            string url = request.GetEncodedUrl().Replace(request.Host.ToString(), BASE_HOST);
             List<string> hostSegments = new List<string>{BASE_HOST};//request.Host.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
             List<string> pathSegments = request.Path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
             List<PostmanQuerySection> queries = request.Query.Select(k => new PostmanQuerySection
@@ -67,6 +66,14 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
                 string key = header.Key.StartsWith(':') ? header.Key.TrimStart(':') : header.Key;
                 string value = header.Value.First.ToString();
                 if (key != null && key.Equals("host", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = PostmanImp.BASE_HOST;
+                }
+                else if (key != null && key.Equals("Referer", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = url;
+                }
+                else if (key != null && key.Equals("X-ORIGINAL-HOST", StringComparison.OrdinalIgnoreCase))
                 {
                     value = PostmanImp.BASE_HOST;
                 }
