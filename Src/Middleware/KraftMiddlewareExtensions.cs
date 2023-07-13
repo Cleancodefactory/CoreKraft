@@ -242,6 +242,44 @@ namespace Ccf.Ck.Web.Middleware
 
                         options.Events = new OpenIdConnectEvents
                         {
+                            #region Additional OpenIdEvents
+                            //OnAccessDenied = context =>
+                            //{
+                            //    return Task.CompletedTask;
+                            //},
+                            //OnAuthorizationCodeReceived = context =>
+                            //{
+                            //    return Task.CompletedTask;
+                            //},
+                            //OnMessageReceived = context =>
+                            //{
+                            //    return Task.CompletedTask;
+                            //},
+                            //OnRedirectToIdentityProviderForSignOut = context =>
+                            //{
+                            //    return Task.CompletedTask;
+                            //},
+                            //OnRemoteSignOut = context =>
+                            //{
+                            //    return Task.CompletedTask;
+                            //},
+                            //OnSignedOutCallbackRedirect = context =>
+                            //{
+                            //    return Task.CompletedTask;
+                            //},
+                            //OnTicketReceived = context =>
+                            //{
+                            //    return Task.CompletedTask;
+                            //},
+                            //OnTokenResponseReceived = context =>
+                            //{
+                            //    return Task.CompletedTask;
+                            //},
+                            //OnUserInformationReceived = context =>
+                            //{
+                            //    return Task.CompletedTask;
+                            //},
+                            #endregion Additional OpenIdEvents
                             OnRedirectToIdentityProvider = context =>
                             {
                                 //Has returnurl already in user's session
@@ -308,8 +346,9 @@ namespace Ccf.Ck.Web.Middleware
                                 if (context.ProtocolMessage.Parameters.ContainsKey("returnurl"))//This is coming from the authorization server
                                 {
                                     returnurl = context.ProtocolMessage.Parameters["returnurl"];
-                                } 
-                                if (!string.IsNullOrEmpty(returnurl)) {
+                                }
+                                if (!string.IsNullOrEmpty(returnurl))
+                                {
                                     context.Properties.RedirectUri = returnurl;
                                     //context.HttpContext.Session.SetString("returnurl", returnurl);
                                 }
@@ -394,7 +433,7 @@ namespace Ccf.Ck.Web.Middleware
             //});
 
             _KraftGlobalConfigurationSettings.EnvironmentSettings = new KraftEnvironmentSettings(env.ApplicationName, env.ContentRootPath, env.EnvironmentName, env.WebRootPath);
-            
+
             try
             {
                 ILoggerFactory loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
@@ -442,7 +481,7 @@ namespace Ccf.Ck.Web.Middleware
                 });
 
                 ExtensionMethods.Init(app, _Logger);
-                                
+
                 if (env.IsDevelopment())
                 {
                     app.UseDeveloperExceptionPage();
@@ -695,12 +734,17 @@ namespace Ccf.Ck.Web.Middleware
                     fileName, args.RequestingAssembly.FullName);
         }
         #region Small helpers
-        public static string CobinedMessageFromStatusResults(this IReturnStatus status) { 
-            if (status != null && status.StatusResults != null) {
+        public static string CobinedMessageFromStatusResults(this IReturnStatus status)
+        {
+            if (status != null && status.StatusResults != null)
+            {
                 StringBuilder sb = new StringBuilder();
-                foreach (var sr in status.StatusResults) {
-                    if (sr != null && sr.Message!= null) {
-                        if (sb.Length > 0) {
+                foreach (var sr in status.StatusResults)
+                {
+                    if (sr != null && sr.Message != null)
+                    {
+                        if (sb.Length > 0)
+                        {
                             sb.Append(", ");
                         }
                         sb.Append(sr.Message);
