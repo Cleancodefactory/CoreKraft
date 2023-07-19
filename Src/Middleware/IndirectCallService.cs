@@ -249,8 +249,6 @@ namespace Ccf.Ck.Web.Middleware
                     };
                     this.Call(im, SCHEDULE_TIMEOUT_SECONDS);
                 }
-                
-
             }
         }
         private ReturnModel CallHandler(HandlerType callType,InputModel callModel, ReturnModel retModel = null, ReturnModel callBackReturnModel = null) {
@@ -426,9 +424,6 @@ namespace Ccf.Ck.Web.Middleware
         }
 
             #endregion
-
-
-
         }
 
 
