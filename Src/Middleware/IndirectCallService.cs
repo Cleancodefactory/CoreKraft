@@ -201,7 +201,8 @@ namespace Ccf.Ck.Web.Middleware
                         _ThreadSignal.Reset();
                     }
                 }
-                _ThreadSignal.WaitOne(TimeSpan.FromSeconds(_timeout_seconds));
+                //_ThreadSignal.WaitOne(TimeSpan.FromSeconds(_timeout_seconds));
+                _ThreadSignal.WaitOne();
                 if (!_started && DirectCallService.Instance.Call != null) {
                     lock (_lockObject) {
                         _started = true;
