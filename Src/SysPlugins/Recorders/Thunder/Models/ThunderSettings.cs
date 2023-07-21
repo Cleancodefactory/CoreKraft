@@ -14,5 +14,8 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder.Models
 
         [JsonProperty("preReq")]
         public ThunderPreReq PreReq { get; set; }
+
+        [JsonProperty("postReq")]
+        public ThunderPreReq PostReq { get; set; }
     }
 }

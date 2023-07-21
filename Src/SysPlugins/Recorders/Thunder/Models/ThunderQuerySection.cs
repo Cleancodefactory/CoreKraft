@@ -1,8 +1,13 @@
-﻿namespace Ccf.Ck.SysPlugins.Recorders.Thunder.Models
+﻿using Newtonsoft.Json;
+
+namespace Ccf.Ck.SysPlugins.Recorders.Thunder.Models
 {
     public class ThunderQuerySection
     {
-        public string Key { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("value")]
         public string Value { get; set; }
     }
 }

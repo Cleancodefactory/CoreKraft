@@ -9,8 +9,13 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder.Models
 {
     public class RequestContent
     {
+        public RequestContent()
+        {
+            ContainerId = string.Empty;
+        }
+
         [JsonProperty("_id")]
-        public string Id { get { return new Guid().ToString(); } }
+        public string Id { get { return Guid.NewGuid().ToString(); } }
 
         [JsonProperty("colId")]
         public string ColId { get; set; }
@@ -35,7 +40,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder.Models
         {
             get
             {
-                return DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz");
+                return DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc).ToString("o");
             }
         }
 
@@ -44,8 +49,17 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder.Models
         {
             get
             {
-                return DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz");
+                return DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc).ToString("o");
             }
         }
+
+        [JsonProperty("headers")]
+        public List<ThunderHeaderSection> Headers { get; internal set; }
+
+        [JsonProperty("params")]
+        public List<ThunderQuerySection> Params { get; internal set; }
+
+        [JsonProperty("body")]
+        public ThunderBody Body { get; internal set; }
     }
 }

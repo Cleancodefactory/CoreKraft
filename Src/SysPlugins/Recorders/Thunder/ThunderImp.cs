@@ -1,6 +1,6 @@
 ﻿using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Recorders.Thunder.Models;
-using Ccf.Ck.SysPlugins.Recorders.Thunder.Utilities;
+using Ccf.Ck.Utilities.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.SysPlugins.Recorders.Thunder
@@ -28,8 +29,12 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder
         {
             if (_CookieValue != null)
             {
-                _RunnerModel.UpdateSettings(_CookieValue);
+                _RunnerModel.Cookie = _CookieValue;
             }
+            _RunnerModel.ThunderSettings = new ThunderSettings();
+            _RunnerModel.ThunderSettings.ThunderTests = CreateTests();
+            _RunnerModel.ThunderSettings.PreReq = CreatePreReq();
+            _RunnerModel.ThunderSettings.PostReq = CreatePostReq();
             string result = GetJsonString(_RunnerModel);
             _RunnerModel = new ThunderRunnerModel();
             return Task.FromResult(result);
@@ -40,8 +45,6 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder
             #region Setting up required data from the HttpRequest
             string body = await GetBodyAsync(request);
 
-            string method = request.Method;
-
             List<ThunderHeaderSection> pHeaders = new List<ThunderHeaderSection>();
             JObject headers = JObject.Parse(GetJsonString(request.Headers));
 
@@ -50,10 +53,11 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder
             List<string> pathSegments = request.Path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
             List<ThunderQuerySection> queries = request.Query.Select(k => new ThunderQuerySection
             {
-                Key = k.Key,
+                Name = k.Key,
                 Value = k.Value.ToString()
             }).ToList();
 
+            string baseHostWithProtocol = request.Scheme + "://" + ThunderImp.BASE_HOST;
             foreach (var header in headers)
             {
                 string key = header.Key.StartsWith(':') ? header.Key.TrimStart(':') : header.Key;
@@ -68,7 +72,11 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder
                 }
                 else if (key != null && key.Equals("X-ORIGINAL-HOST", StringComparison.OrdinalIgnoreCase))
                 {
-                    value = ThunderImp.BASE_HOST;
+                    value = baseHostWithProtocol;
+                }
+                else if (key != null && key.Equals("Origin", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = baseHostWithProtocol;
                 }
                 else if (key != null && key.Equals("cookie", StringComparison.OrdinalIgnoreCase))
                 {
@@ -77,30 +85,68 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder
                 }
                 pHeaders.Add(new ThunderHeaderSection
                 {
-                    Key = key,
+                    Name = key,
                     Value = value
                 });
             }
             #endregion
 
-            ThunderBuilder builder = new ThunderBuilder();
-
             // Construct the Request entity
-            //RequestContent requestContent = builder
-            //    .MethodBuilder
-            //        .AddMethod(method)
-            //    .HeaderBuilder
-            //        .AddHeader(pHeaders)
-            //    .BodyBuilder
-            //        .AddBody("raw", body)
-            //    .UrlBuilder
-            //        .AddUrlData(url, request.Scheme, pathSegments, hostSegments, queries);
+            RequestContent requestContent = new RequestContent();
+            requestContent.ColId = _RunnerModel.CollectionId;
+            requestContent.Name = url;
+            requestContent.Url = url;
+            requestContent.Method = request.Method;
+            _RunnerModel.SortNum += 10000;
+            requestContent.SortNum = _RunnerModel.SortNum;
+            requestContent.Headers = pHeaders;
+            requestContent.Params = queries;
+            requestContent.Body = new ThunderBody { Raw = body };
 
-            // Add newly constructed Request and the url to the Runner Model 
-            _RunnerModel.ThunderRequests.Add(new ThunderRequest
-            {
-                //RequestContent = requestContent
-            });
+            _RunnerModel.ThunderRequests.Add(requestContent);
+        }
+
+        #region Private
+        private ThunderPreReq CreatePostReq()
+        {
+            ThunderPreReq thunderPostReq = new ThunderPreReq();
+            thunderPostReq.RunFilters.Add(""); //postRequest
+            return thunderPostReq;
+        }
+
+        private ThunderPreReq CreatePreReq()
+        {
+            ThunderPreReq thunderPreReq = new ThunderPreReq();
+            thunderPreReq.RunFilters.Add(""); //preRequest
+            thunderPreReq.ThunderOptions = new ThunderOption { ClearCookies = true };
+            return thunderPreReq;
+        }
+
+        private List<ThunderTest> CreateTests()
+        {
+            List<ThunderTest> tests = new List<ThunderTest>();
+            ThunderTest test1 = new ThunderTest();
+            test1.Type = "json-query";
+            test1.Custom = "json.packet.status._issuccessful";
+            test1.Action = "equal";
+            test1.Value = "1";
+            tests.Add(test1);
+
+            ThunderTest test2 = new ThunderTest();
+            test2.Type = "res-code";
+            test2.Custom = "";
+            test2.Action = "equal";
+            test2.Value = "200";
+            tests.Add(test2);
+
+            ThunderTest test3 = new ThunderTest();
+            test3.Type = "res-time";
+            test3.Custom = "";
+            test3.Action = "<";
+            test3.Value = "1000";
+            tests.Add(test3);
+
+            return tests;
         }
 
         private async Task<string> GetBodyAsync(HttpRequest request)
@@ -116,12 +162,22 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder
                 bufferSize: 1024,
                 leaveOpen: true))
             {
-                body = await reader.ReadToEndAsync();
+                string temp = await reader.ReadToEndAsync();
+                if (!string.IsNullOrEmpty(temp))
+                {
+                    var options = new JsonReaderOptions
+                    {
+                        AllowTrailingCommas = true,
+                        CommentHandling = JsonCommentHandling.Skip
+                    };
+                    var result = DictionaryStringObjectJson.Deserialize(temp, options);
+                    body = System.Text.Json.JsonSerializer.Serialize(result);
+                }                
+
                 // Do some processing with body…
                 // Reset the request body stream position so the next middleware can read it
                 request.Body.Position = 0;
             }
-            request.EnableBuffering();
             return body;
         }
 
@@ -140,5 +196,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder
 
             return jsonString;
         }
+
+        #endregion Private
     }
 }

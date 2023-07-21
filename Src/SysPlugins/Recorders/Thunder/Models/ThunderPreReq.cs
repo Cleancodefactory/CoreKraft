@@ -9,6 +9,10 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder.Models
 {
     public class ThunderPreReq
     {
+        public ThunderPreReq()
+        {
+            RunFilters = new List<string>();
+        }
         [JsonProperty("runFilters")]
         public List<string> RunFilters { get; set; }
 

@@ -61,6 +61,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
                 Value = k.Value.ToString()
             }).ToList();
 
+            string baseHostWithProtocol = request.Scheme + "://" + PostmanImp.BASE_HOST;
             foreach (var header in headers)
             {
                 string key = header.Key.StartsWith(':') ? header.Key.TrimStart(':') : header.Key;
@@ -75,7 +76,11 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
                 }
                 else if (key != null && key.Equals("X-ORIGINAL-HOST", StringComparison.OrdinalIgnoreCase))
                 {
-                    value = PostmanImp.BASE_HOST;
+                    value = baseHostWithProtocol;
+                }
+                else if (key != null && key.Equals("Origin", StringComparison.OrdinalIgnoreCase))
+                {
+                    value = baseHostWithProtocol;
                 }
                 else if (key != null && key.Equals("cookie", StringComparison.OrdinalIgnoreCase))
                 {
