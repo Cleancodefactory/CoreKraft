@@ -72,7 +72,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls
                             dict["LastTaskPickedAt"] = new ParameterResolverValue(ti.LastTaskPickedAt);
                             dict["TaskPicked"] = new ParameterResolverValue(ti.TaskPicked);
                             dict["Executing"] = new ParameterResolverValue(ti.Executing);
-                            dict["FinishHandler"] = new ParameterResolverValue(ti.FinishtHandler);
+                            dict["FinishHandler"] = new ParameterResolverValue(ti.FinishHandler);
                             dict["LastTaskCompleted"] = new ParameterResolverValue(ti.LastTaskCompleted);
                             dict["LastTaskFinishedAt"] = new ParameterResolverValue(ti.LastTaskFinishedAt);
                             dict["Looping"] = new ParameterResolverValue(ti.Looping);

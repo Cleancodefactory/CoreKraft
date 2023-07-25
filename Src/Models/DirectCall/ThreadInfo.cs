@@ -16,6 +16,6 @@ namespace Ccf.Ck.Models.DirectCall {
         public string Executing { get; set; }
         public string LastTaskCompleted { get; set; }
         public bool StartHandler { get; set; }
-        public bool FinishtHandler { get; set; }
+        public bool FinishHandler { get; set; }
     }
 }
