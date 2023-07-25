@@ -159,6 +159,11 @@ namespace Ccf.Ck.Web.Middleware
         {
             _Continue = false;
             _ThreadSignal.Set();
+            //_SchedulerThreads.ForEach(th =>
+            //{
+            //    th.Join();
+            //    _ThreadSignal.Set();
+            //});
             KraftLogger.LogInformation("IndirectCallService:StopAsync executed");
             for (int i = 0; i < _SchedulerThreads.Count; i++)
             {
@@ -171,11 +176,7 @@ namespace Ccf.Ck.Web.Middleware
                     }                    
                 }
             }
-            //_SchedulerThreads.ForEach(th =>
-            //{
-            //    th.Join();
-            //    _ThreadSignal.Set();
-            //});
+
             return Task.FromResult(0);
         }
 
