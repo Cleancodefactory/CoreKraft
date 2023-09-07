@@ -215,10 +215,10 @@ namespace Ccf.Ck.Web.Middleware
                             info.LastTaskPickedAt = DateTime.Now;
 
                             // Discard timeouted tasks
-                            if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.scheduleTimeout) || waiting.task.status == IndirectCallStatus.Discarded)
+                            if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.ScheduleTimeout) || waiting.task.Status == IndirectCallStatus.Discarded)
                             {
                                 // Move this to finished
-                                waiting.task.status = IndirectCallStatus.Discarded;
+                                waiting.task.Status = IndirectCallStatus.Discarded;
                                 lock (_Finished)
                                 {
                                     _Finished.Add(waiting.task.guid, waiting.task);
@@ -227,8 +227,8 @@ namespace Ccf.Ck.Web.Middleware
                                 continue;
                             }
                             var result = waiting.task;
-                            result.started = DateTime.Now;
-                            result.status = IndirectCallStatus.Running;
+                            result.Started = DateTime.Now;
+                            result.Status = IndirectCallStatus.Running;
                             lock (_Finished)
                             {
                                 _Finished.Add(result.guid, result);
@@ -243,11 +243,11 @@ namespace Ccf.Ck.Web.Middleware
                             // We depend on the DirectCall to indicate the success in the ReturnModel
                             var returnModel = DirectCallService.Instance.Call(result.input);
                             info.LastTaskFinishedAt = DateTime.Now;
-                            result.result = returnModel;
-                            result.finished = DateTime.Now;
-                            result.status = IndirectCallStatus.Finished;
+                            result.Result = returnModel;
+                            result.Finished = DateTime.Now;
+                            result.Status = IndirectCallStatus.Finished;
                             info.FinishHandler = true;
-                            CallHandler(HandlerType.finished, result.input, result.result, callbackReturn);
+                            CallHandler(HandlerType.finished, result.input, result.Result, callbackReturn);
                             info.FinishHandler = false;
                             info.LastTaskCompleted = info.Executing;
                             info.Executing = null;
@@ -279,7 +279,7 @@ namespace Ccf.Ck.Web.Middleware
                     }
                     if (waiting != null)
                     {
-                        waiting.task.status = IndirectCallStatus.Discarded;
+                        waiting.task.Status = IndirectCallStatus.Discarded;
                     }
                     _SchedulerThreads[threadIndex] = null;
                     if (!CreateRecreateThread(threadIndex))
@@ -302,9 +302,9 @@ namespace Ccf.Ck.Web.Middleware
                 foreach (var kv in _Finished)
                 {
                     var tsk = kv.Value;
-                    if (tsk.finished.HasValue &&
-                        tsk.status == IndirectCallStatus.Finished &&
-                        (DateTime.Now - tsk.finished) > TimeSpan.FromSeconds(RESULT_PRESERVE_SECONDS))
+                    if (tsk.Finished.HasValue &&
+                        tsk.Status == IndirectCallStatus.Finished &&
+                        (DateTime.Now - tsk.Finished) > TimeSpan.FromSeconds(RESULT_PRESERVE_SECONDS))
                     {
                         _toclean.Add(kv.Key);
                     }
@@ -410,16 +410,16 @@ namespace Ccf.Ck.Web.Middleware
             DateTime? finished)
         {
 
-            public IndirectCallStatus status { get; set; } = status;
-            public ReturnModel result { get; set; } = result;
-            public DateTime? started { get; set; } = started;
-            public DateTime? finished { get; set; } = finished;
+            public IndirectCallStatus Status { get; set; } = status;
+            public ReturnModel Result { get; set; } = result;
+            public DateTime? Started { get; set; } = started;
+            public DateTime? Finished { get; set; } = finished;
             public int ThreadIndex { get; internal set; } = -1;
         }
 
         private record QueuedTask(TaskHolder task, DateTime queued, int scheduleTimeout)
         {
-            public int scheduleTimeout { get; init; } = scheduleTimeout > 0 ? scheduleTimeout : SCHEDULE_TIMEOUT_SECONDS;
+            public int ScheduleTimeout { get; init; } = scheduleTimeout > 0 ? scheduleTimeout : SCHEDULE_TIMEOUT_SECONDS;
         }
 
         #endregion Types
@@ -447,7 +447,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 if (_Finished.TryGetValue(guid, out task))
                 {
-                    return task.status;
+                    return task.Status;
                 }
                 else
                 {
@@ -472,7 +472,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 if (_Finished.TryGetValue(guid, out task))
                 {
-                    return task.result;
+                    return task.Result;
                 }
             }
             return null;
@@ -485,7 +485,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 if (_Finished.TryGetValue(guid, out task))
                 {
-                    return new IndirectCallInfo(guid, task.status, task.result, task.started, task.finished);
+                    return new IndirectCallInfo(guid, task.Status, task.Result, task.Started, task.Finished);
                 }
                 else
                 {
@@ -515,7 +515,7 @@ namespace Ccf.Ck.Web.Middleware
                 waiting = _Waiting.Select(qt => new IndirectCallInfoEx(qt.task.guid,
                                                             IndirectCallStatus.Queued,
                                                             qt.task.input,
-                                                            qt.task.result,
+                                                            qt.task.Result,
                                                             null,
                                                             null,
                                                             qt.queued));
@@ -524,11 +524,11 @@ namespace Ccf.Ck.Web.Middleware
             {
                 finished = _Finished.Select(kv => new IndirectCallInfoEx(
                     kv.Value.guid,
-                    kv.Value.status,
+                    kv.Value.Status,
                     kv.Value.input,
-                    kv.Value.result,
-                    kv.Value.started,
-                    kv.Value.finished
+                    kv.Value.Result,
+                    kv.Value.Started,
+                    kv.Value.Finished
                 ));
             }
             return new IndirectCallerInfo(waiting, finished);
@@ -548,7 +548,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 if (_Finished.TryGetValue(guid, out taskHolder))
                 {
-                    if (taskHolder.status == IndirectCallStatus.Running)
+                    if (taskHolder.Status == IndirectCallStatus.Running)
                     {
                         if (taskHolder.ThreadIndex >= 0)
                         {
@@ -567,9 +567,9 @@ namespace Ccf.Ck.Web.Middleware
                         QueuedTask queuedTask = _Waiting.FirstOrDefault(t => t.task.guid == guid);
                         if (queuedTask != null && queuedTask.task != null)
                         {
-                            if (queuedTask.task.status == IndirectCallStatus.Queued)
+                            if (queuedTask.task.Status == IndirectCallStatus.Queued)
                             {
-                                queuedTask.task.status = IndirectCallStatus.Discarded;
+                                queuedTask.task.Status = IndirectCallStatus.Discarded;
                             }
 
                             return true;
