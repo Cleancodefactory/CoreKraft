@@ -61,7 +61,7 @@ The provided DataIterator is the System default one, but the user can create the
 
 
 - **Data Loaders**  
-The System provides a default Data Loaders implementation for database and file storage. Currently supported: Microsoft Sql Server, SqLite, JSON (will be extended in future versions). The User can create their own data loaders, and register them and use them for various data sources.
+The System provides a default Data Loaders implementation for database and file storage. Currently supported: Microsoft Sql Server, SqLite, PostgreSQL, JSON (will be extended in future versions). The User can create their own data loaders, and register them and use them for various data sources.
 
 
 - **ViewLoader**
