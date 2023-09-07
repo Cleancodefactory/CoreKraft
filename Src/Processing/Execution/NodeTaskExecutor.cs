@@ -11,6 +11,7 @@ using Microsoft.Data.Sqlite;
 using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
 using GenericUtilities = Ccf.Ck.Utilities.Generic.Utilities;
 
@@ -148,12 +149,27 @@ namespace Ccf.Ck.Processing.Execution
 
                 _TransactionScope.CommitTransactions();
             }
+            catch (ThreadInterruptedException threadInterruptedEx)
+            {
+                throw threadInterruptedEx;
+            }
             catch (Exception ex)
             {
                 //TODO if in mode trace pipeline, collect all the nodes with params and values which were called and where exception occurred.
                 processingContext.ReturnModel.Status.IsSuccessful = false;
                 processingContext.ReturnModel.Status.StatusResults.Add(new StatusResult { StatusResultType = EStatusResult.StatusResultError, Message = ex.Message });
                 _TransactionScope.RollbackTransactions();
+
+                if (ex is AggregateException aggregateException)
+                {
+                    foreach (Exception exception in aggregateException.InnerExceptions)
+                    {
+                        if (exception is ThreadInterruptedException)
+                        {
+                            throw exception;
+                        }
+                    }
+                }
 
                 StringBuilder errMsg = new StringBuilder(1000);
                 errMsg.AppendLine();

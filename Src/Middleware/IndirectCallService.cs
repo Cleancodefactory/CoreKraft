@@ -80,9 +80,10 @@ namespace Ccf.Ck.Web.Middleware
             if (index >= 0 && index < nThreads)
             {
                 Thread thread = _SchedulerThreads[index];
-                if (thread != null)
+                if (thread == null)
                 {
-                    Thread th = new Thread(this.Scheduler);
+                    Thread th = new Thread(() => this.Scheduler(index));
+                    th.Name = "Indirect thread: " + index.ToString();
                     th.IsBackground = true;
                     _ThreadInfos[index] = new ThreadInfo();
                     _SchedulerThreads[index] = th;
@@ -173,7 +174,7 @@ namespace Ccf.Ck.Web.Middleware
                     if (th.ThreadState == ThreadState.WaitSleepJoin)
                     {
                         th.Interrupt();
-                    }                    
+                    }
                 }
             }
 
@@ -209,54 +210,48 @@ namespace Ccf.Ck.Web.Middleware
                         }
                         if (waiting != null)
                         {
-                            waiting.ThreadIndex = threadIndex;
+                            waiting.task.ThreadIndex = threadIndex;
                             info.TaskPicked = true;
                             info.LastTaskPickedAt = DateTime.Now;
-                            try
+
+                            // Discard timeouted tasks
+                            if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.scheduleTimeout) || waiting.task.status == IndirectCallStatus.Discarded)
                             {
-                                // Discard timeouted tasks
-                                if (DateTime.Now - waiting.queued > TimeSpan.FromSeconds(waiting.scheduleTimeout) || waiting.task.status == IndirectCallStatus.Discarded)
-                                {
-                                    // Move this to finished
-                                    waiting.task.status = IndirectCallStatus.Discarded;
-                                    lock (_Finished)
-                                    {
-                                        _Finished.Add(waiting.task.guid, waiting.task);
-                                    }
-                                    info.LastTaskFinishedAt = DateTime.Now;
-                                    continue;
-                                }
-                                var result = waiting.task;
-                                result.started = DateTime.Now;
-                                result.status = IndirectCallStatus.Running;
+                                // Move this to finished
+                                waiting.task.status = IndirectCallStatus.Discarded;
                                 lock (_Finished)
                                 {
-                                    _Finished.Add(result.guid, result);
+                                    _Finished.Add(waiting.task.guid, waiting.task);
                                 }
-                                // Mark call as indirect call
-                                if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
-                                info.Executing = $"{result.input.Module}/{result.input.Nodeset}/{result.input.Nodepath}";
-                                info.StartHandler = true;
-                                var callbackReturn = CallHandler(HandlerType.started, result.input);
-                                info.StartHandler = false;
-
-                                // We depend on the DirectCall to indicate the success in the ReturnModel
-                                var returnModel = DirectCallService.Instance.Call(result.input);
                                 info.LastTaskFinishedAt = DateTime.Now;
-                                result.result = returnModel;
-                                result.finished = DateTime.Now;
-                                result.status = IndirectCallStatus.Finished;
-                                info.FinishHandler = true;
-                                CallHandler(HandlerType.finished, result.input, result.result, callbackReturn);
-                                info.FinishHandler = false;
-                                info.LastTaskCompleted = info.Executing;
-                                info.Executing = null;
-                                continue; // Check for more tasks before waiting
+                                continue;
                             }
-                            catch (Exception ex)
+                            var result = waiting.task;
+                            result.started = DateTime.Now;
+                            result.status = IndirectCallStatus.Running;
+                            lock (_Finished)
                             {
-                                KraftLogger.LogError($"Task with id: {waiting.task.guid}", ex, waiting.task.input, waiting.task.result);
+                                _Finished.Add(result.guid, result);
                             }
+                            // Mark call as indirect call
+                            if (result.input != null) result.input.CallType = Models.Enumerations.ECallType.ServiceCall;
+                            info.Executing = $"{result.input.Module}/{result.input.Nodeset}/{result.input.Nodepath}";
+                            info.StartHandler = true;
+                            var callbackReturn = CallHandler(HandlerType.started, result.input);
+                            info.StartHandler = false;
+
+                            // We depend on the DirectCall to indicate the success in the ReturnModel
+                            var returnModel = DirectCallService.Instance.Call(result.input);
+                            info.LastTaskFinishedAt = DateTime.Now;
+                            result.result = returnModel;
+                            result.finished = DateTime.Now;
+                            result.status = IndirectCallStatus.Finished;
+                            info.FinishHandler = true;
+                            CallHandler(HandlerType.finished, result.input, result.result, callbackReturn);
+                            info.FinishHandler = false;
+                            info.LastTaskCompleted = info.Executing;
+                            info.Executing = null;
+                            continue; // Check for more tasks before waiting
                         }
                         else
                         {
@@ -286,6 +281,7 @@ namespace Ccf.Ck.Web.Middleware
                     {
                         waiting.task.status = IndirectCallStatus.Discarded;
                     }
+                    _SchedulerThreads[threadIndex] = null;
                     if (!CreateRecreateThread(threadIndex))
                     {
                         KraftLogger.LogError($"IndirectCallService>Scheduler(ThreadInterruptedException) cannot re-create thread for index: {threadIndex}");
@@ -418,12 +414,12 @@ namespace Ccf.Ck.Web.Middleware
             public ReturnModel result { get; set; } = result;
             public DateTime? started { get; set; } = started;
             public DateTime? finished { get; set; } = finished;
+            public int ThreadIndex { get; internal set; } = -1;
         }
 
         private record QueuedTask(TaskHolder task, DateTime queued, int scheduleTimeout)
         {
             public int scheduleTimeout { get; init; } = scheduleTimeout > 0 ? scheduleTimeout : SCHEDULE_TIMEOUT_SECONDS;
-            public int ThreadIndex { get; internal set; } = -1;
         }
 
         #endregion Types
@@ -434,8 +430,8 @@ namespace Ccf.Ck.Web.Middleware
         {
             //timeout = SCHEDULE_TIMEOUT_SECONDS;
             if (input == null) return Guid.Empty;
-            var tsk = new TaskHolder(Guid.NewGuid(), input, null, IndirectCallStatus.Queued, null, null);
-            var waiting = new QueuedTask(tsk, DateTime.Now, timeout != 0 ? timeout : SCHEDULE_TIMEOUT_SECONDS);
+            var taskHolder = new TaskHolder(Guid.NewGuid(), input, null, IndirectCallStatus.Queued, null, null);
+            var waiting = new QueuedTask(taskHolder, DateTime.Now, timeout != 0 ? timeout : SCHEDULE_TIMEOUT_SECONDS);
             lock (_WaitingLock)
             {
                 _Waiting.Enqueue(waiting);
@@ -547,34 +543,33 @@ namespace Ccf.Ck.Web.Middleware
 
         public bool CancelExecution(Guid guid)
         {
-            TaskHolder task = null;
+            TaskHolder taskHolder = null;
             lock (_Finished)
             {
-                if (_Finished.TryGetValue(guid, out task))
+                if (_Finished.TryGetValue(guid, out taskHolder))
                 {
-                    return true;
+                    if (taskHolder.status == IndirectCallStatus.Running)
+                    {
+                        if (taskHolder.ThreadIndex >= 0)
+                        {
+                            Thread th = _SchedulerThreads[taskHolder.ThreadIndex];
+                            if (th != null)
+                            {
+                                th.Interrupt();
+                            }
+                        }
+                    }
                 }
                 else
                 {
                     lock (_WaitingLock)
                     {
-                        QueuedTask taskHolder = _Waiting.FirstOrDefault(t => t.task.guid == guid);
-                        if (taskHolder != null && taskHolder.task != null)
+                        QueuedTask queuedTask = _Waiting.FirstOrDefault(t => t.task.guid == guid);
+                        if (queuedTask != null && queuedTask.task != null)
                         {
-                            if (taskHolder.task.status == IndirectCallStatus.Queued)
+                            if (queuedTask.task.status == IndirectCallStatus.Queued)
                             {
-                                taskHolder.task.status = IndirectCallStatus.Discarded;
-                            }
-                            else if (taskHolder.task.status == IndirectCallStatus.Running)
-                            {
-                                if (taskHolder.ThreadIndex > 0)
-                                {
-                                    Thread th = _SchedulerThreads[taskHolder.ThreadIndex];
-                                    if (th != null)
-                                    {
-                                        th.Interrupt();
-                                    }
-                                }
+                                queuedTask.task.status = IndirectCallStatus.Discarded;
                             }
 
                             return true;
