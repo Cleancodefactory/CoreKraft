@@ -15,7 +15,6 @@ namespace Ccf.Ck.SysPlugins.Data.Scripter
 {
     public class ScripterImp : DataLoaderBase<ScripterSynchronizeContextScopedImp>
     {
-
         private const string PLUGIN_INTERNAL_NAME = "ScripterImp";
 
         #region DataLoaderBase

@@ -10,7 +10,7 @@ namespace Ccf.Ck.SysPlugins.Lookups.ADO
 {
     public abstract class LookupADOBase : ISystemPlugin
     {
-        public async Task<IProcessingContext> ExecuteAsync(
+        public IProcessingContext Execute(
             LoadedNodeSet loaderContext, 
             IProcessingContext processingContext, 
             IPluginServiceManager pluginServiceManager, 
@@ -19,7 +19,7 @@ namespace Ccf.Ck.SysPlugins.Lookups.ADO
         {
             processingContext.ReturnModel.LookupData = 
                 LoadLookups(loaderContext, processingContext, pluginServiceManager, contextScoped, currentNode);
-            return await Task.FromResult(processingContext);
+            return processingContext;
         }
 
         protected virtual Dictionary<string,object> LoadLookups(

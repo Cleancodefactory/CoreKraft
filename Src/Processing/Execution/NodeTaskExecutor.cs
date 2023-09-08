@@ -11,6 +11,7 @@ using Microsoft.Data.Sqlite;
 using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
 using GenericUtilities = Ccf.Ck.Utilities.Generic.Utilities;
 
@@ -49,7 +50,7 @@ namespace Ccf.Ck.Processing.Execution
                     {
                         IDataIteratorPlugin dataIteratorPlugin = Utilities.GetPlugin<IDataIteratorPlugin>(_KraftModuleConfigurationSettings.NodeSetSettings.SourceLoaderMapping.NodesDataIterator.NodesDataIteratorConf.Name, _TransactionScope.DependencyInjectionContainer, _KraftModuleConfigurationSettings, ELoaderType.DataLoader, true);
                         GenericUtilities.CheckNullOrEmpty(dataIteratorPlugin, true);
-                        _ = dataIteratorPlugin.ExecuteAsync(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, dataLoaderAccessor, pluginAccessor).Result;
+                        dataIteratorPlugin.Execute(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, dataLoaderAccessor, pluginAccessor);
                     }
                 }
             }
@@ -100,7 +101,7 @@ namespace Ccf.Ck.Processing.Execution
                 GenericUtilities.CheckNullOrEmpty(systemPlugin, true);
                 IPluginsSynchronizeContextScoped synchronizeContextScoped = _TransactionScope.GetSynchronizeContextScopedAsync(view.SystemPluginName, ELoaderType.ViewLoader, _KraftModuleConfigurationSettings, systemPlugin).Result;
                 GenericUtilities.CheckNullOrEmpty(synchronizeContextScoped, true);
-                _ = systemPlugin.ExecuteAsync(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, synchronizeContextScoped, view).Result;
+                systemPlugin.Execute(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, synchronizeContextScoped, view);
             }
         }
 
@@ -148,12 +149,27 @@ namespace Ccf.Ck.Processing.Execution
 
                 _TransactionScope.CommitTransactions();
             }
+            catch (ThreadInterruptedException threadInterruptedEx)
+            {
+                throw threadInterruptedEx;
+            }
             catch (Exception ex)
             {
                 //TODO if in mode trace pipeline, collect all the nodes with params and values which were called and where exception occurred.
                 processingContext.ReturnModel.Status.IsSuccessful = false;
                 processingContext.ReturnModel.Status.StatusResults.Add(new StatusResult { StatusResultType = EStatusResult.StatusResultError, Message = ex.Message });
                 _TransactionScope.RollbackTransactions();
+
+                if (ex is AggregateException aggregateException)
+                {
+                    foreach (Exception exception in aggregateException.InnerExceptions)
+                    {
+                        if (exception is ThreadInterruptedException)
+                        {
+                            throw exception;
+                        }
+                    }
+                }
 
                 StringBuilder errMsg = new StringBuilder(1000);
                 errMsg.AppendLine();

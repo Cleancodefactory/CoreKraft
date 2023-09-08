@@ -19,9 +19,9 @@ namespace Ccf.Ck.SysPlugins.Interfaces {
         /// <param name="input">The DirectCall.InputModel</param>1
         /// <param name="timeout">Schedulint timeout in seconds. This is a sanity limit which will cancel the task execution if it is not started until it ellapses.</param>
         /// <returns></returns>
-        public Guid Call(DirectCall.InputModel input, int timeout = 86400);
-
-        public IndirectCallStatus CallStatus(Guid guid);
-        public DirectCall.ReturnModel GetResult(Guid guid);
+        Guid Call(DirectCall.InputModel input, int timeout = 86400);
+        bool CancelExecution(Guid guid);
+        IndirectCallStatus CallStatus(Guid guid);
+        DirectCall.ReturnModel GetResult(Guid guid);
     }
 }

@@ -42,8 +42,8 @@ namespace Ccf.Ck.Web.Middleware
         {
             Func<Ccf.Ck.Models.DirectCall.InputModel, Ccf.Ck.Models.DirectCall.ReturnModel> directDelegate = (inputModel) =>
             {
-                return Task.Run(() =>
-                {
+                //return Task.Run(() =>
+                //{
                     TransactionScopeContext transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
                     INodeSetService nodesSetService = builder.ApplicationServices.GetService<INodeSetService>();
                     KraftModuleCollection kraftModuleCollection = builder.ApplicationServices.GetService<KraftModuleCollection>();
@@ -72,7 +72,7 @@ namespace Ccf.Ck.Web.Middleware
                         }
                     }
                     return returnModel;
-                }).Result;
+                //}).Result;
             };
             return directDelegate;
         }

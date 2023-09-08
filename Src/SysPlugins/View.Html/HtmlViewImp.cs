@@ -14,7 +14,7 @@ namespace Ccf.Ck.SysPlugins.Views.Html
 {
     public class HtmlViewImp : ISystemPlugin
     {
-        public async Task<IProcessingContext> ExecuteAsync(LoadedNodeSet loaderContext, IProcessingContext processingContext, IPluginServiceManager pluginServiceManager, IPluginsSynchronizeContextScoped contextScoped, INode currentNode)
+        public IProcessingContext Execute(LoadedNodeSet loaderContext, IProcessingContext processingContext, IPluginServiceManager pluginServiceManager, IPluginsSynchronizeContextScoped contextScoped, INode currentNode)
         {
             if (currentNode is View view)
             {
@@ -60,12 +60,12 @@ namespace Ccf.Ck.SysPlugins.Views.Html
                 processingContext.ReturnModel.Status.StatusResults.Add(new StatusResult { StatusResultType = EStatusResult.StatusResultError, Message = "Current node is null or not OfType(View)" });
                 throw new InvalidDataException("HtmlViewSynchronizeContextLocalImp.CurrentNode is null or not OfType(View)");
             }
-            return await Task.FromResult(processingContext);
+            return processingContext;
         }
 
-        public async Task<IPluginsSynchronizeContextScoped> GetSynchronizeContextScopedAsync()
+        public Task<IPluginsSynchronizeContextScoped> GetSynchronizeContextScopedAsync()
         {
-            return await Task.FromResult(new HtmlViewSynchronizeContextScopedImp());
+            return Task.FromResult<IPluginsSynchronizeContextScoped>(new HtmlViewSynchronizeContextScopedImp());
         }
     }
 }

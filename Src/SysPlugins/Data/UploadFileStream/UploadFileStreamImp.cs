@@ -9,9 +9,7 @@ namespace Ccf.Ck.SysPlugins.Data.UploadFileStream
 {
     public class UploadFileStreamImp : ISystemPlugin
     {
-        
-
-        public async Task<IProcessingContext> ExecuteAsync(
+        public IProcessingContext Execute(
             LoadedNodeSet loaderContext, 
             IProcessingContext processingContext, 
             IPluginServiceManager pluginServiceManager, 
@@ -31,12 +29,12 @@ namespace Ccf.Ck.SysPlugins.Data.UploadFileStream
                 uploadFile = new UploadFileMultipart();
             }
             
-            return await uploadFile.Execute(request, processingContext);            
+            return uploadFile.Execute(request, processingContext).Result;            
         }
 
-        public async Task<IPluginsSynchronizeContextScoped> GetSynchronizeContextScopedAsync()
+        public Task<IPluginsSynchronizeContextScoped> GetSynchronizeContextScopedAsync()
         {
-            return await Task.FromResult(new UploadFileStreamSynchronizeContext());
+            return Task.FromResult< IPluginsSynchronizeContextScoped>(new UploadFileStreamSynchronizeContext());
         }
     }
 }

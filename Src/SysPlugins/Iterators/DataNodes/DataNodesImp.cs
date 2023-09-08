@@ -24,7 +24,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         private readonly DataIteratorContext _dataIteratorContext = new DataIteratorContext();
 
         #region IDataIteratorPlugin Members
-        public async Task<IProcessingContext> ExecuteAsync(
+        public IProcessingContext Execute(
             LoadedNodeSet loaderContext,
             IProcessingContext processingContext,
             IPluginServiceManager pluginServiceManager,
@@ -51,11 +51,12 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 BeginWriteOperation(_dataIteratorContext);
             }
 
-            return await Task.FromResult(processingContext);
+            return processingContext;
         }
-        public async Task<IPluginsSynchronizeContextScoped> GetSynchronizeContextScopedAsync()
+
+        public Task<IPluginsSynchronizeContextScoped> GetSynchronizeContextScopedAsync()
         {
-            return await Task.FromResult(new DataNodesSynchronizeContextScopedImp());
+            return Task.FromResult<IPluginsSynchronizeContextScoped>(new DataNodesSynchronizeContextScopedImp());
         }
 
         #endregion
