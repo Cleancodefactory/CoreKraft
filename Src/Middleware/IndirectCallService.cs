@@ -50,7 +50,6 @@ namespace Ccf.Ck.Web.Middleware
 
         private List<Thread> _SchedulerThreads = new List<Thread>();
         private List<ThreadInfo> _ThreadInfos = new List<ThreadInfo>();
-        private int _threadIndexCounter = 0;
 
         private bool _Continue = true;
         // TODO: With multiple threads we will need synchronization, put the neccessary stuff here
