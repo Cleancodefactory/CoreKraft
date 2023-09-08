@@ -6,7 +6,7 @@ namespace Ccf.Ck.SysPlugins.Interfaces
 {
     public interface ISystemPlugin : IPlugin
     {
-        Task<IProcessingContext> ExecuteAsync(LoadedNodeSet loaderContext,
+        IProcessingContext Execute(LoadedNodeSet loaderContext,
                                             IProcessingContext processingContext,
                                             IPluginServiceManager pluginServiceManager,
                                             IPluginsSynchronizeContextScoped contextScoped,
