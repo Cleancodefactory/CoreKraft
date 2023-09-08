@@ -79,6 +79,7 @@
 			- Version 7.0.3: New resolver: "GetAuthBearerToken() which returns the bearer token of the logged in user or null"
 			- Version 7.0.4: Extend interface IndirectCallService with CancelExecution(Guid guid)
 			- Version 7.0.5: CancelExecution for internal background task implemented
+			- Version 7.0.6: Updated nuget packages
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
