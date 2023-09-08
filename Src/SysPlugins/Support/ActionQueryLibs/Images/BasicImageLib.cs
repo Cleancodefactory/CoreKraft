@@ -393,7 +393,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             float targetHeight = imgSize.Height - (padding * 2);
 
             // measure the text size
-            FontRectangle size = TextMeasurer.Measure(text, new TextOptions(font));
+            FontRectangle size = TextMeasurer.MeasureSize(text, new TextOptions(font));
 
             //find out how much we need to scale the text to fill the space (up or down)
             float scalingFactor = Math.Min(targetWidth / size.Width, targetHeight / size.Height);
@@ -410,10 +410,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 //}
             };
             Rgba32 rgbaColorBrush = new Rgba32(0, 0, 0, brushTransparency);
-            IBrush brush = Brushes.Solid(new Color(rgbaColorBrush));
+            SolidBrush brush = Brushes.Solid(new Color(rgbaColorBrush));
 
             Rgba32 rgbaColorPen = new Rgba32(0, 0, 0, penTransparency);
-            IPen pen = Pens.Solid(new Color(rgbaColorPen), penWidth);
+            SolidPen pen = Pens.Solid(new Color(rgbaColorPen), penWidth);
             return processingContext.DrawText(drawingOptions, text, scaledFont, brush, pen, center);
         }
 
