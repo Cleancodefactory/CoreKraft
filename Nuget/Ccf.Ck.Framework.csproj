@@ -80,6 +80,7 @@
 			- Version 7.0.4: Extend interface IndirectCallService with CancelExecution(Guid guid)
 			- Version 7.0.5: CancelExecution for internal background task implemented
 			- Version 7.0.6: Updated nuget packages
+			- Version 7.0.7: Updated nuget packages and fixed issue with KraftLogger
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
