@@ -587,8 +587,8 @@ namespace Ccf.Ck.Web.Middleware
                 if (tool != null && tool.Enabled)//Errors enabled from configuration
                 {
                     segment = tool.Url;
-                    app.UseBindKraftLogger(env, loggerFactory, segment);
                 }
+                app.UseBindKraftLogger(env, loggerFactory, segment);
                 KraftToolsRouteBuilder.MakeRouters(app, _KraftGlobalConfigurationSettings);
                 #endregion Tools routing
 
