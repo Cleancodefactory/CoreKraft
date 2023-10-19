@@ -65,13 +65,5 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuiltIn
 
             return result;
         }
-
-
-
-        public ParameterResolverValue GenerateHash(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
-        {
-            string hash = Guid.NewGuid().ToString();
-            return new ParameterResolverValue(hash);
-        }
     }
 }
