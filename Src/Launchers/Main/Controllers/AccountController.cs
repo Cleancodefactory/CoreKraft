@@ -31,7 +31,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
                     if (redirAfterLogin.StartsWith('/')) redirAfterLogin = redirAfterLogin.TrimStart('/');
                     returnUrl += redirAfterLogin;
                 }
-                //Fallback
+                //Fallback for return url to avoid endless loop
                 if (string.IsNullOrEmpty(returnUrl))
                 {
                     returnUrl = "/";
