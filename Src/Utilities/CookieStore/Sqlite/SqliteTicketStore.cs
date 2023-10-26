@@ -19,7 +19,6 @@ namespace Ccf.Ck.Utilities.CookieTicketStore.Sqlite
         public Task RemoveAsync(string key)
         {
             _SqliteDb.Remove(key);
-
             return Task.CompletedTask;
         }
 
