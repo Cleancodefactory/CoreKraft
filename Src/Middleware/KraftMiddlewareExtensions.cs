@@ -8,12 +8,15 @@ using Ccf.Ck.Models.Web.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.Packet;
 using Ccf.Ck.SysPlugins.Recorders.Store;
+using Ccf.Ck.Utilities.CookieTicketStore;
+using Ccf.Ck.Utilities.CookieTicketStore.CookieSerialization;
+using Ccf.Ck.Utilities.CookieTicketStore.InMemory;
+using Ccf.Ck.Utilities.CookieTicketStore.Sqlite;
 using Ccf.Ck.Utilities.DependencyContainer;
 using Ccf.Ck.Utilities.Generic.Topologies;
 using Ccf.Ck.Utilities.MemoryCache;
 using Ccf.Ck.Utilities.NodeSetService;
 using Ccf.Ck.Utilities.Profiling;
-using Ccf.Ck.Web.Middleware.Cookies;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -34,6 +37,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
@@ -213,10 +217,12 @@ namespace Ccf.Ck.Web.Middleware
                     .AddCookie(options =>
                     {
                         options.LoginPath = new PathString("/account/signin");
-                        //Special cookie size reduction
-                        IDataProtectionProvider dataProtectionProvider = DataProtectionProvider.Create("CoreKraft");
-                        IDataProtector dataProtector = dataProtectionProvider.CreateProtector("Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware");
-                        options.TicketDataFormat = new OptimizedTicketDataFormat(loggerFactory, dataProtector);
+                        if (_KraftGlobalConfigurationSettings.GeneralSettings.CookieStoreSection.EnableCookieSizeReduction)
+                        {
+                            IDataProtectionProvider dataProtectionProvider = DataProtectionProvider.Create("CoreKraft");
+                            IDataProtector dataProtector = dataProtectionProvider.CreateProtector("Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationMiddleware");
+                            options.TicketDataFormat = new OptimizedTicketDataFormat(loggerFactory, dataProtector);
+                        }
                     })
 
                     .AddOpenIdConnect(options =>
@@ -269,6 +275,26 @@ namespace Ccf.Ck.Web.Middleware
                             //},
                             //OnTicketReceived = context =>
                             //{
+                            //    // ensure we have an identity
+                            //    ClaimsIdentity identity = context.Principal.Identity as ClaimsIdentity;
+                            //    if (identity != null)
+                            //    {
+
+                            //        //var claims = identity.Claims.Where(claim =>
+                            //        //{
+                            //        //    if (claim.Type != null && claim.Type == "")
+                            //        //    {
+                            //        //        return true;
+                            //        //    }
+                            //        //    if (claim.Type != null && claim.Type == "")
+                            //        //    {
+                            //        //        return true;
+                            //        //    }
+                            //        //    return false;
+                            //        //});
+                                    
+                            //        //identity.RemoveClaim(...);
+                            //    }
                             //    return Task.CompletedTask;
                             //},
                             //OnTokenResponseReceived = context =>
@@ -364,6 +390,17 @@ namespace Ccf.Ck.Web.Middleware
                         options.TokenValidationParameters.NameClaimType = "name";
                         options.TokenValidationParameters.RoleClaimType = "role";
                     });
+                    if (_KraftGlobalConfigurationSettings.GeneralSettings.CookieStoreSection.CookieStore.IsInMemoryTicketStore)
+                    {
+                        services.AddTransient<ITicketStore, InMemoryTicketStore>();
+                        services.AddSingleton<IPostConfigureOptions<CookieAuthenticationOptions>, ConfigureCookieAuthenticationOptions>();
+                    }
+                    else if (_KraftGlobalConfigurationSettings.GeneralSettings.CookieStoreSection.CookieStore.IsSqliteTicketStore)
+                    {
+                        services.AddTransient<ITicketStore, SqliteTicketStore>();
+                        services.AddSingleton<IPostConfigureOptions<CookieAuthenticationOptions>, ConfigureCookieAuthenticationOptions>();
+                    }
+
                 }
                 else
                 {

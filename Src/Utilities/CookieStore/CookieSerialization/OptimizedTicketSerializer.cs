@@ -2,13 +2,12 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Security.Claims;
 
-namespace Ccf.Ck.Web.Middleware.Cookies
+namespace Ccf.Ck.Utilities.CookieTicketStore.CookieSerialization
 {
     public sealed class OptimizedTicketSerializer : TicketSerializer
     {

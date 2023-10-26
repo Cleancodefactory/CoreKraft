@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace Ccf.Ck.Web.Middleware.Cookies
+namespace Ccf.Ck.Utilities.CookieTicketStore.CookieSerialization
 {
     public sealed class OptimizedTicketDataFormat : SecureDataFormat<AuthenticationTicket>
     {

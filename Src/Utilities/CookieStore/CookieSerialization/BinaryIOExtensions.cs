@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Ccf.Ck.Web.Middleware.Cookies
+namespace Ccf.Ck.Utilities.CookieTicketStore.CookieSerialization
 {
     public static class BinaryIOExtensions
     {

@@ -17,6 +17,7 @@ namespace Ccf.Ck.Models.Settings
         public GeneralSettings()
         {
             AuthorizationSection = new AuthorizationSection();
+            CookieStoreSection = new CookieStoreSection();
             SignalRSettings = new SignalRSettings();
             RazorAreaAssembly = new RazorAreaAssemblySettings();
             SlaveConfiguration = new SlaveConfigurationSettings();
@@ -71,6 +72,7 @@ namespace Ccf.Ck.Models.Settings
         public string KraftRequestFlagsKey { get; set; }
         public string HostingUrl { get; set; }
         public AuthorizationSection AuthorizationSection { get; set; }
+        public CookieStoreSection CookieStoreSection { get; set; }
         public string Authority { get; set; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }

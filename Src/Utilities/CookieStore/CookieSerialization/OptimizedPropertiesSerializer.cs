@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Ccf.Ck.Web.Middleware.Cookies
+namespace Ccf.Ck.Utilities.CookieTicketStore.CookieSerialization
 {
     public sealed class OptimizedPropertiesSerializer : PropertiesSerializer
     {
