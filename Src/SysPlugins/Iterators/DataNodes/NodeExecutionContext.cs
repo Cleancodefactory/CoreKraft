@@ -469,7 +469,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         //    CompiledParameterExpressionsCache.Clear();
         //}
         #endregion values cache
-
+        // TODO Optional
         private ResolverRunner<ParameterResolverValue, IParameterResolverContext> GetParameterRunner(string expressionName, out bool isdefault, out bool neverCache, bool noDefault = false, string initialExpressionName = null)
         {
             if (string.IsNullOrWhiteSpace(expressionName)) throw new ArgumentNullException($"{nameof(expressionName)} canot be null");
@@ -528,6 +528,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 throw new Exception($"Expression: '{expressionName}' or '{initialExpressionName}' can't be resolved. Check capital letter because the search is case sensitive."); // should never happen
             }
         }
+        // TODO Optional
         public ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null)
         {
             // Must not be null - we need to know what are we resolving
