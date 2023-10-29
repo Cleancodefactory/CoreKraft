@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Resolvers;
@@ -43,5 +44,6 @@ namespace Ccf.Ck.SysPlugins.Interfaces
         IParameterResolverSetManager ResolversManager { get; }
 
         ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null);
+        IDisposable OptionalParameters { get; }
     }
 }

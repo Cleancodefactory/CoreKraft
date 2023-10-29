@@ -97,6 +97,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 nameof(Error.IsError) => Error.IsError,
                 nameof(Error.ErrorText) => Error.ErrorText,
                 nameof(Error.ErrorCode) => Error.ErrorCode,
+                // Mode
+                nameof(OptionalParameters) => OptionalParameters,
+                nameof(RequiredParameters) => RequiredParameters,
+
                 _ => null,
             };
         }
@@ -104,8 +108,12 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new SymbolSet("Default library (no symbols)", null);
         }
         public void ClearDisposables() {
-            // Nothing by default
+            if (_optionalparamsmode != null)
+            {
+                foreach (var disposable in _optionalparamsmode) { disposable.Dispose(); }
+            }
         }
+        private List<IDisposable> _optionalparamsmode = new List<IDisposable>();
         #endregion
 
         #region Basic procedures
@@ -1073,6 +1081,26 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         #endregion
+
+        public ParameterResolverValue OptionalParameters(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (ctx is INodePluginContext npc) {
+                _optionalparamsmode.Add(npc.OptionalParameters);
+            } else if (ctx is IDataLoaderContext dlc) {
+                _optionalparamsmode.Add(dlc.OptionalParameters);
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue RequiredParameters(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (_optionalparamsmode.Count > 0)
+            {
+                _optionalparamsmode[0].Dispose();
+                _optionalparamsmode.RemoveAt(0);
+            }
+            return new ParameterResolverValue(null);
+        }
+
 
         [Function(nameof(Throw), "Throws an exception with the given description.")]
         [Parameter(0, "Argument", "argument", TypeFlags.Varying)]

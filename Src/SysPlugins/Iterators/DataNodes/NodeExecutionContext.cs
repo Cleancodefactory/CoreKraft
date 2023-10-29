@@ -1,20 +1,19 @@
-﻿using Ccf.Ck.Models.NodeSet;
-using Ccf.Ck.SysPlugins.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Ccf.Ck.SysPlugins.Utilities;
-using Ccf.Ck.Libs.ResolverExpression;
-using Ccf.Ck.Models.Resolvers;
+﻿using Ccf.Ck.Libs.ResolverExpression;
 using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Utilities.Generic;
-using System.ComponentModel;
-using Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers;
-using static Ccf.Ck.Models.ContextBasket.ModelConstants;
+using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
-using System.Security.AccessControl;
-using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers;
+using Ccf.Ck.SysPlugins.Utilities;
+using Ccf.Ck.Utilities.Generic;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using static Ccf.Ck.Models.ContextBasket.ModelConstants;
 
 namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 {
@@ -50,7 +49,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         /// Not currently settable and fully supported yet - for future use
         /// When set disables throwing of exceptions during compilation, evaluation and related code.
         /// </summary>
-        private readonly bool _noEvaluationExceptions = false;
+        private bool _noEvaluationExceptions = false;
         #endregion
 
         #region Construction
@@ -244,7 +243,10 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 return new LoaderPluginReadContext(Context);
             }
             public ParentResolutionNotAllowed ProhibitParentResults(string reasonDescription = null) { return new ParentResolutionNotAllowed(Context, reasonDescription); }
+            
         }
+
+        public AllParametersOptional OptionalParameters { get { return new AllParametersOptional(this); } }
 
         public class ParentResolutionNotAllowed : IDisposable {
             private bool disposedValue;
@@ -270,6 +272,41 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
 
             public void Dispose() {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        public class AllParametersOptional : IDisposable
+        {
+            private bool disposedValue;
+            private NodeExecutionContext _Context = null;
+            private bool _oldvalue = false;
+
+            public AllParametersOptional(NodeExecutionContext ctx)
+            {
+                _Context = ctx;
+                _oldvalue = ctx._noEvaluationExceptions;
+                ctx._noEvaluationExceptions = true;
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposedValue)
+                {
+                    if (disposing)
+                    {
+                        _Context._noEvaluationExceptions = _oldvalue;
+                        _Context = null;
+                    }
+                    disposedValue = true;
+                }
+            }
+
+
+            public void Dispose()
+            {
                 // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
                 Dispose(disposing: true);
                 GC.SuppressFinalize(this);
@@ -750,6 +787,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             public IExecutionMeta NodeMeta => Context.MetaNode;
             public Dictionary<string, ParameterResolverValue> NodeCache => Context.NodeCache;
             public string Module => Context.ProcessingContext.InputModel.Module;
+            public IDisposable OptionalParameters => Context.OptionalParameters;
             
         }
         
@@ -826,6 +864,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
             {
                 return Context.Evaluate(expressionName, oldargs);
             }
+
             public CustomPlugin CustomPlugin { get; set; }
         }
 
@@ -897,44 +936,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         }
 
-        // TODO - may be use the loader read context?
-        /// <summary>
-        /// A context passed to the newer Prepare action
-        /// </summary>
-        //public class LoaderPluginPrepareContext : NodeExecutionContextProxy, IDataLoaderPrepareContext { 
-        //    public LoaderPluginPrepareContext(NodeExecutionContext nodectx) : base(nodectx) { }
-
-        //    public IPluginsSynchronizeContextScoped OwnContextScoped => Context.DataLoaderContextScoped;
-
-        //    public IPluginsSynchronizeContextScoped DataLoaderContextScoped => Context.DataLoaderContextScoped;
-
-        //    public Node CurrentNode => Context.CurrentNode;
-
-        //    public IPluginAccessor<INodePlugin> CustomService => Context.CustomService;
-
-        //    public LoadedNodeSet LoadedNodeSet => Context.LoadedNodeSet;
-
-        //    public Dictionary<string, object> ParentResult => Context.ParentResult;
-
-        //    public IPluginServiceManager PluginServiceManager => Context.PluginServiceManager;
-
-        //    public IProcessingContext ProcessingContext => Context.ProcessingContext;
-
-        //    public string Path => Context.Path;
-
-        //    public string NodeKey => Context.NodeKey;
-
-        //    public string Action => Context.Action;
-
-        //    public string Operation => Context.Operation;
-
-        //    public List<Dictionary<string, object>> Results => Context.Results;
-
-        //    public ParameterResolverValue Evaluate(string expressionName, IList<ParameterResolverValue> oldargs = null) {
-        //        return Context.Evaluate(expressionName, oldargs);
-        //    }
-        //}
-
+        // TODO - we use the loader read context for Prepare
 
         #endregion
 
