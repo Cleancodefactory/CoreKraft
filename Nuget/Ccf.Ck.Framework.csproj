@@ -82,6 +82,7 @@
 			- Version 7.0.6: Updated nuget packages
 			- Version 7.0.7: Updated nuget packages and fixed issue with KraftLogger
 			- Version 7.0.8: NodeExecutionContext now supports optional parameters
+		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
 
