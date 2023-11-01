@@ -297,6 +297,10 @@ Extracts general information from the meta node
 
 _Calling OptionalParameters multiple times will require corresponding number of calls to RequiredParameters._
 
+**NType(value, full)** - Returns the name of the .NET type of value
+If `full` is false (the default is `true` if argument s missing) the short type name is returned.
+This function is mostly useful for tracing and should be avoided as program flow critical data.
+
 **MetaRoot(field)**
 
 Extracts general meta information from the current execution as whole. Some fields change during execution and may return different meta information depending on where and when they are fetched.

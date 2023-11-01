@@ -1129,6 +1129,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(null);
         }
 
+        [Function("NType","Returns string containing the .NET type of the argument")]
+        [Parameter(1,"value", "The value to get the type of",TypeFlags.Varying)]
+        [Parameter(2,"full","Specify short or full name, default is full",TypeFlags.Bool)]
+        [Result(".Net type name full or short depending on the full argument",TypeFlags.String)]
         public ParameterResolverValue NType(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length > 2) throw new ArgumentException("NType acceptes up to two arguments");
