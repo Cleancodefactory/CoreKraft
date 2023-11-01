@@ -291,6 +291,12 @@ Extracts general information from the meta node
 
 `depth` - If omitted assumed 0. 0 - extracts the meta info for the current node , 1 - extracts from the parent and so on. If the depth exceeds the execution chain length null will be returned.
 
+**OptionalParameters()** - After calling this function all references to parameters will not throw an error if the parameter does not exist, instead they will return `null`. 
+
+**RequiredParameters()** - Calling this reverts the optional parameters mode (if set by calling `OptionalParameters()` previously).
+
+_Calling OptionalParameters multiple times will require corresponding number of calls to RequiredParameters._
+
 **MetaRoot(field)**
 
 Extracts general meta information from the current execution as whole. Some fields change during execution and may return different meta information depending on where and when they are fetched.
