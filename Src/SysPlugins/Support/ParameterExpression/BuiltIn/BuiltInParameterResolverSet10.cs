@@ -545,6 +545,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             throw new Exception($"The requested parameter with {paramName} is not supported.");
         }
 
+        public ParameterResolverValue GetAuthorizationPasswordEndPoint(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+            string authority = settings.GeneralSettings.Authority;
+            authority = authority.TrimEnd('/');
+            return new ParameterResolverValue(authority + "/account/forgotpassword", EValueDataType.Text);
+        }
+
         public ParameterResolverValue GetUserRoles(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             InputModel inputModel = ctx.ProcessingContext.InputModel;
             return new ParameterResolverValue(inputModel.SecurityModel.Roles, EValueDataType.Text);

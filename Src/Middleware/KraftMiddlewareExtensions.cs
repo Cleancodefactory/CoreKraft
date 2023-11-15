@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -73,6 +74,28 @@ namespace Ccf.Ck.Web.Middleware
                 //Register as early as possible
                 AppDomain.CurrentDomain.UnhandledException += AppDomain_OnUnhandledException;
                 AppDomain.CurrentDomain.AssemblyResolve += AppDomain_OnAssemblyResolve;
+                _KraftGlobalConfigurationSettings = new KraftGlobalConfigurationSettings();
+                configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
+                if (!string.IsNullOrWhiteSpace(_KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName))
+                {
+                    ModelConstants._STATE_PROPERTY_NAME = _KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName;
+                }
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins)
+                {
+                    //Cors as early as possible
+                    services.AddCors(options =>
+                    {
+                        options.AddPolicy("CorsPolicy", policyBuilder => policyBuilder
+                                //.WithOrigins("https://stackoverflow.com", "https://officekraft.ai") e.g. the site we inject into
+                                .SetIsOriginAllowedToAllowWildcardSubdomains()
+                                .AllowAnyOrigin()
+                                .AllowAnyMethod()
+                                .AllowAnyHeader()
+                                //.AllowCredentials()
+                                );
+                    });
+                    //Cors
+                }
                 services.AddDistributedMemoryCache();
                 services.UseBindKraftLogger();
                 // If using Kestrel:
@@ -86,12 +109,6 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     options.AllowSynchronousIO = true;
                 });
-                _KraftGlobalConfigurationSettings = new KraftGlobalConfigurationSettings();
-                configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
-                if (!string.IsNullOrWhiteSpace(_KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName))
-                {
-                    ModelConstants._STATE_PROPERTY_NAME = _KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName;
-                }
                 List<IConfigurationSection> slaveConfigSections = new List<IConfigurationSection>();
                 foreach (string sectionName in _KraftGlobalConfigurationSettings.GeneralSettings.SlaveConfiguration.Sections)
                 {
@@ -292,7 +309,7 @@ namespace Ccf.Ck.Web.Middleware
                             //        //    }
                             //        //    return false;
                             //        //});
-                                    
+
                             //        //identity.RemoveClaim(...);
                             //    }
                             //    return Task.CompletedTask;
@@ -458,6 +475,10 @@ namespace Ccf.Ck.Web.Middleware
         public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostEnvironment env, Action<bool> restart = null)
         {
             KraftLogger.LogInformation($"IApplicationBuilder UseBindKraft: executed");
+            if (_KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins)
+            {
+                app.UseOptions();
+            }
             //AntiforgeryService
             //app.Use(next => context =>
             //{
@@ -497,6 +518,14 @@ namespace Ccf.Ck.Web.Middleware
                     rewrite.AddRedirectToWwwPermanent();
                     app.UseRewriter(rewrite);
                 }
+                ICorsService corsService = null;
+                ICorsPolicyProvider corsPolicyProvider = null;
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins)
+                {
+                    corsService = app.ApplicationServices.GetService<ICorsService>();
+                    corsPolicyProvider = app.ApplicationServices.GetService<ICorsPolicyProvider>();
+                }
+
                 app.UseStaticFiles(new StaticFileOptions
                 {
                     FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "wwwroot")),
@@ -513,6 +542,14 @@ namespace Ccf.Ck.Web.Middleware
                                     ctx.Context.Response.Headers.Append("Cache-Control", "max-age=0, private, no-cache");
                                 }
                             }
+                        }
+                        if (corsPolicyProvider != null)
+                        {
+                            CorsPolicy policy = corsPolicyProvider.GetPolicyAsync(ctx.Context, "CorsPolicy")
+                                                .ConfigureAwait(false)
+                                                .GetAwaiter().GetResult();
+                            CorsResult corsResult = corsService.EvaluatePolicy(ctx.Context, policy);
+                            corsService.ApplyResult(corsResult, ctx.Context.Response);
                         }
                     }
                 });
@@ -558,8 +595,8 @@ namespace Ccf.Ck.Web.Middleware
                         {
                             KraftDependableModule kraftDependable = (depModule.Value as KraftDependableModule);
                             KraftModule kraftModule = modulesCollection.RegisterModule(kraftDependable.KraftModuleRootPath, depModule.Value.Name, kraftDependable, cachingService);
-                            KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModuleImages);
-                            KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModulePublic);
+                            KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModuleImages, corsService, corsPolicyProvider);
+                            KraftStaticFiles.RegisterStaticFiles(app, kraftModule.ModulePath, kraftUrlSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlResourceSegment, _KraftGlobalConfigurationSettings.GeneralSettings.KraftUrlModulePublic, corsService, corsPolicyProvider);
                             moduleKey2Path.Add(kraftModule.Key, kraftDependable.KraftModuleRootPath);
                             string moduleFullPath = Path.Combine(kraftDependable.KraftModuleRootPath, kraftModule.Name);
                             string path2Data = Path.Combine(moduleFullPath, "Data");

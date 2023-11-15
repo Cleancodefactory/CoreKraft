@@ -150,6 +150,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                             {
                                 new Resolver()
                                 {
+                                     Alias = "GetAuthorizationPasswordEndPoint",
+                                     Arguments = 0,
+                                     Name = "GetAuthorizationPasswordEndPoint"
+                                }
+                            },
+                            {
+                                new Resolver()
+                                {
                                      Alias = "GetUserEmail",
                                      Arguments = 0,
                                      Name = "GetUserEmail"
