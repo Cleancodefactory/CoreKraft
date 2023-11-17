@@ -1,23 +1,20 @@
-﻿using Ccf.Ck.Models.Packet;
+﻿using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Packet;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
+using Ccf.Ck.SysPlugins.Interfaces.Packet;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Xml.Linq;
-using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
-using Ccf.Ck.SysPlugins.Interfaces;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
-using Ccf.Ck.SysPlugins.Interfaces.Packet;
-using Ccf.Ck.Models.Enumerations;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
     public class XmlPacketResponseBuilder : HttpResponseBuilder
     {
-        private IProcessingContextCollection _ProcessingContextCollection;
-
-        public XmlPacketResponseBuilder(IProcessingContextCollection processingContextCollection)
+        public XmlPacketResponseBuilder(IProcessingContextCollection processingContextCollection): base(processingContextCollection)
         {
-            _ProcessingContextCollection = processingContextCollection;
         }
 
         protected override void WriteToResponseHeaders(HttpContext context)

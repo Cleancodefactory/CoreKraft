@@ -7,11 +7,8 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
     public class JsonResponseBuilder : HttpResponseBuilder
     {
-        private IProcessingContextCollection _ProcessingContextCollection;
-
-        public JsonResponseBuilder(IProcessingContextCollection processingContextCollection)
+        public JsonResponseBuilder(IProcessingContextCollection processingContextCollection) : base(processingContextCollection)
         {
-            _ProcessingContextCollection = processingContextCollection;
         }
 
         protected override void WriteToResponseHeaders(HttpContext context)
@@ -27,7 +24,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 
                 //set json content type        
                 response.ContentType = "application/json";
-            }   
+            }
         }
 
         protected override void WriteToResponseBody(HttpContext context)

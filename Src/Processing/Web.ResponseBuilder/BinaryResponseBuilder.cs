@@ -8,11 +8,9 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
     public class BinaryResponseBuilder : HttpResponseBuilder
     {
-        private ProcessingContextCollection _ProcessingContextCollection;
 
-        public BinaryResponseBuilder(ProcessingContextCollection processingContextCollection)
+        public BinaryResponseBuilder(ProcessingContextCollection processingContextCollection):base(processingContextCollection)
         {
-            _ProcessingContextCollection = processingContextCollection;
         }
 
         protected override void WriteToResponseHeaders(HttpContext context)

@@ -7,12 +7,10 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
     public class TextResponseBuilder : HttpResponseBuilder
     {
-        private IProcessingContextCollection _ProcessingContextCollection;
         private string _ContentType = "text/plain";
 
-        public TextResponseBuilder(IProcessingContextCollection processingContextCollection,string contentType = null)
+        public TextResponseBuilder(IProcessingContextCollection processingContextCollection, string contentType = null) : base(processingContextCollection)
         {
-            _ProcessingContextCollection = processingContextCollection;
             if (contentType != null) _ContentType = contentType;
         }
 
@@ -29,7 +27,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 
                 //set json content type        
                 response.ContentType = _ContentType;
-            }   
+            }
         }
 
         protected override void WriteToResponseBody(HttpContext context)
