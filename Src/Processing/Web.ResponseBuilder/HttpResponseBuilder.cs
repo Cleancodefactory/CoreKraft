@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Ccf.Ck.SysPlugins.Interfaces;
 using System.Linq;
 using Ccf.Ck.Models.ContextBasket;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
@@ -30,6 +32,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     HttpResponse response = context.Response;
                     //Cors
                     response.Headers["Access-Control-Allow-Origin"] = "*";
+                    response.Headers["Access-Control-Allow-Methods"] = "*";
                 }
             }
             WriteToResponseHeaders(context);
