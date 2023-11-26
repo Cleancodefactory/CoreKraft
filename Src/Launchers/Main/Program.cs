@@ -72,7 +72,7 @@ namespace Ccf.Ck.Launchers.Main
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    //webBuilder.
+                    webBuilder.UseContentRoot(contentRoot);
                     webBuilder.ConfigureKestrel(serverOptions =>
                     {
                         serverOptions.Limits.MaxConcurrentConnections = null;
