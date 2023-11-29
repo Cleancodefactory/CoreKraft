@@ -149,9 +149,9 @@ namespace Ccf.Ck.Processing.Execution
 
                 _TransactionScope.CommitTransactions();
             }
-            catch (ThreadInterruptedException threadInterruptedEx)
+            catch (ThreadInterruptedException)
             {
-                throw threadInterruptedEx;
+                throw;
             }
             catch (Exception ex)
             {
