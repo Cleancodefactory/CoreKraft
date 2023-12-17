@@ -138,6 +138,23 @@ namespace Ccf.Ck.Launchers.Main
 
             if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
             {
+                app.Use(async (context, next) =>
+                {
+                    System.Collections.Generic.KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues> found = context.Request.Query.FirstOrDefault(kv =>
+                    {
+                        if (kv.Key.Contains("callsignin", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return true;
+                        }
+                        return false;
+                    });
+                    if (found.Key != null)
+                    {
+                        context.Response.Redirect("/account/signin");
+                        return;
+                    }
+                    await next(context);
+                });
                 app.UseRouting();
                 app.UseEndpoints(endpoints =>
                 {
