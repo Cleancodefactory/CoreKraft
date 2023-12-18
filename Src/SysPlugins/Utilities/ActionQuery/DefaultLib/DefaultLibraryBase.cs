@@ -1124,6 +1124,10 @@ namespace Ccf.Ck.SysPlugins.Utilities
             if (args.Length > 0) {
                 string log = string.Join(',', args.Select(a => Convert.ToString(a.Value)));
                 KraftLogger.LogWarning($"ACDebug: {log}\n");
+                var clr = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(log);
+                Console.ForegroundColor = clr;
                 return new ParameterResolverValue(args[0]);
             }
             return new ParameterResolverValue(null);
