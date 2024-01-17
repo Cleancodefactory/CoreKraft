@@ -1,4 +1,6 @@
-﻿using Ccf.Ck.Launchers.Main.ActionFilters;
+﻿using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Ccf.Ck.Launchers.Main.ActionFilters;
 using Ccf.Ck.Launchers.Main.Routing;
 using Ccf.Ck.Launchers.Main.Utils;
 using Ccf.Ck.Libs.Logging;
@@ -31,10 +33,45 @@ namespace Ccf.Ck.Launchers.Main
 
         public Startup(IWebHostEnvironment env)
         {
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: false, reloadOnChange: true)
-                .AddEnvironmentVariables();
+            IConfigurationBuilder builder = new ConfigurationBuilder();
+            if (true)//Get from configuration or something
+            {
+                builder.SetBasePath(env.ContentRootPath);
+                builder.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: false, reloadOnChange: true);
+                builder.AddEnvironmentVariables();
+            }
+            else
+            {
+                builder.AddSystemsManager(configureSource =>
+                {
+                    // Parameter Store prefix to pull configuration data from.
+                    configureSource.Path = "/myapplication";
+
+                    // Reload configuration data every 5 minutes.
+                    configureSource.ReloadAfter = TimeSpan.FromMinutes(5);
+
+                    // Use custom logic to set AWS credentials and Region. Otherwise, the AWS SDK for .NET's default logic
+                    // will be used find credentials.
+                    AWSOptions awsOptions = new AWSOptions();
+                    awsOptions.Region = RegionEndpoint.USWest1;
+                    awsOptions.ProfilesLocation = "";
+                    awsOptions.Profile = "Development";
+                    configureSource.AwsOptions = awsOptions;
+
+                    // Configure if the configuration data is optional.
+                    configureSource.Optional = true;
+
+                    configureSource.OnLoadException += exceptionContext =>
+                    {
+                        // Add custom error handling. For example, look at the exceptionContext.Exception and decide
+                        // whether to ignore the error or tell the provider to attempt to reload.
+                    };
+
+                    // Implement custom parameter process, which transforms Parameter Store names into
+                    // names for the .NET Core configuration system.
+                    //configureSource.ParameterProcessor = customerProcess;
+                });
+            }            
             _Configuration = builder.Build();
         }
 
