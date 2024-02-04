@@ -20,7 +20,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Ccf.Ck.Launchers.Main
 {
@@ -30,11 +29,9 @@ namespace Ccf.Ck.Launchers.Main
         private KraftGlobalConfigurationSettings _KraftGlobalConfiguration;
         private static RazorAssemblyLoadContext _RazorAssemblyLoadContext;
         private static ApplicationPartManager _ApplicationPartManager;
-        private IWebHostEnvironment _Env;
 
         public Startup(IWebHostEnvironment env)
         {
-            _Env = env;
             IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: false, reloadOnChange: true)
@@ -48,23 +45,12 @@ namespace Ccf.Ck.Launchers.Main
             _Configuration.GetSection("AwsConfiguration").Bind(awsConfiguration);
             if (awsConfiguration != null && !string.IsNullOrEmpty(awsConfiguration.Name) && !string.IsNullOrEmpty(awsConfiguration.Region))
             {
-                try
-                {
-                    string secretName = awsConfiguration.Name;
-                    string region = awsConfiguration.Region;
-                    IConfigurationBuilder builder = new ConfigurationBuilder();
-                    AmazonSecretsManagerConfigurationSource configurationSource = new AmazonSecretsManagerConfigurationSource(region, secretName);
-                    builder.Add(configurationSource);
-                    _Configuration = builder.Build();
-                }
-                catch (Exception ex)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append(ex.Message);
-                    File.AppendAllText(Path.Combine(_Env.ContentRootPath, "aws.log"), sb.ToString());
-                    sb.Clear();
-                    throw;
-                }
+                string secretName = awsConfiguration.Name;
+                string region = awsConfiguration.Region;
+                IConfigurationBuilder builder = new ConfigurationBuilder();
+                AmazonSecretsManagerConfigurationSource configurationSource = new AmazonSecretsManagerConfigurationSource(region, secretName);
+                builder.Add(configurationSource);
+                _Configuration = builder.Build();
             }
 
             IServiceProvider serviceProvider = services.UseBindKraft(_Configuration);
