@@ -14,7 +14,7 @@ namespace Ccf.Ck.Web.Middleware.Aws
     {
         private readonly string _Region;
         private readonly string _SecretName;
-        private readonly Dictionary<string, string?> _Data = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _Data = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private readonly Stack<string> _Paths = new Stack<string>();
 
         public AmazonSecretsManagerConfigurationProvider(string region, string secretName)
@@ -57,7 +57,7 @@ namespace Ccf.Ck.Web.Middleware.Aws
             }
         }
 
-        private Dictionary<string, string?> ParseStream(string input)
+        private Dictionary<string, string> ParseStream(string input)
         {
             var jsonDocumentOptions = new JsonDocumentOptions
             {
