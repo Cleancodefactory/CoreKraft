@@ -15,8 +15,8 @@
 
   <ItemGroup>
     <PackageReference Include="MySql.Data" Version="8.3.0" />
-    <PackageReference Include="Npgsql" Version="8.0.1" />
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.1.7" />
+    <PackageReference Include="Npgsql" Version="7.0.6" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.1.8" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
 
