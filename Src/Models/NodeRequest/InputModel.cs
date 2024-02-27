@@ -3,11 +3,14 @@ using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.Settings;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Ccf.Ck.Models.NodeRequest
 {
+    // Info about the ExtractRequestDataCallback , not strictly typed to avoid cycled refs
+    //    public delegate object ExtractRequestData(string what);
     public class InputModel
     {
         public InputModel(InputModelParameters parameters, KraftModuleCollection kraftModuleCollection)
@@ -56,13 +59,16 @@ namespace Ccf.Ck.Models.NodeRequest
         public string Nodepath { get; private set; }
 
         public string Module { get; private set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string BindingKey { get; private set; }
 
         public ELoaderType LoaderType { get; private set; }
 
         public object ProcessingContextRef { get; set; }
 
+        public Func<string,object> ExtractRequestDataCallback { get; set; }
         private Dictionary<string, object> UpdateParameters(InputModelParameters parameters)
         {
             //Mix all parameter's collections

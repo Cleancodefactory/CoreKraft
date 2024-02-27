@@ -9,6 +9,7 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Utilities.NodeSetService;
 using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Interfaces;
+using System.IO;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -39,9 +40,20 @@ namespace Ccf.Ck.Processing.Web.Request
             } else if (_RequestContentType == ESupportedContentTypes.FORM_URLENCODED) {
                 inputModelParameters.Data = _FormCollection;
             }
+            object _GetBodyCallback(string what) {
+                if (what == "body") {
+                    Stream body = _HttpContext.Request.Body;
+                    body.Position = 0;
+                    using (StreamReader reader = new StreamReader(body)) {
+                        return reader.ReadToEnd();
+                    }
+                }
+                return null;
+                
+            }
             
             inputModelParameters.LoaderType = GetLoaderType(kraftRequestFlagsKey);
-            _ProcessingContextCollection = new ProcessingContextCollection(CreateProcessingContexts(new List<InputModel> { new InputModel(inputModelParameters, _KraftModuleCollection) }));
+            _ProcessingContextCollection = new ProcessingContextCollection(CreateProcessingContexts(new List<InputModel>() { new InputModel(inputModelParameters, _KraftModuleCollection) { ExtractRequestDataCallback = _GetBodyCallback } })); ;
             return _ProcessingContextCollection;
         }
     }
