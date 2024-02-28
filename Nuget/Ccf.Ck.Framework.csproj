@@ -84,6 +84,7 @@
 			- Version 7.0.8: NodeExecutionContext now supports optional parameters
 			- Version 7.0.9: CoreKraft loads also configuration from AWS SecretsStore
 			- Version 7.0.10: Downgrade Npgsql to Version=7.0.6
+			- Version 7.0.11: Implement EnableBufferQueryParameter
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
