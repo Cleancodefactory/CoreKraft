@@ -34,7 +34,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
         protected Dictionary<string, object> _ServerCollection;
         protected INodeSetService _NodesSetService;
 
-        public ProcessorNodeBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) : base(httpContext, kraftModuleCollection, requestContentType, kraftGlobalConfigurationSettings)
+        public ProcessorNodeBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, bool preserveBody = false) : base(httpContext, kraftModuleCollection, requestContentType, kraftGlobalConfigurationSettings)
         {
             _QueryCollection = httpContext.Request.Query.Convert2Dictionary();
             _HeaderCollection = httpContext.Request.Headers.Convert2Dictionary();

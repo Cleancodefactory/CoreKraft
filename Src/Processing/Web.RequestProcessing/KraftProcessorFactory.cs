@@ -62,18 +62,19 @@ namespace Ccf.Ck.Processing.Web.Request
                                     case ESupportedContentTypes.JSON:
                                     case ESupportedContentTypes.FORM_URLENCODED:
                                         {
+                                            bool preserveBody = false;
                                             if (!string.IsNullOrEmpty(kraftGlobalConfigurationSettings.GeneralSettings.EnableBufferQueryParameter))
                                             {
                                                 if (httpContext.Request.Query.ContainsKey(kraftGlobalConfigurationSettings.GeneralSettings.EnableBufferQueryParameter))
                                                 {
                                                     if (httpContext.Request.ContentLength < MAX_REWINDABLE_SIZE)
                                                     {
-                                                        httpContext.Request.EnableBuffering();
+                                                        preserveBody = true;
                                                     }
                                                 }
                                             }
                                             
-                                            return new ProcessorNodeSingle(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
+                                            return new ProcessorNodeSingle(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings, preserveBody);
                                         }
                                     case ESupportedContentTypes.FORM_MULTIPART:
                                         {

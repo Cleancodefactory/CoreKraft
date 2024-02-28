@@ -15,7 +15,7 @@ namespace Ccf.Ck.Processing.Web.Request
 {
     internal class ProcessorNodeSingle : ProcessorNodeBase
     {
-        public ProcessorNodeSingle(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings) : base(httpContext, kraftModuleCollection, requestContentType, nodeSetService, kraftGlobalConfigurationSettings)
+        public ProcessorNodeSingle(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, bool preserveBody) : base(httpContext, kraftModuleCollection, requestContentType, nodeSetService, kraftGlobalConfigurationSettings)
         {
         }
 
@@ -42,14 +42,9 @@ namespace Ccf.Ck.Processing.Web.Request
             }
             object _GetBodyCallback(string what) {
                 if (what == "body") {
-                    Stream body = _HttpContext.Request.Body;
-                    body.Position = 0;
-                    using (StreamReader reader = new StreamReader(body)) {
-                        return reader.ReadToEnd();
-                    }
+                    return RequestBody;
                 }
-                return null;
-                
+                return null;                
             }
             
             inputModelParameters.LoaderType = GetLoaderType(kraftRequestFlagsKey);

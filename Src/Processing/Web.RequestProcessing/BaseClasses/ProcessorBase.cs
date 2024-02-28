@@ -37,8 +37,9 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
         protected HttpContext _HttpContext;
         protected IProcessingContextCollection _ProcessingContextCollection;
         protected KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
+        private bool _PreserveBody;
 
-        public ProcessorBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
+        public ProcessorBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, bool preserveBody = false)
         {
             _KraftModuleCollection = kraftModuleCollection;
             _HttpContext = httpContext;
@@ -46,6 +47,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             _RequestContentType = requestContentType;
             _ProcessingContextCollection = new ProcessingContextCollection(new List<IProcessingContext>());
             _KraftGlobalConfigurationSettings = kraftGlobalConfigurationSettings;
+            _PreserveBody = preserveBody;
             //AntiforgeryService
             //KeyValuePair<string, string> cookie = httpContext.Request.Cookies.FirstOrDefault(c => c.Key.Contains("XSRF-TOKEN"));
             //if (cookie.Value != null)
@@ -56,6 +58,8 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 
         public abstract void GenerateResponse();
 
+        protected string RequestBody { get; set; }
+
         public abstract void Execute(IProcessingContext processingContext, ITransactionScopeContext transactionScopeContext);
 
         public abstract IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null);
@@ -65,6 +69,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
             T result = default(T);
             using (TextReader reader = new StreamReader(httpRequest.Body, Encoding.UTF8))
             {
+                string requestBody = reader.ReadToEnd();
                 if (typeof(T) == typeof(Dictionary<string, object>))
                 {
                     if (httpRequest.ContentLength.HasValue && httpRequest.ContentLength.Value > 0)
@@ -76,7 +81,7 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
                             AllowTrailingCommas = true,
                             CommentHandling = JsonCommentHandling.Skip
                         };
-                        result = (T)DictionaryStringObjectJson.Deserialize(reader.ReadToEnd(), options);
+                        result = (T)DictionaryStringObjectJson.Deserialize(requestBody, options);
 
                     }
                 }
@@ -86,12 +91,16 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
                     {
                         ReadCommentHandling = JsonCommentHandling.Skip
                     };
-                    result = JsonSerializer.Deserialize<T>(reader.ReadToEnd(), options);
+                    result = JsonSerializer.Deserialize<T>(requestBody, options);
                 }
 
                 if (result == null)
                 {
                     result = new T();
+                }
+                if (_PreserveBody)
+                {
+                    RequestBody = requestBody;
                 }
             }
             return result;
