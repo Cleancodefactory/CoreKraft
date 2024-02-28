@@ -15,7 +15,12 @@ namespace Ccf.Ck.Processing.Web.Request
 {
     internal class ProcessorNodeSingle : ProcessorNodeBase
     {
-        public ProcessorNodeSingle(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, INodeSetService nodeSetService, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, bool preserveBody) : base(httpContext, kraftModuleCollection, requestContentType, nodeSetService, kraftGlobalConfigurationSettings)
+        public ProcessorNodeSingle(HttpContext httpContext, 
+                KraftModuleCollection kraftModuleCollection, 
+                ESupportedContentTypes requestContentType, 
+                INodeSetService nodeSetService, 
+                KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, 
+                bool preserveBody) : base(httpContext, kraftModuleCollection, requestContentType, nodeSetService, kraftGlobalConfigurationSettings, preserveBody)
         {
         }
 

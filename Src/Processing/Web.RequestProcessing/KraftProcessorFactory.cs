@@ -74,7 +74,12 @@ namespace Ccf.Ck.Processing.Web.Request
                                                 }
                                             }
                                             
-                                            return new ProcessorNodeSingle(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings, preserveBody);
+                                            return new ProcessorNodeSingle(httpContext, 
+                                                            kraftModuleCollection, 
+                                                            contentType, 
+                                                            nodesSetService, 
+                                                            kraftGlobalConfigurationSettings, 
+                                                            preserveBody);
                                         }
                                     case ESupportedContentTypes.FORM_MULTIPART:
                                         {

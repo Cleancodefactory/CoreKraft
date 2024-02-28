@@ -39,7 +39,11 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
         protected KraftGlobalConfigurationSettings _KraftGlobalConfigurationSettings;
         private bool _PreserveBody;
 
-        public ProcessorBase(HttpContext httpContext, KraftModuleCollection kraftModuleCollection, ESupportedContentTypes requestContentType, KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, bool preserveBody = false)
+        public ProcessorBase(HttpContext httpContext, 
+            KraftModuleCollection kraftModuleCollection, 
+            ESupportedContentTypes requestContentType, 
+            KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings, 
+            bool preserveBody = false)
         {
             _KraftModuleCollection = kraftModuleCollection;
             _HttpContext = httpContext;
