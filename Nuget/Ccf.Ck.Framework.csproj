@@ -86,6 +86,7 @@
 			- Version 7.0.10: Downgrade Npgsql to Version=7.0.6
 			- Version 7.0.11: Implement EnableBufferQueryParameter
 			- Version 7.0.12: Save body request as variable
+			- Version 7.0.13: Propagate preserveBody to the parent processors
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
