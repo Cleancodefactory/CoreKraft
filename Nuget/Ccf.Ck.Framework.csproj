@@ -85,6 +85,7 @@
 			- Version 7.0.9: CoreKraft loads also configuration from AWS SecretsStore
 			- Version 7.0.10: Downgrade Npgsql to Version=7.0.6
 			- Version 7.0.11: Implement EnableBufferQueryParameter
+			- Version 7.0.12: Save body request as variable
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
