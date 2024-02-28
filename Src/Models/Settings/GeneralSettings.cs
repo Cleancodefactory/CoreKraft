@@ -39,6 +39,7 @@ namespace Ccf.Ck.Models.Settings
         public bool CorsAllowedOrigins { get; set; }
         public List<string> ModulesRootFolders { get; set; }
         public string DefaultStartModule { get; set; }
+        public string EnableBufferQueryParameter { get; set; }
         public string PageTitle { get; set; }
         public string PassThroughJsConfig { get; set; }
         public string MetaLogging { get; set; }

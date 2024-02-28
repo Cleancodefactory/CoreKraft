@@ -10,10 +10,10 @@ using static Ccf.Ck.Processing.Web.Request.BaseClasses.ProcessorBase;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
-    
+
     internal class KraftProcessorFactory : AbstractProcessorFactory
     {
-        const long MAX_REWINDABLE_SIZE = 0x10000;
+        const long MAX_REWINDABLE_SIZE = 1000000; //1MB
         private const string CONTENTTYPEFIRSTPART = @"(?<firstpart>.*?(?=;|$|\s))";
         private static Regex _ContentTypeFirstPartRegex = new Regex(CONTENTTYPEFIRSTPART, RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
@@ -62,9 +62,17 @@ namespace Ccf.Ck.Processing.Web.Request
                                     case ESupportedContentTypes.JSON:
                                     case ESupportedContentTypes.FORM_URLENCODED:
                                         {
-                                            if (httpContext.Request.ContentLength < MAX_REWINDABLE_SIZE) {
-                                                httpContext.Request.EnableBuffering();
+                                            if (!string.IsNullOrEmpty(kraftGlobalConfigurationSettings.GeneralSettings.EnableBufferQueryParameter))
+                                            {
+                                                if (httpContext.Request.Query.ContainsKey(kraftGlobalConfigurationSettings.GeneralSettings.EnableBufferQueryParameter))
+                                                {
+                                                    if (httpContext.Request.ContentLength < MAX_REWINDABLE_SIZE)
+                                                    {
+                                                        httpContext.Request.EnableBuffering();
+                                                    }
+                                                }
                                             }
+                                            
                                             return new ProcessorNodeSingle(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
                                         }
                                     case ESupportedContentTypes.FORM_MULTIPART:
