@@ -62,6 +62,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             return View(_KraftGlobalConfigurationSettings);
         }
 
+        public IActionResult HistoryNav()
         public IActionResult Unsupported()
         {
             KraftLogger.LogInformation($"Method: public IActionResult Unsupported Browser");
