@@ -62,7 +62,12 @@ namespace Ccf.Ck.Launchers.Main.Controllers
             return View(_KraftGlobalConfigurationSettings);
         }
 
+        //We shouldn't redirect to not change the url
         public IActionResult HistoryNav()
+        {
+            return View("Index", _KraftGlobalConfigurationSettings);
+        }
+
         public IActionResult Unsupported()
         {
             KraftLogger.LogInformation($"Method: public IActionResult Unsupported Browser");

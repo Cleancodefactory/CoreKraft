@@ -225,7 +225,7 @@ namespace Ccf.Ck.Launchers.Main
                         }
                         endpoints.MapControllerRoute(
                         name: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Name,//"nav"
-                        pattern: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Pattern, new { Controller = "Home", Action = "Index" });//"nav/{**all}"
+                        pattern: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Pattern, new { Controller = "Home", Action = "HistoryNav" });//"nav/{**all}"
                     }
 
                     endpoints.MapControllerRoute(
