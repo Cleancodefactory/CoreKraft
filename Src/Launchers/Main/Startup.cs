@@ -185,7 +185,7 @@ namespace Ccf.Ck.Launchers.Main
                 app.UseSpaStaticFiles();
                 app.UseSpa(spa =>
                 {
-                    spa.Options.SourcePath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.SourcePath;//"wwwroot/search-app";
+                    spa.Options.SourcePath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.SourcePath;//"search-app";
                 });
             }
             else
