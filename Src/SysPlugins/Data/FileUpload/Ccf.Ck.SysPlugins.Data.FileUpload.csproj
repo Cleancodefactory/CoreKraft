@@ -11,9 +11,9 @@
   <PropertyGroup>
     <PackageDescription>This package provides System Plugin for files uploading in CoreKraft.</PackageDescription>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.3" />
   </ItemGroup>
 
   <ItemGroup>
