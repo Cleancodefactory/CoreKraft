@@ -36,15 +36,18 @@ namespace Ccf.Ck.Utilities.CookieTicketStore.Sqlite
 
         internal T Get<T>(string key)
         {
-            SqliteParameter keyParameter = new SqliteParameter("Key", DbType.String) { Value = key };
-            using (SqliteCommand cmd = new SqliteCommand("SELECT Value FROM Cookies WHERE [Key]=@Key", _Connection))
+            if (!string.IsNullOrEmpty(key))
             {
-                cmd.Parameters.Add(keyParameter);
-                using (SqliteDataReader rdr = cmd.ExecuteReader())
+                SqliteParameter keyParameter = new SqliteParameter("Key", DbType.String) { Value = key };
+                using (SqliteCommand cmd = new SqliteCommand("SELECT Value FROM Cookies WHERE [Key]=@Key", _Connection))
                 {
-                    while (rdr.Read())
+                    cmd.Parameters.Add(keyParameter);
+                    using (SqliteDataReader rdr = cmd.ExecuteReader())
                     {
-                        return (T)rdr.GetValue(0);
+                        while (rdr.Read())
+                        {
+                            return (T)rdr.GetValue(0);
+                        }
                     }
                 }
             }
