@@ -55,6 +55,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 //{
 
                 //}               
+                response.Headers.AcceptRanges = "bytes";
                 response.Headers.ContentRange = $"bytes */{postedFile.Length}";
 
                 var ranges = request.GetTypedHeaders().Range?.Ranges;
