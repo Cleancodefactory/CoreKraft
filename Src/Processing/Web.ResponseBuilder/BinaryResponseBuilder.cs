@@ -48,13 +48,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     response.ContentType = postedFile.ContentType;
                 }
 
-                response.ContentLength = postedFile.Length;
-
-                //We can decide to split only big videos into ranges
-                //if (postedFile.ContentType.Equals("video/mp4", comparisonType: StringComparison.OrdinalIgnoreCase))
-                //{
-
-                //}               
+                response.ContentLength = postedFile.Length;            
                 response.Headers.AcceptRanges = "bytes";
                 response.Headers.ContentRange = $"bytes */{postedFile.Length}";
 
@@ -65,7 +59,14 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     RangeItemHeaderValue range = ranges.First();
 
                     // Set Content-Range header
-                    response.Headers.Add("Content-Range", $"bytes {range.From}-{range.To}/{postedFile.ContentType.Length}");
+                    if (response.Headers.ContainsKey("Content-Range"))
+                    {
+                        response.Headers["Content-Range"] = $"bytes {range.From}-{range.To}/{postedFile.ContentType.Length}";
+                    }
+                    else
+                    {
+                        response.Headers.Add("Content-Range", $"bytes {range.From}-{range.To}/{postedFile.ContentType.Length}");
+                    }
                     // Set status code to 206 Partial Content
                     response.StatusCode = StatusCodes.Status206PartialContent;
                     // Set content length for the range
