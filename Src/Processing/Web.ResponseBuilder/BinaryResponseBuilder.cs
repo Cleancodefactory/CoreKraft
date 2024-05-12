@@ -1,5 +1,6 @@
 ﻿using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.NodeRequest;
+using Grace.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System;
@@ -31,10 +32,27 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             }
         }
 
+        private RequestType _requestType;
+
         protected override void WriteToResponseBody(HttpContext context)
         {
             HttpResponse response = context.Response;
             HttpRequest request = context.Request;
+            string _method = request.Method;
+
+            if (HttpMethods.IsGet(_method))
+            {
+                _requestType = RequestType.IsGet;
+            }
+            else if (HttpMethods.IsHead(_method))
+            {
+                _requestType = RequestType.IsHead;
+            }
+            else
+            {
+                _requestType = RequestType.Unspecified;
+            }
+
 
             //Etag controls it and we don't need body
             if (response.StatusCode == StatusCodes.Status304NotModified)
@@ -108,6 +126,16 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             }
 
             return buffer;
+        }
+
+
+        [Flags]
+        private enum RequestType : byte
+        {
+            Unspecified = 0b_000,
+            IsHead = 0b_001,
+            IsGet = 0b_010,
+            IsRange = 0b_100,
         }
     }
 }
