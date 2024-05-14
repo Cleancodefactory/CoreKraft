@@ -1,6 +1,7 @@
 ﻿using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.NodeRequest;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.IO;
@@ -22,12 +23,43 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             //image / jpeg
             if (_ProcessingContextCollection.ProcessingContexts.First().ReturnModel.BinaryData is IPostedFile postedFile)
             {
+                if (HttpMethods.IsHead(context.Request.Method))
+                {
+                    context.Response.ContentLength = postedFile.Length;
+                    context.Response.StatusCode = StatusCodes.Status200OK;
+                    return;
+                }
+
                 if (!string.IsNullOrWhiteSpace(postedFile.ContentType))
                 {
-                    //For known content types create the etag
+                    response.ContentType = postedFile.ContentType;
+                    response.ContentLength = postedFile.Length;
+                    response.Headers.AcceptRanges = "bytes";
+                    response.Headers.Add("Access-Control-Allow-Origin", "*");
+                    response.Headers.Add("Access-Control-Allow-Headers", "Range");
+                    response.Headers.Add("Access-Control-Expose-Headers", "Content-Range, Accept-Ranges");
+
                     string etag = Ccf.Ck.Utilities.Generic.Utilities.GenerateETag(Encoding.UTF8.GetBytes(postedFile.Length + postedFile.FileName));
-                    CacheManagement.HandleEtag(context, etag);
+                    if (etag != null)
+                    {
+                        CacheManagement.HandleEtag(context, etag);
+                        RequestHeaders requestHeaders = context.Request.GetTypedHeaders();
+                        var ifNoneMatch = requestHeaders.IfNoneMatch;
+
+                        if (ifNoneMatch?.Any() == true && ifNoneMatch.Contains(new EntityTagHeaderValue(Ccf.Ck.Utilities.Generic.Utilities.WithQuotes(etag))))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status304NotModified;
+                        }
+                        else
+                        {
+                            context.Response.StatusCode = StatusCodes.Status200OK;
+                        }
+                    }
                 }
+            }
+            else
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
             }
         }
 
@@ -43,15 +75,6 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             }
             if (_ProcessingContextCollection.ProcessingContexts.First().ReturnModel.BinaryData is IPostedFile postedFile)
             {
-                if (!string.IsNullOrWhiteSpace(postedFile.ContentType))
-                {
-                    response.ContentType = postedFile.ContentType;
-                }
-
-                response.ContentLength = postedFile.Length;            
-                response.Headers.AcceptRanges = "bytes";
-                response.Headers.ContentRange = $"bytes */{postedFile.Length}";
-
                 var ranges = request.GetTypedHeaders().Range?.Ranges;
 
                 if (ranges != null && ranges.Count == 1 && ranges.First().From.HasValue && ranges.First().To.HasValue)
