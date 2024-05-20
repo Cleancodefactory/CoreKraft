@@ -2,6 +2,7 @@
 using Ccf.Ck.Models.NodeRequest;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.IO;
@@ -20,7 +21,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
         protected override void WriteToResponseHeaders(HttpContext context)
         {
             HttpResponse response = context.Response;
-            //image / jpeg
+            //image / jpeg / video
             if (_ProcessingContextCollection.ProcessingContexts.First().ReturnModel.BinaryData is IPostedFile postedFile)
             {
                 if (HttpMethods.IsHead(context.Request.Method))
@@ -50,10 +51,6 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                         {
                             context.Response.StatusCode = StatusCodes.Status304NotModified;
                         }
-                        else
-                        {
-                            context.Response.StatusCode = StatusCodes.Status200OK;
-                        }
                     }
                 }
             }
@@ -69,12 +66,15 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             HttpRequest request = context.Request;
 
             //Etag controls it and we don't need body
-            if (response.StatusCode == StatusCodes.Status304NotModified)
+            if (response.StatusCode == StatusCodes.Status304NotModified || response.StatusCode == StatusCodes.Status404NotFound)
             {
                 return;
             }
             if (_ProcessingContextCollection.ProcessingContexts.First().ReturnModel.BinaryData is IPostedFile postedFile)
             {
+                response.StatusCode = StatusCodes.Status206PartialContent;
+                response.Headers["Content-Range"] = $"bytes {0}-{postedFile.Length-1}/{postedFile.Length}";
+
                 var ranges = request.GetTypedHeaders().Range?.Ranges;
 
                 if (ranges != null && ranges.Count == 1 && ranges.First().From.HasValue && ranges.First().To.HasValue)
@@ -84,24 +84,22 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     // Set Content-Range header
                     if (response.Headers.ContainsKey("Content-Range"))
                     {
-                        response.Headers["Content-Range"] = $"bytes {range.From}-{range.To}/{postedFile.ContentType.Length}";
+                        response.Headers["Content-Range"] = $"bytes {range.From}-{range.To}/{postedFile.Length}";
                     }
                     else
                     {
-                        response.Headers.Add("Content-Range", $"bytes {range.From}-{range.To}/{postedFile.ContentType.Length}");
+                        response.Headers.Add("Content-Range", $"bytes {range.From}-{range.To}/{postedFile.Length}");
                     }
-                    // Set status code to 206 Partial Content
-                    response.StatusCode = StatusCodes.Status206PartialContent;
                     // Set content length for the range
                     response.ContentLength = range.To - range.From + 1;
 
                     byte[] data = ReadStreamIntoByteArray(postedFile.OpenReadStream(), range.From.Value, range.To.Value);
                     // Write the specified range of binary data to the response
-                    response.Body.Write(data, (int)range.From, (int)range.To.Value);
+                    response.Body.Write(data);
                 }
                 else
                 {
-                    response.StatusCode = StatusCodes.Status200OK;
+                    //response.StatusCode = StatusCodes.Status200OK;
                     using (System.IO.Stream pfs = postedFile.OpenReadStream())
                     {
                         pfs.CopyTo(response.Body);
