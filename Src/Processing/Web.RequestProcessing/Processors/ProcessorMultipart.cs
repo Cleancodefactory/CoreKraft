@@ -111,6 +111,7 @@ namespace Ccf.Ck.Processing.Web.Request
             catch (Exception ex)
             {
                 KraftLogger.LogError($"Request URL: {processingContext.InputModel.Module}.{processingContext.InputModel.NodeSet}.{processingContext.InputModel.Nodepath}", new object[] { listData, ex });
+                throw;
             }
         }
 
