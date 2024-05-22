@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 	</PropertyGroup>
 
 	<!-- Nuget specific tags -->
@@ -73,7 +73,7 @@
 			- Version 6.0.11: Implement schedular callbacks for start and finish for the scheduled tasks
 			- Version 6.0.12: OnEmptyQueue is an array of callbacks
 			- Version 6.0.13: Adding new cookie serialization provider
-			- Version 7.0.0: Updated to net7.0
+			- Version 7.0.0: Updated to net8.0
 			- Version 7.0.1: Updated logging and reference to Diagnostics
 			- Version 7.0.2: Updated nugets and introduced way to inject middlewares from configuration
 			- Version 7.0.3: New resolver: "GetAuthBearerToken() which returns the bearer token of the logged in user or null"
