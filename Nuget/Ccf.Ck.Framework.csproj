@@ -87,6 +87,7 @@
 			- Version 7.0.11: Implement EnableBufferQueryParameter
 			- Version 7.0.12: Save body request as variable
 			- Version 7.0.13: Propagate preserveBody to the parent processors
+			- Version 8.0.0: Updated to net8.0
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
