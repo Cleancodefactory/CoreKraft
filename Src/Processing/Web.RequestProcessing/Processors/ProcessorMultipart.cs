@@ -14,6 +14,7 @@ using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.Utilities.NodeSetService;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Libs.Logging;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -69,41 +70,48 @@ namespace Ccf.Ck.Processing.Web.Request
             IProcessingContext processingContext = new ProcessingContext(this);
             List<Dictionary<string, object>> listData = new List<Dictionary<string, object>>();
             Type postedFileType = typeof(PostedFile);
-
-            foreach (IProcessingContext item in _ProcessingContextCollection.ProcessingContexts)
-            {
-                if (item.ReturnModel.Status.IsSuccessful)
+            //TODO Robert
+            try
+            {               
+                foreach (IProcessingContext item in _ProcessingContextCollection.ProcessingContexts)
                 {
-                    listData.Add(new Dictionary<string, object>());
-
-                    Dictionary<string, object> currentData = item.ReturnModel.Data as Dictionary<string, object>;
-
-                    if (currentData != null)
+                    if (item.ReturnModel.Status.IsSuccessful)
                     {
-                        foreach (string key in currentData.Keys)
+                        listData.Add(new Dictionary<string, object>());
+
+                        Dictionary<string, object> currentData = item.ReturnModel.Data as Dictionary<string, object>;
+
+                        if (currentData != null)
                         {
-                            if (currentData[key] != null && currentData[key].GetType() != postedFileType)
+                            foreach (string key in currentData.Keys)
                             {
-                                listData[listData.Count - 1].Add(key, currentData[key]);
+                                if (currentData[key] != null && currentData[key].GetType() != postedFileType)
+                                {
+                                    listData[listData.Count - 1].Add(key, currentData[key]);
+                                }
                             }
                         }
                     }
+
+                    if (processingContext.ReturnModel.Status.IsSuccessful)
+                    {
+                        processingContext.ReturnModel.Status.IsSuccessful = item.ReturnModel.Status.IsSuccessful;
+                    }
+
+                    processingContext.ReturnModel.Status.StatusResults.AddRange(item.ReturnModel.Status.StatusResults);
                 }
 
-                if (processingContext.ReturnModel.Status.IsSuccessful)
-                {
-                    processingContext.ReturnModel.Status.IsSuccessful = item.ReturnModel.Status.IsSuccessful;
-                }
-
-                processingContext.ReturnModel.Status.StatusResults.AddRange(item.ReturnModel.Status.StatusResults);
+                processingContext.ReturnModel.Data = listData;
+                List<IProcessingContext> processingContexts = new List<IProcessingContext>();
+                processingContexts.Add(processingContext);
+                ProcessingContextCollection processingContextCollection = new ProcessingContextCollection(processingContexts);
+                HttpResponseBuilder responseBuilder = new XmlPacketResponseBuilder(processingContextCollection);
+                responseBuilder.GenerateResponse(_HttpContext);
             }
-
-            processingContext.ReturnModel.Data = listData;
-            List<IProcessingContext> processingContexts = new List<IProcessingContext>();
-            processingContexts.Add(processingContext);
-            ProcessingContextCollection processingContextCollection = new ProcessingContextCollection(processingContexts);
-            HttpResponseBuilder responseBuilder = new XmlPacketResponseBuilder(processingContextCollection);
-            responseBuilder.GenerateResponse(_HttpContext);
+            catch (Exception ex)
+            {
+                KraftLogger.LogError($"Request URL: {processingContext.InputModel.Module}.{processingContext.InputModel.NodeSet}.{processingContext.InputModel.Nodepath}", new object[] { listData, ex });
+            }
         }
 
         protected Dictionary<string, object> ResolveMultipartAsJson()
