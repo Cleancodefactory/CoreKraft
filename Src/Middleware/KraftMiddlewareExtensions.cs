@@ -496,14 +496,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 ILoggerFactory loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
                 DiagnosticListener diagnosticListener = app.ApplicationServices.GetService<DiagnosticListener>();
-                //Case aware physical file provider
-                CaseAwarePhysicalFileProvider caseAwareContentRootPath = new CaseAwarePhysicalFileProvider(env.ContentRootPath);
-                caseAwareContentRootPath.CaseSensitive = true;
-                env.ContentRootFileProvider = caseAwareContentRootPath;
-                CaseAwarePhysicalFileProvider caseAwareWebRootPath = new CaseAwarePhysicalFileProvider(env.WebRootPath);
-                caseAwareWebRootPath.CaseSensitive = true;
-                env.WebRootFileProvider = caseAwareWebRootPath;
-                //Case aware physical file provider
+                
                 //First statement to register Error handling !!!Keep at the top!!!
                 app.UseMiddleware<KraftExceptionHandlerMiddleware>(loggerFactory, new ExceptionHandlerOptions(), diagnosticListener);
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps)
@@ -699,6 +692,18 @@ namespace Ccf.Ck.Web.Middleware
                 SignalStartup signalStartup = new SignalStartup(app.ApplicationServices, _KraftGlobalConfigurationSettings);
                 signalStartup.ExecuteSignalsOnStartup();
                 //End Signals
+
+                //Case aware physical file provider
+                CaseAwarePhysicalFileProvider caseAwareContentRootPath = new CaseAwarePhysicalFileProvider(env.ContentRootPath);
+                caseAwareContentRootPath.CaseSensitive = true;
+                CompositeFileProvider compositeProvider = new CompositeFileProvider(env.ContentRootFileProvider, caseAwareContentRootPath);
+                env.ContentRootFileProvider = compositeProvider;
+
+                CaseAwarePhysicalFileProvider caseAwareWebRootPath = new CaseAwarePhysicalFileProvider(env.WebRootPath);
+                caseAwareWebRootPath.CaseSensitive = true;
+                compositeProvider = new CompositeFileProvider(env.WebRootFileProvider, caseAwareWebRootPath);
+                env.WebRootFileProvider = compositeProvider;
+                //Case aware physical file provider
             }
             catch (Exception ex)
             {
