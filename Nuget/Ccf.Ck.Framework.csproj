@@ -89,6 +89,7 @@
 			- Version 7.0.13: Propagate preserveBody to the parent processors
 			- Version 8.0.0: Updated to net8.0
 			- Version 8.0.1: Fix getting ClaimsPrincipal.Claims for Email and Roles
+			- Version 8.0.2: Case aware physical file provider as composite
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
