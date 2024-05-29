@@ -72,14 +72,16 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             }
             if (_ProcessingContextCollection.ProcessingContexts.First().ReturnModel.BinaryData is IPostedFile postedFile)
             {
-                response.StatusCode = StatusCodes.Status206PartialContent;
-                response.Headers["Content-Range"] = $"bytes {0}-{postedFile.Length-1}/{postedFile.Length}";
+                //response.StatusCode = StatusCodes.Status206PartialContent;
+                //response.Headers["Content-Range"] = $"bytes {0}-{postedFile.Length-1}/{postedFile.Length}";
 
                 var ranges = request.GetTypedHeaders().Range?.Ranges;
 
                 if (ranges != null && ranges.Count == 1 && ranges.First().From.HasValue && ranges.First().To.HasValue)
                 {
+                    response.StatusCode = StatusCodes.Status206PartialContent;
                     RangeItemHeaderValue range = ranges.First();
+
 
                     // Set Content-Range header
                     if (response.Headers.ContainsKey("Content-Range"))
