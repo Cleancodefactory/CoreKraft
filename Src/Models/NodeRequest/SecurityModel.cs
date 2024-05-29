@@ -1,14 +1,13 @@
-﻿using System.Security.Claims;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
+﻿using Ccf.Ck.Models.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
-using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Models.Interfaces;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Ccf.Ck.Models.NodeRequest
 {
@@ -28,6 +27,19 @@ namespace Ccf.Ck.Models.NodeRequest
                 return _ClaimsPrincipal?.Identity?.IsAuthenticated ?? false;
             }
         }
+
+        public string NameIdentifier
+        {
+            get
+            {
+                if (IsAuthenticated)
+                {
+                    return _ClaimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                }
+                return null;
+            }
+        }
+
         public string UserName
         {
             get
@@ -46,7 +58,12 @@ namespace Ccf.Ck.Models.NodeRequest
             {
                 if (IsAuthenticated)
                 {
-                    return _ClaimsPrincipal.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+                    string email = _ClaimsPrincipal.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+                    if (string.IsNullOrEmpty(email))
+                    {
+                        email = _ClaimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                    }
+                    return email;
                 }
                 return null;
             }
@@ -82,7 +99,12 @@ namespace Ccf.Ck.Models.NodeRequest
             {
                 if (IsAuthenticated)
                 {
-                    return _ClaimsPrincipal.Claims.Where(c => c.Type == "role").Select(s => s.Value).ToList();
+                    ICollection<string> roles = _ClaimsPrincipal.Claims.Where(c => c.Type == "role").Select(s => s.Value).ToList();
+                    if (roles == null)
+                    {
+                        roles = _ClaimsPrincipal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(s => s.Value).ToList();
+                    }
+                    return roles;
                 }
                 return null;
             }
@@ -100,11 +122,15 @@ namespace Ccf.Ck.Models.NodeRequest
         {
             if (IsAuthenticated)
             {
-                Claim claim = _ClaimsPrincipal.Claims.FirstOrDefault(c => c.Type == "role" && c.Value.Equals(roleName, StringComparison.OrdinalIgnoreCase));
-                if (claim != null)
+                ICollection<string> roles = Roles;
+                if (roles != null && roles.Count> 0)
                 {
-                    return 1;
-                }
+                    string role = roles.FirstOrDefault(c => c.Equals(roleName, StringComparison.OrdinalIgnoreCase));
+                    if (!string.IsNullOrEmpty(role))
+                    {
+                        return 1;
+                    }
+                }                
             }
             return 0;
         }
