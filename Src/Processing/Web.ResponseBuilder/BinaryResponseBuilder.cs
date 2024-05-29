@@ -2,9 +2,9 @@
 using Ccf.Ck.Models.NodeRequest;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Net.Http.Headers;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -75,7 +75,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 //response.StatusCode = StatusCodes.Status206PartialContent;
                 //response.Headers["Content-Range"] = $"bytes {0}-{postedFile.Length-1}/{postedFile.Length}";
 
-                var ranges = request.GetTypedHeaders().Range?.Ranges;
+                ICollection<RangeItemHeaderValue> ranges = request.GetTypedHeaders().Range?.Ranges;
 
                 if (ranges != null && ranges.Count == 1 && ranges.First().From.HasValue && ranges.First().To.HasValue)
                 {
@@ -88,10 +88,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     {
                         response.Headers["Content-Range"] = $"bytes {range.From}-{range.To}/{postedFile.Length}";
                     }
-                    else
-                    {
-                        response.Headers["Content-Range"] = $"bytes {range.From}-{range.To}/{postedFile.Length}";
-                    }
+
                     // Set content length for the range
                     response.ContentLength = range.To - range.From + 1;
 
