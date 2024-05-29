@@ -111,11 +111,6 @@ namespace Ccf.Ck.Processing.Web.Request
             {
                 return ESupportedContentTypes.JSON;//Default when empty
             }
-            //we are trying to find if a file/binary is in the body
-            if (httpContext.Request.ContentLength == null && httpContext.Request.Headers["Transfer-Encoding"] == "chunked")
-            {
-                return ESupportedContentTypes.FORM_MULTIPART;
-            }
             Match match = _ContentTypeFirstPartRegex.Match(contentType);
             if (match.Success)
             {
@@ -136,7 +131,12 @@ namespace Ccf.Ck.Processing.Web.Request
                         }
                     default:
                         {
-                            return ESupportedContentTypes.UNKNOWN;
+                            //we are trying to find if a file/binary is in the body
+                            if (httpContext.Request.ContentLength == null && httpContext.Request.Headers["Transfer-Encoding"] == "chunked")
+                            {
+                                return ESupportedContentTypes.FORM_MULTIPART;
+                            }
+                            break;
                         }
                 }
             }
