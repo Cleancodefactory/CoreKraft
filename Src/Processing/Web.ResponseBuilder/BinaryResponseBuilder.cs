@@ -36,9 +36,9 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     response.ContentType = postedFile.ContentType;
                     response.ContentLength = postedFile.Length;
                     response.Headers.AcceptRanges = "bytes";
-                    response.Headers.Add("Access-Control-Allow-Origin", "*");
-                    response.Headers.Add("Access-Control-Allow-Headers", "Range");
-                    response.Headers.Add("Access-Control-Expose-Headers", "Content-Range, Accept-Ranges");
+                    response.Headers["Access-Control-Allow-Origin"] = "*";
+                    response.Headers["Access-Control-Allow-Headers"] = "Range";
+                    response.Headers["Access-Control-Expose-Headers"] = "Content-Range, Accept-Ranges";
 
                     string etag = Ccf.Ck.Utilities.Generic.Utilities.GenerateETag(Encoding.UTF8.GetBytes(postedFile.Length + postedFile.FileName));
                     if (etag != null)
@@ -88,7 +88,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     }
                     else
                     {
-                        response.Headers.Add("Content-Range", $"bytes {range.From}-{range.To}/{postedFile.Length}");
+                        response.Headers["Content-Range"] = $"bytes {range.From}-{range.To}/{postedFile.Length}";
                     }
                     // Set content length for the range
                     response.ContentLength = range.To - range.From + 1;
