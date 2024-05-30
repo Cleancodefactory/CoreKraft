@@ -91,6 +91,7 @@
 			- Version 8.0.1: Fix getting ClaimsPrincipal.Claims for Email and Roles
 			- Version 8.0.2: Case aware physical file provider as composite
 			- Version 8.0.3: Improve MapContentType sniffing
+			- Version 8.0.4: options.UseSecurityTokenValidator = true
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
