@@ -404,6 +404,7 @@ namespace Ccf.Ck.Web.Middleware
                             // Disable the built-in JWT claims mapping feature.
                             InboundClaimTypeMap = new Dictionary<string, string>()
                         };
+                        options.UseSecurityTokenValidator = true;
                         options.TokenValidationParameters.NameClaimType = "name";
                         options.TokenValidationParameters.RoleClaimType = "role";
                     });
