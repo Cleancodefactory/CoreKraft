@@ -9,6 +9,7 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses;
 using Ccf.Ck.Utilities.Generic;
+using Grace.DependencyInjection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
@@ -373,6 +374,17 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                 return new ParameterResolverValue(false);
             }
             return new ParameterResolverValue(true);
+        }
+        public ParameterResolverValue NullIfEmpty(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (args.Count == 1) {
+                var v = IsEmpty(ctx, args);
+                if (TrueLike(v.Value)) {
+                    return new ParameterResolverValue(null);
+                }
+                return args[0];
+            } else {
+                return new ParameterResolverValue(null);
+            }
         }
         public ParameterResolverValue Skip(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             return new ParameterResolverValue(null, EResolverValueType.Skip);

@@ -235,6 +235,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                 }
                             },
                             {
+                                new Resolver() {
+                                    Alias = "NullIfEmpty",
+                                    Arguments = 1,
+                                    Name = "NullIfEmpty"
+                                }
+                            },
+                            {
                                 new Resolver()
                                 {
                                      Alias = "CastAs",
