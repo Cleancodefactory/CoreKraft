@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
@@ -25,7 +23,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             cacheControlHeaderValue.Public = true;
 
             httpContext.Response.GetTypedHeaders().CacheControl = cacheControlHeaderValue;
-            httpContext.Response.Headers.Add(HeaderNames.ETag, new[] { Ccf.Ck.Utilities.Generic.Utilities.WithQuotes(calculatedEtag) });
+            httpContext.Response.Headers[HeaderNames.ETag] = new[] { Ccf.Ck.Utilities.Generic.Utilities.WithQuotes(calculatedEtag) };
         }
     }
 }

@@ -399,11 +399,12 @@ namespace Ccf.Ck.Web.Middleware
                                 return Task.CompletedTask;
                             }
                         };
-                        options.SecurityTokenValidator = new JwtSecurityTokenHandler
+                        options.TokenHandler = new JwtSecurityTokenHandler
                         {
                             // Disable the built-in JWT claims mapping feature.
                             InboundClaimTypeMap = new Dictionary<string, string>()
                         };
+                        options.UseSecurityTokenValidator = true;
                         options.TokenValidationParameters.NameClaimType = "name";
                         options.TokenValidationParameters.RoleClaimType = "role";
                     });

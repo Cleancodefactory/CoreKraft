@@ -116,7 +116,7 @@ namespace Ccf.Ck.Web.Middleware.Tools
                                         httpContext.Response.Clear();
                                         //Don't calculate the response length!
                                         //httpContext.Response.Headers.Add("Content-Length", message.Length.ToString());
-                                        httpContext.Response.Headers.Add("Content-Disposition", "attachment;filename=RecordedSession.json");
+                                        httpContext.Response.Headers["Content-Disposition"] = "attachment;filename=RecordedSession.json";
                                         statusCode = (int)HttpStatusCode.OK;
                                         httpContext.Response.StatusCode = statusCode;
                                         httpContext.Response.ContentType = "text/html; charset=UTF-8";
