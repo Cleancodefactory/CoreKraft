@@ -358,3 +358,7 @@ Checks the `text` against the `regexp` and returns it as ParameterResolverValue 
 ### IsEmpty(val)
 
 Returns true if the passed value is empty. This includes null values, empty strings, numeric zeros, empty collections. Added in August 2022.
+
+### NullIfEmpty(val)
+
+Returns null if the cal is empty string ot 0. Added in May 2024. Useful for working with databases when it is preferred to receive nulls instead of empty values and nulls.
