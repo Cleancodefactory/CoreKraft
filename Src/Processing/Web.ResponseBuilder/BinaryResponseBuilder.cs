@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.ContextBasket;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.NodeRequest;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
@@ -100,8 +101,9 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     if (userAgent.Contains("iphone;") || userAgent.Contains("ipad;") || userAgent.Contains("macintosh;"))
                     {
                         response.StatusCode = StatusCodes.Status206PartialContent;
-                        response.Headers["Content-Range"] = $"bytes {0}-{postedFile.Length - 1}/{postedFile.Length}";
+                        response.Headers["Content-Range"] = $"bytes {0}-{postedFile.Length - 1}/{postedFile.Length}";                 
                     }
+                    KraftLogger.LogDebug($"User agent: {userAgent}");
                     //response.StatusCode = StatusCodes.Status200OK;
                     using (System.IO.Stream pfs = postedFile.OpenReadStream())
                     {
