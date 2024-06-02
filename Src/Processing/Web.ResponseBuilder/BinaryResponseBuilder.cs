@@ -2,6 +2,7 @@
 using Ccf.Ck.Models.NodeRequest;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
@@ -72,16 +73,12 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             }
             if (_ProcessingContextCollection.ProcessingContexts.First().ReturnModel.BinaryData is IPostedFile postedFile)
             {
-                //response.StatusCode = StatusCodes.Status206PartialContent;
-                //response.Headers["Content-Range"] = $"bytes {0}-{postedFile.Length-1}/{postedFile.Length}";
-
                 ICollection<RangeItemHeaderValue> ranges = request.GetTypedHeaders().Range?.Ranges;
 
                 if (ranges != null && ranges.Count == 1 && ranges.First().From.HasValue && ranges.First().To.HasValue)
                 {
                     response.StatusCode = StatusCodes.Status206PartialContent;
                     RangeItemHeaderValue range = ranges.First();
-
 
                     // Set Content-Range header
                     if (response.Headers.ContainsKey("Content-Range"))
@@ -98,6 +95,13 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 }
                 else
                 {
+                    StringValues userAgent = context.Request.Headers["User-Agent"];
+                    //iphone, ipad, macintosh
+                    if (userAgent.Contains("iphone;") || userAgent.Contains("ipad;") || userAgent.Contains("macintosh;"))
+                    {
+                        response.StatusCode = StatusCodes.Status206PartialContent;
+                        response.Headers["Content-Range"] = $"bytes {0}-{postedFile.Length - 1}/{postedFile.Length}";
+                    }
                     //response.StatusCode = StatusCodes.Status200OK;
                     using (System.IO.Stream pfs = postedFile.OpenReadStream())
                     {
