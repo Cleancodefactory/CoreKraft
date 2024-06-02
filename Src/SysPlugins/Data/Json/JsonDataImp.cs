@@ -12,6 +12,7 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Utilities.Json;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
 using System.Text.Json;
+using System.Collections;
 
 namespace Ccf.Ck.SysPlugins.Data.Json
 {
@@ -22,6 +23,7 @@ namespace Ccf.Ck.SysPlugins.Data.Json
         {
             Node node = (Node)execContext.CurrentNode;
             Dictionary<string, object> currentResult = null;
+            List<Dictionary<string,object>> listResult = null;
             JsonDataSynchronizeContextScopedImp jsonDataSynchronizeContextScopedImp = execContext.OwnContextScoped as JsonDataSynchronizeContextScopedImp;
 
             if (jsonDataSynchronizeContextScopedImp == null)
@@ -62,14 +64,27 @@ namespace Ccf.Ck.SysPlugins.Data.Json
 
                     cachingService.Insert(cacheKey, cachedJson, fileProvider.Watch(node.Read.Select.File));
                 }
-                JsonReaderOptions options = new JsonReaderOptions
-                {
+                JsonReaderOptions options = new JsonReaderOptions {
                     AllowTrailingCommas = true,
                     CommentHandling = JsonCommentHandling.Skip
                 };
-                currentResult = new Dictionary<string, object>((Dictionary<string, object>)DictionaryStringObjectJson.Deserialize(cachedJson, options));
+                if (execContext.CurrentNode.IsList) {
+                    var list = DictionaryStringObjectJson.Deserialize(cachedJson, options);
+                    if (list is IList olist) {
+                        listResult = new();
+                        foreach (var item in olist) {
+                            if (item is Dictionary<string,object> ditem) {
+                                listResult.Add(ditem);
+                            }
+                        }
+                    }
+                    return listResult;
+                } else {
+                    currentResult = new Dictionary<string, object>((Dictionary<string, object>)DictionaryStringObjectJson.Deserialize(cachedJson, options));
+                    return new List<Dictionary<string, object>>() { currentResult };
+                }
             }
-            return new List<Dictionary<string, object>>() { currentResult };
+            return new List<Dictionary<string, object>>() { null };
         }
 
         protected override object Write(IDataLoaderWriteContext execContext)
