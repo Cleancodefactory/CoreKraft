@@ -358,6 +358,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
 
 
         [Function(nameof(ResetResultState), "Resets the state of the current result to unchanged.")]
+        [Parameter(0, "index", "Index of result to change, negative index means all results.If omitted the top result is addressed", TypeFlags.Int | TypeFlags.Optional)]
         public ParameterResolverValue ResetResultState(HostInterface ctx, ParameterResolverValue[] args)
         {
             return ProcessResult(ctx, (dh, r) => dh.DataState.SetUnchanged(r), args);
@@ -370,6 +371,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(SetResultDeleted), "Sets the state of the current result to deleted. If you want to impact the current execution process this should be set in a node script executed in beforenodeaction phase.")]
+        [Parameter(0,"index","Index of result to change, negative index means all results.If omitted the top result is addressed",TypeFlags.Int | TypeFlags.Optional)]
         public ParameterResolverValue SetResultDeleted(HostInterface ctx, ParameterResolverValue[] args)
         {
             return ProcessResult(ctx, (dh, r) => dh.DataState.SetDeleted(r), args);
@@ -382,6 +384,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(SetResultNew), "Sets the state of the result (top on read, current on write) to new.")]
+        [Parameter(0, "index", "Index of result to change, negative index means all results.If omitted the top result is addressed", TypeFlags.Int | TypeFlags.Optional)]
         public ParameterResolverValue SetResultNew(HostInterface ctx, ParameterResolverValue[] args)
         {
             return ProcessResult(ctx, (dh, r) => dh.DataState.SetNew(r), args);
@@ -394,6 +397,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         }
 
         [Function(nameof(SetResultUpdated), "Sets the state of the result (top on read, current on write) to changed.")]
+        [Parameter(0, "index", "Index of result to change, negative index means all results.If omitted the top result is addressed", TypeFlags.Int | TypeFlags.Optional)]
         public ParameterResolverValue SetResultUpdated(HostInterface ctx, ParameterResolverValue[] args)
         {
             return ProcessResult(ctx, (dh, r) => dh.DataState.SetUpdated(r), args);
