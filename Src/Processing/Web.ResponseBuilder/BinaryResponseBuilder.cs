@@ -4,6 +4,7 @@ using Ccf.Ck.Models.NodeRequest;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
@@ -86,6 +87,10 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     {
                         response.Headers["Content-Range"] = $"bytes {range.From}-{range.To}/{postedFile.Length}";
                     }
+                    else
+                    {
+                        response.Headers.Append("Content-Range", $"bytes {range.From}-{range.To}/{postedFile.Length}");
+                    }
 
                     // Set content length for the range
                     response.ContentLength = range.To - range.From + 1;
@@ -96,15 +101,6 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 }
                 else
                 {
-                    StringValues userAgent = context.Request.Headers["User-Agent"];
-                    //iphone, ipad, macintosh
-                    if (userAgent.Contains("iphone;") || userAgent.Contains("ipad;") || userAgent.Contains("macintosh;"))
-                    {
-                        response.StatusCode = StatusCodes.Status206PartialContent;
-                        response.Headers["Content-Range"] = $"bytes {0}-{postedFile.Length - 1}/{postedFile.Length}";                 
-                    }
-                    KraftLogger.LogDebug($"User agent: {userAgent}");
-                    //response.StatusCode = StatusCodes.Status200OK;
                     using (System.IO.Stream pfs = postedFile.OpenReadStream())
                     {
                         pfs.CopyTo(response.Body);
