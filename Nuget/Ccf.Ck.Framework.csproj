@@ -92,6 +92,7 @@
 			- Version 8.0.2: Case aware physical file provider as composite
 			- Version 8.0.3: Improve MapContentType sniffing
 			- Version 8.0.4: options.UseSecurityTokenValidator = true
+			- Version 8.0.5: Fixed the way roles are consumed
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
