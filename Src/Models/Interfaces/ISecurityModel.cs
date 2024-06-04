@@ -1,4 +1,5 @@
 ﻿using Ccf.Ck.Models.NodeSet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,8 +22,18 @@ namespace Ccf.Ck.Models.Interfaces
         ICollection<string> Roles { get; }
 
         int IsInRole(string roleName) {
-            var rolex = Roles.FirstOrDefault(r => string.CompareOrdinal(r, roleName) == 0);
-            if (rolex != null) return 1;
+            if (IsAuthenticated)
+            {
+                ICollection<string> roles = Roles;
+                if (roles != null && roles.Count > 0)
+                {
+                    string role = roles.FirstOrDefault(c => c.Equals(roleName, StringComparison.OrdinalIgnoreCase));
+                    if (!string.IsNullOrEmpty(role))
+                    {
+                        return 1;
+                    }
+                }
+            }
             return 0;
         }
         /// <summary>

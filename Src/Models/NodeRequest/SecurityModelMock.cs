@@ -1,5 +1,4 @@
-﻿using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Models.Interfaces;
+﻿using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.Settings;
 using System;
 using System.Collections.Generic;
@@ -31,8 +30,19 @@ namespace Ccf.Ck.Models.NodeRequest
 
         public int IsInRole(string roleName)
         {
-            string role = _AuthorizationSection.Roles.FirstOrDefault(c => c.Equals(roleName, StringComparison.OrdinalIgnoreCase));
-            return role != null ? 1 : 0;
+            if (IsAuthenticated)
+            {
+                ICollection<string> roles = Roles;
+                if (roles != null && roles.Count > 0)
+                {
+                    string role = roles.FirstOrDefault(c => c.Equals(roleName, StringComparison.OrdinalIgnoreCase));
+                    if (!string.IsNullOrEmpty(role))
+                    {
+                        return 1;
+                    }
+                }
+            }
+            return 0;
         }
     }
 }

@@ -100,7 +100,7 @@ namespace Ccf.Ck.Models.NodeRequest
                 if (IsAuthenticated)
                 {
                     ICollection<string> roles = _ClaimsPrincipal.Claims.Where(c => c.Type == "role").Select(s => s.Value).ToList();
-                    if (roles == null)
+                    if (roles == null || roles?.Count == 0)
                     {
                         roles = _ClaimsPrincipal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(s => s.Value).ToList();
                     }
