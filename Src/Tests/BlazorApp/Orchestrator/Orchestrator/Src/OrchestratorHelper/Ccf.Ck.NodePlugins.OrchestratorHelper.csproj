@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageDescription>This package creates embedding from string value.</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Ccf.Ck.Framework" Version="8.0.5" />
+	  <PackageReference Include="OpenAI" Version="1.11.0" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\Modules\_PluginsReferences</OutputPath>
+  </PropertyGroup>
+</Project>

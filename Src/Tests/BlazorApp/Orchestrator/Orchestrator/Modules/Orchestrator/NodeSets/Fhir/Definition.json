@@ -1,0 +1,44 @@
+{
+  "NodeSet": {
+    "datapluginname": "Postgres_Db",
+    "requireauthentication": false,
+    "root": {
+      "children": [
+        {
+          "nodekey": "Create",
+          "executionorder": 0,
+          "islist": 0,
+          "parameters": [
+            {
+              "name": "input",
+              "Expression": "GetFrom('data',name)" 
+            },
+            {
+              "name": "template",
+              "Expression": "GetFrom('data',name)" 
+            },
+            {
+              "name": "prompt",
+              "Expression": "GetFrom('data',name)" 
+            },
+            {
+              "name": "system_message",
+              "Expression": "GetFrom('data',name)" 
+            }
+          ],
+          "write": {
+            "insert": {
+              "query": ""
+            },
+            "customplugins": [
+              {
+                "beforenodeaction": true,
+                "custompluginname": "OrchestratorHelperMainImp"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

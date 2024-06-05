@@ -1,0 +1,17 @@
+﻿{
+  "name": "Orchestrator",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "dependencies": {
+  },
+  "signals": [],
+  "release": [
+    {
+      "version": "1.0.0",
+      "info": "Initial creation"
+    }
+  ]
+}

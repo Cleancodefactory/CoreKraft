@@ -1,0 +1,60 @@
+﻿{
+  "KraftModuleConfigurationSettings": {
+    "NodeSetSettings": {
+      "SourceLoaderMapping": {
+        "NodesDataIterator": {
+          "NodesDataIteratorConf": {
+            "Name": "DefaultNodeTreeIterator",
+            "ImplementationAsString": "Ccf.Ck.SysPlugins.Iterators.DataNodes.DataNodesImp, Ccf.Ck.SysPlugins.Iterators.DataNodes",
+            "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.IDataIteratorPlugin, Ccf.Ck.SysPlugins.Interfaces",
+            "Default": true,
+            "CustomSettings": {}
+          },
+          "ParameterResolvers": [
+          ],
+          "NodesDataLoader": [
+            {
+              "Name": "Postgres_Db",
+              "ImplementationAsString": "Ccf.Ck.SysPlugins.Data.Db.ADO.GenericPostgreSQL, Ccf.Ck.SysPlugins.Data.Db.ADO",
+              "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.IDataLoaderPlugin, Ccf.Ck.SysPlugins.Interfaces",
+              "Default": true,
+              "CustomSettings": {
+                "ConnectionString": ""
+              }
+            },
+            {
+              "Name": "Scripter",
+              "ImplementationAsString": "Ccf.Ck.SysPlugins.Data.Scripter.ScripterImp, Ccf.Ck.SysPlugins.Data.Scripter",
+              "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.IDataLoaderPlugin, Ccf.Ck.SysPlugins.Interfaces",
+              "Default": true,
+              "CustomSettings": {
+                "libraries": "internalcalls"
+              }
+            }
+          ]
+        },
+        "ViewLoader": [],
+        "LookupLoader": [],
+        "ResourceLoader": [],
+        "CustomPlugin": [
+          {
+            "Name": "NodeScripter",
+            "ImplementationAsString": "Ccf.Ck.NodePlugins.Scripter.NodeScripterImp, Ccf.Ck.NodePlugins.Scripter",
+            "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.INodePlugin, Ccf.Ck.SysPlugins.Interfaces",
+            "Default": true,
+            "CustomSettings": {
+              "libraries": ""
+            }
+          },
+          {
+            "Name": "OrchestratorHelperMainImp",
+            "ImplementationAsString": "Ccf.Ck.NodePlugins.OrchestratorHelper.OrchestratorHelperMainImp, Ccf.Ck.NodePlugins.OrchestratorHelper",
+            "InterfaceAsString": "Ccf.Ck.SysPlugins.Interfaces.INodePlugin, Ccf.Ck.SysPlugins.Interfaces",
+            "Default": true,
+            "CustomSettings": {}
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+﻿@page "/"
+@attribute [StreamRendering]
+@inject MapService mappingService
+@inject IToastService toastService
+@inject IDialogService DialogService
+
+<PageTitle>Mapping</PageTitle>
+
+<h1>Mapping</h1>
+
+<div class="files-input-container">
+    <div class="text-area-container">
+        <FluentTextArea Rows="30" @bind-Value=inputData Label="Input"></FluentTextArea>
+    </div>
+    <div class="text-area-container">
+        <FluentTextArea Rows="30" @bind-Value=templateData Label="Template"></FluentTextArea>
+    </div>
+</div>
+<FluentTextArea @bind-Value=systemMessage Label="System Message"></FluentTextArea>
+<FluentTextArea @bind-Value=prompt Label="Prompt"></FluentTextArea>
+<div class="controls">
+    <FluentButton Disabled="isDisabled" OnClick="OnMap" Appearance="Appearance.Accent">Map</FluentButton>
+</div>
+@code
+{
+    string inputData = string.Empty;
+    string templateData = string.Empty;
+    string prompt = string.Empty;
+    string systemMessage = string.Empty;
+
+    bool isDisabled = false;
+
+    private async Task OnMap()
+    {
+        try
+        {
+            isDisabled = true;
+            FhirResponse response = await mappingService.StartMap(inputData, templateData, prompt, systemMessage);
+
+            if (string.IsNullOrWhiteSpace(response.Message))
+            {
+                DialogService.ShowError("Error. No message returned!", "Error");
+                return;
+            }
+
+            DialogService.ShowInfo(response.Message, "Message");
+        }
+        catch(Exception err)
+        {
+            toastService.ShowError(err.Message);
+        }
+        isDisabled = false;
+    }
+}

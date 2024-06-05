@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Src\**" />
+		<Content Include="Src\OrchestratorHelper\*" />
+		<Content Include="Src\Plugins.sln" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\Middleware\Ccf.Ck.Web.Middleware.csproj" />
+		<ProjectReference Include="..\..\..\..\NodePlugins\Base\Ccf.Ck.NodePlugins.Base.csproj" />
+		<ProjectReference Include="..\..\..\..\NodePlugins\Scripter\Ccf.Ck.NodePlugins.Scripter.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\Base\Ccf.Ck.SysPlugins.Data.Base.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\Call\Ccf.Ck.SysPlugins.Data.Call.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\Db.ADO\Ccf.Ck.SysPlugins.Data.Db.ADO.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\FileTransaction\Ccf.Ck.SysPlugins.Data.FileTransaction.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\FileUpload\Ccf.Ck.SysPlugins.Data.FileUpload.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\HttpService\Ccf.Ck.SysPlugins.Data.HttpService.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\Internal\Ccf.Ck.SysPlugins.Data.Internal.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\Json\Ccf.Ck.SysPlugins.Data.Json.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\RawFiles\Ccf.Ck.SysPlugins.Data.RawFiles.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\RequestProxy\Ccf.Ck.SysPlugins.Data.RequestProxy.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\Scripter\Ccf.Ck.SysPlugins.Data.Scripter.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Data\UploadFileStream\Ccf.Ck.SysPlugins.Data.UploadFileStream.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Iterators\DataNodes\Ccf.Ck.SysPlugins.Iterators.DataNodes.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Services\Ccf.Ck.SysPlugins.Services.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Support\ActionQueryLibs\BasicWeb\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Support\ActionQueryLibs\Diagnostics\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Diagnostics.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Support\ActionQueryLibs\Files\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Support\ActionQueryLibs\Images\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Support\ActionQueryLibs\InternalCalls\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.InternalCalls.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Support\ParameterExpression\Ccf.Ck.SysPlugins.Support.ParameterExpression.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Support\ParameterValidation\Ccf.Ck.SysPlugins.Support.ParameterValidation.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
+		<ProjectReference Include="..\..\..\..\SysPlugins\View.Html\Ccf.Ck.SysPlugins.Views.Html.csproj" />
+		<ProjectReference Include="..\Orchestrator.Client\Orchestrator.Client.csproj" />
+		<ProjectReference Include="..\Orchestrator.Models\Orchestrator.Models.csproj" />
+		<PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.6" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.7.2" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.7.2" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.6" />
+		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+	</ItemGroup>
+
+</Project>
