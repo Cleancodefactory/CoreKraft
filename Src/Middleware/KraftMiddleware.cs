@@ -63,7 +63,7 @@ namespace Ccf.Ck.Web.Middleware
                             Data = processingContext.ReturnModel.Data,
                             BinaryData = processingContext.ReturnModel.BinaryData,
                             IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful,
-                            ErrorMessage = processingContext.ReturnModel.Status.CobinedMessageFromStatusResults()
+                            ErrorMessage = processingContext.ReturnModel.Status.CombinedMessageFromStatusResults()
                         };
                         if (stopWatch != null)
                         {

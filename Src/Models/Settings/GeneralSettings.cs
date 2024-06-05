@@ -89,6 +89,7 @@ namespace Ccf.Ck.Models.Settings
         public List<string> MetaTags { get; set; }
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
+        public WebApiAreaAssemblySettings WebApiAreaAssembly { get; set; }
         public SlaveConfigurationSettings SlaveConfiguration { get; set; }
         public List<string> SupportedLanguages { get; set; }
         public List<string> WatchSubFoldersForRestart { get; set; }

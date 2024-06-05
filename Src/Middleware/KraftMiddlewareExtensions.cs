@@ -215,6 +215,31 @@ namespace Ccf.Ck.Web.Middleware
 
                 #endregion //Global Configuration Settings
 
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.IsConfigured)
+                {
+                    foreach (string rootFolder in _KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders)
+                    {
+                        string rootPath = Path.Combine(rootFolder, "_PluginsReferences");
+                        //Check if file exists
+                        var assembly = Assembly.LoadFrom(Path.Combine(rootPath, _KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.AssemblyNamesCode[0]));
+
+                        // Find and register the services
+                        var types = assembly.GetTypes();
+                        foreach (var type in types)
+                        {
+                            // Register services that implement a specific interface or have a specific attribute
+                            //if (typeof(IService).IsAssignableFrom(type))
+                            //{
+                            //    services.AddSingleton(typeof(IService), type);
+                            //}
+                        }
+                        // Add controllers from the loaded assembly
+                        services.AddControllers().AddApplicationPart(assembly);
+                    }
+                    services.AddEndpointsApiExplorer();
+                    services.AddSwaggerGen();
+                }
+
                 //INodeSet service
                 services.AddSingleton(typeof(INodeSetService), new NodeSetService(_KraftGlobalConfigurationSettings, cachingService));
 
@@ -497,7 +522,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 ILoggerFactory loggerFactory = app.ApplicationServices.GetService<ILoggerFactory>();
                 DiagnosticListener diagnosticListener = app.ApplicationServices.GetService<DiagnosticListener>();
-                
+
                 //First statement to register Error handling !!!Keep at the top!!!
                 app.UseMiddleware<KraftExceptionHandlerMiddleware>(loggerFactory, new ExceptionHandlerOptions(), diagnosticListener);
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.RedirectToHttps)
@@ -666,13 +691,26 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     app.UseAuthentication();
                 }
+                app.UseRouting();
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.IsConfigured)
+                {
+                    //app.UseEndpoints(endpoints =>
+                    //{
+                    //    endpoints.MapControllers();
+                    //});
+                    if (env.IsDevelopment())
+                    {
+                        app.UseSwagger();
+                        app.UseSwaggerUI();
+                    }
+                }
                 //KraftKeepAlive.RegisterKeepAliveAsync(builder);
                 //Configure eventually SignalR
                 try
                 {
                     if (_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.UseSignalR)
                     {
-                        app.UseRouting();
+                        
                         app.UseEndpoints(endpoints =>
                         {
                             MethodInfo mapHub = typeof(HubEndpointRouteBuilderExtensions).GetMethod(
@@ -814,7 +852,7 @@ namespace Ccf.Ck.Web.Middleware
                     fileName, args.RequestingAssembly.FullName);
         }
         #region Small helpers
-        public static string CobinedMessageFromStatusResults(this IReturnStatus status)
+        public static string CombinedMessageFromStatusResults(this IReturnStatus status)
         {
             if (status != null && status.StatusResults != null)
             {
