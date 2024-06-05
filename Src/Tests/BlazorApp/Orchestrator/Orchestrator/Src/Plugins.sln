@@ -5,6 +5,8 @@ VisualStudioVersion = 17.9.34902.65
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.NodePlugins.OrchestratorHelper", "OrchestratorHelper\Ccf.Ck.NodePlugins.OrchestratorHelper.csproj", "{BFB1CB0A-BB8C-4818-ADAA-663493A8CA1F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiCore", "WebApiCore\WebApiCore.csproj", "{909B3431-1B66-49AE-9100-64480CBD72EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{BFB1CB0A-BB8C-4818-ADAA-663493A8CA1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFB1CB0A-BB8C-4818-ADAA-663493A8CA1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFB1CB0A-BB8C-4818-ADAA-663493A8CA1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{909B3431-1B66-49AE-9100-64480CBD72EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{909B3431-1B66-49AE-9100-64480CBD72EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{909B3431-1B66-49AE-9100-64480CBD72EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{909B3431-1B66-49AE-9100-64480CBD72EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
