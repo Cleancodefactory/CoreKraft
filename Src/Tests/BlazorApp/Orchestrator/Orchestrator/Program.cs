@@ -23,6 +23,7 @@ namespace Orchestrator
             });
 
             builder.Services.AddScoped(sp => new HttpClient());
+            builder.Services.AddEndpointsApiExplorer();
 
             builder.Services.AddScoped<MapService>();
 
@@ -35,6 +36,7 @@ namespace Orchestrator
             var app = builder.Build();
             app.UseBindKraft(app.Environment);
 
+            //TODO Robert
             app.UseMvcWithDefaultRoute();
 
             // Configure the HTTP request pipeline.

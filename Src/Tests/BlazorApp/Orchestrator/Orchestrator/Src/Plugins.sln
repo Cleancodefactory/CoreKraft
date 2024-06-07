@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.NodePlugins.Orchestr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiCore", "WebApiCore\WebApiCore.csproj", "{909B3431-1B66-49AE-9100-64480CBD72EB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ccf.Ck.Models.Interfaces", "..\..\..\..\..\Models\Interfaces\Ccf.Ck.Models.Interfaces.csproj", "{5300FDC1-1EE1-42BF-82A6-F58B1349D752}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{909B3431-1B66-49AE-9100-64480CBD72EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{909B3431-1B66-49AE-9100-64480CBD72EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{909B3431-1B66-49AE-9100-64480CBD72EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5300FDC1-1EE1-42BF-82A6-F58B1349D752}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5300FDC1-1EE1-42BF-82A6-F58B1349D752}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5300FDC1-1EE1-42BF-82A6-F58B1349D752}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5300FDC1-1EE1-42BF-82A6-F58B1349D752}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

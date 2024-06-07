@@ -2,6 +2,7 @@
 using Ccf.Ck.Libs.Web.Bundling;
 using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.DirectCall;
+using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Models.Web.Settings;
@@ -65,6 +66,7 @@ namespace Ccf.Ck.Web.Middleware
         static readonly object _SyncRoot = new Object();
         private static readonly List<string> _ValidSubFoldersForWatching = new List<string> { "Css", "Documentation", "Localization", "NodeSets", "Scripts", "Templates", "Views" };
         private const string _PLUGINSREFERENCES = "_PluginsReferences";
+        private static List<Assembly> _WebApiAssemblies = new List<Assembly>();
 
         public static IServiceProvider UseBindKraft(this IServiceCollection services, IConfiguration configuration)
         {
@@ -217,27 +219,45 @@ namespace Ccf.Ck.Web.Middleware
 
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.IsConfigured)
                 {
+                    bool atLeastOneLoaded = false;
                     foreach (string rootFolder in _KraftGlobalConfigurationSettings.GeneralSettings.ModulesRootFolders)
                     {
                         string rootPath = Path.Combine(rootFolder, "_PluginsReferences");
-                        //Check if file exists
-                        var assembly = Assembly.LoadFrom(Path.Combine(rootPath, _KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.AssemblyNamesCode[0]));
-
-                        // Find and register the services
-                        var types = assembly.GetTypes();
-                        foreach (var type in types)
+                        foreach (string assemblyName in _KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.AssemblyNames)
                         {
-                            // Register services that implement a specific interface or have a specific attribute
-                            //if (typeof(IService).IsAssignableFrom(type))
-                            //{
-                            //    services.AddSingleton(typeof(IService), type);
-                            //}
+                            string fullName = Path.Combine(rootPath, assemblyName);
+                            if (File.Exists(fullName))
+                            {
+                                Assembly assembly = Assembly.LoadFrom(fullName);
+                                _WebApiAssemblies.Add(assembly);
+
+                                if (assembly != null)
+                                {
+                                    if (_KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.EnableSwagger)
+                                    {
+                                        RegisterServicesFromAssembly(services, assembly);
+                                    }
+                                    atLeastOneLoaded = true;
+                                    // Find and register the services (could be handy if we have a common interface
+                                    //var types = assembly.GetTypes();
+                                    //foreach (var type in types)
+                                    //{
+                                    //    // Register services that implement a specific interface or have a specific attribute
+                                    //    if (typeof(IService).IsAssignableFrom(type))
+                                    //    {
+                                    //        services.AddSingleton(typeof(IService), type);
+                                    //    }
+                                    //}
+                                    // Add controllers from the loaded assembly
+                                    services.AddControllers().AddApplicationPart(assembly);
+                                }
+                            }
                         }
-                        // Add controllers from the loaded assembly
-                        services.AddControllers().AddApplicationPart(assembly);
                     }
-                    services.AddEndpointsApiExplorer();
-                    services.AddSwaggerGen();
+                    if (atLeastOneLoaded)
+                    {
+                        services.AddEndpointsApiExplorer();
+                    }
                 }
 
                 //INodeSet service
@@ -694,14 +714,12 @@ namespace Ccf.Ck.Web.Middleware
                 app.UseRouting();
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.IsConfigured)
                 {
-                    //app.UseEndpoints(endpoints =>
-                    //{
-                    //    endpoints.MapControllers();
-                    //});
-                    if (env.IsDevelopment())
+                    foreach (Assembly webApiAssembly in _WebApiAssemblies)
                     {
-                        app.UseSwagger();
-                        app.UseSwaggerUI();
+                        if (_KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.EnableSwagger)
+                        {
+                            RegisterBuilderFromAssembly(app, webApiAssembly);
+                        }
                     }
                 }
                 //KraftKeepAlive.RegisterKeepAliveAsync(builder);
@@ -710,7 +728,6 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     if (_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.UseSignalR)
                     {
-                        
                         app.UseEndpoints(endpoints =>
                         {
                             MethodInfo mapHub = typeof(HubEndpointRouteBuilderExtensions).GetMethod(
@@ -872,6 +889,36 @@ namespace Ccf.Ck.Web.Middleware
             }
             return null;
         }
+
+        private static void RegisterServicesFromAssembly(IServiceCollection services, Assembly assembly)
+        {
+            Type initializerType = assembly.GetTypes()
+            .FirstOrDefault(t => typeof(IWebApiInitializer).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+            if (initializerType != null)
+            {
+                object initializerInstance = Activator.CreateInstance(initializerType);
+
+                // Get the InitializeServices method info
+                MethodInfo initializeServicesMethod = initializerType.GetMethod("InitializeServices");
+                initializeServicesMethod.Invoke(initializerInstance, new object[] { services, true });
+            }
+        }
+        private static void RegisterBuilderFromAssembly(IApplicationBuilder app, Assembly assembly)
+        {
+            Type initializerType = assembly.GetTypes()
+            .FirstOrDefault(t => typeof(IWebApiInitializer).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+            if (initializerType != null)
+            {
+                object initializerInstance = Activator.CreateInstance(initializerType);
+
+                // Get the InitializeBuilder method info
+                MethodInfo initializeBuilderMethod = initializerType.GetMethod("InitializeBuilder");
+                initializeBuilderMethod.Invoke(initializerInstance, new object[] { app, true });
+            }
+        }
+
         #endregion
     }
 }

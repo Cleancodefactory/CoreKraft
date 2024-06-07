@@ -1,35 +1,22 @@
-
 namespace WebApiCore
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            WebApiInitializer webApiInitializer = new WebApiInitializer();
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddControllers();
 
-            var app = builder.Build();
+            //// Add services to the container.
+            webApiInitializer.InitializeServices(builder.Services, true);
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
+            WebApplication app = builder.Build();
+            webApiInitializer.InitializeBuilder(app, true);
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }

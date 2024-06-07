@@ -3,22 +3,22 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApiCore.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    [Route("api")]
+    public class WebApi2Controller : ControllerBase
     {
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<WebApi2Controller> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WebApi2Controller(ILogger<WebApi2Controller> logger)
         {
             _logger = logger;
         }
 
-        [HttpGet()]
+        [HttpGet("test2")]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -30,7 +30,7 @@ namespace WebApiCore.Controllers
             .ToArray();
         }
 
-        [HttpPost(Name = "PostWeatherForecast")]
+        [HttpPost("post2")]
         public void Post(WeatherForecast weatherForecast)
         {
             //return Enumerable.Range(1, 5).Select(index => new WeatherForecast
