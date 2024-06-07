@@ -29,6 +29,7 @@ namespace Ccf.Ck.Models.Settings
             SpaSettings = new SpaSettings();
             HistoryNavSettings = new HistoryNavSettings();
             HostingServiceSettings = new List<HostingServiceSetting>();
+            WebApiAreaAssembly = new WebApiAreaAssemblySettings();
             MiddleWares = new List<MiddleWareSettings>();
         }
         public string DataStatePropertyName { get; set; } = null; // if missing the default value 'state' is used
