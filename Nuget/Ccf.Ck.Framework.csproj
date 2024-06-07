@@ -93,6 +93,7 @@
 			- Version 8.0.3: Improve MapContentType sniffing
 			- Version 8.0.4: options.UseSecurityTokenValidator = true
 			- Version 8.0.5: Fixed the way roles are consumed
+			- Version 8.0.6: Implemented dynamic loading of WebApi-Projects
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
