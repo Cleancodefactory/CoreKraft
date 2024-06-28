@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -471,6 +472,20 @@ namespace Ccf.Ck.Web.Middleware
             {
                 if (_Finished.TryGetValue(guid, out task))
                 {
+                    if (task.Result?.BinaryData is Models.NodeRequest.IPostedFile postedFile)
+                    {
+                        //Convert the posted file to base64 string
+                        using (System.IO.Stream pfs = postedFile.OpenReadStream())
+                        {
+                            byte[] bytes;
+                            using (var memoryStream = new MemoryStream())
+                            {
+                                pfs.CopyTo(memoryStream);
+                                bytes = memoryStream.ToArray();
+                            }
+                            task.Result.BinaryData = Convert.ToBase64String(bytes);
+                        }
+                    }
                     return task.Result;
                 }
             }
