@@ -271,7 +271,7 @@ namespace Ccf.Ck.Web.Middleware
                         }
                     }
                 }
-                catch (ThreadInterruptedException)
+                catch (Exception ex)
                 {
                     if (!_Continue)
                     {
@@ -286,6 +286,7 @@ namespace Ccf.Ck.Web.Middleware
                     {
                         KraftLogger.LogError($"IndirectCallService>Scheduler(ThreadInterruptedException) cannot re-create thread for index: {threadIndex}");
                     }
+                    KraftLogger.LogError($"Error in Scheduler for task: {info.Executing}", ex);
                     return;
                 }
 

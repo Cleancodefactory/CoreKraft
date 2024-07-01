@@ -96,6 +96,7 @@
 			- Version 8.0.6: Implemented dynamic loading of WebApi-Projects
 			- Version 8.0.7: Fixed bug with null WebApiAreaAssembly
 			- Version 8.0.8: Indirect service returns binary data as base64 string
+			- Version 8.0.9: Indirect service catch all exceptions and stop the task by changing the status to discarded
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
