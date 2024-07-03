@@ -97,6 +97,7 @@
 			- Version 8.0.7: Fixed bug with null WebApiAreaAssembly
 			- Version 8.0.8: Indirect service returns binary data as base64 string
 			- Version 8.0.9: Indirect service catch all exceptions and stop the task by changing the status to discarded
+			- Version 8.0.10: Add symbols for the nuget packages
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
