@@ -82,19 +82,27 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     ModelConstants._STATE_PROPERTY_NAME = _KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName;
                 }
-                if (_KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins)
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins.Enabled)
                 {
+                    CorsAllowedOrigins cors = _KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins;
                     //Cors as early as possible
                     services.AddCors(options =>
                     {
-                        options.AddPolicy("CorsPolicy", policyBuilder => policyBuilder
-                                //.WithOrigins("https://stackoverflow.com", "https://officekraft.ai") e.g. the site we inject into
-                                .SetIsOriginAllowedToAllowWildcardSubdomains()
-                                .AllowAnyOrigin()
-                                .AllowAnyMethod()
-                                .AllowAnyHeader()
-                                //.AllowCredentials()
-                                );
+                        options.AddPolicy("CorsPolicy", policyBuilder =>
+                        {
+                            policyBuilder.SetIsOriginAllowedToAllowWildcardSubdomains();
+                            if (cors.WithOrigins.Count > 0)
+                            {
+                                policyBuilder.WithOrigins(cors.WithOrigins.ToArray());
+                                policyBuilder.AllowCredentials();
+                            }
+                            else
+                            {
+                                policyBuilder.AllowAnyOrigin();
+                            }
+                            policyBuilder.AllowAnyMethod();
+                            policyBuilder.AllowAnyHeader();
+                        });
                     });
                     //Cors
                 }
@@ -521,7 +529,7 @@ namespace Ccf.Ck.Web.Middleware
         public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostEnvironment env, Action<bool> restart = null)
         {
             KraftLogger.LogInformation($"IApplicationBuilder UseBindKraft: executed");
-            if (_KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins)
+            if (_KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins.Enabled)
             {
                 app.UseOptions();
             }
@@ -559,7 +567,7 @@ namespace Ccf.Ck.Web.Middleware
                 }
                 ICorsService corsService = null;
                 ICorsPolicyProvider corsPolicyProvider = null;
-                if (_KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins)
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins.Enabled)
                 {
                     corsService = app.ApplicationServices.GetService<ICorsService>();
                     corsPolicyProvider = app.ApplicationServices.GetService<ICorsPolicyProvider>();

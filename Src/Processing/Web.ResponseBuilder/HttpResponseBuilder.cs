@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Ccf.Ck.SysPlugins.Interfaces.Packet;
-using Ccf.Ck.Models.Settings;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.Packet;
+using Microsoft.AspNetCore.Http;
 using System.Linq;
-using Ccf.Ck.Models.ContextBasket;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
@@ -25,14 +21,14 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 
         public void GenerateResponse(HttpContext context)
         {
-            if (_KraftGlobalConfiguration != null && _KraftGlobalConfiguration.GeneralSettings.CorsAllowedOrigins)
+            if (_KraftGlobalConfiguration != null && _KraftGlobalConfiguration.GeneralSettings.CorsAllowedOrigins.Enabled)
             {
                 if (!context.Response.HasStarted)
                 {
                     HttpResponse response = context.Response;
                     //Cors
-                    response.Headers["Access-Control-Allow-Origin"] = "*";
-                    response.Headers["Access-Control-Allow-Methods"] = "*";
+                    response.Headers["Access-Control-Allow-Origin"] = new[] { _KraftGlobalConfiguration.GeneralSettings.CorsAllowedOrigins.GetAllowedOrigins(context.Request) };
+                    response.Headers["Access-Control-Allow-Methods"] = new[] { _KraftGlobalConfiguration.GeneralSettings.CorsAllowedOrigins.GetAllowMethods() };
                 }
             }
             WriteToResponseHeaders(context);

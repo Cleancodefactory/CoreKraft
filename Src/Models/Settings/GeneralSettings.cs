@@ -31,13 +31,14 @@ namespace Ccf.Ck.Models.Settings
             HostingServiceSettings = new List<HostingServiceSetting>();
             WebApiAreaAssembly = new WebApiAreaAssemblySettings();
             MiddleWares = new List<MiddleWareSettings>();
+            CorsAllowedOrigins = new CorsAllowedOrigins();
         }
         public string DataStatePropertyName { get; set; } = null; // if missing the default value 'state' is used
         public int TaskThreads { get; set; } = 0; // auto by default
         public int MaxAutoTaskThreads { get; set; } = 4; // has effect only if auto is set
         public string ServerHostKey { get; set; }
         public bool EnableOptimization { get; set; }
-        public bool CorsAllowedOrigins { get; set; }
+        public CorsAllowedOrigins CorsAllowedOrigins { get; set; }
         public List<string> ModulesRootFolders { get; set; }
         public string DefaultStartModule { get; set; }
         public string EnableBufferQueryParameter { get; set; }
