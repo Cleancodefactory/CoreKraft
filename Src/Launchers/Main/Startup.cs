@@ -53,11 +53,21 @@ namespace Ccf.Ck.Launchers.Main
                 _Configuration = builder.Build();
             }
 
+            
+
             IServiceProvider serviceProvider = services.UseBindKraft(_Configuration);
             _KraftGlobalConfiguration = serviceProvider.GetService<KraftGlobalConfigurationSettings>();
             EmailSettings emailSettings = new EmailSettings();
             _Configuration.GetSection("EmailSettings").Bind(emailSettings);
             services.AddSingleton(emailSettings);
+            if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
+            {
+                services.AddSpaStaticFiles(configuration =>
+                {
+                    configuration.RootPath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.RootPath;//"wwwroot/search-app";
+                });
+            }
+
             if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
             {
                 services.Configure<CookiePolicyOptions>(options =>
@@ -84,13 +94,6 @@ namespace Ccf.Ck.Launchers.Main
             }
             services.AddHttpClient();
 
-            if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
-            {
-                services.AddSpaStaticFiles(configuration =>
-                {
-                    configuration.RootPath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.RootPath;//"wwwroot/search-app";
-                });
-            }
             // TODO enable through configuration
             services.Configure<FormOptions>(x =>
             {
@@ -102,53 +105,6 @@ namespace Ccf.Ck.Launchers.Main
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
         {
-            app.UseBindKraft(env, Program.Restart);
-            //Enable only for debug
-            //app.Use(async (context, next) =>
-            //{
-            //    HttpRequest request = context.Request;
-            //    //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            //    if (context.User.Identity.IsAuthenticated)
-            //    {
-            //        string s = "GET";
-            //    }
-            //    string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent(), request.Path.ToUriComponent(), request.QueryString.ToUriComponent());
-
-            //    // Call the next delegate/middleware in the pipeline.
-            //    await next(context);
-            //});
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                //Called only to show url:port in console during development
-                lifetime.ApplicationStarted.Register(() => LogAddresses(app.ServerFeatures, env));
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
-            if (_KraftGlobalConfiguration.GeneralSettings.MiddleWares.Count > 0)
-            {
-                foreach (MiddleWareSettings middleWare in _KraftGlobalConfiguration.GeneralSettings.MiddleWares)
-                {
-                    Type ImplementationAsType = Type.GetType(middleWare.ImplementationAsString, true);
-                    Type InterfaceAsType = Type.GetType(middleWare.InterfaceAsString);
-
-                    TypeInfo typeInfo = ImplementationAsType.GetTypeInfo();
-                    if (typeInfo.ImplementedInterfaces.Contains(InterfaceAsType))
-                    {
-                        IUseMiddleWare instance = Activator.CreateInstance(ImplementationAsType) as IUseMiddleWare;
-                        instance.Use(app);
-                    }
-                    else
-                    {
-                        //Error type does not implement interface
-                    }
-                }
-            }
-
             if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
             {
                 app.Use(async (context, next) =>
@@ -188,7 +144,54 @@ namespace Ccf.Ck.Launchers.Main
                     spa.Options.SourcePath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.SourcePath;//"search-app";
                 });
             }
+            app.UseBindKraft(env, Program.Restart);
+            //Enable only for debug
+            //app.Use(async (context, next) =>
+            //{
+            //    HttpRequest request = context.Request;
+            //    //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //    if (context.User.Identity.IsAuthenticated)
+            //    {
+            //        string s = "GET";
+            //    }
+            //    string redirectUrl = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), request.PathBase.ToUriComponent(), request.Path.ToUriComponent(), request.QueryString.ToUriComponent());
+
+            //    // Call the next delegate/middleware in the pipeline.
+            //    await next(context);
+            //});
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                //Called only to show url:port in console during development
+                lifetime.ApplicationStarted.Register(() => LogAddresses(app.ServerFeatures, env));
+            }
             else
+            {
+                app.UseExceptionHandler("/Home/Error");
+            }
+            //app.UseStaticFiles();
+            app.UseCookiePolicy();
+            if (_KraftGlobalConfiguration.GeneralSettings.MiddleWares.Count > 0)
+            {
+                foreach (MiddleWareSettings middleWare in _KraftGlobalConfiguration.GeneralSettings.MiddleWares)
+                {
+                    Type ImplementationAsType = Type.GetType(middleWare.ImplementationAsString, true);
+                    Type InterfaceAsType = Type.GetType(middleWare.InterfaceAsString);
+
+                    TypeInfo typeInfo = ImplementationAsType.GetTypeInfo();
+                    if (typeInfo.ImplementedInterfaces.Contains(InterfaceAsType))
+                    {
+                        IUseMiddleWare instance = Activator.CreateInstance(ImplementationAsType) as IUseMiddleWare;
+                        instance.Use(app);
+                    }
+                    else
+                    {
+                        //Error type does not implement interface
+                    }
+                }
+            }
+
+            if (!_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
             {
                 app.UseRouting();
                 app.UseEndpoints(endpoints =>
