@@ -23,17 +23,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400" />
-    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="8.0.1" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.10" />
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="8.0.2" />
     <PackageReference Include="Grace" Version="7.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.0.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.0.2" />
+	<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>

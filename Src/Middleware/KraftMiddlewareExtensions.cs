@@ -54,6 +54,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static Ccf.Ck.Utilities.Generic.Utilities;
+using Microsoft.AspNetCore.SpaServices.Extensions;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -268,6 +269,13 @@ namespace Ccf.Ck.Web.Middleware
                     }
                 }
 
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.SpaSettings.Enabled)
+                {
+                    services.AddSpaStaticFiles(configuration =>
+                    {
+                        configuration.RootPath = _KraftGlobalConfigurationSettings.GeneralSettings.SpaSettings.RootPath;//"wwwroot/search-app";
+                    });
+                }
                 //INodeSet service
                 services.AddSingleton(typeof(INodeSetService), new NodeSetService(_KraftGlobalConfigurationSettings, cachingService));
 
@@ -720,6 +728,45 @@ namespace Ccf.Ck.Web.Middleware
                     app.UseAuthentication();
                 }
                 app.UseRouting();
+                if (_KraftGlobalConfigurationSettings.GeneralSettings.SpaSettings.Enabled)
+                {
+                    app.Use(async (context, next) =>
+                    {
+                        System.Collections.Generic.KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues> found = context.Request.Query.FirstOrDefault(kv =>
+                        {
+                            if (kv.Key.Contains("callsignin", StringComparison.OrdinalIgnoreCase))
+                            {
+                                return true;
+                            }
+                            return false;
+                        });
+                        if (found.Key != null)
+                        {
+                            context.Response.Redirect("/account/signin");
+                            return;
+                        }
+                        await next(context);
+                    });
+                    app.UseRouting();
+                    app.UseEndpoints(endpoints =>
+                    {
+                        endpoints.MapControllerRoute(
+                        name: "signin",
+                        pattern: "account/signin/{*all}",
+                        defaults: new { controller = "Account", action = "SignIn" });
+
+                        endpoints.MapControllerRoute(
+                        name: "signout",
+                        pattern: "account/signout",
+                        defaults: new { controller = "Account", action = "SignOut" });
+                    });
+
+                    app.UseSpaStaticFiles();
+                    app.UseSpa(spa =>
+                    {
+                        spa.Options.SourcePath = _KraftGlobalConfigurationSettings.GeneralSettings.SpaSettings.SourcePath;//"search-app";
+                    });
+                }
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.WebApiAreaAssembly.IsConfigured)
                 {
                     foreach (Assembly webApiAssembly in _WebApiAssemblies)
@@ -745,6 +792,16 @@ namespace Ccf.Ck.Web.Middleware
                                 new object[] { endpoints, new string(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
                                 (Action<HttpConnectionDispatcherOptions>)(x => {x.ApplicationMaxBufferSize = 3200000; x.WebSockets.CloseTimeout = TimeSpan.FromSeconds(30); x.LongPolling.PollTimeout = TimeSpan.FromSeconds(180); })
                             });
+                            if (_KraftGlobalConfigurationSettings.GeneralSettings.HistoryNavSettings.Enabled)
+                            {
+                                if (_KraftGlobalConfigurationSettings.GeneralSettings.SpaSettings.Enabled)
+                                {
+                                    throw new Exception("HistoryNavSettings can't be enabled when the SpaSettings are Enabled. Please correct and restart.");
+                                }
+                                endpoints.MapControllerRoute(
+                                name: _KraftGlobalConfigurationSettings.GeneralSettings.HistoryNavSettings.Name,//"nav"
+                                pattern: _KraftGlobalConfigurationSettings.GeneralSettings.HistoryNavSettings.Pattern, new { Controller = "Home", Action = "HistoryNav" });//"nav/{**all}"
+                            }
                         });
                     }
                 }

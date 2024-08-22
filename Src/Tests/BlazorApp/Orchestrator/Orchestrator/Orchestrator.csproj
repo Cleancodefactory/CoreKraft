@@ -43,10 +43,10 @@
 		<ProjectReference Include="..\Orchestrator.Client\Orchestrator.Client.csproj" />
 		<ProjectReference Include="..\Orchestrator.Models\Orchestrator.Models.csproj" />
 		<PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.8" />
 		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.9.3" />
 		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.9.3" />
-		<PackageReference Include="System.Drawing.Common" Version="8.0.7" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.8" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 	</ItemGroup>
 

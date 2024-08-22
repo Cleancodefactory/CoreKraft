@@ -84,13 +84,6 @@ namespace Ccf.Ck.Launchers.Main
             }
             services.AddHttpClient();
 
-            if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
-            {
-                services.AddSpaStaticFiles(configuration =>
-                {
-                    configuration.RootPath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.RootPath;//"wwwroot/search-app";
-                });
-            }
             // TODO enable through configuration
             services.Configure<FormOptions>(x =>
             {
@@ -148,93 +141,39 @@ namespace Ccf.Ck.Launchers.Main
                     }
                 }
             }
-
-            if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
             {
-                app.Use(async (context, next) =>
+                if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
                 {
-                    System.Collections.Generic.KeyValuePair<string, Microsoft.Extensions.Primitives.StringValues> found = context.Request.Query.FirstOrDefault(kv =>
+                    endpoints.MapDynamicControllerRoute<DynamicHostRouteTransformer>(_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.DefaultRouting);
+                    foreach (RouteMapping mapping in _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.RouteMappings)
                     {
-                        if (kv.Key.Contains("callsignin", StringComparison.OrdinalIgnoreCase))
+                        if (!string.IsNullOrEmpty(mapping.Pattern))
                         {
-                            return true;
-                        }
-                        return false;
-                    });
-                    if (found.Key != null)
-                    {
-                        context.Response.Redirect("/account/signin");
-                        return;
-                    }
-                    await next(context);
-                });
-                app.UseRouting();
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapControllerRoute(
-                    name: "signin",
-                    pattern: "account/signin/{*all}",
-                    defaults: new { controller = "Account", action = "SignIn" });
-
-                    endpoints.MapControllerRoute(
-                    name: "signout",
-                    pattern: "account/signout",
-                    defaults: new { controller = "Account", action = "SignOut" });
-                });
-
-                app.UseSpaStaticFiles();
-                app.UseSpa(spa =>
-                {
-                    spa.Options.SourcePath = _KraftGlobalConfiguration.GeneralSettings.SpaSettings.SourcePath;//"search-app";
-                });
-            }
-            else
-            {
-                app.UseRouting();
-                app.UseEndpoints(endpoints =>
-                {
-                    if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
-                    {
-                        endpoints.MapDynamicControllerRoute<DynamicHostRouteTransformer>(_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.DefaultRouting);
-                        foreach (RouteMapping mapping in _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.RouteMappings)
-                        {
-                            if (!string.IsNullOrEmpty(mapping.Pattern))
-                            {
-                                endpoints.MapControllerRoute(
-                                name: mapping.Name,
-                                pattern: mapping.Pattern, new { Controller = mapping.Controller, Action = mapping.Action });
-                            }
+                            endpoints.MapControllerRoute(
+                            name: mapping.Name,
+                            pattern: mapping.Pattern, new { Controller = mapping.Controller, Action = mapping.Action });
                         }
                     }
+                }
 
-                    // Controller supporting redirect acceptor pages
-                    endpoints.MapControllerRoute(
-                    name: "acceptor",
-                    pattern: "redirect/{action=Index}/{id?}",
-                    defaults: new { controller = "Redirect", action = "Index" });
+                // Controller supporting redirect acceptor pages
+                endpoints.MapControllerRoute(
+                name: "acceptor",
+                pattern: "redirect/{action=Index}/{id?}",
+                defaults: new { controller = "Redirect", action = "Index" });
 
-                    endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
-                    if (_KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Enabled)
-                    {
-                        if (_KraftGlobalConfiguration.GeneralSettings.SpaSettings.Enabled)
-                        {
-                            throw new Exception("HistoryNavSettings can't be enabled when the SpaSettings are Enabled. Please correct and restart.");
-                        }
-                        endpoints.MapControllerRoute(
-                        name: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Name,//"nav"
-                        pattern: _KraftGlobalConfiguration.GeneralSettings.HistoryNavSettings.Pattern, new { Controller = "Home", Action = "HistoryNav" });//"nav/{**all}"
-                    }
+                endpoints.MapControllerRoute(
+                name: "catchall",
+                pattern: "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });
 
-                    endpoints.MapControllerRoute(
-                    name: "catchall",
-                    pattern: "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });
-
-                    //endpoints.MapFallbackToFile("{**angular}", "search-app/index.html");
-                });
-            }
+                //endpoints.MapFallbackToFile("{**angular}", "search-app/index.html");
+            });
         }
 
         private void ConfigureApplicationParts(ApplicationPartManager apm)
