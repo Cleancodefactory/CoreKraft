@@ -111,18 +111,18 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
         [Function(nameof(PostedFileName), "")]
         public ParameterResolverValue PostedFileName(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (args.Length != 1) throw new ArgumentException("PostedFileSize requires single argument");
+            if (args.Length != 1) throw new ArgumentException("PostedFileName requires single argument");
             var pf = args[0].Value as IPostedFile;
-            if (pf == null) throw new ArgumentException("PostedFileSize argument is not a posted file");
+            if (pf == null) throw new ArgumentException("PostedFileName argument is not a posted file");
             return new ParameterResolverValue(pf.FileName);
         }
 
         [Function(nameof(PostedFileType), "")]
         public ParameterResolverValue PostedFileType(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (args.Length != 1) throw new ArgumentException("PostedFileSize requires single argument");
+            if (args.Length != 1) throw new ArgumentException("PostedFileType requires single argument");
             var pf = args[0].Value as IPostedFile;
-            if (pf == null) throw new ArgumentException("PostedFileSize argument is not a posted file");
+            if (pf == null) throw new ArgumentException("PostedFileType argument is not a posted file");
             return new ParameterResolverValue(pf.ContentType);
         }
 

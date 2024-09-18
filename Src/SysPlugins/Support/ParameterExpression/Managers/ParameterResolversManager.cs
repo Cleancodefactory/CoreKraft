@@ -8,7 +8,6 @@ using Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn;
 using Ccf.Ck.SysPlugins.Support.ParameterExpression.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
 {
@@ -462,6 +461,27 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                     Alias = "MetaRoot",
                                     Arguments = 2,
                                     Name = "MetaRoot"
+                                }
+                            },
+                            {
+                                new Resolver() {
+                                    Alias = "PostedFileContentType",
+                                    Arguments = 1,
+                                    Name = "PostedFileContentType"
+                                }
+                            },
+                            {
+                                new Resolver() {
+                                    Alias = "PostedFileLength",
+                                    Arguments = 1,
+                                    Name = "PostedFileLength"
+                                }
+                            },
+                            {
+                                new Resolver() {
+                                    Alias = "PostedFileName",
+                                    Arguments = 1,
+                                    Name = "PostedFileName"
                                 }
                             }
                         }
