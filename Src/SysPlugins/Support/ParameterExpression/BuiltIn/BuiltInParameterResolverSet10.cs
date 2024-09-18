@@ -518,6 +518,33 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             return new ParameterResolverValue(Guid.NewGuid().ToString());
         }
 
+        public ParameterResolverValue PostedFileLength(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            if (args[0].Value is IPostedFile postedFile)
+            {
+                return new ParameterResolverValue(postedFile.Length);
+            }
+            throw new Exception($"The requested parameter in {nameof(PostedFileLength)} is not IPostedFile.");
+        }
+
+        public ParameterResolverValue PostedFileContentType(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            if (args[0].Value is IPostedFile postedFile)
+            {
+                return new ParameterResolverValue(postedFile.ContentType);
+            }
+            throw new Exception($"The requested parameter in {nameof(PostedFileContentType)} is not IPostedFile.");
+        }
+
+        public ParameterResolverValue PostedFileName(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
+            if (args[0].Value is IPostedFile postedFile)
+            {
+                return new ParameterResolverValue(postedFile.FileName);
+            }
+            throw new Exception($"The requested parameter in {nameof(PostedFileName)} is not IPostedFile.");
+        }
+
         public ParameterResolverValue GetUserId(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
             InputModel inputModel = ctx.ProcessingContext.InputModel;
             return new ParameterResolverValue(inputModel.SecurityModel?.UserName);
