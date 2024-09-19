@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Ccf.Ck.Libs.Logging;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -24,12 +27,21 @@ namespace Ccf.Ck.Utilities.CookieTicketStore.Sqlite
 
         public Task<AuthenticationTicket> RetrieveAsync(string key)
         {
-            byte[] ticketAsByteArray = _SqliteDb.Get<byte[]>(key);
             AuthenticationTicket ticket = null;
-            if (ticketAsByteArray != null)
+            try
             {
-                TicketSerializer serializer = new TicketSerializer();
-                ticket = serializer.Deserialize(ticketAsByteArray);
+                byte[] ticketAsByteArray = _SqliteDb.Get<byte[]>(key);
+                
+                if (ticketAsByteArray != null)
+                {
+                    TicketSerializer serializer = new TicketSerializer();
+                    ticket = serializer.Deserialize(ticketAsByteArray);
+                }
+                return Task.FromResult(ticket);
+            }
+            catch (Exception ex)
+            {
+                KraftLogger.LogError($"SqliteTicketStore.RetrieveAsync: {ex.Message}.", ex);
             }
             return Task.FromResult(ticket);
         }
