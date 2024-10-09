@@ -507,4 +507,5 @@ build/
 **/.sonarqube
 **/.VSCodeCounter
 /Src/Launchers/Main/cookieCache.sqlite
-/ZIP_Build.bat
+CoreKraft.zip
+ZIP_Build.bat
