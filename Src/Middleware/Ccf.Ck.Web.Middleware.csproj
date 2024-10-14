@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.32" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.33" />
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="8.0.2" />
     <PackageReference Include="Grace" Version="7.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.10" />

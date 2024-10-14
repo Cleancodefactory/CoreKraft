@@ -9,7 +9,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="8.0.0" />
+    <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
