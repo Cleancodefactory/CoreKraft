@@ -155,6 +155,14 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     services.AddSignalR(hubOptions =>
                     {
+                        var srsetting = _KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings;
+                        hubOptions.ClientTimeoutInterval = TimeSpan.FromMinutes(30);
+                        hubOptions.KeepAliveInterval = TimeSpan.FromMinutes(2);
+                        hubOptions.EnableDetailedErrors = false;
+                        hubOptions.MaximumReceiveMessageSize = null;// unlimited?
+                        hubOptions.StreamBufferCapacity = 10; // built  in
+                        
+
                         hubOptions.KeepAliveInterval = TimeSpan.FromDays(1);
                         hubOptions.EnableDetailedErrors = true;
                         hubOptions.HandshakeTimeout = TimeSpan.FromSeconds(30);
@@ -790,7 +798,11 @@ namespace Ccf.Ck.Web.Middleware
                             MethodInfo generic = mapHub.MakeGenericMethod(Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubImplementationAsString, true));
                             generic.Invoke(null,
                                 new object[] { endpoints, new string(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
-                                (Action<HttpConnectionDispatcherOptions>)(x => {x.ApplicationMaxBufferSize = 3200000; x.WebSockets.CloseTimeout = TimeSpan.FromSeconds(30); x.LongPolling.PollTimeout = TimeSpan.FromSeconds(180); })
+                                (Action<HttpConnectionDispatcherOptions>)(x => {
+                                    x.ApplicationMaxBufferSize = 3200000;
+                                    x.WebSockets.CloseTimeout = TimeSpan.FromSeconds(30);
+                                    x.LongPolling.PollTimeout = TimeSpan.FromSeconds(180); 
+                                })
                             });
                             if (_KraftGlobalConfigurationSettings.GeneralSettings.HistoryNavSettings.Enabled)
                             {
