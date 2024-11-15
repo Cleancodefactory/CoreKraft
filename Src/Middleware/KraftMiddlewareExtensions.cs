@@ -800,6 +800,7 @@ namespace Ccf.Ck.Web.Middleware
                                 new object[] { endpoints, new string(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
                                 (Action<HttpConnectionDispatcherOptions>)(x => {
                                     x.ApplicationMaxBufferSize = 3200000;
+                                    x.TransportMaxBufferSize = 3200000;
                                     x.WebSockets.CloseTimeout = TimeSpan.FromSeconds(30);
                                     x.LongPolling.PollTimeout = TimeSpan.FromSeconds(180); 
                                 })
