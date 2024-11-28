@@ -54,7 +54,6 @@ namespace Ccf.Ck.Models.EmailSettings
         public void Validate()
         {
             Utilities.Generic.Utilities.CheckNullOrEmpty(this, p => p.UserName, true);
-            Utilities.Generic.Utilities.CheckNullOrEmpty(this, p => p.UserName, true);
             Utilities.Generic.Utilities.CheckNullOrEmpty(this, p => p.Password, true);
             Utilities.Generic.Utilities.CheckNullOrEmpty(this, p => p.SmtpServer, true);
             if (SmtpPort == 0)
