@@ -100,6 +100,7 @@
 			- Version 8.0.10: Add symbols for the nuget packages
 			- Version 8.0.11: Moved the SPA settings into the middleware
 			- Version 8.0.12: Added PostedFileLength, PostedFileContentType, PostedFileName as resolvers
+			- Version 8.0.13: Extended EmailSettings
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
