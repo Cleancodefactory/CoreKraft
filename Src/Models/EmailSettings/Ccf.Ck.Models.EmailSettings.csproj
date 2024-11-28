@@ -7,4 +7,8 @@
   <PropertyGroup>
     <PackageDescription>This package contains the Email-Settings model for CoreKraft.</PackageDescription>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Utilities\Generic\Ccf.Ck.Utilities.Generic.csproj" />
+  </ItemGroup>
 </Project>
