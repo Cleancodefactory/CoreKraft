@@ -22,12 +22,15 @@ namespace Ccf.Ck.Models.EmailSettings
             get { return null; }
             set
             {
-                string[] recipientsA = value.Split(new char[] { ';', ',' });
-                foreach (string item in recipientsA)
+                if (!string.IsNullOrEmpty(value))
                 {
-                    if (!string.IsNullOrEmpty(item))
+                    string[] recipientsA = value.Split(new char[] { ';', ',' });
+                    foreach (string item in recipientsA)
                     {
-                        MailAddressesBccToRecipients.Add(item);
+                        if (!string.IsNullOrEmpty(item))
+                        {
+                            MailAddressesBccToRecipients.Add(item);
+                        }
                     }
                 }
             }
@@ -37,12 +40,15 @@ namespace Ccf.Ck.Models.EmailSettings
             get { return null; }
             set
             {
-                string[] recipientsA = value.Split(new char[] { ';', ',' });
-                foreach (string item in recipientsA)
+                if (!string.IsNullOrEmpty(value))
                 {
-                    if (!string.IsNullOrEmpty(item))
+                    string[] recipientsA = value.Split(new char[] { ';', ',' });
+                    foreach (string item in recipientsA)
                     {
-                        MailAddressesToRecipients.Add(item);
+                        if (!string.IsNullOrEmpty(item))
+                        {
+                            MailAddressesToRecipients.Add(item);
+                        }
                     }
                 }
             }
