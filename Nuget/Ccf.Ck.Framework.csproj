@@ -102,6 +102,7 @@
 			- Version 8.0.12: Added PostedFileLength, PostedFileContentType, PostedFileName as resolvers
 			- Version 8.0.13: Extended EmailSettings
 			- Version 8.0.14: Fixed bug with MailAddressesTo
+			- Version 8.0.15: Moved EmailSettings to nuget ccf.ck.libs.EmailSendExtended
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
