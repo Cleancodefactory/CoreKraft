@@ -2,7 +2,7 @@
 using Ccf.Ck.Launchers.Main.Routing;
 using Ccf.Ck.Launchers.Main.Utils;
 using Ccf.Ck.Libs.Logging;
-using Ccf.Ck.Models.EmailSettings;
+using Ccf.Ck.Libs.SendEmailExtended;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.Web.Middleware;
