@@ -77,7 +77,7 @@ namespace Ccf.Ck.Models.KraftModule
                     }
                 }
                 scriptBundle.Transforms.Add(new JsCleanupTransformation());
-                scriptBundle.IncludeContent("Registers.addRegister(new TemplateRegister(\"module_templates\")); Registers.getRegister(\"module_templates\").$collection= {" + contentTemplates.Append("}"));
+                scriptBundle.IncludeContent("if (window.Registers) {Registers.addRegister(new TemplateRegister(\"module_templates\")); Registers.getRegister(\"module_templates\").$collection= {" + contentTemplates.Append("}}"));
 
                 profile.Add(scriptBundle);
                 return profile.Scripts;

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Text;
 
 namespace Ccf.Ck.SysPlugins.Data.Db.ADO
