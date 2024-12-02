@@ -155,10 +155,14 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     services.AddSignalR(hubOptions =>
                     {
-                        hubOptions.KeepAliveInterval = TimeSpan.FromDays(1);
-                        hubOptions.EnableDetailedErrors = true;
-                        hubOptions.HandshakeTimeout = TimeSpan.FromSeconds(30);
-                        hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+                        SignalRHubOptions confHubOptions = _KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.SignalRHubOptions;
+                        hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(confHubOptions.ClientTimeoutInterval);
+                        hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(confHubOptions.KeepAliveInterval);
+                        hubOptions.EnableDetailedErrors = confHubOptions.EnableDetailedErrors;
+                        hubOptions.MaximumReceiveMessageSize = confHubOptions.MaximumReceiveMessageSize;
+                        hubOptions.StreamBufferCapacity = confHubOptions.StreamBufferCapacity; 
+                        hubOptions.HandshakeTimeout = TimeSpan.FromSeconds(confHubOptions.HandshakeTimeout);
+                        hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(confHubOptions.ClientTimeoutInterval);
                     });
                 }
 
@@ -790,7 +794,12 @@ namespace Ccf.Ck.Web.Middleware
                             MethodInfo generic = mapHub.MakeGenericMethod(Type.GetType(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubImplementationAsString, true));
                             generic.Invoke(null,
                                 new object[] { endpoints, new string(_KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.HubRoute),
-                                (Action<HttpConnectionDispatcherOptions>)(x => {x.ApplicationMaxBufferSize = 3200000; x.WebSockets.CloseTimeout = TimeSpan.FromSeconds(30); x.LongPolling.PollTimeout = TimeSpan.FromSeconds(180); })
+                                (Action<HttpConnectionDispatcherOptions>)(x => {
+                                    x.ApplicationMaxBufferSize = _KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.SignalRHttpConnectionOptions.ApplicationMaxBufferSize;
+                                    x.TransportMaxBufferSize = _KraftGlobalConfigurationSettings.GeneralSettings.SignalRSettings.SignalRHttpConnectionOptions.TransportMaxBufferSize;
+                                    x.WebSockets.CloseTimeout = TimeSpan.FromSeconds(30);
+                                    x.LongPolling.PollTimeout = TimeSpan.FromSeconds(180); 
+                                })
                             });
                             if (_KraftGlobalConfigurationSettings.GeneralSettings.HistoryNavSettings.Enabled)
                             {

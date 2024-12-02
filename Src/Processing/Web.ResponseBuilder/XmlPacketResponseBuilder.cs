@@ -5,6 +5,7 @@ using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Interfaces.Packet;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using System;
 using System.Linq;
 using System.Xml.Linq;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
@@ -74,7 +75,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 
                     settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
-                    packet.Add(new XElement("data", new XCData(JsonConvert.SerializeObject(processingContext.ReturnModel.Data, settings))));
+                    packet.Add(new XElement("data", new XAttribute("sid", GetServerIdentifier(processingContext)), new XCData(JsonConvert.SerializeObject(processingContext.ReturnModel.Data, settings))));
                 }
 
                 
@@ -116,6 +117,11 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             }
 
             context.Response.WriteAsync(doc.ToString()).Wait();
+        }
+
+        private object GetServerIdentifier(IProcessingContext processingContext)
+        {
+            return processingContext.InputModel.Module + "/" + processingContext.InputModel.NodeSet + "/" + processingContext.InputModel.Nodepath;
         }
     }
 }

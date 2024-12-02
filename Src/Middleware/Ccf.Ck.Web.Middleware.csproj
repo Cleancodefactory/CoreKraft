@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.33" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.58" />
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="8.0.2" />
     <PackageReference Include="Grace" Version="7.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.10" />
@@ -33,13 +33,12 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.1.2" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.1" />
 	<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.10" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Models\DirectCall\Ccf.Ck.Models.DirectCall.csproj" />
-    <ProjectReference Include="..\Models\EmailSettings\Ccf.Ck.Models.EmailSettings.csproj" />
     <ProjectReference Include="..\Models\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
     <ProjectReference Include="..\Models\Interfaces\Ccf.Ck.Models.Interfaces.csproj" />
     <ProjectReference Include="..\Models\KraftModule\Ccf.Ck.Models.KraftModule.csproj" />
