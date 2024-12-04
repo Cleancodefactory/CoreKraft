@@ -103,6 +103,7 @@
 			- Version 8.0.13: Extended EmailSettings
 			- Version 8.0.14: Fixed bug with MailAddressesTo
 			- Version 8.0.15: Moved EmailSettings to nuget ccf.ck.libs.EmailSendExtended
+			- Version 8.0.16: Replaced deprecated System.Data.SqlClient with Microsoft.Data.SqlClient
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
