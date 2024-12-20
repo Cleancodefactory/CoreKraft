@@ -76,7 +76,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 }*/
 
                 // TODO Here it times out - before the connection string
-                _DbConnection = KraftProfiler.Current.ProfiledDbConnection(new SqliteConnection(connectionString));
+                //  _DbConnection = KraftProfiler.Current.ProfiledDbConnection(new SqliteConnection(connectionString));
+                _DbConnection = new SqliteConnection(connectionString);
                 //_DbConnection = new SqliteConnection(connectionString);
 
                 //_DbConnection.ConnectionString = connectionString; moved to the construction
