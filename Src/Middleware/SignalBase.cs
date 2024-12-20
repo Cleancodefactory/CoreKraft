@@ -54,9 +54,9 @@ namespace Ccf.Ck.Web.Middleware
             RequestExecutor requestExecutor = new RequestExecutor(_ServiceProvider, httpContext, _KraftGlobalConfigurationSettings);
             foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
             {
-                
                 requestExecutor.ExecuteReEntrance(processingContext);
             }
+            requestExecutor.CompleteTransactions();
         }
     }
 }

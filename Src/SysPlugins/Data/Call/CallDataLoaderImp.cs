@@ -107,6 +107,7 @@ namespace Ccf.Ck.SysPlugins.Data.Call
                 };
 
                 requestExecutor.ExecuteReEntrance(processingContext, false);
+                requestExecutor.CompleteTransactions();
 
                 if (!processingContext.ReturnModel.Status.IsSuccessful)
                 {
@@ -168,7 +169,7 @@ namespace Ccf.Ck.SysPlugins.Data.Call
         /// <param name="operation">Operation base - read, write.</param>
         /// <param name="state">Unchange, Insert, Update or Delete.</param>
         /// <returns>Returns dictionary of parsed values.</returns>
-        private Dictionary<string,object> ParseAdditionalParameters(OperationBase operation, EDataState state = EDataState.Unchanged)
+        private Dictionary<string, object> ParseAdditionalParameters(OperationBase operation, EDataState state = EDataState.Unchanged)
         {
             Dictionary<string, object> resultDictionary = new Dictionary<string, object>();
             string parseText = null;

@@ -1,24 +1,23 @@
-﻿using System;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Settings;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
+using Ccf.Ck.SysPlugins.Iterators.DataNodes;
+using Ccf.Ck.Utilities.Profiling;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Text.RegularExpressions;
-using Ccf.Ck.Libs.Logging;
-using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.SysPlugins.Iterators.DataNodes;
-using Ccf.Ck.Utilities.Profiling;
-using Ccf.Ck.Models.Settings;
-using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 
 namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 {
     public class ADOSynchronizeContextScopedDefault<XConnection> : IPluginsSynchronizeContextScoped, IADOTransactionScope, IContextualBasketConsumer
         where XConnection : DbConnection, new()
     {
-
         protected DbConnection _DbConnection;
-        protected DbTransaction _DbTransaction;
+        private DbTransaction _DbTransaction;
         //private static Regex _DynamicParameterRegEx = new Regex(@"%(?<OnlyParameter>.+?)%", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex _DynamicParameterRegEx = new Regex(@"%(\w+?)%", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private bool _IsParsed;

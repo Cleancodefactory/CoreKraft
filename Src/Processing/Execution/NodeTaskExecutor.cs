@@ -21,7 +21,6 @@ namespace Ccf.Ck.Processing.Execution
     {
         private readonly ITransactionScopeContext _TransactionScope;
         private readonly KraftModuleConfigurationSettings _KraftModuleConfigurationSettings;
-        private bool _CollectiveCall;
 
         public NodeTaskExecutor(ITransactionScopeContext transactionScope, KraftModuleConfigurationSettings moduleSettings)
         {
@@ -35,28 +34,30 @@ namespace Ccf.Ck.Processing.Execution
             IPluginAccessor<IDataLoaderPlugin> dataLoaderAccessor,
             IPluginAccessor<INodePlugin> pluginAccessor)
         {
-            if (!_CollectiveCall)
+            try
             {
                 //Check for null values
                 GenericUtilities.CheckNullOrEmpty(loaderContextDefinition, true);
                 GenericUtilities.CheckNullOrEmpty(processingContext, true);
                 GenericUtilities.CheckNullOrEmpty(_TransactionScope.PluginServiceManager, true);
-            }
-            if (processingContext.InputModel.LoaderType.HasFlag(ELoaderType.DataLoader))
-            {
-                using (KraftProfiler.Current.Step("Execution time loading data: "))
+                if (processingContext.InputModel.LoaderType.HasFlag(ELoaderType.DataLoader))
                 {
-                    if (loaderContextDefinition.StartNode != null /*&& loaderContextDefinition.StartNode.HasValidDataSection(processingContext.InputModel.IsWriteOperation)*/)
+                    using (KraftProfiler.Current.Step("Execution time loading data: "))
                     {
-                        IDataIteratorPlugin dataIteratorPlugin = Utilities.GetPlugin<IDataIteratorPlugin>(_KraftModuleConfigurationSettings.NodeSetSettings.SourceLoaderMapping.NodesDataIterator.NodesDataIteratorConf.Name, _TransactionScope.DependencyInjectionContainer, _KraftModuleConfigurationSettings, ELoaderType.DataLoader, true);
-                        GenericUtilities.CheckNullOrEmpty(dataIteratorPlugin, true);
-                        dataIteratorPlugin.Execute(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, dataLoaderAccessor, pluginAccessor);
+                        if (loaderContextDefinition.StartNode != null /*&& loaderContextDefinition.StartNode.HasValidDataSection(processingContext.InputModel.IsWriteOperation)*/)
+                        {
+                            IDataIteratorPlugin dataIteratorPlugin = Utilities.GetPlugin<IDataIteratorPlugin>(_KraftModuleConfigurationSettings.NodeSetSettings.SourceLoaderMapping.NodesDataIterator.NodesDataIteratorConf.Name, _TransactionScope.DependencyInjectionContainer, _KraftModuleConfigurationSettings, ELoaderType.DataLoader, true);
+                            GenericUtilities.CheckNullOrEmpty(dataIteratorPlugin, true);
+                            dataIteratorPlugin.Execute(loaderContextDefinition, processingContext, _TransactionScope.PluginServiceManager, dataLoaderAccessor, pluginAccessor);
+                        }
                     }
                 }
-            }
-            if (!_CollectiveCall)
-            {
                 _TransactionScope.CommitTransactions();
+            }
+            catch
+            {
+                _TransactionScope.RollbackTransactions();
+                throw;
             }
         }
 
@@ -64,33 +65,36 @@ namespace Ccf.Ck.Processing.Execution
             LoadedNodeSet loaderContextDefinition,
             IProcessingContext processingContext)
         {
-            if (!_CollectiveCall)
+            try
             {
                 //Check for null values
                 GenericUtilities.CheckNullOrEmpty(loaderContextDefinition, true);
                 GenericUtilities.CheckNullOrEmpty(processingContext, true);
                 GenericUtilities.CheckNullOrEmpty(_TransactionScope.PluginServiceManager, true);
-            }
 
-            using (KraftProfiler.Current.Step("Execution time loading views: "))
-            {
-                if (!string.IsNullOrEmpty(processingContext.InputModel.BindingKey))
+                using (KraftProfiler.Current.Step("Execution time loading views: "))
                 {
-                    View view = loaderContextDefinition.StartNode.Views.Find(v => v.BindingKey.Equals(processingContext.InputModel.BindingKey, StringComparison.OrdinalIgnoreCase));
-                    ExecuteNodeViewPrivate(loaderContextDefinition, processingContext, view);
-                }
-                else
-                {
-                    foreach (View view in loaderContextDefinition.StartNode.Views)
+                    if (!string.IsNullOrEmpty(processingContext.InputModel.BindingKey))
                     {
+                        View view = loaderContextDefinition.StartNode.Views.Find(v => v.BindingKey.Equals(processingContext.InputModel.BindingKey, StringComparison.OrdinalIgnoreCase));
                         ExecuteNodeViewPrivate(loaderContextDefinition, processingContext, view);
                     }
+                    else
+                    {
+                        foreach (View view in loaderContextDefinition.StartNode.Views)
+                        {
+                            ExecuteNodeViewPrivate(loaderContextDefinition, processingContext, view);
+                        }
+                    }
+                    _TransactionScope.CommitTransactions();
                 }
             }
-            if (!_CollectiveCall)
+            catch
             {
-                _TransactionScope.CommitTransactions();
+                _TransactionScope.RollbackTransactions();
+                throw;
             }
+
         }
 
         private void ExecuteNodeViewPrivate(LoadedNodeSet loaderContextDefinition, IProcessingContext processingContext, View view)
@@ -111,7 +115,6 @@ namespace Ccf.Ck.Processing.Execution
             IPluginAccessor<IDataLoaderPlugin> dataLoaderAccessor,
             IPluginAccessor<INodePlugin> pluginAccessor)
         {
-            _CollectiveCall = true;
             //Check for null values
             GenericUtilities.CheckNullOrEmpty(loaderContextDefinition, true);
             GenericUtilities.CheckNullOrEmpty(processingContext, true);
@@ -146,12 +149,7 @@ namespace Ccf.Ck.Processing.Execution
                 //        }
                 //    }
                 //}
-
                 _TransactionScope.CommitTransactions();
-            }
-            catch (ThreadInterruptedException)
-            {
-                throw;
             }
             catch (Exception ex)
             {
@@ -159,7 +157,6 @@ namespace Ccf.Ck.Processing.Execution
                 processingContext.ReturnModel.Status.IsSuccessful = false;
                 processingContext.ReturnModel.Status.StatusResults.Add(new StatusResult { StatusResultType = EStatusResult.StatusResultError, Message = ex.Message });
                 _TransactionScope.RollbackTransactions();
-
                 if (ex is AggregateException aggregateException)
                 {
                     foreach (Exception exception in aggregateException.InnerExceptions)
@@ -198,10 +195,6 @@ namespace Ccf.Ck.Processing.Execution
                 {
                     KraftLogger.LogError(errMsg.ToString(), ex);
                 }
-            }
-            finally
-            {
-                _CollectiveCall = false;
             }
         }
     }
