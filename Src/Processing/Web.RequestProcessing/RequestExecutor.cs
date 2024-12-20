@@ -1,10 +1,7 @@
 ﻿using Ccf.Ck.Libs.Logging;
-using Ccf.Ck.Models.ContextBasket;
-using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Processing.Execution;
 using Ccf.Ck.Processing.Web.Request.BaseClasses;
@@ -15,9 +12,7 @@ using Ccf.Ck.Utilities.NodeSetService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Diagnostics;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Processing.Web.Request
@@ -117,6 +112,10 @@ namespace Ccf.Ck.Processing.Web.Request
             {
                 Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.InternalServerError, _KraftGlobalConfigurationSettings, PrepareError(ex));
             }
+            finally
+            {
+                CompleteTransactions();
+            }
         }
 
         private string PrepareError(Exception ex)
@@ -139,6 +138,11 @@ namespace Ccf.Ck.Processing.Web.Request
                     return "Error occurred, please review the logs for more information";
                 }
             }            
+        }
+
+        public void CompleteTransactions()
+        {
+            _TransactionScope.CompleteTransactions();
         }
     }
 }

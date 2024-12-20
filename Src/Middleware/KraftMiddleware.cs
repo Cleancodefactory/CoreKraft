@@ -1,13 +1,10 @@
 ﻿using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.Models.KraftModule;
-using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Processing.Execution;
 using Ccf.Ck.Processing.Web.Request;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
-using Ccf.Ck.SysPlugins.Interfaces.Packet;
 using Ccf.Ck.Utilities.NodeSetService;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
@@ -15,7 +12,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -44,7 +40,9 @@ namespace Ccf.Ck.Web.Middleware
             {
                 //return Task.Run(() =>
                 //{
-                    TransactionScopeContext transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
+                TransactionScopeContext transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
+                try
+                {
                     INodeSetService nodesSetService = builder.ApplicationServices.GetService<INodeSetService>();
                     KraftModuleCollection kraftModuleCollection = builder.ApplicationServices.GetService<KraftModuleCollection>();
                     ReturnModel returnModel = null;
@@ -59,7 +57,8 @@ namespace Ccf.Ck.Web.Middleware
                     foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
                     {
                         dcHandler.Execute(processingContext, transactionScope);
-                        returnModel = new Models.DirectCall.ReturnModel {
+                        returnModel = new Models.DirectCall.ReturnModel
+                        {
                             Data = processingContext.ReturnModel.Data,
                             BinaryData = processingContext.ReturnModel.BinaryData,
                             IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful,
@@ -71,7 +70,17 @@ namespace Ccf.Ck.Web.Middleware
                             Console.WriteLine($"Directcall {processingContext.InputModel.Module}:{processingContext.InputModel.NodeSet}:{processingContext.InputModel.Nodepath} executed in {stopWatch.ElapsedMilliseconds} milliseconds");
                         }
                     }
+
                     return returnModel;
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    transactionScope.CompleteTransactions();
+                }
                 //}).Result;
             };
             return directDelegate;

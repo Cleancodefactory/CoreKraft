@@ -16,6 +16,8 @@ namespace Ccf.Ck.Processing.Execution
     public class TransactionScopeContext : ITransactionScopeContext
     {
         private ConcurrentDictionary<string, IPluginsSynchronizeContextScoped> _PluginsSynchronizeContext;
+        private object _LockObject = new object();
+        private bool _IsSuccessful = true;
 
         public TransactionScopeContext(IServiceCollection serviceCollection)
         {
@@ -79,6 +81,43 @@ namespace Ccf.Ck.Processing.Execution
 
         public void RollbackTransactions()
         {
+            lock (_LockObject)
+            {
+                _IsSuccessful = false;  
+            } 
+        }
+
+        public void CommitTransactions()
+        {
+            //Keep only as placeholder
+        }
+
+        public void CompleteTransactions()
+        {
+            if (!_IsSuccessful)
+            {
+                RollbackTransactionsPrivate();
+            }
+            else
+            {
+                CommitTransactionsPrivate();
+            }
+        }
+
+        //public void Dispose()
+        //{
+        //    if (!_IsSuccessful)
+        //    {
+        //        RollbackTransactionsPrivate();
+        //    }
+        //    else
+        //    {
+        //        CommitTransactionsPrivate();
+        //    }
+        //}
+
+        private void RollbackTransactionsPrivate()
+        {
             for (int i = 0; i < _PluginsSynchronizeContext.Values.Count; i++)
             {
                 ITransactionScope transactionScope = _PluginsSynchronizeContext.ElementAt(i).Value as ITransactionScope;
@@ -89,7 +128,7 @@ namespace Ccf.Ck.Processing.Execution
             }
         }
 
-        public void CommitTransactions()
+        private void CommitTransactionsPrivate()
         {
             for (int i = 0; i < _PluginsSynchronizeContext.Values.Count; i++)
             {
