@@ -68,14 +68,14 @@ namespace Ccf.Ck.Processing.Execution
 
         private bool CanCache(Dictionary<string, string> customSettings)
         {
-            if (customSettings != null && customSettings.ContainsKey("NoCache"))
-            {
-                bool result;
-                if (bool.TryParse(customSettings["NoCache"].ToString(), out result))
-                {
-                    return !result;
-                }
-            }
+            //if (customSettings != null && customSettings.ContainsKey("NoCache"))
+            //{
+            //    bool result;
+            //    if (bool.TryParse(customSettings["NoCache"].ToString(), out result))
+            //    {
+            //        return !result;
+            //    }
+            //}
             return true;
         }
 
