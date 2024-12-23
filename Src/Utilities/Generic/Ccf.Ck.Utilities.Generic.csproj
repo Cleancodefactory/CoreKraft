@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="8.0.2" />
+    <PackageReference Include="Ccf.Ck.Libs.Logging" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="9.0.0" />
   </ItemGroup>
 
