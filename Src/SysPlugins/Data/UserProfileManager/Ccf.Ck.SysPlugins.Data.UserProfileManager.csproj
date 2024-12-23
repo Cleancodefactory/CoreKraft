@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <AssemblyName>Ccf.Ck.SysPlugins.Data.UserProfileManager</AssemblyName>
     <RootNamespace>Ccf.Ck.SysPlugins.Data.UserProfileManager</RootNamespace>
   </PropertyGroup>
@@ -9,6 +9,11 @@
   <PropertyGroup>
     <PackageDescription>This package provides System Plugin for interaction with authentication server in CoreKraft.</PackageDescription>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />

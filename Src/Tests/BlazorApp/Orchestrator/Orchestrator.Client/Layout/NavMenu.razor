@@ -2,10 +2,10 @@
 
 <div class="navmenu">
     <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
-    <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" Color="Color.Fill" /></label>
+    @* <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" Color="Color.Fill" /></label> *@
     <nav class="sitenav" aria-labelledby="main-menu" onclick="document.getElementById('navmenu-toggle').click();">
         <FluentNavMenu Id="main-menu" Width="250" Collapsible="true" Title="Navigation menu" @bind-Expanded="expanded">
-            <FluentNavLink Href="/" Icon="@(new Icons.Regular.Size20.System())" IconColor="Color.Accent">Mapping</FluentNavLink>
+            @* <FluentNavLink Href="/" Icon="@(new Icons.Regular.Size20.System())" IconColor="Color.Accent">Mapping</FluentNavLink> *@
         </FluentNavMenu>
     </nav>
 </div>

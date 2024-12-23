@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
@@ -42,11 +42,11 @@
 		<ProjectReference Include="..\..\..\..\SysPlugins\View.Html\Ccf.Ck.SysPlugins.Views.Html.csproj" />
 		<ProjectReference Include="..\Orchestrator.Client\Orchestrator.Client.csproj" />
 		<ProjectReference Include="..\Orchestrator.Models\Orchestrator.Models.csproj" />
-		<PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.10" />
-		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.10.4" />
-		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.10.4" />
-		<PackageReference Include="System.Drawing.Common" Version="8.0.10" />
+		<PackageReference Include="BouncyCastle.Cryptography" Version="2.5.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.0" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.0" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.0" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 	</ItemGroup>
 
