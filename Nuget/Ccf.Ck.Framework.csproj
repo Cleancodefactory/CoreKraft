@@ -105,6 +105,7 @@
 			- Version 8.0.15: Moved EmailSettings to nuget ccf.ck.libs.EmailSendExtended
 			- Version 8.0.16: Replaced deprecated System.Data.SqlClient with Microsoft.Data.SqlClient
 			- Version 9.0.0: Updated to net9.0
+			- Version 9.0.1: Removed IOSync=true for IIS
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
