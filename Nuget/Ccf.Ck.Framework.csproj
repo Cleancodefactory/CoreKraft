@@ -107,6 +107,7 @@
 			- Version 9.0.0: Updated to net9.0
 			- Version 9.0.1: Removed IOSync=true for IIS
 			- Version 9.0.2: Updated nuget packages
+			- Version 9.0.3: T GetBodyJson<T> modified to async Task<T> GetBodyJsonAsync<T>
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>

@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.Models.ContextBasket;
-using Ccf.Ck.Processing.Web.Request.BaseClasses;
-using Microsoft.AspNetCore.Http;
-using Ccf.Ck.Models.Settings;
-using Ccf.Ck.Models.KraftModule;
-using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.Utilities.NodeSetService;
+﻿using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Interfaces;
-using System.IO;
+using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.NodeRequest;
+using Ccf.Ck.Models.Settings;
+using Ccf.Ck.Processing.Web.Request.BaseClasses;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.Utilities.NodeSetService;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -41,7 +40,7 @@ namespace Ccf.Ck.Processing.Web.Request
             inputModelParameters = ExtendInputModelParameters(inputModelParameters);
             inputModelParameters.ServerVariables.Add(CallTypeConstants.REQUEST_PROCESSOR, "NodeSingle");
             if (_RequestContentType == ESupportedContentTypes.JSON) {
-                inputModelParameters.Data = GetBodyJson<Dictionary<string, object>>(_HttpContext.Request);
+                inputModelParameters.Data = GetBodyJsonAsync<Dictionary<string, object>>(_HttpContext.Request).Result;
             } else if (_RequestContentType == ESupportedContentTypes.FORM_URLENCODED) {
                 inputModelParameters.Data = _FormCollection;
             }

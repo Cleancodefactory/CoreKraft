@@ -1,19 +1,18 @@
-﻿using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.Models.ContextBasket;
+﻿using Ccf.Ck.Models.ContextBasket;
+using Ccf.Ck.Models.Enumerations;
+using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.NodeRequest;
+using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Processing.Web.Request.BaseClasses;
 using Ccf.Ck.Processing.Web.Request.Primitives;
-using Ccf.Ck.Processing.Web.ResponseBuilder;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.Utilities.NodeSetService;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
-using Ccf.Ck.Models.Settings;
-using Ccf.Ck.Models.KraftModule;
-using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.Utilities.NodeSetService;
-using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Models.Interfaces;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -29,7 +28,7 @@ namespace Ccf.Ck.Processing.Web.Request
             List<BatchRequest> batchRequests = new List<BatchRequest>();
             if (_RequestContentType == ESupportedContentTypes.JSON)
             {
-                batchRequests = GetBodyJson<List<BatchRequest>>(_HttpContext.Request);
+                batchRequests = GetBodyJsonAsync<List<BatchRequest>>(_HttpContext.Request).Result;
             }
             foreach (BatchRequest batchRequest in batchRequests)
             {
