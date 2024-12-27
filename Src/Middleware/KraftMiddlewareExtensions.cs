@@ -54,7 +54,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static Ccf.Ck.Utilities.Generic.Utilities;
-using Microsoft.AspNetCore.SpaServices.Extensions;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -115,11 +114,6 @@ namespace Ccf.Ck.Web.Middleware
                     options.AllowSynchronousIO = true;
                 });
 
-                // If using IIS:
-                services.Configure<IISServerOptions>(options =>
-                {
-                    options.AllowSynchronousIO = true;
-                });
                 List<IConfigurationSection> slaveConfigSections = new List<IConfigurationSection>();
                 foreach (string sectionName in _KraftGlobalConfigurationSettings.GeneralSettings.SlaveConfiguration.Sections)
                 {
