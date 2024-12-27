@@ -1,22 +1,22 @@
-﻿using System.Collections.Generic;
-using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.Models.ContextBasket;
-using Ccf.Ck.Processing.Web.Request.BaseClasses;
-using Ccf.Ck.Processing.Web.ResponseBuilder;
-using Microsoft.AspNetCore.Http;
-using Ccf.Ck.Models.Settings;
-using Ccf.Ck.Models.KraftModule;
+﻿using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Processing.Web.Request.Primitives;
-using Microsoft.AspNetCore.Routing;
-using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
-using Ccf.Ck.Utilities.NodeSetService;
-using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
-using Ccf.Ck.Processing.Execution;
-using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.NodeRequest;
+using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.Models.Settings;
+using Ccf.Ck.Processing.Execution;
+using Ccf.Ck.Processing.Web.Request.BaseClasses;
+using Ccf.Ck.Processing.Web.Request.Primitives;
+using Ccf.Ck.Processing.Web.ResponseBuilder;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
+using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
+using Ccf.Ck.Utilities.NodeSetService;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using System;
+using System.Collections.Generic;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -63,7 +63,7 @@ namespace Ccf.Ck.Processing.Web.Request
             InputModelParameters inputModelParameters = CreateBaseInputModelParameters(_KraftGlobalConfigurationSettings, securityModel);
             inputModelParameters = ExtendInputModelParameters(inputModelParameters);
             inputModelParameters.ServerVariables.Add(CallTypeConstants.REQUEST_PROCESSOR, "View");
-            inputModelParameters.Data = GetBodyJson<Dictionary<string, object>>(_HttpContext.Request);
+            inputModelParameters.Data = GetBodyJsonAsync<Dictionary<string, object>>(_HttpContext.Request).Result;
             inputModelParameters.FormCollection = _FormCollection;
             inputModelParameters.LoaderType = GetLoaderType(kraftRequestFlagsKey);
             if (inputModelParameters.LoaderType == ELoaderType.None)

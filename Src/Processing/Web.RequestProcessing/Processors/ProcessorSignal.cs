@@ -1,22 +1,22 @@
-﻿using System.Collections.Generic;
-using Ccf.Ck.Models.NodeRequest;
-using Ccf.Ck.Models.ContextBasket;
-using Ccf.Ck.Processing.Web.Request.BaseClasses;
-using Ccf.Ck.Processing.Web.ResponseBuilder;
-using Microsoft.AspNetCore.Http;
-using System.Linq;
-using Ccf.Ck.Models.Settings;
-using Ccf.Ck.Models.KraftModule;
-using Ccf.Ck.Models.Settings.Modules;
-using System;
+﻿using Ccf.Ck.Models.ContextBasket;
 using Ccf.Ck.Models.Enumerations;
-using Ccf.Ck.Processing.Web.Request.Primitives;
-using Microsoft.AspNetCore.Routing;
-using Ccf.Ck.Utilities.Generic;
-using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
-using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.Utilities.NodeSetService;
 using Ccf.Ck.Models.Interfaces;
+using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Models.NodeRequest;
+using Ccf.Ck.Models.Settings;
+using Ccf.Ck.Models.Settings.Modules;
+using Ccf.Ck.Processing.Web.Request.BaseClasses;
+using Ccf.Ck.Processing.Web.Request.Primitives;
+using Ccf.Ck.Processing.Web.ResponseBuilder;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
+using Ccf.Ck.Utilities.Generic;
+using Ccf.Ck.Utilities.NodeSetService;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ccf.Ck.Processing.Web.Request
 {
@@ -45,7 +45,7 @@ namespace Ccf.Ck.Processing.Web.Request
             inputModelParameters.ServerVariables[CallTypeConstants.REQUEST_CALL_TYPE] = (int)ECallType.Signal;
             if (_RequestContentType == ESupportedContentTypes.JSON)
             {
-                inputModelParameters.Data = GetBodyJson<Dictionary<string, object>>(_HttpContext.Request);
+                inputModelParameters.Data = GetBodyJsonAsync<Dictionary<string, object>>(_HttpContext.Request).Result;
             }
             else
             {

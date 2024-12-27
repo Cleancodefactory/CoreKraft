@@ -1,8 +1,6 @@
 ﻿using Ccf.Ck.Models.ContextBasket;
-using Ccf.Ck.Models.Enumerations;
 using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.KraftModule;
-using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
@@ -13,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 {
@@ -68,25 +67,31 @@ namespace Ccf.Ck.Processing.Web.Request.BaseClasses
 
         public abstract IProcessingContextCollection GenerateProcessingContexts(string kraftRequestFlagsKey, ISecurityModel securityModel = null);
 
-        protected T GetBodyJson<T>(HttpRequest httpRequest) where T : new()
+        protected async Task<T> GetBodyJsonAsync<T>(HttpRequest httpRequest) where T : new()
         {
             T result = default(T);
-            using (TextReader reader = new StreamReader(httpRequest.Body, Encoding.UTF8))
+
+            // Ensure we can read the body
+            if (httpRequest.Body.CanSeek)
             {
-                string requestBody = reader.ReadToEnd();
+                httpRequest.Body.Seek(0, SeekOrigin.Begin);
+            }
+
+            using (StreamReader reader = new StreamReader(httpRequest.Body, Encoding.UTF8))
+            {
+                string requestBody = await reader.ReadToEndAsync();
+
                 if (typeof(T) == typeof(Dictionary<string, object>))
                 {
                     if (httpRequest.ContentLength.HasValue && httpRequest.ContentLength.Value > 0)
                     {
-                        //options.Converters.Add(new DictionaryStringObjectJsonConverter());
-                        //result = JsonSerializer.Deserialize<T>(reader.ReadToEnd(), options);
                         var options = new JsonReaderOptions
                         {
                             AllowTrailingCommas = true,
                             CommentHandling = JsonCommentHandling.Skip
                         };
-                        result = (T)DictionaryStringObjectJson.Deserialize(requestBody, options);
 
+                        result = (T)(object)DictionaryStringObjectJson.Deserialize(requestBody, options);
                     }
                 }
                 else
