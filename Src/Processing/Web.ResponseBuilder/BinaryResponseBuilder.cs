@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
@@ -63,7 +64,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             }
         }
 
-        protected override void WriteToResponseBody(HttpContext context)
+        protected override async Task WriteToResponseBodyAsync(HttpContext context)
         {
             HttpResponse response = context.Response;
             HttpRequest request = context.Request;
@@ -97,7 +98,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 
                     byte[] data = ReadStreamIntoByteArray(postedFile.OpenReadStream(), range.From.Value, range.To.Value);
                     // Write the specified range of binary data to the response
-                    response.Body.Write(data);
+                    await response.Body.WriteAsync(data);
                 }
                 else
                 {

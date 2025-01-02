@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
 
@@ -34,7 +35,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             }   
         }
 
-        protected override void WriteToResponseBody(HttpContext context)
+        protected override async Task WriteToResponseBodyAsync(HttpContext context)
         {
             //Write the collected data into the response
             XDocument doc = new XDocument();
@@ -116,7 +117,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 //TODO Robert when the client configuration understands multiple contexts
             }
 
-            context.Response.WriteAsync(doc.ToString()).Wait();
+            await context.Response.WriteAsync(doc.ToString());
         }
 
         private object GetServerIdentifier(IProcessingContext processingContext)

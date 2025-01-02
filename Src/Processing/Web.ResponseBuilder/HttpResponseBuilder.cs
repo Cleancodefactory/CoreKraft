@@ -3,6 +3,7 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.Packet;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
@@ -17,7 +18,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
         }
         protected abstract void WriteToResponseHeaders(HttpContext context);
 
-        protected abstract void WriteToResponseBody(HttpContext context);
+        protected abstract Task WriteToResponseBodyAsync(HttpContext context);
 
         public void GenerateResponse(HttpContext context)
         {
@@ -32,7 +33,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 }
             }
             WriteToResponseHeaders(context);
-            WriteToResponseBody(context);
+            WriteToResponseBodyAsync(context);
         }
     }
 }

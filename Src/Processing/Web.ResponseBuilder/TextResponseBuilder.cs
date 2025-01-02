@@ -2,6 +2,7 @@
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
@@ -30,7 +31,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             }
         }
 
-        protected override void WriteToResponseBody(HttpContext context)
+        protected override async Task WriteToResponseBodyAsync(HttpContext context)
         {
             string result = string.Empty;
             foreach (IProcessingContext processingContext in _ProcessingContextCollection.ProcessingContexts)
@@ -41,7 +42,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                     break; //we are handling only one context (no packaging possible)
                 }
             }
-            context.Response.WriteAsync(result).Wait();
+            await context.Response.WriteAsync(result);
         }
     }
 }
