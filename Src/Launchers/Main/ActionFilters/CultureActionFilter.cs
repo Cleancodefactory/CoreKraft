@@ -81,7 +81,7 @@ namespace Ccf.Ck.Launchers.Main.ActionFilters
                        .Select(x => x.Value.ToString())
                        .ToArray() ?? Array.Empty<string>();
             string culture = GetPreferencedLanguagesOrDefault(userLanguages);
-            return CookieHandler.AppendCookie(context.HttpContext.Response, culture);
+            return CookieHandler.AppendCookie(context.HttpContext.Response, culture, _KraftGlobalConfigurationSettings);
         }
 
         private string GetPreferencedLanguagesOrDefault(string[] userLanguages)

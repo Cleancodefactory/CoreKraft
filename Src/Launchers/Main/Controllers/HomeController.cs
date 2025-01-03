@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Ccf.Ck.Launchers.Main.Controllers
@@ -82,7 +79,7 @@ namespace Ccf.Ck.Launchers.Main.Controllers
                 {
                     returnUrl = "/";
                 }
-                CookieHandler.AppendCookie(Response, culture);
+                CookieHandler.AppendCookie(Response, culture, _KraftGlobalConfigurationSettings);
             }
             catch { }
             returnUrl = Regex.Replace(returnUrl, @"[^\u0020-\u007E]", string.Empty);//remove all non ascii characters
