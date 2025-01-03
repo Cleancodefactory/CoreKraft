@@ -33,7 +33,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 }
             }
             WriteToResponseHeaders(context);
-            WriteToResponseBodyAsync(context);
+            WriteToResponseBodyAsync(context).Wait();
         }
     }
 }

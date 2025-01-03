@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
@@ -104,7 +105,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
                 {
                     using (System.IO.Stream pfs = postedFile.OpenReadStream())
                     {
-                        pfs.CopyTo(response.Body);
+                        await pfs.CopyToAsync(response.Body);
                     }
                 }
             }
