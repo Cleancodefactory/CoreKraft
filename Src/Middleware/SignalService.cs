@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static Ccf.Ck.Utilities.Generic.Utilities;
@@ -37,11 +38,40 @@ namespace Ccf.Ck.Web.Middleware
                 int minutes = item.IntervalInMinutes;
                 if (minutes > 0)
                 {
-                    Timer t = new Timer(DoWork, item.Signals, TimeSpan.FromMinutes(minutes), TimeSpan.FromMinutes(minutes));
+                    TimeSpan initialDelay = CalculateInitialDelay(item.ActiveDays, item.StartTime);
+                    Timer t = new Timer(DoWork, item.Signals, initialDelay, TimeSpan.FromMinutes(item.IntervalInMinutes));
                     _Timers.Add(t);
                 }
             }
             return Task.CompletedTask;
+        }
+
+        private TimeSpan CalculateInitialDelay(List<DayOfWeek> activeDays, TimeSpan startTime)
+        {
+            DateTime now = DateTime.Now;
+            if (activeDays == null || activeDays.Count == 0)
+            {
+                // If no specific days are configured, assume every day.
+                activeDays = Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>().ToList();
+            }
+
+            DateTime nextRun = now.Date + startTime;
+
+            if (nextRun < now || !activeDays.Contains(now.DayOfWeek))
+            {
+                // Find the next valid day
+                for (int i = 1; i <= 7; i++)
+                {
+                    DateTime potentialNextRun = now.AddDays(i).Date + startTime;
+                    if (activeDays.Contains(potentialNextRun.DayOfWeek))
+                    {
+                        nextRun = potentialNextRun;
+                        break;
+                    }
+                }
+            }
+
+            return nextRun - now;
         }
 
         private void DoWork(object state)
@@ -50,13 +80,25 @@ namespace Ccf.Ck.Web.Middleware
             {
                 if (state is List<string> signals)
                 {
-                    foreach (string signal in signals)
+                    DateTime now = DateTime.Now;
+                    HostingServiceSetting setting = _KraftGlobalConfigurationSettings
+                        .GeneralSettings
+                        .HostingServiceSettings
+                        .FirstOrDefault(s => s.Signals.SequenceEqual(signals));
+
+                    if (setting != null &&
+                        setting.ActiveDays.Contains(now.DayOfWeek) &&
+                        now.TimeOfDay >= setting.StartTime &&
+                        now.TimeOfDay < setting.StartTime.Add(TimeSpan.FromMinutes(setting.IntervalInMinutes)))
                     {
-                        Stopwatch stopWatch = Stopwatch.StartNew();
-                        ExecuteSignals("null", signal);
-                        KraftLogger.LogInformation($"Executing signal: {signal} for {stopWatch.ElapsedMilliseconds} ms");
+                        foreach (string signal in signals)
+                        {
+                            Stopwatch stopWatch = Stopwatch.StartNew();
+                            ExecuteSignals("null", signal);
+                            KraftLogger.LogInformation($"Executing signal: {signal} for {stopWatch.ElapsedMilliseconds} ms");
+                        }
+                        KraftLogger.LogInformation("Batch of CoreKraft-Background-Services executed.");
                     }
-                    KraftLogger.LogInformation("Batch of CoreKraft-Background-Services executed.");
                 }
             }
         }
