@@ -84,9 +84,11 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         #endregion
 
         #region Prepare
-        public virtual void Prepare(IDataLoaderReadContext execContext) {
+        public virtual void Prepare(IDataLoaderReadContext execContext)
+        {
             ADOInfo metaReport = null;
-            if (execContext is IActionHelpers helper) {
+            if (execContext is IActionHelpers helper)
+            {
                 metaReport = helper.NodeMeta.CreateInfo<ADOInfo>();
             }
             // TODO Review the meta dara - we may want to add Prepare specific entry
@@ -98,19 +100,25 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             string sqlQuery = null;
 
             List<string> parameters = new List<string>();
-            try {
+            try
+            {
                 Node node = execContext.CurrentNode;
                 string query = null;
-                if (execContext.Action == ACTION_READ) {
+                if (execContext.Action == ACTION_READ)
+                {
                     query = node.Read?.Prepare?.Query;
-                } else if (execContext.Action == ACTION_WRITE) {
+                }
+                else if (execContext.Action == ACTION_WRITE)
+                {
                     query = node.Write?.Prepare?.Query;
                 }
 
-                if (!string.IsNullOrWhiteSpace(query)) {
+                if (!string.IsNullOrWhiteSpace(query))
+                {
                     // Scope context for the same loader
                     // Check it is valid
-                    if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext)) {
+                    if (!(execContext.OwnContextScoped is IADOTransactionScope scopedContext))
+                    {
                         throw new NullReferenceException("Scoped synchronization and transaction context is not available.");
                     }
                     // Configuration settings Should be set to the scoped context during its creation/obtainment - see ExternalServiceImp
@@ -118,53 +126,68 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     // No tranaction in read mode - lets not forget that closing the transaction also closes the connection - so the ;ifecycle control will do this using the transaction based notation
                     // from ITransactionScope
                     DbConnection conn = scopedContext.Connection;
-                    using (DbCommand cmd = conn.CreateCommand()) {
+                    using (DbCommand cmd = conn.CreateCommand())
+                    {
                         //cmd.Transaction = scopedContext.CurrentTransaction; //no transaction
-                        if (execContext.Action == ACTION_READ && scopedContext is ADOSynchronizeContextScopedDefault<XConnection> scopedDefault) {
-                            if (scopedDefault.IsStartReadTransaction()) {
+                        if (execContext.Action == ACTION_READ && scopedContext is ADOSynchronizeContextScopedDefault<XConnection> scopedDefault)
+                        {
+                            if (scopedDefault.IsStartReadTransaction())
+                            {
                                 cmd.Transaction = scopedContext.StartADOTransaction(); //start transaction
                             }
                         }
 
                         cmd.Parameters.Clear();
-                        
+
                         sqlQuery = ProcessCommand(cmd, query, execContext, out parameters);
-                        if (metaReport != null) {
+                        if (metaReport != null)
+                        {
                             metaReport.ReportSQL(sqlQuery);
                             metaReport.ReportParameters(cmd.Parameters);
                         }
                         LogExecution(sqlQuery, execContext, parameters);
-                        using (DbDataReader reader = cmd.ExecuteReader()) {
-                            do {
+                        using (DbDataReader reader = cmd.ExecuteReader())
+                        {
+                            do
+                            {
                                 // TODO how to proceed here - side effects or no sideffects are we going to return something?
                                 int n_rows = 0;
-                                if (reader.HasRows) {
+                                if (reader.HasRows)
+                                {
                                     // We do not use non-result execution, because we are not sure if we are going to allow Results changes in a new version
-                                    while (reader.Read()) {
+                                    while (reader.Read())
+                                    {
                                         n_rows++;
                                     }
- 
+
                                 }
-                                if (metaReport != null) {
+                                if (metaReport != null)
+                                {
                                     metaReport.AddResult(n_rows, reader.FieldCount);
                                 }
                             } while (reader.NextResult());
                             reader.Close();
-                            if (metaReport != null) {
+                            if (metaReport != null)
+                            {
                                 metaReport.RowsAffected = reader.RecordsAffected;
                             }
                         }
                     }
                 }
-            } catch (Exception ex) {
-                if (Action(execContext) == null) {
+            }
+            catch (Exception ex)
+            {
+                if (Action(execContext) == null)
+                {
                     throw new Exception($"Missing action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module})");
                 }
                 StringBuilder sbError = new StringBuilder(1000);
                 sbError.AppendLine($"Prepare in action: {execContext.Action}, operation: {execContext.Operation} for node: {execContext.CurrentNode.NodeKey} (Module: {execContext.ProcessingContext.InputModel.Module}");
-                if (!string.IsNullOrEmpty(sqlQuery)) {
+                if (!string.IsNullOrEmpty(sqlQuery))
+                {
                     StringBuilder sb = new StringBuilder();
-                    foreach (string param in parameters) {
+                    foreach (string param in parameters)
+                    {
                         sb.AppendLine(param);
                     }
                     sbError.AppendLine($"Read(IDataLoaderReadContext execContext) >> SQL: {sb.ToString()}{Environment.NewLine}{sqlQuery}");
@@ -193,8 +216,11 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
 
         protected override List<Dictionary<string, object>> Read(IDataLoaderReadContext execContext)
         {
+            bool fieldNameToLowerCase = execContext?.ProcessingContext?.InputModel?.KraftGlobalConfigurationSettings?.GeneralSettings.FieldNameToLowerCase ?? true;
+
             ADOInfo metaReport = null;
-            if (execContext is IActionHelpers helper) {
+            if (execContext is IActionHelpers helper)
+            {
                 metaReport = helper.NodeMeta.CreateInfo<ADOInfo>();
             }
             var metaNode = execContext as IActionHelpers;
@@ -232,13 +258,14 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 cmd.Transaction = scopedContext.StartADOTransaction(); //start transaction
                             }
                         }
-                        
+
                         cmd.Parameters.Clear();
                         // This will set the resulting command text if everything is Ok.
                         // The processing will make replacements in the SQL and bind parameters by requesting them from the resolver expressions configured on this node.
                         // TODO: Some try...catching is necessary.
                         sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext, out parameters);
-                        if (metaReport != null) {
+                        if (metaReport != null)
+                        {
                             metaReport.ReportSQL(sqlQuery);
                             metaReport.ReportParameters(cmd.Parameters);
                         }
@@ -259,9 +286,12 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                         {
                                             string fldname = reader.GetName(i);
                                             if (fldname == null) continue;
-                                            // TODO: May be configure that or at least create a compile time definition
-                                            fldname = fldname.ToLower().Trim(); // TODO: lowercase
-                                                                                //fldname = fldname.Trim();
+                                            if (fieldNameToLowerCase)
+                                            {
+                                                // TODO: May be configure that or at least create a compile time definition
+                                                fldname = fldname.ToLower().Trim(); // TODO: lowercase
+                                            }
+                                            //fldname = fldname.Trim();
                                             if (fldname.Length == 0)
                                             {
                                                 throw new Exception($"Empty name when reading the output of a query. The field index is {i}. The query is: {cmd.CommandText}");
@@ -271,16 +301,22 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                                 throw new Exception($"Duplicated field name in the output of a query. The field is:{fldname}, the query is: {cmd.CommandText}");
                                             }
                                             object v;
-                                            if (reader.IsDBNull(i)) {
+                                            if (reader.IsDBNull(i))
+                                            {
                                                 v = null;
-                                            } else {
-                                                if (reader.GetFieldType(i) == typeof(byte[])) {
+                                            }
+                                            else
+                                            {
+                                                if (reader.GetFieldType(i) == typeof(byte[]))
+                                                {
                                                     long fldLength = reader.GetBytes(i, 0, null, 0, 0);
                                                     byte[] bytes = new byte[fldLength];
                                                     long lread = reader.GetBytes(i, 0, bytes, 0, (int)fldLength);
                                                     // TODO: lread may be more to the point then fldLength ?
                                                     v = (PostedFile)bytes;
-                                                } else {
+                                                }
+                                                else
+                                                {
                                                     v = reader.GetValue(i);
                                                 }
                                             }
@@ -373,6 +409,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         /// <returns></returns>
         protected override object Write(IDataLoaderWriteContext execContext)
         {
+            bool fieldNameToLowerCase = execContext?.ProcessingContext?.InputModel?.KraftGlobalConfigurationSettings?.GeneralSettings.FieldNameToLowerCase ?? true;
+            
             ADOInfo metaReport = null;
             if (execContext is IActionHelpers helper)
             {
@@ -406,7 +444,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                         sqlQuery = ProcessCommand(cmd, Action(execContext).Query, execContext, out parameters);
                         //TODO need refinement (Robert)
                         //string commandWithParamValues = DbCommandDumper.GetCommandText(cmd);
-                        if (metaReport != null) {
+                        if (metaReport != null)
+                        {
                             metaReport.ReportSQL(sqlQuery);
                             metaReport.ReportParameters(cmd.Parameters);
                         }
@@ -421,28 +460,38 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                     n_rows++;
                                     for (int i = 0; i < reader.FieldCount; i++)
                                     {
-                                        string fname = reader.GetName(i);
-                                        if (fname == null) continue;
-                                        fname = fname.ToLower().Trim();
+                                        string fldname = reader.GetName(i);
+                                        if (fldname == null) continue;
+                                        if (fieldNameToLowerCase)
+                                        {
+                                            // TODO: May be configure that or at least create a compile time definition
+                                            fldname = fldname.ToLower().Trim(); // TODO: lowercase
+                                        }
                                         // fname = fname.Trim(); // TODO: We have to rethink this - lowercasing seems more inconvenience than a viable protection against human mistakes.
-                                        if (fname.Length == 0) throw new Exception("Empty field name in a store context in nodedesfinition: " + node.NodeSet.Name);
+                                        if (fldname.Length == 0) throw new Exception("Empty field name in a store context in nodedesfinition: " + node.NodeSet.Name);
 
 
                                         object v;
-                                        if (reader.IsDBNull(i)) {
+                                        if (reader.IsDBNull(i))
+                                        {
                                             v = null;
-                                        } else {
-                                            if (reader.GetFieldType(i) == typeof(byte[])) {
+                                        }
+                                        else
+                                        {
+                                            if (reader.GetFieldType(i) == typeof(byte[]))
+                                            {
                                                 long fldLength = reader.GetBytes(i, 0, null, 0, 0);
                                                 byte[] bytes = new byte[fldLength];
                                                 long lread = reader.GetBytes(i, 0, bytes, 0, (int)fldLength);
                                                 // TODO: lread may be more to the point then fldLength ?
                                                 v = (PostedFile)bytes;
-                                            } else {
+                                            }
+                                            else
+                                            {
                                                 v = reader.GetValue(i);
                                             }
                                         }
-                                        execContext.Row[fname] = (v is DBNull) ? null : v;
+                                        execContext.Row[fldname] = (v is DBNull) ? null : v;
                                     }
                                 }
                                 if (metaReport != null)
@@ -453,13 +502,15 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 // update of the data being written can be done more freely - using more than one select statement after writing. This is
                                 // probably rare, but having the opportunity is better than not having it.
                             } while (reader.NextResult());
-                            if (Action(execContext) != null && Action(execContext).RequireEffect) {
-                                if (reader.RecordsAffected == 0) {
+                            if (Action(execContext) != null && Action(execContext).RequireEffect)
+                            {
+                                if (reader.RecordsAffected == 0)
+                                {
                                     reader.Close();
                                     throw new OperationCanceledException("Write operation requires effect, but there was none (rows affected was 0 while expected to be greater). Operation was cancelled.");
                                 }
                             }
-                            
+
                             if (metaReport != null)
                             {
                                 metaReport.RowsAffected = reader.RecordsAffected;
@@ -495,7 +546,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                 else
                 {
                     KraftLogger.LogError(sbError.ToString(), ex, execContext);
-                }                
+                }
                 metaReport.SetErrorInfo(ex, sbError.ToString());
                 throw;
             }
@@ -538,10 +589,13 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                     {
                         // Different providers may sometimes use different properties and specific enums to specify the type.
                         // Additional measures may be needed as well, so we leave the operation in an overridable method.
-                        if (value.Value.Value is PostedFile pf) {
+                        if (value.Value.Value is PostedFile pf)
+                        {
                             AssignParameterType(param, null); // TODO lets see what will happen
                             param.Value = pf.ToBytes();
-                        } else {
+                        }
+                        else
+                        {
                             AssignParameterType(param, GetParameterType(value.Value));
                             param.Value = value.Value.Value;
                         }
@@ -597,17 +651,23 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
         protected virtual string ProcessCommand(DbCommand cmd, string sql, IDataLoaderContext execContext, out List<string> parameters)
         {
             var scope = execContext.OwnContextScoped; //GetSynchronizeContextScopedAsync().Result;
-            if (scope is ADOSynchronizeContextScopedDefault<XConnection> adoscope) {
+            if (scope is ADOSynchronizeContextScopedDefault<XConnection> adoscope)
+            {
                 adoscope.ConfigureDbCommand(cmd);
             }
-            if (max_recursions <= 0) {
+            if (max_recursions <= 0)
+            {
                 //var scope = GetSynchronizeContextScopedAsync().Result;
-                if (scope != null) {
-                    if (scope.CustomSettings != null && scope.CustomSettings.ContainsKey(MAX_RECURSIONS_NAME)) { 
+                if (scope != null)
+                {
+                    if (scope.CustomSettings != null && scope.CustomSettings.ContainsKey(MAX_RECURSIONS_NAME))
+                    {
                         string s = scope.CustomSettings[MAX_RECURSIONS_NAME];
-                        if (int.TryParse(s, out int mr)) {
-                            if (mr > 0) {
-                                max_recursions= mr;
+                        if (int.TryParse(s, out int mr))
+                        {
+                            if (mr > 0)
+                            {
+                                max_recursions = mr;
                             }
                         }
                     }
@@ -623,7 +683,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
             return result;
         }
 
-        private string BindParameters(DbCommand cmd, string sql, IDataLoaderContext execContext, List<string> parameters, Regex reg,int recursions = 0)
+        private string BindParameters(DbCommand cmd, string sql, IDataLoaderContext execContext, List<string> parameters, Regex reg, int recursions = 0)
         {
             string result = reg.Replace(sql, m =>
             {
@@ -641,7 +701,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                 {
                                     throw new Exception("Loader doesn't support Table-Valued Parameters");
                                 }
-                                
+
                                 // Bind value
                                 BindParameter(cmd, paramname, v);
                                 parameters.Add($"Paramname: {paramname} and Paramvalue: {v.Value}");
@@ -653,7 +713,8 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                             case EResolverValueType.Invalid:
                                 throw new Exception($"Invalid value received for parameter: {paramname}. This is reported by a resolver, check your expression to find out which one does that and why.");
                             case EResolverValueType.ContentType:
-                                if ((max_recursions > 0 && recursions > max_recursions) || (max_recursions == 0 && recursions > MAX_RECURSIONS_DEFAULT)) {
+                                if ((max_recursions > 0 && recursions > max_recursions) || (max_recursions == 0 && recursions > MAX_RECURSIONS_DEFAULT))
+                                {
                                     throw new OperationCanceledException($"During parameter ({paramname}) binding of an SQL query the maximum recursions limit ({max_recursions}) was reached ({recursions}).");
                                 }
                                 // Replace text
