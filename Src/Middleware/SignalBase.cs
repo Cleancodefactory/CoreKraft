@@ -57,13 +57,13 @@ namespace Ccf.Ck.Web.Middleware
             {
                 try
                 {
-                    KraftLogger.LogInformation($"SignalBase->ExecuteSignals: Start signal execution {processingContext.KraftModule.Name}/{signal}.");
+                    KraftLogger.LogInformation($"SignalBase->ExecuteSignals: Start signal execution {processingContext.InputModel.Module}/{signal}.");
                     requestExecutor.ExecuteReEntrance(processingContext);
-                    KraftLogger.LogInformation($"SignalBase->ExecuteSignals: Finished signal execution {processingContext.KraftModule.Name}/{signal}.");
+                    KraftLogger.LogInformation($"SignalBase->ExecuteSignals: Finished signal execution {processingContext.InputModel.Module}/{signal}.");
                 }
                 catch (Exception ex)
                 {
-                    KraftLogger.LogError($"SignalBase->ExecuteSignals: Error executing signal {module}/{signal}.", ex);
+                    KraftLogger.LogError($"SignalBase->ExecuteSignals: Error executing signal {processingContext.InputModel.Module}/{signal}.", ex);
                     throw;
                 }
                 
