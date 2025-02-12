@@ -1,17 +1,15 @@
 ﻿using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Recorders.Postman.Models;
-using Ccf.Ck.SysPlugins.Recorders.Postman.Models.TestScriptModels;
-using Ccf.Ck.SysPlugins.Recorders.Postman.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.SysPlugins.Recorders.Postman
@@ -46,47 +44,54 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
         {
             #region Setting up required data from the HttpRequest
             string body = await GetBodyAsync(request);
-
             string method = request.Method;
 
             List<PostmanHeaderSection> pHeaders = new List<PostmanHeaderSection>();
-            JObject headers = JObject.Parse(GetJsonString(request.Headers));
+
+            // Convert request headers to JSON using System.Text.Json
+            JsonObject headers = JsonNode.Parse(GetJsonString(request.Headers))?.AsObject() ?? new JsonObject();
 
             string url = request.GetEncodedUrl().Replace(request.Host.ToString(), BASE_HOST);
-            List<string> hostSegments = new List<string>{BASE_HOST};//request.Host.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
+            List<string> hostSegments = new List<string> { BASE_HOST };
             List<string> pathSegments = request.Path.Value.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
-            List<PostmanQuerySection> queries = request.Query.Select(k => new PostmanQuerySection
-            {
-                Key = k.Key,
-                Value = k.Value.ToString()
-            }).ToList();
+
+            List<PostmanQuerySection> queries = request.Query
+                .Select(k => new PostmanQuerySection
+                {
+                    Key = k.Key,
+                    Value = k.Value.ToString()
+                })
+                .ToList();
 
             string baseHostWithProtocol = request.Scheme + "://" + PostmanImp.BASE_HOST;
+
             foreach (var header in headers)
             {
                 string key = header.Key.StartsWith(':') ? header.Key.TrimStart(':') : header.Key;
-                string value = header.Value.First.ToString();
-                if (key != null && key.Equals("host", StringComparison.OrdinalIgnoreCase))
+                string value = header.Value?.ToString() ?? string.Empty;
+
+                if (key.Equals("host", StringComparison.OrdinalIgnoreCase))
                 {
                     value = PostmanImp.BASE_HOST;
                 }
-                else if (key != null && key.Equals("Referer", StringComparison.OrdinalIgnoreCase))
+                else if (key.Equals("Referer", StringComparison.OrdinalIgnoreCase))
                 {
                     value = url;
                 }
-                else if (key != null && key.Equals("X-ORIGINAL-HOST", StringComparison.OrdinalIgnoreCase))
+                else if (key.Equals("X-ORIGINAL-HOST", StringComparison.OrdinalIgnoreCase))
                 {
                     value = baseHostWithProtocol;
                 }
-                else if (key != null && key.Equals("Origin", StringComparison.OrdinalIgnoreCase))
+                else if (key.Equals("Origin", StringComparison.OrdinalIgnoreCase))
                 {
                     value = baseHostWithProtocol;
                 }
-                else if (key != null && key.Equals("cookie", StringComparison.OrdinalIgnoreCase))
+                else if (key.Equals("cookie", StringComparison.OrdinalIgnoreCase))
                 {
                     _CookieValue = value;
                     value = PostmanImp.COOKIE;
                 }
+
                 pHeaders.Add(new PostmanHeaderSection
                 {
                     Key = key,
@@ -94,42 +99,8 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
                 });
             }
             #endregion
-
-            PostmanBuilder builder = new PostmanBuilder();
-
-            // Construct the Request entity
-            RequestContent requestContent = builder
-                .MethodBuilder
-                    .AddMethod(method)
-                .HeaderBuilder
-                    .AddHeader(pHeaders)
-                .BodyBuilder
-                    .AddBody("raw", body)
-                .UrlBuilder
-                    .AddUrlData(url, request.Scheme, pathSegments, hostSegments, queries);
-
-            // Add the first event for script to the first request
-            if (_RunnerModel.PostmanItemRequests.Count < 1)
-            {
-                var firstRequestEvent = JsonConvert.DeserializeObject<List<Event>>(ResourceReader.GetResource("FirstRequest"));
-
-                _RunnerModel.PostmanItemRequests.Add(new PostmanRequest
-                {
-                    Name = url,
-                    FirstRequestEvent = firstRequestEvent,
-                    RequestContent = requestContent
-                });
-
-                return;
-            }
-
-            // Add newly constructed Request and the url to the Runner Model 
-            _RunnerModel.PostmanItemRequests.Add(new PostmanRequest
-            {
-                Name = url,
-                RequestContent = requestContent
-            });
         }
+
 
         private async Task<string> GetBodyAsync(HttpRequest request)
         {
@@ -155,18 +126,16 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman
 
         private string GetJsonString(object model)
         {
-            string jsonString = JsonConvert.SerializeObject(model, new JsonSerializerSettings()
+            var options = new JsonSerializerOptions
             {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.Indented,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ContractResolver = new DefaultContractResolver()
-                {
-                    NamingStrategy = new CamelCaseNamingStrategy()
-                }
-            });
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, // Ignore null values
+                WriteIndented = true, // Equivalent to Formatting.Indented
+                ReferenceHandler = ReferenceHandler.Preserve, // Ignore reference loops
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase // Equivalent to CamelCaseNamingStrategy
+            };
 
-            return jsonString;
+            return JsonSerializer.Serialize(model, options);
         }
+
     }
 }

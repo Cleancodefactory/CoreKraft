@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.SysPlugins.Recorders.Thunder
@@ -172,7 +173,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder
                     };
                     var result = DictionaryStringObjectJson.Deserialize(temp, options);
                     body = System.Text.Json.JsonSerializer.Serialize(result);
-                }                
+                }
 
                 // Do some processing with body…
                 // Reset the request body stream position so the next middleware can read it
@@ -183,19 +184,17 @@ namespace Ccf.Ck.SysPlugins.Recorders.Thunder
 
         private string GetJsonString(object model)
         {
-            string jsonString = JsonConvert.SerializeObject(model, new JsonSerializerSettings()
+            var options = new JsonSerializerOptions
             {
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.Indented,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ContractResolver = new DefaultContractResolver()
-                {
-                    NamingStrategy = new CamelCaseNamingStrategy()
-                }
-            });
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, // Ignore null values
+                WriteIndented = true, // Equivalent to Formatting.Indented
+                ReferenceHandler = ReferenceHandler.IgnoreCycles, // Equivalent to ReferenceLoopHandling.Ignore
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase // Equivalent to CamelCaseNamingStrategy
+            };
 
-            return jsonString;
+            return System.Text.Json.JsonSerializer.Serialize(model, options);
         }
+
 
         #endregion Private
     }

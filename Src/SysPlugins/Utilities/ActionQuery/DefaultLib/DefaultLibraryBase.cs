@@ -9,12 +9,13 @@ using Ccf.Ck.Models.Settings;
 using System.Collections;
 using System.Text.RegularExpressions;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
-using Newtonsoft.Json;
 using System.Security.Cryptography;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Enumerations;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -1263,7 +1264,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
             Dictionary<string, ParameterResolverValue> dict = args[0].Value as Dictionary<string, ParameterResolverValue>;
             if (dict == null) throw new ArgumentException("DictToJson requires a Dict argument, but received something else");
             var gendata = ConvertToGeneralData(dict);
-            return new ParameterResolverValue(JsonConvert.SerializeObject(gendata));
+            var options = new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, // Ignores null values
+                WriteIndented = false, // Set to true if you want formatted (pretty-printed) JSON
+                ReferenceHandler = ReferenceHandler.IgnoreCycles // Prevents infinite loops from circular references
+            };
+
+            return new ParameterResolverValue(System.Text.Json.JsonSerializer.Serialize(gendata, options));
+
         }
         [Function("JsontoDict", "Converts a JSON string to Dict, if not possible returns null")]
         [Parameter(0, "JSON", "Json string", TypeFlags.String | TypeFlags.Json)]
@@ -1273,7 +1282,15 @@ namespace Ccf.Ck.SysPlugins.Utilities
             if (args.Length != 1) throw new ArgumentException("JsonToDict requires a single string argument");
             var str = args[0].Value as string;
             if (string.IsNullOrWhiteSpace(str)) throw new ArgumentException("JsonToDict requires a string argument, but received empty string or null or another type");
-            var dict  = JsonConvert.DeserializeObject<Dictionary<string, object>>(str);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true, // Ensures case-insensitive property matching
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, // Ignores null values
+                ReadCommentHandling = JsonCommentHandling.Skip
+            };
+
+            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(str, options);
+
             if (dict is Dictionary<string,object> odict)
             {
                 return ConvertFromGenericData(odict);

@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Ccf.Ck.Models.KraftModule
 {
@@ -133,10 +135,19 @@ namespace Ccf.Ck.Models.KraftModule
             KraftDependableModule kraftDependable = new KraftDependableModule();
             try
             {
+
                 using (StreamReader r = new StreamReader(Path.Combine(moduleProps.Path, "Dependency.json")))
                 {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true, // Ensures case-insensitive property mapping
+                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, // Ignores null values
+                        ReadCommentHandling = JsonCommentHandling.Skip
+                    };
+
                     Dictionary<string, string> depVersion = new Dictionary<string, string>();
-                    kraftDependable.KraftModuleRootConf = JsonConvert.DeserializeObject<KraftModuleRootConf>(r.ReadToEnd());
+                    kraftDependable.KraftModuleRootConf = System.Text.Json.JsonSerializer.Deserialize<KraftModuleRootConf>(r.ReadToEnd(), options);
+
                     foreach (KeyValuePair<string, string> item in kraftDependable.KraftModuleRootConf.Dependencies)
                     {
                         depVersion.Add(item.Key.ToLower(), item.Value);
@@ -152,6 +163,7 @@ namespace Ccf.Ck.Models.KraftModule
                     kraftDependable.Name = moduleProps.Name;
                     return kraftDependable;
                 }
+
             }
             catch (Exception boom)
             {

@@ -1,10 +1,10 @@
 ﻿using Ccf.Ck.SysPlugins.Recorders.Postman.Models.TestScriptModels;
 using Ccf.Ck.SysPlugins.Recorders.Postman.Utilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Ccf.Ck.SysPlugins.Recorders.Postman.Models
 {
@@ -42,20 +42,27 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman.Models
 
         public Dictionary<string, string> Info { get; private set; }
 
-        [JsonProperty("item")]
+        [JsonPropertyName("item")]
         public List<PostmanRequest> PostmanItemRequests { get; set; }
 
-        [JsonProperty("auth")]
+        [JsonPropertyName("auth")]
         public PostmanAuthenticationSection AuthenticationSection { get; private set; }
 
-        [JsonProperty("event")]
+        [JsonPropertyName("event")]
         List<Event> PreRequestEvent { get; set; }
+
 
         private void SetPreRequestEvents(string preRequestEvent)
         {
-            List<Event> events = JsonConvert.DeserializeObject<List<Event>>(preRequestEvent);
-            this.PreRequestEvent = events;
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true // Ensures case-insensitive property mapping
+            };
+
+            List<Event>? events = System.Text.Json.JsonSerializer.Deserialize<List<Event>>(preRequestEvent, options);
+            this.PreRequestEvent = events ?? new List<Event>(); // Ensures it is not null
         }
+
 
         public void UpdatePreRequestEvents(string cookie)
         {

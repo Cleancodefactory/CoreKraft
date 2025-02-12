@@ -4,18 +4,21 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Interfaces.Packet;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using static Ccf.Ck.SysPlugins.Interfaces.Packet.StatusResultEnum;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
     public class XmlPacketResponseBuilder : HttpResponseBuilder
     {
-        public XmlPacketResponseBuilder(IProcessingContextCollection processingContextCollection): base(processingContextCollection)
+        public XmlPacketResponseBuilder(IProcessingContextCollection processingContextCollection) : base(processingContextCollection)
         {
         }
 
@@ -32,7 +35,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 
                 //set xml content type        
                 response.ContentType = "text/xml";
-            }   
+            }
         }
 
         protected override async Task WriteToResponseBodyAsync(HttpContext context)
@@ -46,54 +49,74 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 
             IReturnStatus acc_status = ReturnStatus.Combine(_ProcessingContextCollection.ProcessingContexts.Select(pc => pc.ReturnModel.Status));
 
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles, // Handles reference loops
+                //DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull, // Ignores null values
+                Converters =
+                {
+                    new TypeKeyDictionaryConverter<object>() // Custom dictionary key converter
+                }
+            };
+
             if (true) //TODO:
             {
                 status = new XElement("status");
                 packet.Add(status);
-                status.Add(new XAttribute("issuccessful", acc_status.IsSuccessful?1:0));
+                status.Add(new XAttribute("issuccessful", acc_status.IsSuccessful ? 1 : 0));
 
-                // TODO: We construct the status section from the a combination of all statuses of all RetirnModels (which are just 1 for now)
+                // Serialize StatusResults if not null or empty
                 if (acc_status.StatusResults != null && acc_status.StatusResults.Count > 0)
                 {
-                    status.Add(new XElement("messages", new XCData(JsonConvert.SerializeObject(acc_status.StatusResults))));
+                    string jsonStatusResults = JsonSerializer.Serialize(acc_status.StatusResults, options);
+                    status.Add(new XElement("messages", new XCData(jsonStatusResults)));
                 }
+
+                // Add ReturnUrl if not empty
                 if (!string.IsNullOrEmpty(acc_status.ReturnUrl))
                 {
                     status.Add(new XElement("returnurl", new XCData(acc_status.ReturnUrl)));
                 }
-                status.Add(new XElement("message", new XCData(acc_status.StatusResults.Aggregate("",(a,sr) => (sr.StatusResultType == EStatusResult.StatusResultError)?a + sr.Message: a ))));
+
+                // Construct the message section
+                string errorMessages = acc_status.StatusResults?
+                    .Where(sr => sr.StatusResultType == EStatusResult.StatusResultError)
+                    .Aggregate("", (a, sr) => a + sr.Message) ?? "";
+
+                status.Add(new XElement("message", new XCData(errorMessages)));
+
             }
 
             foreach (IProcessingContext processingContext in _ProcessingContextCollection.ProcessingContexts)
             {
                 if (processingContext.ReturnModel.Data != null)
                 {
-                    JsonSerializerSettings settings = new JsonSerializerSettings();
-                    settings.Error = (serializer, err) =>
+                    string statePropertyName = "state";
+                    if (_KraftGlobalConfiguration.GeneralSettings.DataStatePropertyName != null)
                     {
-                        err.ErrorContext.Handled = true;
-                    };
+                        statePropertyName = _KraftGlobalConfiguration.GeneralSettings.DataStatePropertyName;
+                    }
+                    if (_KraftGlobalConfiguration.GeneralSettings.RemovePropertyState)
+                    {
+                        PropertyRemover.RemoveProperty(processingContext.ReturnModel.Data, statePropertyName);
+                    }
 
-                    settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    string jsonData = System.Text.Json.JsonSerializer.Serialize(processingContext.ReturnModel.Data, options);
 
-                    packet.Add(new XElement("data", new XAttribute("sid", GetServerIdentifier(processingContext)), new XCData(JsonConvert.SerializeObject(processingContext.ReturnModel.Data, settings))));
+                    packet.Add(new XElement("data",
+                        new XAttribute("sid", GetServerIdentifier(processingContext)),
+                        new XCData(jsonData)
+                    ));
                 }
 
-                
+
                 if (processingContext.ReturnModel.ExecutionMeta != null)
                 {
                     EMetaInfoFlags infoFlag = processingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
                     if (infoFlag.HasFlag(EMetaInfoFlags.Output)) // Flag for output 
                     {
-                        JsonSerializerSettings settings = new JsonSerializerSettings();
-                        settings.Error = (serializer, err) =>
-                        {
-                            err.ErrorContext.Handled = true;
-                        };
-
-                        settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-
-                        packet.Add(new XElement("meta", new XCData(JsonConvert.SerializeObject(processingContext.ReturnModel.ExecutionMeta, settings))));
+                        string jsonMeta = JsonSerializer.Serialize(processingContext.ReturnModel.ExecutionMeta, options);
+                        packet.Add(new XElement("meta", new XCData(jsonMeta)));
                     }
                 }
 
@@ -112,8 +135,11 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 
                 if (processingContext.ReturnModel.LookupData != null)
                 {
-                    packet.Add(new XElement("lookups", new XCData(JsonConvert.SerializeObject(processingContext.ReturnModel.LookupData))));
+                    string jsonLookupData = JsonSerializer.Serialize(processingContext.ReturnModel.LookupData, options);
+
+                    packet.Add(new XElement("lookups", new XCData(jsonLookupData)));
                 }
+
                 //TODO Robert when the client configuration understands multiple contexts
             }
 
@@ -125,4 +151,50 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
             return processingContext.InputModel.Module + "/" + processingContext.InputModel.NodeSet + "/" + processingContext.InputModel.Nodepath;
         }
     }
+
+    public class TypeKeyDictionaryConverter<TValue> : JsonConverter<Dictionary<Type, TValue>>
+    {
+        public override Dictionary<Type, TValue> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotSupportedException("Deserialization is not supported for Type dictionary keys.");
+        }
+
+        public override void Write(Utf8JsonWriter writer, Dictionary<Type, TValue> value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+            foreach (var kvp in value)
+            {
+                writer.WritePropertyName(kvp.Key.AssemblyQualifiedName ?? kvp.Key.FullName ?? "UnknownType");
+                JsonSerializer.Serialize(writer, kvp.Value, options);
+            }
+            writer.WriteEndObject();
+        }
+    }
+
+    public class PropertyRemover
+    {
+        public static void RemoveProperty(object obj, string propertyToRemove)
+        {
+            if (obj is Dictionary<string, object> dict)
+            {
+                // Remove the target property from the dictionary
+                dict.Remove(propertyToRemove);
+
+                // Recursively process nested dictionaries and lists
+                foreach (var key in new List<string>(dict.Keys)) // Create a copy of keys to avoid modification issues
+                {
+                    RemoveProperty(dict[key], propertyToRemove);
+                }
+            }
+            else if (obj is List<object> list)
+            {
+                // Recursively process each item in the list
+                for (int i = 0; i < list.Count; i++)
+                {
+                    RemoveProperty(list[i], propertyToRemove);
+                }
+            }
+        }
+    }
+
 }

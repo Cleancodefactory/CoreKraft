@@ -9,7 +9,7 @@ namespace Ccf.Ck.Processing.Web.ResponseBuilder
 {
     public abstract class HttpResponseBuilder : IHttpResponseBuilder
     {
-        private KraftGlobalConfigurationSettings _KraftGlobalConfiguration;
+        protected KraftGlobalConfigurationSettings _KraftGlobalConfiguration;
         protected IProcessingContextCollection _ProcessingContextCollection;
         public HttpResponseBuilder(IProcessingContextCollection processingContextCollection)
         {
