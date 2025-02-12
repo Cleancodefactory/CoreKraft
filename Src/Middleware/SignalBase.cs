@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.Interfaces;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.Interfaces;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.NodeRequest;
 using Ccf.Ck.Models.Settings;
@@ -54,7 +55,18 @@ namespace Ccf.Ck.Web.Middleware
             RequestExecutor requestExecutor = new RequestExecutor(_ServiceProvider, httpContext, _KraftGlobalConfigurationSettings);
             foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
             {
-                requestExecutor.ExecuteReEntrance(processingContext);
+                try
+                {
+                    KraftLogger.LogInformation($"SignalBase->ExecuteSignals: Start signal execution {processingContext.KraftModule.Name}/{signal}.");
+                    requestExecutor.ExecuteReEntrance(processingContext);
+                    KraftLogger.LogInformation($"SignalBase->ExecuteSignals: Finished signal execution {processingContext.KraftModule.Name}/{signal}.");
+                }
+                catch (Exception ex)
+                {
+                    KraftLogger.LogError($"SignalBase->ExecuteSignals: Error executing signal {module}/{signal}.", ex);
+                    throw;
+                }
+                
             }
             requestExecutor.CompleteTransactions();
         }
