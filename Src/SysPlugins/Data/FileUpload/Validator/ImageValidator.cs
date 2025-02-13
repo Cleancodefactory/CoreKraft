@@ -34,18 +34,22 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload.Validator
                 return false;
             }
 
-            byte[] imageBytes = null;
-
-            _ValidatorsByName.TryGetValue(type.ToLower(), out imageBytes);
-
-            if (imageBytes == null)
+            if (!_ValidatorsByName.TryGetValue(type.ToLowerInvariant(), out byte[] imageBytes))
             {
                 return false;
             }
 
             byte[] bytesToVerify = new byte[imageBytes.Length];
 
-            stream.Read(bytesToVerify, 0, bytesToVerify.Length);
+            try
+            {
+                // This ensures that exactly imageBytes.Length bytes are read or throws EndOfStreamException.
+                stream.ReadExactly(bytesToVerify, 0, bytesToVerify.Length);
+            }
+            catch (EndOfStreamException)
+            {
+                return false;
+            }
 
             for (int i = 0; i < imageBytes.Length; i++)
             {
@@ -57,6 +61,7 @@ namespace Ccf.Ck.SysPlugins.Data.FileUpload.Validator
 
             return true;
         }
+
 
         internal IEnumerable<string> GetValidMimeTypes
         {

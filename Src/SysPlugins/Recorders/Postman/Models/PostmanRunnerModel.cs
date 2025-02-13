@@ -59,7 +59,7 @@ namespace Ccf.Ck.SysPlugins.Recorders.Postman.Models
                 PropertyNameCaseInsensitive = true // Ensures case-insensitive property mapping
             };
 
-            List<Event>? events = System.Text.Json.JsonSerializer.Deserialize<List<Event>>(preRequestEvent, options);
+            List<Event> events = System.Text.Json.JsonSerializer.Deserialize<List<Event>>(preRequestEvent, options);
             this.PreRequestEvent = events ?? new List<Event>(); // Ensures it is not null
         }
 
