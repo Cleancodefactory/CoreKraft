@@ -111,6 +111,7 @@
 			- Version 9.0.4: WriteToResponseBodyAsync implemented
 			- Version 9.0.5: WriteToResponseBodyAsync(context).Wait();
 			- Version 9.0.6: "FieldNameToLowerCase" controls how the result JSON is serialized
+			- Version 9.0.7: "GeneralSettings.RemovePropertyState" controls if the this property is removed from the result JSON
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
