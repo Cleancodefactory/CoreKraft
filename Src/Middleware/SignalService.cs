@@ -36,12 +36,17 @@ namespace Ccf.Ck.Web.Middleware
             foreach (HostingServiceSetting item in _KraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings)
             {
                 int minutes = item.IntervalInMinutes;
+                Timer startTimer;
                 if (minutes > 0)
                 {
-                    TimeSpan initialDelay = CalculateInitialDelay(item.ActiveDays, item.StartTime);
-                    Timer t = new Timer(DoWork, item.Signals, initialDelay, TimeSpan.FromMinutes(item.IntervalInMinutes));
-                    _Timers.Add(t);
+                    startTimer = new Timer(DoWork, item.Signals, TimeSpan.FromMinutes(minutes), TimeSpan.FromMinutes(minutes));
                 }
+                else
+                {
+                    TimeSpan initialDelay = CalculateInitialDelay(item.ActiveDays, item.StartTime);
+                    startTimer = new Timer(DoWork, item.Signals, initialDelay, initialDelay);
+                }
+                _Timers.Add(startTimer);
             }
             return Task.CompletedTask;
         }
@@ -49,29 +54,31 @@ namespace Ccf.Ck.Web.Middleware
         private TimeSpan CalculateInitialDelay(List<DayOfWeek> activeDays, TimeSpan startTime)
         {
             DateTime now = DateTime.Now;
+
+            // If no specific days are configured, assume every day.
             if (activeDays == null || activeDays.Count == 0)
             {
-                // If no specific days are configured, assume every day.
                 activeDays = Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>().ToList();
             }
 
-            DateTime nextRun = now.Date + startTime;
-
-            if (nextRun < now || !activeDays.Contains(now.DayOfWeek))
+            // Check from today and the next 6 days
+            for (int i = 0; i < 7; i++)
             {
-                // Find the next valid day
-                for (int i = 1; i <= 7; i++)
+                DateTime potentialDay = now.AddDays(i);
+                if (activeDays.Contains(potentialDay.DayOfWeek))
                 {
-                    DateTime potentialNextRun = now.AddDays(i).Date + startTime;
-                    if (activeDays.Contains(potentialNextRun.DayOfWeek))
+                    DateTime potentialRun = potentialDay.Date + startTime;
+                    // If we're still on the same day and the start time hasn't passed, or it's a future day, use it.
+                    if (potentialRun > now)
                     {
-                        nextRun = potentialNextRun;
-                        break;
+                        return potentialRun - now;
                     }
                 }
             }
 
-            return nextRun - now;
+            // Fallback - should not occur if activeDays contains at least one day
+            DateTime fallback = now.Date.AddDays(1) + startTime;
+            return fallback - now;
         }
 
         private void DoWork(object state)
@@ -80,25 +87,24 @@ namespace Ccf.Ck.Web.Middleware
             {
                 if (state is List<string> signals)
                 {
-                    DateTime now = DateTime.Now;
-                    HostingServiceSetting setting = _KraftGlobalConfigurationSettings
+                    HostingServiceSetting item = _KraftGlobalConfigurationSettings
                         .GeneralSettings
                         .HostingServiceSettings
                         .FirstOrDefault(s => s.Signals.SequenceEqual(signals));
 
-                    if (setting != null &&
-                        setting.ActiveDays.Contains(now.DayOfWeek) &&
-                        now.TimeOfDay >= setting.StartTime &&
-                        now.TimeOfDay < setting.StartTime.Add(TimeSpan.FromMinutes(setting.IntervalInMinutes)))
+                    if (item != null)
                     {
-                        foreach (string signal in signals)
-                        {
-                            Stopwatch stopWatch = Stopwatch.StartNew();
-                            ExecuteSignals("null", signal);
-                            KraftLogger.LogInformation($"Executing signal: {signal} for {stopWatch.ElapsedMilliseconds} ms");
-                        }
-                        KraftLogger.LogInformation("Batch of CoreKraft-Background-Services executed.");
+                        TimeSpan initialDelay = CalculateInitialDelay(item.ActiveDays, item.StartTime);
+                        Timer startTimer = new Timer(DoWork, item.Signals, initialDelay, initialDelay);
+                        _Timers.Add(startTimer);
                     }
+                    foreach (string signal in signals)
+                    {
+                        Stopwatch stopWatch = Stopwatch.StartNew();
+                        ExecuteSignals("null", signal);
+                        KraftLogger.LogInformation($"Executing signal: {signal} for {stopWatch.ElapsedMilliseconds} ms");
+                    }
+                    KraftLogger.LogInformation("Batch of CoreKraft-Background-Services executed.");
                 }
             }
         }
@@ -126,11 +132,11 @@ namespace Ccf.Ck.Web.Middleware
             }
         }
 
-        public void AttachModulesWatcher(string moduleFolder, 
-            bool includeSubdirectories, 
-            IHostApplicationLifetime applicationLifetime, 
+        public void AttachModulesWatcher(string moduleFolder,
+            bool includeSubdirectories,
+            IHostApplicationLifetime applicationLifetime,
             Action<bool> restart,
-            UnhandledExceptionEventHandler appDomain_OnUnhandledException, 
+            UnhandledExceptionEventHandler appDomain_OnUnhandledException,
             ResolveEventHandler appDomain_OnAssemblyResolve)
         {
             if (!Directory.Exists(moduleFolder))
