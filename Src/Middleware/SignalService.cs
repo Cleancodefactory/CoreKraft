@@ -36,17 +36,18 @@ namespace Ccf.Ck.Web.Middleware
             foreach (HostingServiceSetting item in _KraftGlobalConfigurationSettings.GeneralSettings.HostingServiceSettings)
             {
                 int minutes = item.IntervalInMinutes;
-                Timer startTimer;
+                TimerState timerState = new TimerState();
+                timerState.SignalNames = item.Signals;
                 if (minutes > 0)
                 {
-                    startTimer = new Timer(DoWork, item.Signals, TimeSpan.FromMinutes(minutes), TimeSpan.FromMinutes(minutes));
+                    timerState.CurrentTimer = new Timer(DoWork, timerState, TimeSpan.FromMinutes(minutes), TimeSpan.FromMinutes(minutes));
                 }
                 else
                 {
                     TimeSpan initialDelay = CalculateInitialDelay(item.ActiveDays, item.StartTime);
-                    startTimer = new Timer(DoWork, item.Signals, initialDelay, initialDelay);
+                    timerState.CurrentTimer = new Timer(DoWork, timerState, initialDelay, initialDelay);
                 }
-                _Timers.Add(startTimer);
+                _Timers.Add(timerState.CurrentTimer);
             }
             return Task.CompletedTask;
         }
@@ -85,20 +86,22 @@ namespace Ccf.Ck.Web.Middleware
         {
             lock (_Lock)
             {
-                if (state is List<string> signals)
+                if (state is TimerState timerState)
                 {
                     HostingServiceSetting item = _KraftGlobalConfigurationSettings
                         .GeneralSettings
                         .HostingServiceSettings
-                        .FirstOrDefault(s => s.Signals.SequenceEqual(signals));
+                        .FirstOrDefault(s => s.Signals.SequenceEqual(timerState.SignalNames));
 
                     if (item != null)
                     {
-                        TimeSpan initialDelay = CalculateInitialDelay(item.ActiveDays, item.StartTime);
-                        Timer startTimer = new Timer(DoWork, item.Signals, initialDelay, initialDelay);
-                        _Timers.Add(startTimer);
+                        if (item.IntervalInMinutes == 0)
+                        {
+                            TimeSpan initialDelay = CalculateInitialDelay(item.ActiveDays, item.StartTime);
+                            timerState.CurrentTimer = new Timer(DoWork, timerState, initialDelay, initialDelay);
+                        }
                     }
-                    foreach (string signal in signals)
+                    foreach (string signal in timerState.SignalNames)
                     {
                         Stopwatch stopWatch = Stopwatch.StartNew();
                         ExecuteSignals("null", signal);
@@ -190,6 +193,13 @@ namespace Ccf.Ck.Web.Middleware
             {
                 KraftLogger.LogCritical(e.GetException(), "OnError in AttachModulesWatcher");
             }
+        }
+
+        private class TimerState
+        {
+            internal List<string> SignalNames { get; set; }
+            internal Timer CurrentTimer { get; set; }
+
         }
     }
 }
