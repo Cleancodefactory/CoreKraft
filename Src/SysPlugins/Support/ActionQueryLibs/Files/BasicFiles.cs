@@ -39,6 +39,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
                 case nameof(DeleteFile): return DeleteFile;
                 case nameof(SaveFile): return SaveFile;
                 case nameof(PrependFileName): return PrependFileName;
+                case nameof(RenameFile): return RenameFile;
                 case nameof(CreateDirectory): return CreateDirectory;
                 case nameof(ForkFile): return ForkFile;
                 case nameof(FileMD5): return FileMD5;
@@ -203,6 +204,30 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Files
             if (filename == null) throw new ArgumentException("PrependFileName filename is null or not a string");
 
             var name = $"{prefix}-{Path.GetFileNameWithoutExtension(filename)}{Path.GetExtension(filename)}";
+            return new ParameterResolverValue(name);
+        }
+
+        [Function(nameof(RenameFile), "")]
+        //RenameFile("Deleted_Activity123", "path1/path2/Activity123"
+        public ParameterResolverValue RenameFile(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 2) throw new ArgumentException("RenameFile requires two arguments (newFileName, filePath)");
+            if (args[0].Value == null) throw new ArgumentException("RenameFile first argument is null");
+            var newFileName = args[0].Value.ToString();
+            var filePath = args[1].Value as string;
+            if (filePath != null) filePath = ModeArgument(args[1]);
+            if (filePath == null) throw new ArgumentException("RenameFile filePath is null or not a string");
+
+            string dirName = string.Empty;
+            if (File.Exists(filePath))
+            {
+                dirName = Path.GetDirectoryName(filePath);
+                if (!string.IsNullOrEmpty(dirName))
+                {
+                    File.Move(filePath, Path.Combine(dirName, newFileName), true);
+                }
+            }            
+            var name = $"{Path.Combine(dirName, newFileName)}";
             return new ParameterResolverValue(name);
         }
 
