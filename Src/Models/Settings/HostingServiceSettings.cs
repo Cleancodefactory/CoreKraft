@@ -5,6 +5,10 @@ namespace Ccf.Ck.Models.Settings
 {
     public class HostingServiceSetting
     {
+        public HostingServiceSetting()
+        {
+            Signals = new List<string>();
+        }
         public List<string> Signals { get; set; }
         public int IntervalInMinutes { get; set; } = 0; //Default interval
         public List<DayOfWeek> ActiveDays { get; set; } = new List<DayOfWeek>(); // Days to run
