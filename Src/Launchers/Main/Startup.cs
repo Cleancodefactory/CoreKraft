@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MudBlazor.Services;
 using System;
 using System.IO;
 using System.Linq;
@@ -58,22 +59,26 @@ namespace Ccf.Ck.Launchers.Main
             EmailSettings emailSettings = new EmailSettings();
             _Configuration.GetSection("EmailSettings").Bind(emailSettings);
             services.AddSingleton(emailSettings);
-            if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
+            if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured 
+                && _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsEnabled)
             {
-                services.Configure<CookiePolicyOptions>(options =>
-                {
-                    options.Secure = CookieSecurePolicy.Always;
-                    // This lambda determines whether user consent for non-essential 
-                    // cookies is needed for a given request.
-                    options.CheckConsentNeeded = context => true;
-                    // requires using Microsoft.AspNetCore.Http;
-                    options.MinimumSameSitePolicy = SameSiteMode.None;
-                });
+                ConfigureCookiePolicy(services);
                 services.AddControllersWithViews(options =>
                 {
                     options.Filters.Add(typeof(CultureActionFilter));
                 }).ConfigureApplicationPartManager(ConfigureApplicationParts).AddTagHelpersAsServices();
                 services.AddSingleton<DynamicHostRouteTransformer>();
+            }
+            else if (_KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.IsConfigured
+                && _KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.IsEnabled)
+            {
+                ConfigureCookiePolicy(services);
+                services.AddMudServices();
+                services.AddRazorComponents().AddInteractiveServerComponents();
+                services.AddControllersWithViews(options =>
+                {
+                    options.Filters.Add(typeof(CultureActionFilter));
+                });
             }
             else
             {
@@ -89,6 +94,19 @@ namespace Ccf.Ck.Launchers.Main
             {
                 x.ValueLengthLimit = int.MaxValue;
                 x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
+            });
+        }
+
+        private static void ConfigureCookiePolicy(IServiceCollection services)
+        {
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.Secure = CookieSecurePolicy.Always;
+                // This lambda determines whether user consent for non-essential 
+                // cookies is needed for a given request.
+                options.CheckConsentNeeded = context => true;
+                // requires using Microsoft.AspNetCore.Http;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
             });
         }
 
@@ -142,9 +160,11 @@ namespace Ccf.Ck.Launchers.Main
                 }
             }
             app.UseRouting();
+            app.UseAntiforgery();
             app.UseEndpoints(endpoints =>
             {
-                if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured)
+                if (_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsConfigured && 
+                _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.IsEnabled)
                 {
                     endpoints.MapDynamicControllerRoute<DynamicHostRouteTransformer>(_KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.DefaultRouting);
                     foreach (RouteMapping mapping in _KraftGlobalConfiguration.GeneralSettings.RazorAreaAssembly.RouteMappings)
@@ -155,6 +175,56 @@ namespace Ccf.Ck.Launchers.Main
                             name: mapping.Name,
                             pattern: mapping.Pattern, new { Controller = mapping.Controller, Action = mapping.Action });
                         }
+                    }
+                }
+                else if (_KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.IsConfigured
+                                && _KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.IsEnabled)
+                {
+                    Assembly myAssembly = null;
+                    foreach (string rootFolder in _KraftGlobalConfiguration.GeneralSettings.ModulesRootFolders)
+                    {
+                        string rootPath = Path.Combine(rootFolder, "_PluginsReferences");
+                        FileInfo assemblyFile;
+                        foreach (string codeAssembly in _KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.BlazorAssemblyNamesCode)
+                        {
+                            assemblyFile = new FileInfo(Path.Combine(rootPath, codeAssembly));
+                            if (assemblyFile.Exists)
+                            {
+                                myAssembly = Assembly.LoadFile(assemblyFile.FullName);
+                            }
+                            else
+                            {
+                                KraftLogger.LogCritical($"Configured assembly {assemblyFile} is missing or error during compilation! No landing page will be loaded.");
+                            }
+                        }
+                    }
+
+                    Type appType = myAssembly.GetType(_KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.BlazorStartApplicationWithNamespace);
+
+                    endpoints.MapStaticAssets();
+
+                    MethodInfo method = typeof(RazorComponentsEndpointRouteBuilderExtensions)
+                        .GetMethod("MapRazorComponents", BindingFlags.Static | BindingFlags.Public);
+                    if (method != null)
+                    {
+                        // Create a generic method using your loaded type
+                        var genericMethod = method.MakeGenericMethod(appType);
+                        // Invoke the generic method. The first parameter is null because it's a static method,
+                        // and the second parameter is an array containing the arguments (here, 'app')
+                        object cvbuilder = genericMethod.Invoke(null, new object[] { endpoints });
+                        RazorComponentsEndpointConventionBuilder convention_builder = cvbuilder as RazorComponentsEndpointConventionBuilder;
+                        if (convention_builder != null)
+                        {
+                            convention_builder.AddInteractiveServerRenderMode();
+                        }
+                        else
+                        {
+                            throw new Exception("Convention builder not returned");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Cannot find MapRazorComponents method");
                     }
                 }
 
