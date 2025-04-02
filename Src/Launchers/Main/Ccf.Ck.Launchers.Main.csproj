@@ -8,8 +8,8 @@
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="9.0.0" />
     <PackageReference Include="Ccf.Ck.Libs.SendEmailExtended" Version="9.0.0" />
     <PackageReference Include="Ccf.Ck.Libs.Web.Bundling" Version="9.0.0" />
-    <PackageReference Include="MudBlazor" Version="8.3.0" />
-    <PackageReference Include="System.Drawing.Common" Version="9.0.2" />
+    <PackageReference Include="MudBlazor" Version="8.5.1" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>
