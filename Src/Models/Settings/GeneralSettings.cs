@@ -20,6 +20,7 @@ namespace Ccf.Ck.Models.Settings
             CookieStoreSection = new CookieStoreSection();
             SignalRSettings = new SignalRSettings();
             RazorAreaAssembly = new RazorAreaAssemblySettings();
+            BlazorAreaAssembly = new BlazorAreaAssemblySettings();
             SlaveConfiguration = new SlaveConfigurationSettings();
             SupportedLanguages = new List<string>();
             Theme = "Module";
@@ -92,6 +93,7 @@ namespace Ccf.Ck.Models.Settings
         public List<string> MetaTags { get; set; }
         public ProgressiveWebAppSettings ProgressiveWebApp { get; set; }
         public RazorAreaAssemblySettings RazorAreaAssembly { get; set; }
+        public BlazorAreaAssemblySettings BlazorAreaAssembly { get; set; }
         public WebApiAreaAssemblySettings WebApiAreaAssembly { get; set; }
         public SlaveConfigurationSettings SlaveConfiguration { get; set; }
         public List<string> SupportedLanguages { get; set; }

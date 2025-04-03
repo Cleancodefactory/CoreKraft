@@ -13,6 +13,9 @@ namespace Ccf.Ck.Models.Settings
             AssemblyNamesCode = new List<string>();
             AssemblyNamesView = new List<string>();
         }
+
+        public bool IsEnabled { get; set; } = true;
+
         public bool IsConfigured
         {
             get
