@@ -350,6 +350,8 @@ Please check the contexts in which the functions are available. Some of them are
 
 **ClearResultExcept(`list | ([key [, key ...]])`)** - Clears the result (the top result on read, the `current` on write), but leaves the values of the listed keys intact. Called without arguments clears the result completely.
 
+**ClearResultKeys(`list | ([key [, key ...]])`)** - Clears the result (the top result on read, the `current` on write), but only the keys specified (e.g. their items - values, objects whtever they contain). Called without arguments or 1 empty list argument - does nothing.
+
 **CSetting(`name [,default]`)** - Gets a custom setting by name. Custom settings are specified in the plugin configurations in Configuration.json or in override sections in `appsettings`. The custom setting values are strings, they should be specified as strings and casted to another type if on needs non-string values.
 
 **CSettingLoader(`name [, default]`)** - available only node plugins and not in the data loaders (main node plugins). Gets custom setting (like in CSetting), but from the custom settings of the dataloader of the current node. Scripts used as node plugins need to access these in some situations. Sometimes node plugins are written especially to complement the main function of the node and often this can be written in more flexible way if the settings of the main data loader are accessible - this is the reason for the existence of this function.

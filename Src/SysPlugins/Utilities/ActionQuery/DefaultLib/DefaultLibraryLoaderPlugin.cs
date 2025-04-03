@@ -61,6 +61,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return ClearResultExcept;
                 case nameof(ClearResultKeys):
                     return ClearResultKeys;
+                case nameof(RemoveInResult):
+                    return RemoveInResult;
                 case nameof(ResultsCount):
                     return ResultsCount;
                 case nameof(GetResult):
@@ -565,6 +567,72 @@ namespace Ccf.Ck.SysPlugins.Utilities
             }
             return new ParameterResolverValue(removekeys.ConvertAll(s => new ParameterResolverValue(s)));
         }
+
+        [Function(nameof(RemoveInResult), "Removes an item from Diction/List structure if found.")]
+        [Parameter(0, "Keys", "Keys or/and idexes to remove", TypeFlags.List | TypeFlags.String | TypeFlags.Int)]
+        [Result("Returns true/false to indicate if the item has been removed", TypeFlags.Bool)]
+        public ParameterResolverValue RemoveInResult(HostInterface ctx, ParameterResolverValue[] args) {
+            Dictionary<string, object> result = null;
+            if (ctx is IDataLoaderReadContext rctx) {
+                if (rctx.Results.Count > 0) {
+                    result = rctx.Results[rctx.Results.Count - 1];
+                } else {
+                    throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
+                }
+            } else if (ctx is IDataLoaderWriteContext wctx) {
+                result = wctx.Row;
+            } else {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+            List<ParameterResolverValue> removekeys = new List<ParameterResolverValue>(10);
+            if (args.Length == 1 && args[0].Value is IList list) {
+                foreach (ParameterResolverValue e in list) {
+                    removekeys.Add(e);
+                }
+            } else {
+                for (int i = 0; i < args.Length; i++) {
+                    removekeys.Add(args[i]);
+                    
+                }
+            }
+            object currentLevel = result;
+            for (int i = 0; i < removekeys.Count;i++) {
+                var k = removekeys[i];
+                if (currentLevel is IDictionary current) {
+                    if (current.Contains(k.Value)) { 
+                        if (i == removekeys.Count - 1) {
+                            current.Remove(k);
+                            return new ParameterResolverValue(true);
+                        } else {
+                            currentLevel = current[k];
+                            continue;
+                        }
+                    }
+                } else if (currentLevel is IList _list) {
+                    try {
+                        int index = Convert.ToInt32(k.Value);
+                        if (index < _list.Count) {
+                            if (i == removekeys.Count - 1) {
+                                _list.RemoveAt(index);
+                                return new ParameterResolverValue(true);
+                            } else {
+                                currentLevel = _list[index];
+                                continue;
+                            }
+                        } else {
+                            return new ParameterResolverValue(false);
+                        }
+                    } catch (Exception e) {
+                        return new ParameterResolverValue(false);
+                    }
+
+                } else {
+                    return new ParameterResolverValue(false);
+                }
+            }
+            return new ParameterResolverValue(false);
+        }
+
         /// <summary>
         /// ResultsCount(): int
         /// </summary>
