@@ -59,6 +59,8 @@ namespace Ccf.Ck.SysPlugins.Utilities
                     return SetResult;
                 case nameof(ClearResultExcept):
                     return ClearResultExcept;
+                case nameof(ClearResultKeys):
+                    return ClearResultKeys;
                 case nameof(ResultsCount):
                     return ResultsCount;
                 case nameof(GetResult):
@@ -527,6 +529,42 @@ namespace Ccf.Ck.SysPlugins.Utilities
             return new ParameterResolverValue(preservekeys.ConvertAll(s => new ParameterResolverValue(s)));
         }
 
+        [Function(nameof(ClearResultKeys), "Clears the specified keys from the top/only result (the top result on read, the current on write), but leaves the values of the listed keys intact. Called without arguments clears the result completely.")]
+        [Parameter(0, "Keys", "Keys to remove", TypeFlags.Varying)]
+        [Result("Returns the removed keys as List", TypeFlags.Varying)]
+        public ParameterResolverValue ClearResultKeys(HostInterface ctx, ParameterResolverValue[] args) {
+            Dictionary<string, object> result = null;
+            if (ctx is IDataLoaderReadContext rctx) {
+                if (rctx.Results.Count > 0) {
+                    result = rctx.Results[rctx.Results.Count - 1];
+                } else {
+                    throw new InvalidOperationException("There are no results created yet. Use AddResult or register the plugin in another phase (after the node execution).");
+                }
+            } else if (ctx is IDataLoaderWriteContext wctx) {
+                result = wctx.Row;
+            } else {
+                throw new Exception("The impossible happend! The node context is nor read, nor write context");
+            }
+            List<string> removekeys = new List<string>(10);
+            if (args.Length == 1 && args[0].Value is IList list) {
+                foreach (object e in list) {
+                    removekeys.Add(Convert.ToString(ParameterResolverValue.Strip(e)));
+                }
+            } else {
+                for (int i = 0; i < args.Length; i++) {
+                    var name = Convert.ToString(args[i].Value);
+
+                    if (!string.IsNullOrEmpty(name)) {
+                        removekeys.Add(name);
+                    }
+                }
+            }
+            var keys = result.Keys.Where(k => removekeys.Contains(k));
+            foreach (var k in keys) {
+                result.Remove(k);
+            }
+            return new ParameterResolverValue(removekeys.ConvertAll(s => new ParameterResolverValue(s)));
+        }
         /// <summary>
         /// ResultsCount(): int
         /// </summary>
