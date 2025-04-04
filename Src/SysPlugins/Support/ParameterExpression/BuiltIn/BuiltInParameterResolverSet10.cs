@@ -295,7 +295,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         /// </summary>
         /// <param name="ctx"></param>
         /// <returns></returns>
-        public ParameterResolverValue NavGetFrom(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        public ParameterResolverValue NavGetFrom(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            return _NavGetFrom(false, ctx, args);
+        }
+        public ParameterResolverValue TryGetFrom(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            return _NavGetFrom(true, ctx, args);
+        }
+        private ParameterResolverValue _NavGetFrom(bool btry,IParameterResolverContext ctx, IList<ParameterResolverValue> args)
         {
             if (args.Count != 2) throw new ArgumentException("NavGetFrom requires 2 arguments");
             var fromwhere = args[0].Value as string;
@@ -326,22 +332,22 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                     {
                         object current = start;
                         var chain = path.Split('.');
-                        for (int i = 0; i < chain.Length; i++)
-                        {
-                            var idx = chain[i].Trim();
-                            if (current is Dictionary<string, object> dict)
-                            {
-                                current = dict[idx];
+                        try {
+                            for (int i = 0; i < chain.Length; i++) {
+                                var idx = chain[i].Trim();
+                                if (current is Dictionary<string, object> dict) {
+                                    current = dict[idx];
+                                } else if (current is IEnumerable<Dictionary<string, object>> list) {
+                                    var n = Convert.ToInt32(idx);
+                                    current = list.ToArray()[n];
+                                } else {
+                                    return new ParameterResolverValue(null);
+                                }
                             }
-                            else if (current is IEnumerable<Dictionary<string, object>> list)
-                            {
-                                var n = Convert.ToInt32(idx);
-                                current = list.ToArray()[n];
-                            }
-                            else
-                            {
-                                return new ParameterResolverValue(null);
-                            }
+
+                        } catch (Exception e) {
+                            if (btry) return new ParameterResolverValue(null);
+                            throw;
                         }
                         return new ParameterResolverValue(current);
                     }

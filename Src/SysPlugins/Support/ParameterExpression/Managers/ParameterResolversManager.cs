@@ -52,6 +52,11 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                     Arguments = 1,
                                     Name = "CombineSources"
                                 },
+                            new Resolver() {
+                                    Alias = "TryGetFrom",
+                                    Arguments= 2,
+                                    Name = "TryGetFrom"
+                                },
                             {
                                 new Resolver() {
                                     Alias = "NavGetFrom",

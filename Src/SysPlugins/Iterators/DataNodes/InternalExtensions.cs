@@ -45,14 +45,14 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes {
                 }
                 if (action == EReadAction.Select) {
                     if (node.Read.Select != null) {
-                        if (node.Read.Select.ExecutionOrder != 0) {
-                            ord = node.Read.Select.ExecutionOrder;
+                        if (node.Read.Select.ExecutionOrder != null && node.Read.Select.ExecutionOrder != 0) {
+                            ord = node.Read.Select.ExecutionOrder ?? 0;
                         }
                     }
 
                 } else if (action == EReadAction.New && node.Read.New != null) {
-                    if (node.Read.New.ExecutionOrder != 0) {
-                        ord = node.Read.New.ExecutionOrder;
+                    if (node.Read.New.ExecutionOrder != null && node.Read.New.ExecutionOrder != 0) {
+                        ord = node.Read.New.ExecutionOrder ?? 0;
                     }
                 }
             }

@@ -34,7 +34,7 @@ namespace Ccf.Ck.Models.NodeSet
             set;
         }
 
-        public int ExecutionOrder
+        public int? ExecutionOrder
         {
             get;
             set;
