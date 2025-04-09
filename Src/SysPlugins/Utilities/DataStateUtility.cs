@@ -44,6 +44,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
         /// <param name="element"></param>
         /// <param name="state"></param>
         public void SetDataState(IDictionary<string, object> element, string state) {
+            if (_STATE_PROPERTY_DONOT_CHANGE) return;
             if (element != null) {
                 var _state = MakeValidState(state);
                 if (_state != null) {

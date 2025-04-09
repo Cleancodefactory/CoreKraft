@@ -204,5 +204,6 @@ namespace Ccf.Ck.Models.Settings
 
         public bool EnableThemeChange { get; set; }
         public bool RemovePropertyState { get; set; } = false;
+        public bool DontSetState { get; set; } = false;
     }
 }

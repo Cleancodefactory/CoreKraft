@@ -30,6 +30,7 @@
         /// Track state that is provided by the client-side framework
         /// </summary>
         public static string _STATE_PROPERTY_NAME = "state";
+        public static bool _STATE_PROPERTY_DONOT_CHANGE = false;
         public static string STATE_PROPERTY_NAME { get { return _STATE_PROPERTY_NAME; }  }
         public const string STATE_PROPERTY_UNCHANGED = "0";
         public const string STATE_PROPERTY_INSERT = "1";

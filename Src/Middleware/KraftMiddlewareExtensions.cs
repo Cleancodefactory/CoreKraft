@@ -78,6 +78,7 @@ namespace Ccf.Ck.Web.Middleware
                 AppDomain.CurrentDomain.AssemblyResolve += AppDomain_OnAssemblyResolve;
                 _KraftGlobalConfigurationSettings = new KraftGlobalConfigurationSettings();
                 configuration.GetSection("KraftGlobalConfigurationSettings").Bind(_KraftGlobalConfigurationSettings);
+                ModelConstants._STATE_PROPERTY_DONOT_CHANGE = _KraftGlobalConfigurationSettings.GeneralSettings.DontSetState;
                 if (!string.IsNullOrWhiteSpace(_KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName))
                 {
                     ModelConstants._STATE_PROPERTY_NAME = _KraftGlobalConfigurationSettings.GeneralSettings.DataStatePropertyName;
