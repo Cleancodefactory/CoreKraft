@@ -622,7 +622,7 @@ namespace Ccf.Ck.SysPlugins.Utilities
                         } else {
                             return new ParameterResolverValue(false);
                         }
-                    } catch (Exception e) {
+                    } catch {
                         return new ParameterResolverValue(false);
                     }
 
