@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.400.131" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="4.0.0" />
     <PackageReference Include="Ccf.Ck.Libs.Logging" Version="9.0.0" />
     <PackageReference Include="Grace" Version="7.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.4" />
@@ -33,7 +33,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.8.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.9.0" />
 	<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="9.0.4" />
 	<PackageReference Include="System.Drawing.Common" Version="9.0.4" />
 	<PackageReference Include="System.Text.Json" Version="9.0.4" />

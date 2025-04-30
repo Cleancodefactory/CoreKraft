@@ -44,8 +44,8 @@
 		<ProjectReference Include="..\Orchestrator.Models\Orchestrator.Models.csproj" />
 		<PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.4" />
-		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.7" />
-		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.7" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.8" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.8" />
 		<PackageReference Include="System.Drawing.Common" Version="9.0.4" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 	</ItemGroup>

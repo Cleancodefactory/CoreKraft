@@ -345,7 +345,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                                 }
                             }
 
-                        } catch (Exception e) {
+                        } catch (Exception) {
                             if (btry) return new ParameterResolverValue(null);
                             throw;
                         }
