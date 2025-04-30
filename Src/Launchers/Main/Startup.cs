@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MudBlazor.Services;
 using System;
 using System.IO;
 using System.Linq;
@@ -30,6 +29,7 @@ namespace Ccf.Ck.Launchers.Main
         private KraftGlobalConfigurationSettings _KraftGlobalConfiguration;
         private static RazorAssemblyLoadContext _RazorAssemblyLoadContext;
         private static ApplicationPartManager _ApplicationPartManager;
+        private StartupBlazorDynamicAssembly _StartupBlazorDynamicAssembly;
 
         public Startup(IWebHostEnvironment env)
         {
@@ -72,13 +72,10 @@ namespace Ccf.Ck.Launchers.Main
             else if (_KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.IsConfigured
                 && _KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.IsEnabled)
             {
+                _StartupBlazorDynamicAssembly = new StartupBlazorDynamicAssembly(_KraftGlobalConfiguration);
+                _StartupBlazorDynamicAssembly.LoadBlazorAssembly();
                 ConfigureCookiePolicy(services);
-                services.AddMudServices();
-                services.AddRazorComponents().AddInteractiveServerComponents();
-                services.AddControllersWithViews(options =>
-                {
-                    options.Filters.Add(typeof(CultureActionFilter));
-                });
+                _StartupBlazorDynamicAssembly.ConfigureServices(services);                
             }
             else
             {
@@ -180,52 +177,7 @@ namespace Ccf.Ck.Launchers.Main
                 else if (_KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.IsConfigured
                                 && _KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.IsEnabled)
                 {
-                    Assembly myAssembly = null;
-                    foreach (string rootFolder in _KraftGlobalConfiguration.GeneralSettings.ModulesRootFolders)
-                    {
-                        string rootPath = Path.Combine(rootFolder, "_PluginsReferences");
-                        FileInfo assemblyFile;
-                        foreach (string codeAssembly in _KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.BlazorAssemblyNamesCode)
-                        {
-                            assemblyFile = new FileInfo(Path.Combine(rootPath, codeAssembly));
-                            if (assemblyFile.Exists)
-                            {
-                                myAssembly = Assembly.LoadFile(assemblyFile.FullName);
-                            }
-                            else
-                            {
-                                KraftLogger.LogCritical($"Configured assembly {assemblyFile} is missing or error during compilation! No landing page will be loaded.");
-                            }
-                        }
-                    }
-
-                    Type appType = myAssembly.GetType(_KraftGlobalConfiguration.GeneralSettings.BlazorAreaAssembly.BlazorStartApplicationWithNamespace);
-
-                    endpoints.MapStaticAssets();
-
-                    MethodInfo method = typeof(RazorComponentsEndpointRouteBuilderExtensions)
-                        .GetMethod("MapRazorComponents", BindingFlags.Static | BindingFlags.Public);
-                    if (method != null)
-                    {
-                        // Create a generic method using your loaded type
-                        var genericMethod = method.MakeGenericMethod(appType);
-                        // Invoke the generic method. The first parameter is null because it's a static method,
-                        // and the second parameter is an array containing the arguments (here, 'app')
-                        object cvbuilder = genericMethod.Invoke(null, new object[] { endpoints });
-                        RazorComponentsEndpointConventionBuilder convention_builder = cvbuilder as RazorComponentsEndpointConventionBuilder;
-                        if (convention_builder != null)
-                        {
-                            convention_builder.AddInteractiveServerRenderMode();
-                        }
-                        else
-                        {
-                            throw new Exception("Convention builder not returned");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Cannot find MapRazorComponents method");
-                    }
+                    _StartupBlazorDynamicAssembly.Configure(app, env, lifetime, endpoints);
                 }
 
                 // Controller supporting redirect acceptor pages

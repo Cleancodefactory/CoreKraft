@@ -8,6 +8,7 @@ namespace Ccf.Ck.Models.Settings
         public BlazorAreaAssemblySettings()
         {
             BlazorAssemblyNamesCode = new List<string>();
+            BlazorInitModuleType = new BlazorInitModuleType();
         }
 
         public bool IsEnabled { get; set; }
@@ -23,6 +24,7 @@ namespace Ccf.Ck.Models.Settings
                 return false;
             }
         }
+        public BlazorInitModuleType BlazorInitModuleType { get; set; }
         public List<string> BlazorAssemblyNamesCode { get; set; }
         public string BlazorStartApplicationWithNamespace { get; set; }
     }
