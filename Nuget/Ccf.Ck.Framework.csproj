@@ -115,6 +115,7 @@
 			- Version 9.0.8: Fixed bug with Signals initialization, New resolver function: RenameFile (basic files)
 			- Version 9.0.9: Added  ClearResultKeys AC script, Added support for loading WebAssembly, Added case RemoveInResult in AC script, Added resolver TryGretFrom,  Added new option DontSetState which if existing and set to true will disable setting the state of the results
 			- Version 9.0.10: When DontSetState configured to true, remove the state from the result
+			- Version 9.0.11: BlazorInitModuleType implemented
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
