@@ -39,6 +39,7 @@ namespace Ccf.Ck.Models.Settings
         public int MaxAutoTaskThreads { get; set; } = 4; // has effect only if auto is set
         public string ServerHostKey { get; set; }
         public bool EnableOptimization { get; set; }
+        public string Version { get; set; } = string.Empty;
         public bool FieldNameToLowerCase { get; set; } = true; //default is true
         public CorsAllowedOrigins CorsAllowedOrigins { get; set; }
         public List<string> ModulesRootFolders { get; set; }
