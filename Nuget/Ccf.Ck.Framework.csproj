@@ -117,6 +117,7 @@
 			- Version 9.0.10: When DontSetState configured to true, remove the state from the result
 			- Version 9.0.11: BlazorInitModuleType implemented
 			- Version 9.0.12: Introduced Version property on the GeneralSettings object
+			- Version 9.0.13: Fixed bug in JpegFromImage, GifFromImage and PngFromImage: created memory stream for IPostedFile contained rest null bytes at the end (not padded correctly)
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>

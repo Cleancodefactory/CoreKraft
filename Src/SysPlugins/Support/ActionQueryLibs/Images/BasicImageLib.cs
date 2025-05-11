@@ -313,7 +313,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 {
                     Mode = ResizeMode.Max,
                     Size = new Size() { Width = newLogoWidth }
-            }));
+                }));
 
             Point center = new SixLabors.ImageSharp.Point((int)padding, imgSize.Height / 2);
             int x = imgSize.Width / 2 - logo.Width / 2;
@@ -530,7 +530,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     proc(image, ms);
                     ms.Seek(0, SeekOrigin.Begin);
 
-                    var pf = new PostedFile(ct, ms.Length, name, name, m => new MemoryStream(m as byte[]), ms.GetBuffer());
+                    var pf = new PostedFile(ct, ms.Length, name, name, m => new MemoryStream(m as byte[], 0, (int)ms.Length), ms.GetBuffer());
                     return pf;
                 }
             }
