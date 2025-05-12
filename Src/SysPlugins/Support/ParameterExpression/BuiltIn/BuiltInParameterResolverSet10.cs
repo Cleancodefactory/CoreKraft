@@ -292,6 +292,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
         }
         /// <summary>
         /// Navigates to a value from the specified point
+        /// Arguments:
+        /// 1 - frowhere (input, current, filter, data, parent, root)
+        /// 2 - path - starts from the fromwhere location and goes inside,contains parts separated by dots, some parts can be numbers if array is expected at that place
+        /// fromwhere locations:
+        /// input,current - the data for writing for this node,
+        /// filter, data - the posted data 
+        /// parent - parent result (this is not available in all cases)
+        /// root - ultimate parrent (start node) for this call
         /// </summary>
         /// <param name="ctx"></param>
         /// <returns></returns>
