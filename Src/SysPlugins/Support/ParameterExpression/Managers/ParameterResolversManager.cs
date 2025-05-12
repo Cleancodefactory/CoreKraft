@@ -87,6 +87,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                      Name = "GlobalSetting"
                                 }
                             },
+                            { 
+                                new Resolver() {
+                                    Alias = "NavGetGlobalSetting",
+                                    Arguments = 1,
+                                    Name = "NavGetGlobalSetting"
+                                }
+                            },
                             {
                                 new Resolver()
                                 {

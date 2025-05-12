@@ -10,11 +10,13 @@ using Ccf.Ck.SysPlugins.Interfaces;
 using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
 using Ccf.Ck.SysPlugins.Support.ParameterExpression.BaseClasses;
 using Ccf.Ck.Utilities.Generic;
+using dotless.Core.Parser.Functions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Newtonsoft.Json;
+using NUglify.JavaScript;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -180,6 +182,34 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             else
             {
                 throw new ArgumentException("fromwhere argument is mandatory.");
+            }
+        }
+        protected object StdResolveValueFromPath(object start, IEnumerable<string> path,int depth = 0) {
+            if (depth > 16) throw new ArgumentException("Path to value is too long or recursive reference");
+            if (start == null) return null;
+            if (path == null) return null;
+            var pathSegment = path.FirstOrDefault();
+            if (pathSegment == null) return start;
+            var remainingPath = path.Skip(1);
+            if (start is IDictionary dict) {
+                if (dict.Contains(pathSegment)) {
+                    return StdResolveValueFromPath(dict[pathSegment], remainingPath, depth + 1);
+                }
+                return null;
+            } else if (start is IList list && int.TryParse(pathSegment, out int index)) { // list
+                if (list.Count > index) {
+                    return StdResolveValueFromPath(list[index], remainingPath, depth + 1);
+                } else {
+                    return null;
+                }
+            } else {
+                var type = start.GetType();
+                var prop = type.GetProperty(pathSegment);
+                if (prop != null) {
+                    return StdResolveValueFromPath(prop.GetValue(start),remainingPath,depth + 1);
+                } else {
+                    throw new ArgumentException($"Property {pathSegment} does not exist in {type.Name}");
+                }
             }
         }
         #endregion
@@ -504,6 +534,16 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                     }
                 );
 
+            }
+            return new ParameterResolverValue(null);
+        }
+        public ParameterResolverValue NavGetGlobalSetting(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+            if (args.Count == 1) {
+                if (args[0].Value == null) return new ParameterResolverValue(null);
+                var key = Convert.ToString(args[0].Value);
+                object val = StdResolveValueFromPath(settings, key.Split('.'));
+                return new ParameterResolverValue(val);
             }
             return new ParameterResolverValue(null);
         }
