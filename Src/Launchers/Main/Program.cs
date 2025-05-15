@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -119,6 +120,23 @@ do
     });
 
     WebApplication app = builder.Build();
+
+    //Important: this must be called before app.UseRouting()
+    if (kraftSettings.GeneralSettings.BlazorAreaAssembly.IsConfigured && kraftSettings.GeneralSettings.BlazorAreaAssembly.IsEnabled)
+    {
+        #region localization
+        //Set default language and provide other langs array
+        var localizationOptions = new RequestLocalizationOptions()
+            .SetDefaultCulture(kraftSettings.GeneralSettings.SupportedLanguages.Last())
+            .AddSupportedCultures(kraftSettings.GeneralSettings.SupportedLanguages.ToArray())
+            .AddSupportedUICultures(kraftSettings.GeneralSettings.SupportedLanguages.ToArray());
+
+        //Set the language provider from cookie
+        localizationOptions.RequestCultureProviders.Insert(0, new CookieRequestCultureProvider());
+
+        app.UseRequestLocalization(localizationOptions);
+        #endregion localization
+    }
 
     app.UseBindKraft(app.Environment, restart =>
     {
