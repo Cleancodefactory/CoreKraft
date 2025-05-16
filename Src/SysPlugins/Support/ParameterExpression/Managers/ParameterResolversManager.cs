@@ -95,6 +95,13 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                 }
                             },
                             {
+                                new Resolver() {
+                                    Alias = "NavGetSlaveSetting",
+                                    Arguments = 2,
+                                    Name = "NavGetSlaveSetting"
+                                }
+                            },
+                            {
                                 new Resolver()
                                 {
                                      Alias = "ModuleName",

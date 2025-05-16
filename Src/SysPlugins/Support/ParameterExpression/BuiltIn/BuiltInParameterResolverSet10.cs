@@ -13,6 +13,7 @@ using Ccf.Ck.Utilities.Generic;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Newtonsoft.Json;
 using System;
@@ -533,9 +534,41 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             }
             return new ParameterResolverValue(null);
         }
-        public ParameterResolverValue NavGetGlobalSetting(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+        public ParameterResolverValue NavGetSlaveSetting(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            if (args.Count == 2)
+            {
+                if (args[0].Value == null || args[1].Value == null) return new ParameterResolverValue(null);
+                string configKey = args[0].Value.ToString();
+                string sectionFullPath = args[1].Value.ToString();
+                List<IConfigurationSection> slaveConfigurations = ctx.PluginServiceManager.GetService<List<IConfigurationSection>>(typeof(List<IConfigurationSection>));
+                if (slaveConfigurations != null && slaveConfigurations.Count > 0)
+                {
+                    foreach (var slaveConfiguration in slaveConfigurations)
+                    {
+                        if (slaveConfiguration.Key.Equals(configKey))
+                        {
+                            object val = slaveConfiguration.GetSection(sectionFullPath).Value;
+                            if (val != null)
+                            {
+                                return new ParameterResolverValue(val);
+                            }
+                            else
+                            {
+                                throw new ArgumentException($"Property {sectionFullPath} does not exist in {configKey}");
+                            }
+                        }
+                    }
+                }
+            }
+
+            return new ParameterResolverValue(null);
+        }
+
+        public ParameterResolverValue NavGetGlobalSetting(IParameterResolverContext ctx, IList<ParameterResolverValue> args)
+        {
             KraftGlobalConfigurationSettings settings = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
-            if (args.Count == 1) {
+            if (args.Count == 1)
+            {
                 if (args[0].Value == null) return new ParameterResolverValue(null);
                 var key = Convert.ToString(args[0].Value);
                 object val = StdResolveValueFromPath(settings, key.Split('.'));
