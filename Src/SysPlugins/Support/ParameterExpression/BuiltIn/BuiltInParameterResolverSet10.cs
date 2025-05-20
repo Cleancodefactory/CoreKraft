@@ -372,9 +372,9 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                                 var idx = chain[i].Trim();
                                 if (current is Dictionary<string, object> dict) {
                                     current = dict[idx];
-                                } else if (current is IEnumerable<Dictionary<string, object>> list) {
+                                } else if (current is IList list) {
                                     var n = Convert.ToInt32(idx);
-                                    current = list.ToArray()[n];
+                                    current = list[n];
                                 } else {
                                     return new ParameterResolverValue(null);
                                 }
