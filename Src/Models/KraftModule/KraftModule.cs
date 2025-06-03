@@ -79,7 +79,7 @@ namespace Ccf.Ck.Models.KraftModule
                 DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(ModulePath, NODESET_NAME));
                 foreach (DirectoryInfo dirInfo in directoryInfo.GetDirectories())
                 {
-                    NodeSetMappings.Add(dirInfo.Name.ToLower(), dirInfo.FullName);
+                    NodeSetMappings.Add(dirInfo.Name.ToLowerInvariant(), dirInfo.FullName);
                 }
             }
 
@@ -187,7 +187,7 @@ namespace Ccf.Ck.Models.KraftModule
                 foreach (IFileInfo file in dirContents)
                 {
                     string fileExtension = Path.GetExtension(file.PhysicalPath);
-                    TemplateFile templateFile = new TemplateFile { TemplateName = file.Name.ToLower().Replace(fileExtension, string.Empty), PhysicalPath = file.PhysicalPath };
+                    TemplateFile templateFile = new TemplateFile { TemplateName = file.Name.ToLowerInvariant().Replace(fileExtension, string.Empty), PhysicalPath = file.PhysicalPath };
                     resBundle.TemplateFiles.Add(templateFile);
                 }
                 return resBundle;

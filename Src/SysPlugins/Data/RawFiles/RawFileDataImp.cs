@@ -104,7 +104,7 @@ namespace Ccf.Ck.SysPlugins.Data.RawFiles
 
                         for (int i = 0; i < parameters.Length; i++)
                         {
-                            value = execContext.Evaluate(parameters[i].Name.ToLower()).Value?.ToString() ?? throw new Exception(string.Empty);
+                            value = execContext.Evaluate(parameters[i].Name.ToLowerInvariant()).Value?.ToString() ?? throw new Exception(string.Empty);
                             parameterValues[i] = Path.Combine(path, value);
                         }
 

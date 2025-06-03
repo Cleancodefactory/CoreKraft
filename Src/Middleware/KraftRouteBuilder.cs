@@ -109,7 +109,7 @@ namespace Ccf.Ck.Web.Middleware
 
             public FromValuesListConstraint(params string[] values)
             {
-                _Values = values.Select(x => x.ToLower()).ToList();
+                _Values = values.Select(x => x.ToLowerInvariant()).ToList();
             }
 
             public bool Match(HttpContext httpContext, IRouter route, string routeKey, RouteValueDictionary values, RouteDirection routeDirection)
@@ -121,7 +121,7 @@ namespace Ccf.Ck.Web.Middleware
                     return _Values.Contains(string.Empty);
                 }
 
-                return _Values.Contains(value.ToLower());
+                return _Values.Contains(value.ToLowerInvariant());
             }
         }
     }

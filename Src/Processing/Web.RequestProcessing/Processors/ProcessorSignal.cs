@@ -57,7 +57,7 @@ namespace Ccf.Ck.Processing.Web.Request
             RouteData routeData = _HttpContext.GetRouteData();
             if (routeData != null)
             {
-                string routeDataKey = routeData.DataTokens["key"]?.ToString()?.ToLower();
+                string routeDataKey = routeData.DataTokens["key"]?.ToString()?.ToLowerInvariant();
                 if (!string.IsNullOrEmpty(routeDataKey))
                 {
                     string signal = routeData.Values[Constants.RouteSegmentConstants.RouteModuleSignalParameter]?.ToString();

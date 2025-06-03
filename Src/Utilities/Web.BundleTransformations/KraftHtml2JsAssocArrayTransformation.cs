@@ -26,7 +26,7 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
                 {
                     throw new ArgumentNullException(nameof(templateKraftBundle.ModuleName));
                 }
-                sb.Append($"\"{templateKraftBundle.ModuleName.ToLower()}\"").Append(":{");
+                sb.Append($"\"{templateKraftBundle.ModuleName.ToLowerInvariant()}\"").Append(":{");
                 /*  "module1": {
                         "Template1": "html ....",
                         "Template2": "html ...."
@@ -37,7 +37,7 @@ namespace Ccf.Ck.Utilities.Web.BundleTransformations
                     if (appendDiv) sb.Append(",");
                     else appendDiv = true;
 
-                    sb.Append($"\"{templateFile.TemplateName.ToLower()}\":").Append("\"" + /*minifyHtml(*/GetContent(templateFile.PhysicalPath)
+                    sb.Append($"\"{templateFile.TemplateName.ToLowerInvariant()}\":").Append("\"" + /*minifyHtml(*/GetContent(templateFile.PhysicalPath)
                         .Replace("\"", "\\\"")
                         .Replace("'", "\\\'")
                         .Replace("\r", "")

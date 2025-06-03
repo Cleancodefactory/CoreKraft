@@ -30,7 +30,7 @@ namespace Ccf.Ck.Web.Middleware
             {
                 context.Response.Headers["Access-Control-Allow-Headers"] = new[] { allowMethod.AllowHeaders };
                 context.Response.Headers["Access-Control-Allow-Methods"] = new[] { _KraftGlobalConfigurationSettings.GeneralSettings.CorsAllowedOrigins.GetAllowMethods() };
-                context.Response.Headers["Access-Control-Allow-Credentials"] = new[] { allowMethod.AllowCredentials.ToString().ToLower() };
+                context.Response.Headers["Access-Control-Allow-Credentials"] = new[] { allowMethod.AllowCredentials.ToString().ToLowerInvariant() };
 
                 if (context.Request.Method == "OPTIONS")
                 {

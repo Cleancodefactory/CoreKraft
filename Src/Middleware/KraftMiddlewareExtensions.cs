@@ -925,7 +925,7 @@ namespace Ccf.Ck.Web.Middleware
 
             // Try to load by filename - split out the filename of the full assembly name
             // and append the base path of the original assembly (ie. look in the same dir)
-            string fileName = nameParts[0] + ".dll".ToLower();
+            string fileName = nameParts[0] + ".dll".ToLowerInvariant();
             //TODO Check why Microsoft.Data.Sqlite, Version=5.0.5.0 requests windows.dll
             if (fileName.Equals("windows.dll", StringComparison.OrdinalIgnoreCase) || fileName.Equals("Microsoft.Windows.SDK.NET.dll", StringComparison.OrdinalIgnoreCase))
             {

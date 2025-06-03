@@ -40,7 +40,7 @@ namespace Ccf.Ck.Models.KraftModule
 
         public KraftModule GetModule(string key)
         {
-            string pkey = key?.ToLower();
+            string pkey = key?.ToLowerInvariant();
             if (pkey != null)
             {
                 if (_KraftModulesCollection.ContainsKey(pkey))
@@ -72,7 +72,7 @@ namespace Ccf.Ck.Models.KraftModule
 
         public string AdjustCasing(string moduleKey)
         {
-            KraftModule module = GetModule(moduleKey?.ToLower());
+            KraftModule module = GetModule(moduleKey?.ToLowerInvariant());
             if (module != null)
             {
                 return module.Name;

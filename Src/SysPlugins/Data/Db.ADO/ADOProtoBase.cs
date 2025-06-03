@@ -289,7 +289,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                             if (fieldNameToLowerCase)
                                             {
                                                 // TODO: May be configure that or at least create a compile time definition
-                                                fldname = fldname.ToLower().Trim(); // TODO: lowercase
+                                                fldname = fldname.ToLowerInvariant().Trim(); // TODO: lowercase
                                             }
                                             //fldname = fldname.Trim();
                                             if (fldname.Length == 0)
@@ -465,7 +465,7 @@ namespace Ccf.Ck.SysPlugins.Data.Db.ADO
                                         if (fieldNameToLowerCase)
                                         {
                                             // TODO: May be configure that or at least create a compile time definition
-                                            fldname = fldname.ToLower().Trim(); // TODO: lowercase
+                                            fldname = fldname.ToLowerInvariant().Trim(); // TODO: lowercase
                                         }
                                         // fname = fname.Trim(); // TODO: We have to rethink this - lowercasing seems more inconvenience than a viable protection against human mistakes.
                                         if (fldname.Length == 0) throw new Exception("Empty field name in a store context in nodedesfinition: " + node.NodeSet.Name);

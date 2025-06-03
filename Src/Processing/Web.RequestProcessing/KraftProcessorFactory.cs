@@ -26,7 +26,7 @@ namespace Ccf.Ck.Processing.Web.Request
             
             if (routeData.Values != null)
             {
-                string routeDataKey = routeData.DataTokens["key"]?.ToString()?.ToLower();
+                string routeDataKey = routeData.DataTokens["key"]?.ToString()?.ToLowerInvariant();
                 if (!string.IsNullOrEmpty(routeDataKey))
                 {
                     switch (routeDataKey)

@@ -23,7 +23,7 @@ namespace Ccf.Ck.Models.KraftModule
         {
             Dictionary<string, ModuleProps> allReferencedModules = Collect(modulesRootFolders);
             Dictionary<string, IDependable<KraftDependableModule>> modulesCollection = LoadModulesAsDependable(allReferencedModules);
-            KraftDependableModule startDependableModule = modulesCollection[defaultStartModule.ToLower()] as KraftDependableModule;
+            KraftDependableModule startDependableModule = modulesCollection[defaultStartModule.ToLowerInvariant()] as KraftDependableModule;
             ConstructDependencies(startDependableModule, modulesCollection);
             return OrderModulesByDependencies(modulesCollection);
         }
@@ -55,10 +55,10 @@ namespace Ccf.Ck.Models.KraftModule
         {
             if (moduleDirectory.Exists && KraftModule.IsValidKraftModule(moduleDirectory.FullName))
             {
-                if (!allReferencedModules.ContainsKey(moduleDirectory.Name.ToLower()))
+                if (!allReferencedModules.ContainsKey(moduleDirectory.Name.ToLowerInvariant()))
                 {
                     ModuleProps moduleProps = new ModuleProps();
-                    moduleProps.Key = moduleDirectory.Name.ToLower();
+                    moduleProps.Key = moduleDirectory.Name.ToLowerInvariant();
                     moduleProps.Name = moduleDirectory.Name;
                     moduleProps.Path = moduleDirectory.FullName;
                     allReferencedModules.Add(moduleProps.Key, moduleProps);
@@ -150,13 +150,13 @@ namespace Ccf.Ck.Models.KraftModule
 
                     foreach (KeyValuePair<string, string> item in kraftDependable.KraftModuleRootConf.Dependencies)
                     {
-                        depVersion.Add(item.Key.ToLower(), item.Value);
+                        depVersion.Add(item.Key.ToLowerInvariant(), item.Value);
                     }
                     kraftDependable.KraftModuleRootConf.Dependencies = depVersion;
                     depVersion = new Dictionary<string, string>();
                     foreach (KeyValuePair<string, string> item in kraftDependable.KraftModuleRootConf.OptionalDependencies ?? new Dictionary<string, string>())
                     {
-                        depVersion.Add(item.Key.ToLower(), item.Value);
+                        depVersion.Add(item.Key.ToLowerInvariant(), item.Value);
                     }
                     kraftDependable.KraftModuleRootConf.OptionalDependencies = depVersion;
                     kraftDependable.Key = moduleProps.Key;

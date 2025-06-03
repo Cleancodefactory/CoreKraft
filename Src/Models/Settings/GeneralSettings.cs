@@ -192,7 +192,7 @@ namespace Ccf.Ck.Models.Settings
 
         public string ModulesRootFolder(string moduleKey)
         {
-            return _ModuleKey2Path[moduleKey.ToLower()];
+            return _ModuleKey2Path[moduleKey.ToLowerInvariant()];
         }
 
         public Dictionary<string, string> ModuleKey2Path

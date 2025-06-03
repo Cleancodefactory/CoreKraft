@@ -17,7 +17,7 @@ namespace Ccf.Ck.NodePlugins.BindKraftIntro
             Dictionary<string, object> result = new Dictionary<string, object>();
             var roleList = pr.ProcessingContext.InputModel.SecurityModel.Roles;
 
-            string operationName = pr.Evaluate("operation").Value?.ToString()?.Replace("'", string.Empty).ToLower() ?? string.Empty;
+            string operationName = pr.Evaluate("operation").Value?.ToString()?.Replace("'", string.Empty).ToLowerInvariant() ?? string.Empty;
             IIntroContentProvider contentProvider = GetContentProvider(pr);
             switch (operationName)
             {

@@ -34,7 +34,7 @@ namespace Ccf.Ck.Utilities.NodeSetService
             //find the node definition in the directory specified
             //load the definition
             //parse the definition and populate into the models
-            string treeNodesNameLower = treeNodesName?.ToLower();
+            string treeNodesNameLower = treeNodesName?.ToLowerInvariant();
             string cacheKey = $"NodeSet_{module}_{treeNodesNameLower}";
             NodeSetModel nodeSet = _CachingService.Get<NodeSetModel>(cacheKey);
             if (nodeSet == null)

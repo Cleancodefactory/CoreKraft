@@ -617,7 +617,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
                             {
                                 if (match.Groups[i].Value == "action")
                                 {
-                                    path.Append(ctx.Action.ToLower()).Append("/");
+                                    path.Append(ctx.Action.ToLowerInvariant()).Append("/");
                                 }
                                 else if (match.Groups[i].Value == "resource")
                                 {

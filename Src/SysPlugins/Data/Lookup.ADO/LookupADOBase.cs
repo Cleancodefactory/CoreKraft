@@ -66,7 +66,7 @@ namespace Ccf.Ck.SysPlugins.Lookups.ADO
                                 {
                                     string fldname = reader.GetName(i);
                                     if (fldname == null) continue;
-                                    fldname = fldname.ToLower().Trim();
+                                    fldname = fldname.ToLowerInvariant().Trim();
                                     if (fldname.Length == 0)
                                     {
                                         throw new Exception($"Empty name when reading the output of a query. The field index is {i}. The query is: {cmd.CommandText}");
