@@ -1,21 +1,22 @@
 ﻿using Ccf.Ck.Libs.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using Ccf.Ck.Models.Resolvers;
-using Ccf.Ck.SysPlugins.Interfaces;
-using Ccf.Ck.Models.Settings;
-using System.Collections;
-using System.Text.RegularExpressions;
-using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
-using System.Security.Cryptography;
-using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
-using Ccf.Ck.Models.NodeSet;
 using Ccf.Ck.Models.Enumerations;
-using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
-using System.Text.Json.Serialization;
+using Ccf.Ck.Models.NodeSet;
+using Ccf.Ck.Models.Resolvers;
+using Ccf.Ck.Models.Settings;
+using Ccf.Ck.SysPlugins.Interfaces;
+using Ccf.Ck.SysPlugins.Interfaces.NodeExecution;
+using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
+using Ccf.Ck.Utilities.GlobalAccessor;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 
 namespace Ccf.Ck.SysPlugins.Utilities
 {
@@ -101,6 +102,9 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 // Mode
                 nameof(OptionalParameters) => OptionalParameters,
                 nameof(RequiredParameters) => RequiredParameters,
+                //GlobalAccessor
+                nameof(RegisterFileDelete) => RegisterFileDelete,
+                nameof(RegisterFileRename) => RegisterFileRename,
 
                 _ => null,
             };
@@ -1099,6 +1103,58 @@ namespace Ccf.Ck.SysPlugins.Utilities
                 _optionalparamsmode[0].Dispose();
                 _optionalparamsmode.RemoveAt(0);
             }
+            return new ParameterResolverValue(null);
+        }
+
+        [Function(nameof(RegisterFileRename), "Register operation for renaming the file at the next application startup")]
+        [Parameter(0, "sourceName", "The source name of the file with path", TypeFlags.String)]
+        [Parameter(1, "targetName", "The target name of the file", TypeFlags.String)]
+        [Result("Throws an exception if not 2 parameters provided", TypeFlags.Error)]
+        public ParameterResolverValue RegisterFileRename(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            string sourceName = null;
+            string targetName = null;
+            if (args.Length > 1)
+            {
+                sourceName = args[0].Value as string;
+                targetName = args[1].Value as string;
+                if (string.IsNullOrEmpty(sourceName) || string.IsNullOrEmpty(targetName))
+                {
+                    throw new ArgumentException("RegisterFileRename requires two non-empty string arguments: source and target file names.");
+                }
+            }
+            else
+            {
+                throw new Exception("Exception raised intentionally from a RegisterFileRename code");
+            }
+
+            GlobalAccessor.Instance.AddOperation(new FileOperation() { SourcePath = sourceName, TargetPath = targetName });
+
+            return new ParameterResolverValue(null);
+        }
+
+        [Function(nameof(RegisterFileDelete), "Register operation for deleting the file at the next application startup")]
+        [Parameter(0, "sourceName", "The source name of the file with path", TypeFlags.String)]
+        [Result("Throws an exception if not 1 parameters provided", TypeFlags.Error)]
+        public ParameterResolverValue RegisterFileDelete(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            string sourceName = null;
+            string targetName = null;
+            if (args.Length > 0)
+            {
+                sourceName = args[0].Value as string;
+                if (string.IsNullOrEmpty(sourceName) || string.IsNullOrEmpty(targetName))
+                {
+                    throw new ArgumentException("RegisterFileDelete requires one non-empty string argument: source file name.");
+                }
+            }
+            else
+            {
+                throw new Exception("Exception raised intentionally from a RegisterFileDelete code");
+            }
+
+            GlobalAccessor.Instance.AddOperation(new FileOperation() { SourcePath = sourceName, TargetPath = targetName });
+
             return new ParameterResolverValue(null);
         }
 

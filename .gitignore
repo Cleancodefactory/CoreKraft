@@ -509,3 +509,4 @@ build/
 /Src/Launchers/Main/cookieCache.sqlite
 CoreKraft.zip
 ZIP_Build.bat
+/Src/Launchers/Main/SystemOperations.sqlite

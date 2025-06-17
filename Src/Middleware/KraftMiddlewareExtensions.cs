@@ -15,6 +15,7 @@ using Ccf.Ck.Utilities.CookieTicketStore.InMemory;
 using Ccf.Ck.Utilities.CookieTicketStore.Sqlite;
 using Ccf.Ck.Utilities.DependencyContainer;
 using Ccf.Ck.Utilities.Generic.Topologies;
+using Ccf.Ck.Utilities.GlobalAccessor;
 using Ccf.Ck.Utilities.MemoryCache;
 using Ccf.Ck.Utilities.NodeSetService;
 using Ccf.Ck.Utilities.Profiling;
@@ -67,6 +68,7 @@ namespace Ccf.Ck.Web.Middleware
         private static readonly List<string> _ValidSubFoldersForWatching = new List<string> { "Css", "Documentation", "Localization", "NodeSets", "Scripts", "Templates", "Views" };
         private const string _PLUGINSREFERENCES = "_PluginsReferences";
         private static List<Assembly> _WebApiAssemblies = new List<Assembly>();
+        private static IServiceProvider _ServiceProvider = null;
 
         public static IServiceProvider UseBindKraft(this IServiceCollection services, IConfiguration configuration)
         {
@@ -530,7 +532,8 @@ namespace Ccf.Ck.Web.Middleware
                 throw;
             }
 
-            return services.BuildServiceProvider();
+            _ServiceProvider = services.BuildServiceProvider();
+            return _ServiceProvider;
         }
 
         public static IApplicationBuilder UseBindKraft(this IApplicationBuilder app, IWebHostEnvironment env, Action<bool> restart = null)
@@ -829,6 +832,27 @@ namespace Ccf.Ck.Web.Middleware
                 compositeProvider = new CompositeFileProvider(env.WebRootFileProvider, caseAwareWebRootPath);
                 env.WebRootFileProvider = compositeProvider;
                 //Case aware physical file provider
+
+                GlobalAccessor.Instance.Initialize(_ServiceProvider);
+                //GlobalAccessor.Instance.AddOperation(new FileOperation() { SourcePath = "Robert.md", TargetPath = "Tanev.md" });
+
+                IEnumerable<FileOperation> fileOps = GlobalAccessor.Instance.GetOperations<FileOperation>();
+                foreach (FileOperation operation in fileOps)
+                {
+                    try
+                    {
+                        operation.Execute();
+                        GlobalAccessor.Instance.RemoveOperation(operation);
+                    }
+                    catch (GlobalAccessorException ex)
+                    {
+                        //Logger
+                    }
+                    catch (Exception ex)
+                    {
+                        GlobalAccessor.Instance.RemoveOperation(operation);
+                    }
+                }
             }
             catch (Exception ex)
             {

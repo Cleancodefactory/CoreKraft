@@ -163,6 +163,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orchestrator.Client", "Src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orchestrator.Models", "Src\Tests\BlazorApp\Orchestrator\Orchestrator.Models\Orchestrator.Models.csproj", "{9C27226C-EA98-4283-AAD4-08D1C884B3CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ccf.Ck.Utilities.GlobalAccessor", "Src\Utilities\GlobalAccessor\Ccf.Ck.Utilities.GlobalAccessor.csproj", "{C7103FDC-2BC3-E1FF-8F8E-FA6BB5B462B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -425,6 +427,10 @@ Global
 		{9C27226C-EA98-4283-AAD4-08D1C884B3CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C27226C-EA98-4283-AAD4-08D1C884B3CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C27226C-EA98-4283-AAD4-08D1C884B3CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7103FDC-2BC3-E1FF-8F8E-FA6BB5B462B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7103FDC-2BC3-E1FF-8F8E-FA6BB5B462B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7103FDC-2BC3-E1FF-8F8E-FA6BB5B462B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7103FDC-2BC3-E1FF-8F8E-FA6BB5B462B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -501,6 +507,7 @@ Global
 		{4E83E416-A2B5-4F19-A9DD-1E9F60A5BFA9} = {2F8CE6AB-55A3-4415-9B55-41D334A75F51}
 		{728060CF-FD7F-4A14-AB25-F5391A3DE28B} = {2F8CE6AB-55A3-4415-9B55-41D334A75F51}
 		{9C27226C-EA98-4283-AAD4-08D1C884B3CA} = {2F8CE6AB-55A3-4415-9B55-41D334A75F51}
+		{C7103FDC-2BC3-E1FF-8F8E-FA6BB5B462B6} = {78645270-1428-453E-8234-10D273583C52}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BFC34E53-EAB6-4384-87CE-222E5781116F}

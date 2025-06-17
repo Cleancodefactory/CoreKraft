@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Models\Uncertain\Ccf.Ck.Models.ContextBasket.csproj" />
     <ProjectReference Include="..\..\Processing\Web.ResponseBuilder\Ccf.Ck.Processing.Web.ResponseBuilder.csproj" />
+    <ProjectReference Include="..\..\Utilities\GlobalAccessor\Ccf.Ck.Utilities.GlobalAccessor.csproj" />
     <ProjectReference Include="..\Interfaces\Ccf.Ck.SysPlugins.Interfaces.csproj" />
   </ItemGroup>
 

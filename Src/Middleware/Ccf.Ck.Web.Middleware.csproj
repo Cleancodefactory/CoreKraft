@@ -59,6 +59,7 @@
     <ProjectReference Include="..\SysPlugins\Support\ActionQueryLibs\Images\Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images.csproj" />
     <ProjectReference Include="..\SysPlugins\Utilities\Ccf.Ck.SysPlugins.Utilities.csproj" />
     <ProjectReference Include="..\Utilities\CookieStore\Ccf.Ck.Utilities.CookieTicketStore.csproj" />
+    <ProjectReference Include="..\Utilities\GlobalAccessor\Ccf.Ck.Utilities.GlobalAccessor.csproj" />
     <ProjectReference Include="..\Utilities\MemoryCache\Ccf.Ck.Utilities.MemoryCache.csproj" />
     <ProjectReference Include="..\Utilities\NodeSetService\Ccf.Ck.Utilities.NodeSetService.csproj" />
     <ProjectReference Include="..\Utilities\Profiling\Ccf.Ck.Utilities.Profiling.csproj" />
