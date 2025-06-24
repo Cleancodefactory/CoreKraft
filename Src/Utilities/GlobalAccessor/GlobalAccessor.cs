@@ -25,8 +25,9 @@ namespace Ccf.Ck.Utilities.GlobalAccessor
             }
             else
             {
-                throw new InvalidOperationException("GlobalAccessor has already been initialized. It can only be initialized once.");
-            }            
+                //During restart the service provider may be re-initialized, so we can skip this check.
+                //throw new InvalidOperationException("GlobalAccessor has already been initialized. It can only be initialized once.");
+            }
         }
 
         public void AddOperation<T>(T operation) where T : IOperation
