@@ -120,6 +120,7 @@
 			- Version 9.0.13: Fixed bug in JpegFromImage, GifFromImage and PngFromImage: created memory stream for IPostedFile contained rest null bytes at the end (not padded correctly)
 			- Version 9.0.14: Added support for delayed execution of ActionQueries through the Ccf.Ck.Utilities.GlobalAccessor
 			- Version 9.0.15: Referenced nugets updated to latest versions
+			- Version 9.0.16: Handle the case when error during execution of file operations
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
