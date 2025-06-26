@@ -846,10 +846,11 @@ namespace Ccf.Ck.Web.Middleware
                     }
                     catch (GlobalAccessorException ex)
                     {
-                        //Logger
+                        KraftLogger.LogError($"Error during execution of file operation source path: {operation.SourcePath} and file operation source path: {operation.TargetPath}", ex);
                     }
                     catch (Exception ex)
                     {
+                        KraftLogger.LogError($"Error during execution of file operation source path: {operation.SourcePath} and file operation source path: {operation.TargetPath}", ex);
                         GlobalAccessor.Instance.RemoveOperation(operation);
                     }
                 }
