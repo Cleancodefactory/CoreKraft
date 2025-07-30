@@ -122,7 +122,8 @@ do
     WebApplication app = builder.Build();
 
     //Important: this must be called before app.UseRouting()
-    if (kraftSettings.GeneralSettings.BlazorAreaAssembly.IsConfigured && kraftSettings.GeneralSettings.BlazorAreaAssembly.IsEnabled)
+    if ((kraftSettings.GeneralSettings.BlazorAreaAssembly.IsConfigured && kraftSettings.GeneralSettings.BlazorAreaAssembly.IsEnabled) ||
+        (kraftSettings.GeneralSettings.RazorAreaAssembly.IsConfigured && kraftSettings.GeneralSettings.RazorAreaAssembly.IsEnabled))
     {
         #region localization
         //Set default language and provide other langs array
@@ -240,6 +241,14 @@ void ConfigureApplicationParts(ApplicationPartManager apm, KraftGlobalConfigurat
                 var asm = razorContext.LoadFromAssemblyPath(path);
                 apm.ApplicationParts.Add(new AssemblyPart(asm));
                 apm.ApplicationParts.Add(new CompiledRazorAssemblyPart(asm));
+                foreach (var culture in kraftConfig.GeneralSettings.RazorAreaAssembly.SatelliteResourceLanguages)
+                {
+                    string satellitePath = Path.Combine(rootPath, culture, codeAssembly.Replace(".dll", ".resources.dll"));
+                    if (File.Exists(satellitePath))
+                    {
+                        razorContext.LoadFromAssemblyPath(satellitePath);
+                    }
+                }
             }
             else
             {

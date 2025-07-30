@@ -12,6 +12,7 @@ namespace Ccf.Ck.Models.Settings
             RouteMappings = new List<RouteMapping>();
             AssemblyNamesCode = new List<string>();
             AssemblyNamesView = new List<string>();
+            SatelliteResourceLanguages = new List<string>();
         }
 
         public bool IsEnabled { get; set; } = true;
@@ -32,6 +33,7 @@ namespace Ccf.Ck.Models.Settings
         public string DefaultRouting { get; set; }
         public List<RouteMapping> RouteMappings { get; set; }
         public string CatchAllRouting { get; set; }
+        public List<string> SatelliteResourceLanguages { get; set; }
 
         public RazorCatchAll ParseRazorCatchAll()
         {
