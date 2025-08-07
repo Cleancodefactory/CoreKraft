@@ -216,7 +216,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 get => Context.Data;
                 set => Context.Data = value;
             }
-            public Stack<string> OverrideAction
+            public LockableStack<string> OverrideAction
             {
                 get => Context.OverrideAction;
                 set => Context.OverrideAction = value;
@@ -407,7 +407,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
                 return Datastack.Top();
             }
         }
-        public Stack<string> OverrideAction { get; private set; }
+        public LockableStack<string> OverrideAction { get; private set; }
 
         public Action BailOut { get; private set; }
         public string Operation { get; private set; }

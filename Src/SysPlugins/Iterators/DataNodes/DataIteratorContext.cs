@@ -12,7 +12,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         public DataIteratorContext()
         {
             Datastack = new ListStack<Dictionary<string, object>>();
-            OverrideAction = new Stack<string>();
+            OverrideAction = new LockableStack<string>();
         }
         public IPluginAccessor<IDataLoaderPlugin> DataLoaderPluginAccessor { get; internal set; }
         public IPluginAccessor<INodePlugin> CustomPluginAccessor { get; internal set; }
@@ -20,7 +20,7 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
         public LoadedNodeSet LoadedNodeSet { get; internal set; }
         public IProcessingContext ProcessingContext { get; internal set; }
         public ListStack<Dictionary<string, object>> Datastack { get; private set; }
-        public Stack<string> OverrideAction { get; private set; }
+        public LockableStack<string> OverrideAction { get; private set; }
         /// <summary>
         /// If set the reqursion should stop and bail immediately
         /// </summary>
