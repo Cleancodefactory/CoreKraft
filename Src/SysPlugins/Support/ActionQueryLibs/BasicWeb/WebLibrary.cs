@@ -299,22 +299,31 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
             using var respose = _Http.SendAsync(msg).Result;
             if (respose.StatusCode == HttpStatusCode.OK) {
                 var mt = respose.Content.Headers.ContentType?.MediaType;
+                var responseString = respose.Content.ReadAsStringAsync().Result;
                 if (mt != null && _ReJSONMedia.IsMatch(mt)) {
-                    var jsonstring = respose.Content.ReadAsStringAsync().Result;
                     try {
                         JsonReaderOptions options = new JsonReaderOptions
                         {
                             AllowTrailingCommas = true,
                             CommentHandling = JsonCommentHandling.Skip
                         };
-                        object kirech = DictionaryStringObjectJson.Deserialize(jsonstring, options);
+                        object kirech = DictionaryStringObjectJson.Deserialize(responseString, options);
                         
                         return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(kirech);
                     } catch (Exception) {
                         return Error.Create("Cannot parse the returned content.");
                     }
                 } else {
-                    return Error.Create($"Unsupported result media: {mt}");
+                    try
+                    {
+                        Dictionary<string, object> obj = CoreKraftResponseParser.Convert<Dictionary<string, object>>(responseString);
+
+                        return DefaultLibraryBase<HostInterface>.ConvertFromGenericData(obj);
+                    }
+                    catch (Exception)
+                    {
+                        return Error.Create($"Unsupported result media: {mt}");
+                    }
                 }
             } else {
                 return Error.Create($"HTTP error: {Convert.ToInt32(respose.StatusCode)}");
