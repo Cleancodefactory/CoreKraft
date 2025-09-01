@@ -5,6 +5,7 @@ using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
@@ -56,6 +57,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     return ImageHeight;
                 case nameof(ImageWidth):
                     return ImageWidth;
+                case nameof(ImageLatitude):
+                    return ImageLatitude;
+                case nameof(ImageLongitude):
+                    return ImageLongitude;
                 case nameof(IsImage):
                     return IsImage;
                 case nameof(JpegFromImage):
@@ -472,6 +477,89 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             }
             return new ParameterResolverValue(null);
         }
+
+        [Function(nameof(ImageLongitude), "Extracts longitude from image's EXIF metadata, converting the DMS (degrees/minutes/seconds) rationals into decimal degrees.")]
+        public ParameterResolverValue ImageLongitude(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("ImageLongitude requires one argument - the image");
+            Image image = args[0].Value as Image;
+            if (image != null)
+            {
+                ExifProfile exif = image.Metadata.ExifProfile;
+                if (exif is null)
+                {
+                    return new ParameterResolverValue(null);
+                }
+
+                // Extract GPS metadata using TryGetValue
+                if (!exif.TryGetValue(ExifTag.GPSLongitudeRef, out IExifValue<string>? lonRefValue) ||
+                    !exif.TryGetValue(ExifTag.GPSLongitude, out IExifValue<Rational[]>? lonDmsValue))
+                {
+                    return new ParameterResolverValue(null);
+                }
+
+                string lonRef = lonRefValue.Value;
+                Rational[] lonDms = lonDmsValue.Value;
+
+                double longitude = DmsToDecimalDegrees(lonDms, lonRef);
+                return new ParameterResolverValue(longitude);
+            }
+            return new ParameterResolverValue(null);
+        }
+
+        [Function(nameof(ImageLatitude), "Extracts latitude from image's EXIF metadata, converting the DMS (degrees/minutes/seconds) rationals into decimal degrees.")]
+        public ParameterResolverValue ImageLatitude(HostInterface ctx, ParameterResolverValue[] args)
+        {
+            if (args.Length != 1) throw new ArgumentException("ImageLatitude requires one argument - the image");
+            Image image = args[0].Value as Image;
+            if (image != null)
+            {
+                ExifProfile exif = image.Metadata.ExifProfile;
+                if (exif is null)
+                {
+                    return new ParameterResolverValue(null);
+                }
+
+                // Extract GPS metadata using TryGetValue
+                if (!exif.TryGetValue(ExifTag.GPSLatitudeRef, out IExifValue<string>? latRefValue) ||
+                    !exif.TryGetValue(ExifTag.GPSLatitude, out IExifValue<Rational[]>? latDmsValue))
+                {
+                    return new ParameterResolverValue(null);
+                }
+
+                string latRef = latRefValue.Value;
+                Rational[] latDms = latDmsValue.Value;
+
+                double latitude = DmsToDecimalDegrees(latDms, latRef);
+                return new ParameterResolverValue(latitude);
+            }
+            return new ParameterResolverValue(null);
+        }
+
+        private static double DmsToDecimalDegrees(Rational[] dms, string refStr)
+        {
+            if (dms.Length < 3)
+            {
+                throw new ArgumentException("DMS array must have three rationals (deg, min, sec).");
+            }
+
+            double deg = RationalToDouble(dms[0]);
+            double min = RationalToDouble(dms[1]);
+            double sec = RationalToDouble(dms[2]);
+
+            double value = deg + (min / 60.0) + (sec / 3600.0);
+
+            if (string.Equals(refStr, "S", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(refStr, "W", StringComparison.OrdinalIgnoreCase))
+            {
+                value = -value;
+            }
+
+            return value;
+        }
+
+        private static double RationalToDouble(Rational r)
+            => r.Numerator / (double)r.Denominator;
 
         [Function(nameof(IsImage), "")]
         public ParameterResolverValue IsImage(HostInterface ctx, ParameterResolverValue[] args)

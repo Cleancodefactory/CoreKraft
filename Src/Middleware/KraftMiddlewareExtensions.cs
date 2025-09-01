@@ -431,7 +431,7 @@ namespace Ccf.Ck.Web.Middleware
                                     if (context.Exception is OpenIdConnectProtocolException)
                                     {
                                         context.HandleResponse();
-                                        context.Response.Redirect("/acount/signin");
+                                        context.Response.Redirect("/account/signin");
                                     }
                                     else
                                     {
