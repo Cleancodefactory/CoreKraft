@@ -724,6 +724,7 @@ namespace Ccf.Ck.Web.Middleware
                 #endregion Tools routing
 
                 DirectCallService.Instance.Call = KraftMiddleware.ExecutionDelegateDirect(app, _KraftGlobalConfigurationSettings);
+                DirectCallService.Instance.CallAsync = KraftMiddleware.ExecutionDelegateDirectAsync(app, new CancellationToken(), _KraftGlobalConfigurationSettings);
                 app.UseSession();
                 if (_KraftGlobalConfigurationSettings.GeneralSettings.AuthorizationSection.RequireAuthorization)
                 {

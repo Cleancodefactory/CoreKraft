@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Ccf.Ck.Models.DirectCall
@@ -8,6 +7,7 @@ namespace Ccf.Ck.Models.DirectCall
     public class DirectCallService
     {
         private Func<InputModel, ReturnModel> _CallImp;
+        private Func<InputModel, CancellationToken, Task<ReturnModel>> _CallImpAsync;
         public static DirectCallService Instance { get; private set; }
 
         static DirectCallService()
@@ -26,6 +26,16 @@ namespace Ccf.Ck.Models.DirectCall
             }
         }
 
-        
+        public Func<InputModel, CancellationToken, Task<ReturnModel>> CallAsync
+        {
+            get
+            {
+                return _CallImpAsync;
+            }
+            set
+            {
+                _CallImpAsync = value;
+            }
+        }
     }
 }

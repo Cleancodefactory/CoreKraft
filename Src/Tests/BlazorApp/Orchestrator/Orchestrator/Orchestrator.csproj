@@ -42,11 +42,11 @@
 		<ProjectReference Include="..\..\..\..\SysPlugins\View.Html\Ccf.Ck.SysPlugins.Views.Html.csproj" />
 		<ProjectReference Include="..\Orchestrator.Client\Orchestrator.Client.csproj" />
 		<ProjectReference Include="..\Orchestrator.Models\Orchestrator.Models.csproj" />
-		<PackageReference Include="BouncyCastle.Cryptography" Version="2.6.1" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.7" />
+		<PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.9" />
 		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.1" />
 		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.12.1" />
-		<PackageReference Include="System.Drawing.Common" Version="9.0.7" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.9" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 	</ItemGroup>
 

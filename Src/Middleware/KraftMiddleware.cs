@@ -1,4 +1,5 @@
-﻿using Ccf.Ck.Models.DirectCall;
+﻿using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.DirectCall;
 using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Processing.Execution;
@@ -12,6 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ccf.Ck.Web.Middleware
 {
@@ -84,6 +87,80 @@ namespace Ccf.Ck.Web.Middleware
                 //}).Result;
             };
             return directDelegate;
+        }
+
+        internal static Func<Ccf.Ck.Models.DirectCall.InputModel, CancellationToken, Task<Ccf.Ck.Models.DirectCall.ReturnModel>> ExecutionDelegateDirectAsync(
+                    IApplicationBuilder builder,
+                    CancellationToken cancellationToken,
+                    KraftGlobalConfigurationSettings kraftGlobalConfigurationSettings)
+        {
+            Func<Ccf.Ck.Models.DirectCall.InputModel, CancellationToken, Task<Ccf.Ck.Models.DirectCall.ReturnModel>> directDelegateAsync =
+                async (inputModel, cancellationToken) =>
+                {
+                    TransactionScopeContext transactionScope = new TransactionScopeContext(builder.ApplicationServices.GetService<IServiceCollection>());
+                    try
+                    {
+                        return await Task.Run(() =>
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            INodeSetService nodesSetService = builder.ApplicationServices.GetService<INodeSetService>();
+                            KraftModuleCollection kraftModuleCollection = builder.ApplicationServices.GetService<KraftModuleCollection>();
+                            Ccf.Ck.Models.DirectCall.ReturnModel returnModel = null;
+
+                            DirectCallHandler dcHandler = new DirectCallHandler(inputModel, kraftModuleCollection, nodesSetService, kraftGlobalConfigurationSettings);
+                            IProcessingContextCollection processingContextCollection = dcHandler.GenerateProcessingContexts(null);
+
+                            Stopwatch stopWatch = null;
+                            if (kraftGlobalConfigurationSettings.EnvironmentSettings.IsDevelopment())
+                            {
+                                stopWatch = new Stopwatch();
+                                stopWatch.Start();
+                            }
+
+                            foreach (IProcessingContext processingContext in processingContextCollection.ProcessingContexts)
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                dcHandler.Execute(processingContext, transactionScope);
+
+                                returnModel = new Ccf.Ck.Models.DirectCall.ReturnModel
+                                {
+                                    Data = processingContext.ReturnModel.Data,
+                                    BinaryData = processingContext.ReturnModel.BinaryData,
+                                    IsSuccessful = processingContext.ReturnModel.Status.IsSuccessful,
+                                    ErrorMessage = processingContext.ReturnModel.Status.CombinedMessageFromStatusResults()
+                                };
+
+                                if (stopWatch != null)
+                                {
+                                    stopWatch.Stop();
+                                    Console.WriteLine(
+                                        $"Directcall {processingContext.InputModel.Module}:{processingContext.InputModel.NodeSet}:{processingContext.InputModel.Nodepath} executed in {stopWatch.ElapsedMilliseconds} ms"
+                                    );
+                                }
+                            }
+
+                            return returnModel;
+                        }, cancellationToken); // pass token to Task.Run
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // bubble up cancellation cleanly
+                        KraftLogger.LogInformation("Direct call operation was canceled.");
+                        throw;
+                    }
+                    catch
+                    {
+                        throw;
+                    }
+                    finally
+                    {
+                        transactionScope.CompleteTransactions();
+                    }
+                };
+
+            return directDelegateAsync;
         }
     }
 }

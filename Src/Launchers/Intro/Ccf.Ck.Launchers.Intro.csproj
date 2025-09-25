@@ -10,8 +10,8 @@
     <PackageReference Include="Ccf.Ck.Module.BindKraft" Version="0.0.1" />
     <PackageReference Include="Ccf.Ck.Module.BindKraftStyles" Version="0.0.1" />
     <PackageReference Include="Ccf.Ck.Module.PlatformUtility" Version="0.0.1" />
-    <PackageReference Include="System.Drawing.Common" Version="9.0.7" />
-    <PackageReference Include="System.Text.Json" Version="9.0.7" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.9" />
+    <PackageReference Include="System.Text.Json" Version="9.0.9" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Middleware\Ccf.Ck.Web.Middleware.csproj" />
