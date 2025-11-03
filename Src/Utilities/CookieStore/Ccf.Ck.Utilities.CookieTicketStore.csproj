@@ -10,10 +10,10 @@
 
   <ItemGroup>
 	<PackageReference Include="Ccf.Ck.Libs.Logging" Version="9.0.0" />
-	<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="9.0.9" />
+	<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="9.0.10" />
   </ItemGroup>
 
 </Project>

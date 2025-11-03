@@ -125,6 +125,7 @@
 			- Version 9.0.18: Load resources from satellite assemblies (configuration based)
 			- Version 9.0.19: Adding ImageLongitude and ImageLatitude functions which return the longitude and latitude of an image
 			- Version 9.0.20: Introduced DirectCall.CallAsync and nugets updated
+			- Version 9.0.21: Introduced resolver 'ModulePath' and nugets updated
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
