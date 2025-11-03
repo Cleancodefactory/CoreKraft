@@ -110,6 +110,14 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.Managers
                                 }
                             },
                             {
+                                new Resolver() 
+                                {
+                                    Alias = "ModulePath",
+                                    Arguments = 2,
+                                    Name = "ModulePath"
+                                }
+                            },
+                            {
                                 new Resolver()
                                 {
                                      Alias = "UrlBase",

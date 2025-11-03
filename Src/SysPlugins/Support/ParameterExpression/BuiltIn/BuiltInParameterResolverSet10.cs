@@ -581,6 +581,33 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             return new ParameterResolverValue(ctx.ProcessingContext.InputModel.Module);
         }
         /// <summary>
+        
+        /// </summary>
+        /// <param name="ctx"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public ParameterResolverValue ModulePath(IParameterResolverContext ctx, IList<ParameterResolverValue> args) {
+            string module = string.Empty;
+            string path = string.Empty;
+            if (args.Count == 2) {
+                if (args[1].Value == null) throw new ArgumentException("ModulePath resolver requires non-null path (2-nd argument)");
+                module = args[0].Value != null?Convert.ToString(args[0].Value):ctx.ProcessingContext.InputModel.Module;
+                path = Convert.ToString(args[1].Value);
+            }
+            var kgcf = ctx.PluginServiceManager.GetService<KraftGlobalConfigurationSettings>(typeof(KraftGlobalConfigurationSettings));
+            if (kgcf == null) throw new NullReferenceException("Canot obtain KraftGlobalConfigurationSettings");
+            var root_path = kgcf.GeneralSettings.ModulesRootFolder(ctx.ProcessingContext.InputModel.Module);
+            if (root_path == null) throw new NullReferenceException("Module root path cannot be determined");
+            if (!root_path.EndsWith("\\") && !root_path.EndsWith("/")) {
+                root_path = root_path + "/";
+            }
+            var final_path = Path.Combine(root_path + module,path);
+
+
+            return new ParameterResolverValue(final_path);
+        }
+
+        /// <summary>
         /// UrlBase(options)
         /// options - string: (("action" | "resource") | ("read" | "write" | "new")) [, ("module" | module) [, ("images | "public")]]
         /// action - sets the same as current action
