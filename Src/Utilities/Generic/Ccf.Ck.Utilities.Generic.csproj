@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>Ccf.Ck.Utilities.Generic</AssemblyName>
     <RootNamespace>Ccf.Ck.Utilities.Generic</RootNamespace>
   </PropertyGroup>

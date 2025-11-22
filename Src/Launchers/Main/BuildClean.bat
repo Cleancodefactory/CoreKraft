@@ -1,0 +1,1 @@
+dotnet build -consoleloggerparameters:"Summary;Verbosity=normal" -m -p:"WarnLevel=5;EnforceCodeStyleInBuild=true" -t:"clean,build"

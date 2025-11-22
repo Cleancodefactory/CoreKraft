@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 	</PropertyGroup>
 
 	<!-- Nuget specific tags -->
@@ -73,7 +73,7 @@
 			- Version 6.0.11: Implement schedular callbacks for start and finish for the scheduled tasks
 			- Version 6.0.12: OnEmptyQueue is an array of callbacks
 			- Version 6.0.13: Adding new cookie serialization provider
-			- Version 7.0.0: Updated to net9.0
+			- Version 7.0.0: Updated to net10.0
 			- Version 7.0.1: Updated logging and reference to Diagnostics
 			- Version 7.0.2: Updated nugets and introduced way to inject middlewares from configuration
 			- Version 7.0.3: New resolver: "GetAuthBearerToken() which returns the bearer token of the logged in user or null"
@@ -87,7 +87,7 @@
 			- Version 7.0.11: Implement EnableBufferQueryParameter
 			- Version 7.0.12: Save body request as variable
 			- Version 7.0.13: Propagate preserveBody to the parent processors
-			- Version 8.0.0: Updated to net9.0
+			- Version 8.0.0: Updated to net10.0
 			- Version 8.0.1: Fix getting ClaimsPrincipal.Claims for Email and Roles
 			- Version 8.0.2: Case aware physical file provider as composite
 			- Version 8.0.3: Improve MapContentType sniffing
@@ -104,7 +104,7 @@
 			- Version 8.0.14: Fixed bug with MailAddressesTo
 			- Version 8.0.15: Moved EmailSettings to nuget ccf.ck.libs.EmailSendExtended
 			- Version 8.0.16: Replaced deprecated System.Data.SqlClient with Microsoft.Data.SqlClient
-			- Version 9.0.0: Updated to net9.0
+			- Version 9.0.0: Updated to net10.0
 			- Version 9.0.1: Removed IOSync=true for IIS
 			- Version 9.0.2: Updated nuget packages
 			- Version 9.0.3: T GetBodyJson modified to async Task from T GetBodyJsonAsync
