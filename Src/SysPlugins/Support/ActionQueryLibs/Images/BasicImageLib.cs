@@ -16,6 +16,8 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using static Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes.BaseAttribute;
 
+#nullable enable
+
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
 {
     /// <summary>
@@ -25,8 +27,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
     [Library("basicimage", LibraryContextFlags.MainNode)]
     public class BasicImageLib<HostInterface> : IActionQueryLibrary<HostInterface> where HostInterface : class
     {
-        private object _LockObject = new Object();
-        private static FontCollection _FontCollection;
+        private readonly object _LockObject = new object();
+        private static FontCollection? _FontCollection;
 
         #region IActionQueryLibrary
         public HostedProc<HostInterface> GetProc(string name)
@@ -70,7 +72,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 case nameof(PngFromImage):
                     return PngFromImage;
             }
-            return null;
+            return null!;
         }
 
         public SymbolSet GetSymbols()
@@ -253,17 +255,22 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         [Function(nameof(WaterMarkImage), "Updates an image with a text as watermark")]
         public ParameterResolverValue WaterMarkImage(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (args.Length < 5) throw new ArgumentException("WaterMarkImage requires 5 arguments");
-            Image image = args[0].Value as Image;
+            if (args.Length < 6) throw new ArgumentException("WaterMarkImage requires 6 arguments");
+            Image? image = args[0].Value as Image;
             if (image != null)
             {
-                string drawText = Convert.ToString(args[1].Value);
-                Font font = args[2].Value as Font;
+                string drawText = Convert.ToString(args[1].Value) ?? string.Empty;
+                Font? font = args[2].Value as Font;
                 int penWidth = Convert.ToInt32(args[3].Value);
                 byte brushTransparency = Convert.ToByte(args[4].Value);
                 byte penTransparency = Convert.ToByte(args[5].Value);
 
-                image = image.Clone(ctx => ApplyScalingWaterMarkSimple(ctx, font, drawText, penWidth, 10, brushTransparency, penTransparency));
+                if (font == null)
+                {
+                    throw new ArgumentException("Font for WaterMarkImage is not provided.");
+                }
+
+                image = image.Clone(proc => ApplyScalingWaterMarkSimple(proc, font, drawText, penWidth, 10, brushTransparency, penTransparency));
                 return new ParameterResolverValue(image);
             }
             return new ParameterResolverValue(null);
@@ -273,10 +280,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         public ParameterResolverValue WaterMarkImageWithLogo(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 3) throw new ArgumentException("WaterMarkImageWithLogo requires 3 arguments");
-            Image image = args[0].Value as Image;
+            Image? image = args[0].Value as Image;
             if (image != null)
             {
-                Image logo = args[1].Value as Image;
+                Image? logo = args[1].Value as Image;
                 if (logo == null)
                 {
                     throw new ArgumentException("Logo for WaterMarkImageWithLogo doesn't contain valid image. Please create one with CreateImage(...)");
@@ -329,12 +336,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         [Function(nameof(GetFont), "Font family name: e.g. Open Sans ExtraBold, Rubik ")]
         public ParameterResolverValue GetFont(HostInterface ctx, ParameterResolverValue[] args)
         {
-            if (args.Length < 2) throw new ArgumentException("GetFont requires 3 arguments");
-            var fontName = Convert.ToString(args[0].Value);
+            if (args.Length < 3) throw new ArgumentException("GetFont requires 3 arguments");
+            var fontName = Convert.ToString(args[0].Value) ?? string.Empty;
             float size = (float)Convert.ToDouble(args[1].Value);
             var fontStyle = FontStyle.Regular;
             var fontStyleTemp = Convert.ToString(args[2].Value);
-            if (fontStyleTemp != null)
+            if (!string.IsNullOrWhiteSpace(fontStyleTemp))
             {
                 if (Enum.TryParse<FontStyle>(fontStyleTemp, true, out FontStyle f))
                 {
@@ -350,12 +357,15 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             else
             {
                 fontFamily = GetFonts().Families.FirstOrDefault();
-                font = fontFamily.CreateFont(size, fontStyle);
-                if (font == null)
+                if (fontFamily.Equals(default))
                 {
                     fontFamily = SystemFonts.Families.FirstOrDefault();
-                    font = fontFamily.CreateFont(size, fontStyle);
                 }
+                if (fontFamily.Equals(default))
+                {
+                    throw new InvalidOperationException("No fonts available.");
+                }
+                font = fontFamily.CreateFont(size, fontStyle);
             }
             return new ParameterResolverValue(font);
         }
@@ -374,14 +384,15 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     RegexOptions options = RegexOptions.Singleline;
                     if (Regex.IsMatch(fontName, pattern, options))
                     {
-                        using (Stream stream = assembly.GetManifestResourceStream(fontName))
+                        using Stream? stream = assembly.GetManifestResourceStream(fontName);
+                        if (stream != null)
                         {
                             _FontCollection.Add(stream);
                         }
                     }
                 }
             }
-            return _FontCollection;
+            return _FontCollection!;
         }
         private IImageProcessingContext ApplyScalingWaterMarkSimple(IImageProcessingContext processingContext,
             Font font,
@@ -429,8 +440,11 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             var image = args[0].Value as Image;
             if (image != null)
             {
-                string path = args[1].Value as string;
-                if (!Path.IsPathFullyQualified(path)) throw new ArgumentException("The second parameter to SaveImage is not fully qualfied path");
+                string? path = args[1].Value as string;
+                if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path))
+                {
+                    throw new ArgumentException("The second parameter to SaveImage is not fully qualfied path");
+                }
                 image.Save(path);
                 return new ParameterResolverValue(path);
             }
@@ -441,8 +455,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         public ParameterResolverValue LoadImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length < 1) throw new ArgumentException("LoadImage requires 1 argument");
-            string path = args[0].Value as string;
-            if (path == null) throw new ArgumentException("LoadImage has a null path argument");
+            string? path = args[0].Value as string;
+            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("LoadImage has a null path argument");
             if (!Path.IsPathFullyQualified(path)) throw new ArgumentException("LoadImage has a non-fully qualified path argument");
             var image = Image.Load(path);
             // If you want to auto rotate the image by EXIF information with ImageSharp, use the following:
@@ -458,7 +472,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         public ParameterResolverValue ImageHeight(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ImageHeight requires one argument - the image");
-            Image image = args[0].Value as Image;
+            Image? image = args[0].Value as Image;
             if (image != null)
             {
                 return new ParameterResolverValue(image.Height);
@@ -470,7 +484,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         public ParameterResolverValue ImageWidth(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ImageWidth requires one argument - the image");
-            Image image = args[0].Value as Image;
+            Image? image = args[0].Value as Image;
             if (image != null)
             {
                 return new ParameterResolverValue(image.Width);
@@ -482,10 +496,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         public ParameterResolverValue ImageLongitude(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ImageLongitude requires one argument - the image");
-            Image image = args[0].Value as Image;
+            Image? image = args[0].Value as Image;
             if (image != null)
             {
-                ExifProfile exif = image.Metadata.ExifProfile;
+                ExifProfile? exif = image.Metadata.ExifProfile;
                 if (exif is null)
                 {
                     return new ParameterResolverValue(null);
@@ -498,8 +512,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     return new ParameterResolverValue(null);
                 }
 
-                string lonRef = lonRefValue.Value;
-                Rational[] lonDms = lonDmsValue.Value;
+                string? lonRef = lonRefValue.Value;
+                Rational[]? lonDms = lonDmsValue.Value;
+                if (lonRef == null || lonDms == null)
+                {
+                    return new ParameterResolverValue(null);
+                }
 
                 double longitude = DmsToDecimalDegrees(lonDms, lonRef);
                 return new ParameterResolverValue(longitude);
@@ -511,10 +529,10 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         public ParameterResolverValue ImageLatitude(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("ImageLatitude requires one argument - the image");
-            Image image = args[0].Value as Image;
+            Image? image = args[0].Value as Image;
             if (image != null)
             {
-                ExifProfile exif = image.Metadata.ExifProfile;
+                ExifProfile? exif = image.Metadata.ExifProfile;
                 if (exif is null)
                 {
                     return new ParameterResolverValue(null);
@@ -527,8 +545,12 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     return new ParameterResolverValue(null);
                 }
 
-                string latRef = latRefValue.Value;
-                Rational[] latDms = latDmsValue.Value;
+                string? latRef = latRefValue.Value;
+                Rational[]? latDms = latDmsValue.Value;
+                if (latRef == null || latDms == null)
+                {
+                    return new ParameterResolverValue(null);
+                }
 
                 double latitude = DmsToDecimalDegrees(latDms, latRef);
                 return new ParameterResolverValue(latitude);
@@ -565,7 +587,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         public ParameterResolverValue IsImage(HostInterface ctx, ParameterResolverValue[] args)
         {
             if (args.Length != 1) throw new ArgumentException("IsImage requires one argument - the image");
-            Image image = args[0].Value as Image;
+            Image? image = args[0].Value as Image;
             if (image != null)
             {
                 return new ParameterResolverValue(true);
@@ -579,7 +601,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         /// <param name="ctx"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        private IPostedFile _PostedFileFromImage(Image image, string astype, string dispFilename)
+        private IPostedFile? _PostedFileFromImage(Image? image, string astype, string? dispFilename)
         {
             if (image != null)
             {
@@ -588,8 +610,8 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 {
                     name = dispFilename;
                 }
-                Action<Image, Stream> proc = null;
-                string ct = null;
+                Action<Image, Stream>? proc = null;
+                string? ct = null;
                 if (astype == "jpeg" || astype == "jpg")
                 {
                     proc = ImageExtensions.SaveAsJpeg;
@@ -612,13 +634,20 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                 {
                     throw new ArgumentException("The image type is not recognized.");
                 }
-                if (proc != null)
+                if (proc != null && ct != null)
                 {
                     var ms = new MemoryStream();
                     proc(image, ms);
                     ms.Seek(0, SeekOrigin.Begin);
 
-                    var pf = new PostedFile(ct, ms.Length, name, name, m => new MemoryStream(m as byte[], 0, (int)ms.Length), ms.GetBuffer());
+                    var pf = new PostedFile(ct, ms.Length, name, name, m =>
+                    {
+                        if (m is byte[] buffer)
+                        {
+                            return new MemoryStream(buffer, 0, buffer.Length);
+                        }
+                        return new MemoryStream(Array.Empty<byte>());
+                    }, ms.GetBuffer());
                     return pf;
                 }
             }
@@ -626,9 +655,9 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
         }
         private ParameterResolverValue __PostedFileFromImage(ParameterResolverValue[] args, string _type)
         {
-            Image image = null;
+            Image? image = null;
             string type = _type ?? "jpeg";
-            string name = null;
+            string? name = null;
             if (args.Length >= 1) image = args[0].Value as Image;
             if (args.Length >= 2) name = Convert.ToString(args[1].Value);
             return new ParameterResolverValue(_PostedFileFromImage(image, type, name));

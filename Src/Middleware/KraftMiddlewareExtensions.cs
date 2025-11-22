@@ -131,7 +131,7 @@ namespace Ccf.Ck.Web.Middleware
                 {
                     services.Configure<ForwardedHeadersOptions>(options =>
                     {
-                        options.KnownNetworks.Clear(); //its loopback by default
+                        options.KnownIPNetworks.Clear(); //its loopback by default
                         options.KnownProxies.Clear();
                         options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
                     });

@@ -7,6 +7,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml;
 
+#nullable enable
+
 namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.BasicWeb
 {
     internal class CoreKraftResponseParser
