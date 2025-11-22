@@ -14,7 +14,7 @@
 
   <ItemGroup>
 	<PackageReference Include="Ccf.Ck.Libs.Logging" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
