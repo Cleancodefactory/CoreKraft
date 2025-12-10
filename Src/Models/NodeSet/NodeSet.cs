@@ -27,7 +27,7 @@ namespace Ccf.Ck.Models.NodeSet
             set;
         }
         public Security Security { get; set; }
-
+        public bool ExplicitEntryPoints { get; set; }
         public string DataPluginName
         {
             get;

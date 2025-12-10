@@ -47,6 +47,8 @@ namespace Ccf.Ck.Models.NodeSet
             get;
             set;
         }
+        public bool EntryPoint { get; set; }
+        public bool NoEntryPoint { get; set; }
         public string ContinueIf { get; set; }
         public string BreakIf { get; set; }
         public Security Security { get; set; }

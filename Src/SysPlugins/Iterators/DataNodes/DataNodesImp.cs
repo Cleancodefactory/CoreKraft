@@ -65,6 +65,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         private void BeginReadOperation(DataIteratorContext dataIteratorContext)
         {
+            if (dataIteratorContext.LoadedNodeSet.NodeSet.ExplicitEntryPoints) {
+                if (!dataIteratorContext.LoadedNodeSet.StartNode.EntryPoint) return;
+            } else {
+                if (dataIteratorContext.LoadedNodeSet.StartNode.NoEntryPoint) return;
+            }
             //  Trace.WithContext(dataIteratorContext.ProcessingContext.TraceId).Log("Nodeset READ operation starting- nodeset: {0}, modekey: {1}",dataIteratorContext.LoadedNodeSet.StartNode.NodeSet.Name, dataIteratorContext.LoadedNodeSet.StartNode.NodeKey);
             var results = new List<Dictionary<string, object>>() { new Dictionary<string, object>() { } };
             EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
@@ -384,6 +389,11 @@ namespace Ccf.Ck.SysPlugins.Iterators.DataNodes
 
         private void BeginWriteOperation(DataIteratorContext dataIteratorContext)
         {
+            if (dataIteratorContext.LoadedNodeSet.NodeSet.ExplicitEntryPoints) {
+                if (!dataIteratorContext.LoadedNodeSet.StartNode.EntryPoint) return;
+            } else {
+                if (dataIteratorContext.LoadedNodeSet.StartNode.NoEntryPoint) return;
+            }
             EMetaInfoFlags infoFlag = dataIteratorContext.ProcessingContext.InputModel.KraftGlobalConfigurationSettings.GeneralSettings.MetaLoggingEnumFlag;
             dataIteratorContext.ProcessingContext.ReturnModel.ExecutionMeta = new MetaRoot(infoFlag);
             EnsureLoadResolvers(dataIteratorContext);
