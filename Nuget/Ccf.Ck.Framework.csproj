@@ -127,6 +127,7 @@
 			- Version 9.0.20: Introduced DirectCall.CallAsync and nugets updated
 			- Version 9.0.21: Introduced resolver 'ModulePath' and nugets updated
 			- Version 10.0.0: Updated to net10.0
+			- Version 10.0.1: Updated nuget-packages
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
