@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ccf.Ck.Libs.ActionQuery" Version="1.2.2" />
-    <PackageReference Include="System.Drawing.Common" Version="10.0.1" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.5" />
 
   </ItemGroup>
 
