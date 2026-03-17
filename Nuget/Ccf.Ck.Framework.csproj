@@ -128,6 +128,7 @@
 			- Version 9.0.21: Introduced resolver 'ModulePath' and nugets updated
 			- Version 10.0.0: Updated to net10.0
 			- Version 10.0.1: Updated nuget-packages
+			- Version 10.0.2: Updated nuget-packages and fixed bug: 'null guard in ExecuteReEntrance, safer ProcessorUnknown context initialization, tighter middleware/route filtering, and request diagnostics around processor selection'
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
