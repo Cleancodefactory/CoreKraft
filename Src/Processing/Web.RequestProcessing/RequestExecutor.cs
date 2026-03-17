@@ -10,6 +10,7 @@ using Ccf.Ck.SysPlugins.Interfaces.ContextualBasket;
 using Ccf.Ck.SysPlugins.Recorders.Store;
 using Ccf.Ck.Utilities.NodeSetService;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net;
@@ -44,6 +45,16 @@ namespace Ccf.Ck.Processing.Web.Request
                 Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.ServiceUnavailable, _KraftGlobalConfigurationSettings, PrepareError(new Exception($"Currently the system is maintained. Please retry in few minutes.")));
                 return;
             }
+            if (processingContext == null)
+            {
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.BadRequest, _KraftGlobalConfigurationSettings, PrepareError(new Exception("ExecuteReEntrance received null processingContext.")));
+                return;
+            }
+            if (processingContext.InputModel == null)
+            {
+                Utilities.ExtensionMethods.KraftResult(_HttpContext, HttpStatusCode.BadRequest, _KraftGlobalConfigurationSettings, PrepareError(new Exception("ExecuteReEntrance received processingContext with null InputModel.")));
+                return;
+            }
             processingContext.InputModel.ProcessingContextRef = this;
             processingContext.Execute(_TransactionScope);
         }
@@ -75,6 +86,14 @@ namespace Ccf.Ck.Processing.Web.Request
             
             AbstractProcessorFactory processorFactory = new KraftProcessorFactory();
             IProcessorHandler processor = processorFactory.CreateProcessor(_HttpContext, _KraftModuleCollection, _NodesSetService, _ServiceProvider.GetService<KraftGlobalConfigurationSettings>());
+            RouteData routeData = _HttpContext.GetRouteData();
+            string routeToken = routeData?.DataTokens?["key"]?.ToString();
+            string contentType = _HttpContext?.Request?.ContentType ?? string.Empty;
+            string requestPath = _HttpContext?.Request?.Path.Value ?? string.Empty;
+            if (processor is ProcessorUnknown)
+            {
+                KraftLogger.LogWarning($"CoreKraft request resolved to ProcessorUnknown. Path: {requestPath}, RouteToken: {routeToken ?? "<null>"}, Content-Type: {contentType}");
+            }
             IProcessingContextCollection processingContexts = processor.GenerateProcessingContexts(_KraftGlobalConfigurationSettings.GeneralSettings.KraftRequestFlagsKey);
             if (processingContexts == null)
             {

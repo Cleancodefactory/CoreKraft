@@ -25,6 +25,18 @@ namespace Ccf.Ck.Web.Middleware
             IAntiforgery antiforgeryService = builder.ApplicationServices.GetService<IAntiforgery>();
             RequestDelegate requestDelegate = async httpContext =>
             {
+                string kraftPathSegment = kraftGlobalConfigurationSettings?.GeneralSettings?.KraftUrlSegment?.Trim('/');
+                if (!string.IsNullOrWhiteSpace(kraftPathSegment))
+                {
+                    PathString kraftPrefix = new PathString("/" + kraftPathSegment);
+                    if (!httpContext.Request.Path.StartsWithSegments(kraftPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        KraftLogger.LogWarning($"Request skipped by CoreKraft middleware due to non-CoreKraft path: {httpContext.Request.Path}");
+                        httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+                        return;
+                    }
+                }
+
                 RequestExecutor requestExecutor = new RequestExecutor(builder.ApplicationServices, httpContext, kraftGlobalConfigurationSettings);
                 await requestExecutor.ExecuteAsync();
 

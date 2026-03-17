@@ -1,10 +1,12 @@
-﻿using Ccf.Ck.Models.KraftModule;
+using Ccf.Ck.Libs.Logging;
+using Ccf.Ck.Models.KraftModule;
 using Ccf.Ck.Models.Settings;
 using Ccf.Ck.Processing.Web.Request.BaseClasses;
 using Ccf.Ck.Processing.Web.Request.Primitives;
 using Ccf.Ck.Utilities.NodeSetService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using System;
 using System.Text.RegularExpressions;
 using static Ccf.Ck.Processing.Web.Request.BaseClasses.ProcessorBase;
 
@@ -23,10 +25,10 @@ namespace Ccf.Ck.Processing.Web.Request
             //see class: KraftRouteBuilder
             //In KraftRouteBuilder all routings are defined
             ESupportedContentTypes contentType = MapContentType(httpContext);
-            
-            if (routeData.Values != null)
+
+            if (routeData?.Values != null)
             {
-                string routeDataKey = routeData.DataTokens["key"]?.ToString()?.ToLowerInvariant();
+                string routeDataKey = routeData.DataTokens?["key"]?.ToString()?.ToLowerInvariant();
                 if (!string.IsNullOrEmpty(routeDataKey))
                 {
                     switch (routeDataKey)
@@ -73,19 +75,22 @@ namespace Ccf.Ck.Processing.Web.Request
                                                     }
                                                 }
                                             }
-                                            
-                                            return new ProcessorNodeSingle(httpContext, 
-                                                            kraftModuleCollection, 
-                                                            contentType, 
-                                                            nodesSetService, 
-                                                            kraftGlobalConfigurationSettings, 
+
+                                            return new ProcessorNodeSingle(httpContext,
+                                                            kraftModuleCollection,
+                                                            contentType,
+                                                            nodesSetService,
+                                                            kraftGlobalConfigurationSettings,
                                                             preserveBody);
                                         }
                                     case ESupportedContentTypes.FORM_MULTIPART:
                                         {
-                                            if (httpContext.Request.Headers.ContainsKey("JSONLike-Multipart")) {
+                                            if (httpContext.Request.Headers.ContainsKey("JSONLike-Multipart"))
+                                            {
                                                 return new ProcessorMultipartEx(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
-                                            } else {
+                                            }
+                                            else
+                                            {
                                                 return new ProcessorMultipart(httpContext, kraftModuleCollection, contentType, nodesSetService, kraftGlobalConfigurationSettings);
                                             }
                                         }
@@ -94,10 +99,17 @@ namespace Ccf.Ck.Processing.Web.Request
                                             return new ProcessorUnknown(httpContext, kraftModuleCollection, contentType, kraftGlobalConfigurationSettings);
                                         }
                                 }
-                            }                            
+                            }
                     }
                 }
+
+                KraftLogger.LogWarning($"CoreKraft route token is missing/empty. Path: {httpContext?.Request?.Path.Value}, Content-Type: {httpContext?.Request?.ContentType}, MappedContentType: {contentType}");
             }
+            else
+            {
+                KraftLogger.LogWarning($"CoreKraft route values are null. Path: {httpContext?.Request?.Path.Value}, Content-Type: {httpContext?.Request?.ContentType}, MappedContentType: {contentType}");
+            }
+
             return new ProcessorUnknown(httpContext, kraftModuleCollection, contentType, kraftGlobalConfigurationSettings);
         }
 
@@ -114,7 +126,7 @@ namespace Ccf.Ck.Processing.Web.Request
             Match match = _ContentTypeFirstPartRegex.Match(contentType);
             if (match.Success)
             {
-                contentType = match.Groups["firstpart"].ToString();
+                contentType = match.Groups["firstpart"].ToString().Trim().ToLowerInvariant();
                 switch (contentType)
                 {
                     case CONTENTTYPEJSON:
@@ -132,7 +144,8 @@ namespace Ccf.Ck.Processing.Web.Request
                     default:
                         {
                             //we are trying to find if a file/binary is in the body
-                            if (httpContext.Request.ContentLength == null && httpContext.Request.Headers["Transfer-Encoding"] == "chunked")
+                            string transferEncoding = httpContext.Request.Headers["Transfer-Encoding"].ToString();
+                            if (httpContext.Request.ContentLength == null && transferEncoding.Contains("chunked", StringComparison.OrdinalIgnoreCase))
                             {
                                 return ESupportedContentTypes.FORM_MULTIPART;
                             }
