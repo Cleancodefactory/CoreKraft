@@ -6,7 +6,8 @@ namespace Ccf.Ck.Utilities.CookieTicketStore.Sqlite
     internal class SqliteDb
     {
         const string CONNECTIONSTRING = "Data Source=cookieCache.sqlite;";
-        static SqliteConnection _Connection;
+        static readonly object _InitLock = new object();
+        static bool _IsDbInitialized;
 
         static SqliteDb()
         {
@@ -15,22 +16,44 @@ namespace Ccf.Ck.Utilities.CookieTicketStore.Sqlite
 
         private static void EnsureDbExistsAndReady()
         {
-            _Connection = new SqliteConnection(CONNECTIONSTRING);
-            _Connection.Open();
-            string createIfNotExist = "CREATE TABLE IF NOT EXISTS Cookies ([Key] TEXT PRIMARY KEY NOT NULL, Value BLOB);";
-            using (SqliteCommand cmd = new SqliteCommand(createIfNotExist, _Connection))
+            if (_IsDbInitialized)
             {
-                cmd.ExecuteNonQuery();
+                return;
+            }
+
+            lock (_InitLock)
+            {
+                if (_IsDbInitialized)
+                {
+                    return;
+                }
+
+                using (SqliteConnection connection = new SqliteConnection(CONNECTIONSTRING))
+                {
+                    connection.Open();
+                    string createIfNotExist = "CREATE TABLE IF NOT EXISTS Cookies ([Key] TEXT PRIMARY KEY NOT NULL, Value BLOB);";
+                    using (SqliteCommand cmd = new SqliteCommand(createIfNotExist, connection))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                _IsDbInitialized = true;
             }
         }
 
         internal void Remove(string key)
         {
+            EnsureDbExistsAndReady();
             SqliteParameter dataParameter = new SqliteParameter("Key", DbType.String) { Value = key };
-            using (SqliteCommand cmd = new SqliteCommand("DELETE FROM Cookies WHERE [Key] = @Key", _Connection))
+            using (SqliteConnection connection = new SqliteConnection(CONNECTIONSTRING))
             {
-                cmd.Parameters.Add(dataParameter);
-                cmd.ExecuteNonQuery();
+                connection.Open();
+                using (SqliteCommand cmd = new SqliteCommand("DELETE FROM Cookies WHERE [Key] = @Key", connection))
+                {
+                    cmd.Parameters.Add(dataParameter);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -38,15 +61,20 @@ namespace Ccf.Ck.Utilities.CookieTicketStore.Sqlite
         {
             if (!string.IsNullOrEmpty(key))
             {
+                EnsureDbExistsAndReady();
                 SqliteParameter keyParameter = new SqliteParameter("Key", DbType.String) { Value = key };
-                using (SqliteCommand cmd = new SqliteCommand("SELECT Value FROM Cookies WHERE [Key]=@Key", _Connection))
+                using (SqliteConnection connection = new SqliteConnection(CONNECTIONSTRING))
                 {
-                    cmd.Parameters.Add(keyParameter);
-                    using (SqliteDataReader rdr = cmd.ExecuteReader())
+                    connection.Open();
+                    using (SqliteCommand cmd = new SqliteCommand("SELECT Value FROM Cookies WHERE [Key]=@Key", connection))
                     {
-                        while (rdr.Read())
+                        cmd.Parameters.Add(keyParameter);
+                        using (SqliteDataReader rdr = cmd.ExecuteReader())
                         {
-                            return (T)rdr.GetValue(0);
+                            while (rdr.Read())
+                            {
+                                return (T)rdr.GetValue(0);
+                            }
                         }
                     }
                 }
@@ -56,13 +84,18 @@ namespace Ccf.Ck.Utilities.CookieTicketStore.Sqlite
 
         internal void Set(string key, byte[] bytes)
         {
+            EnsureDbExistsAndReady();
             SqliteParameter keyParameter = new SqliteParameter("Key", DbType.String) { Value = key };
             SqliteParameter valueParameter = new SqliteParameter("Value", DbType.Binary) { Value = bytes };
-            using (SqliteCommand cmd = new SqliteCommand("INSERT OR REPLACE INTO Cookies ([Key],Value) VALUES (@Key,@Value)", _Connection))
+            using (SqliteConnection connection = new SqliteConnection(CONNECTIONSTRING))
             {
-                cmd.Parameters.Add(keyParameter);
-                cmd.Parameters.Add(valueParameter);
-                cmd.ExecuteNonQuery();
+                connection.Open();
+                using (SqliteCommand cmd = new SqliteCommand("INSERT OR REPLACE INTO Cookies ([Key],Value) VALUES (@Key,@Value)", connection))
+                {
+                    cmd.Parameters.Add(keyParameter);
+                    cmd.Parameters.Add(valueParameter);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
     }
