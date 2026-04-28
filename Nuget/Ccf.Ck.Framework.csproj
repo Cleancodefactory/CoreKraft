@@ -129,6 +129,7 @@
 			- Version 10.0.0: Updated to net10.0
 			- Version 10.0.1: Updated nuget-packages
 			- Version 10.0.2: Updated nuget-packages and fixed bug: 'null guard in ExecuteReEntrance, safer ProcessorUnknown context initialization, tighter middleware/route filtering, and request diagnostics around processor selection'
+			- Version 10.0.3: Updated nuget-packages and fixed bug in CookieTicketStore with a shared DB Connection
 		</PackageReleaseNotes>
 		<!-- Description and Release notes -->
 	</PropertyGroup>
