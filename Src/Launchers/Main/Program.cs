@@ -209,7 +209,10 @@ do
 
     app.MapControllerRoute("acceptor", "redirect/{action=Index}/{id?}", new { controller = "Redirect" });
     app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-    app.MapControllerRoute("catchall", "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });
+    if (!kraftSettings.GeneralSettings.SpaSettings.Enabled)
+    {
+        app.MapControllerRoute("catchall", "/{**catchAll}", new { Controller = "Home", Action = "CatchAll" });
+    }
 
     await app.RunAsync(_CancellationToken.Token);
 
