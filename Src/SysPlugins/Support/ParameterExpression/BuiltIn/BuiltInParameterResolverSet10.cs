@@ -1183,7 +1183,7 @@ namespace Ccf.Ck.SysPlugins.Support.ParameterExpression.BuitIn
             Number_Formats fmt = DetectNumberFormat(sv, out string clean_string_value);
             if (fmt == Number_Formats.Unknown)
             {
-                throw new Exception("Cannot detect the number format of the second argument");
+                throw new Exception($"Cannot detect the number format of the second argument ({sv})");
             }
             if (stype != null)
             {
