@@ -2,9 +2,9 @@
 using Ccf.Ck.Models.Resolvers;
 using Ccf.Ck.SysPlugins.Utilities;
 using Ccf.Ck.SysPlugins.Utilities.ActionQuery.Attributes;
+using SkiaSharp;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -270,7 +270,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
                     throw new ArgumentException("Font for WaterMarkImage is not provided.");
                 }
 
-                image = image.Clone(proc => ApplyScalingWaterMarkSimple(proc, font, drawText, penWidth, 10, brushTransparency, penTransparency));
+                image = ApplyScalingWaterMarkSimple(image, font, drawText, penWidth, 10, brushTransparency, penTransparency);
                 return new ParameterResolverValue(image);
             }
             return new ParameterResolverValue(null);
@@ -394,7 +394,7 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             }
             return _FontCollection!;
         }
-        private IImageProcessingContext ApplyScalingWaterMarkSimple(IImageProcessingContext processingContext,
+        private Image ApplyScalingWaterMarkSimple(Image image,
             Font font,
             string text,
             int penWidth,
@@ -403,34 +403,45 @@ namespace Ccf.Ck.SysPlugins.Support.ActionQueryLibs.Images
             byte penTransparency
           )
         {
-            Size imgSize = processingContext.GetCurrentSize();
+            using var bitmap = new SKBitmap(image.Width, image.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
+            using var canvas = new SKCanvas(bitmap);
+            canvas.Clear(SKColors.Transparent);
 
-            float targetWidth = imgSize.Width - (padding * 2);
-            float targetHeight = imgSize.Height - (padding * 2);
+            using var typeface = SKTypeface.FromFamilyName(font.Family.Name) ?? SKTypeface.Default;
+            using var textFont = new SKFont(typeface, font.Size);
+            textFont.MeasureText(text, out SKRect bounds);
 
-            // measure the text size
-            FontRectangle size = TextMeasurer.MeasureSize(text, new TextOptions(font));
+            float availableWidth = Math.Max(1, image.Width - (padding * 2));
+            float availableHeight = Math.Max(1, image.Height - (padding * 2));
+            float scale = Math.Min(availableWidth / Math.Max(1, bounds.Width), availableHeight / Math.Max(1, bounds.Height));
 
-            //find out how much we need to scale the text to fill the space (up or down)
-            float scalingFactor = Math.Min(targetWidth / size.Width, targetHeight / size.Height);
+            using var scaledFont = new SKFont(typeface, Math.Max(1, font.Size * scale));
+            scaledFont.MeasureText(text, out bounds);
+            float x = padding - bounds.Left;
+            float y = ((image.Height - bounds.Height) / 2f) - bounds.Top;
 
-            //create a new font
-            Font scaledFont = new Font(font, scalingFactor * font.Size);
-
-            var center = new PointF(padding, imgSize.Height / 2);
-            var drawingOptions = new DrawingOptions()
+            using var outline = new SKPaint
             {
-                //TextOptions = {
-                //    HorizontalAlignment = HorizontalAlignment.Left,
-                //    VerticalAlignment = VerticalAlignment.Center
-                //}
+                Color = new SKColor(0, 0, 0, penTransparency),
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = Math.Max(1, penWidth),
+                IsAntialias = true
             };
-            Rgba32 rgbaColorBrush = new Rgba32(0, 0, 0, brushTransparency);
-            SolidBrush brush = Brushes.Solid(new Color(rgbaColorBrush));
+            using var brush = new SKPaint
+            {
+                Color = new SKColor(0, 0, 0, brushTransparency),
+                Style = SKPaintStyle.Fill,
+                IsAntialias = true
+            };
 
-            Rgba32 rgbaColorPen = new Rgba32(0, 0, 0, penTransparency);
-            SolidPen pen = Pens.Solid(new Color(rgbaColorPen), penWidth);
-            return processingContext.DrawText(drawingOptions, text, scaledFont, brush, pen, center);
+            canvas.DrawText(text, x, y, SKTextAlign.Left, scaledFont, outline);
+            canvas.DrawText(text, x, y, SKTextAlign.Left, scaledFont, brush);
+
+            using SKImage renderedText = SKImage.FromBitmap(bitmap);
+            using SKData png = renderedText.Encode(SKEncodedImageFormat.Png, 100);
+            using Stream stream = png.AsStream();
+            using Image<Rgba32> overlay = Image.Load<Rgba32>(stream);
+            return image.Clone(context => context.DrawImage(overlay, 1f));
         }
 
         [Function(nameof(SaveImage), "")]
