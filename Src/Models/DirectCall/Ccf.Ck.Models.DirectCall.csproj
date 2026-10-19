@@ -9,6 +9,10 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <ProjectReference Include="..\Enumerations\Ccf.Ck.Models.Enumerations.csproj" />
     <ProjectReference Include="..\Interfaces\Ccf.Ck.Models.Interfaces.csproj" />
     <ProjectReference Include="..\Settings\Ccf.Ck.Models.Settings.csproj" />

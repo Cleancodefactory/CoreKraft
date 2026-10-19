@@ -1,7 +1,7 @@
 ﻿@page "/"
 @attribute [StreamRendering]
 @inject MapService mappingService
-@inject IToastService toastService
+@inject INotificationService notificationService
 @inject IDialogService DialogService
 
 <PageTitle>Mapping</PageTitle>
@@ -19,7 +19,7 @@
 <FluentTextArea @bind-Value=systemMessage Label="System Message"></FluentTextArea>
 <FluentTextArea @bind-Value=prompt Label="Prompt"></FluentTextArea>
 <div class="controls">
-    <FluentButton Disabled="isDisabled" OnClick="OnMap" Appearance="Appearance.Accent">Map</FluentButton>
+    <FluentButton Disabled="isDisabled" OnClick="OnMap" Appearance="ButtonAppearance.Primary">Map</FluentButton>
 </div>
 @code
 {
@@ -39,15 +39,15 @@
 
             if (string.IsNullOrWhiteSpace(response.Message))
             {
-                DialogService.ShowError("Error. No message returned!", "Error");
+                await DialogService.ShowErrorAsync("Error. No message returned!", "Error");
                 return;
             }
 
-            DialogService.ShowInfo(response.Message, "Message");
+            await DialogService.ShowInfoAsync(response.Message, "Message");
         }
         catch(Exception err)
         {
-            toastService.ShowError(err.Message);
+            await notificationService.ShowErrorToastAsync(err.Message);
         }
         isDisabled = false;
     }

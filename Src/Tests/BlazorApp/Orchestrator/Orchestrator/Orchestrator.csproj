@@ -42,11 +42,13 @@
 		<ProjectReference Include="..\..\..\..\SysPlugins\View.Html\Ccf.Ck.SysPlugins.Views.Html.csproj" />
 		<ProjectReference Include="..\Orchestrator.Client\Orchestrator.Client.csproj" />
 		<ProjectReference Include="..\Orchestrator.Models\Orchestrator.Models.csproj" />
-		<PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.7" />
-		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.14.1" />
-		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.14.1" />
-		<PackageReference Include="System.Drawing.Common" Version="10.0.7" />
+		<PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.13" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="5.0.1" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="5.0.1" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
+		<PackageReference Include="System.Drawing.Common" Version="10.0.13" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
 
 	</ItemGroup>
 

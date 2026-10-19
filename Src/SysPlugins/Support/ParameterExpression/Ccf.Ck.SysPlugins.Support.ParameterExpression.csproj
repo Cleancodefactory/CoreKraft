@@ -14,7 +14,8 @@
   
   <ItemGroup>
     <PackageReference Include="Ccf.Ck.Libs.ResolverExpression" Version="1.0.7" />
-    <PackageReference Include="System.Drawing.Common" Version="10.0.7" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.13" />
 
   </ItemGroup>
 
